@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Hjelp - Kvimarka 92</title>
+
+<style>
+:root{
+  --bg:#f2f2f2;
+  --card:#ffffff;
+  --text:#333333;
+  --muted:#667;
+  --border:#cccccc;
+  --link:#1f789d;
+}
+
+body.dark-mode{
+  --bg:#151515;
+  --card:#242424;
+  --text:#eeeeee;
+  --muted:#bbbbbb;
+  --border:#555555;
+  --link:#7cc7e8;
+}
+
+body{
+  margin:0;
+  padding:20px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:34px;
+}
+
+.site-title{
+  margin:0;
+  font-size:30px;
+}
+
+.subtitle{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:16px;
+}
+
+.top-buttons{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin:18px 0 0;
+}
+
+.top-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:46px;
+  height:42px;
+  padding:0 14px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:18px;
+  font-weight:bold;
+  box-sizing:border-box;
+}
+
+.top-button:hover{
+  background:#e9eef2;
+}
+
+body.dark-mode .top-button:hover{
+  background:#3a3a3a;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:22px;
+  margin-bottom:18px;
+}
+
+h1{
+  margin:0 0 8px;
+  font-size:28px;
+}
+
+h2{
+  margin:0 0 12px;
+  font-size:22px;
+}
+
+p{
+  line-height:1.55;
+  margin:0 0 12px;
+}
+
+.help-body{
+  white-space:pre-wrap;
+  line-height:1.55;
+}
+
+.help-image{
+  display:block;
+  max-width:100%;
+  height:auto;
+  margin-top:14px;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+
+.loading{
+  color:var(--muted);
+  text-align:center;
+  padding:24px;
+}
+
+.error-box{
+  border:1px solid #b54;
+  border-radius:8px;
+  padding:14px;
+  background:rgba(180,80,80,.12);
+  color:var(--text);
+}
+
+a{
+  color:var(--link);
+}
+
+@media(max-width:800px){
+  body{
+    padding:14px;
+  }
+
+  .site-title{
+    font-size:26px;
+  }
+
+  .card{
+    padding:18px;
+  }
+}
+</style>
+</head>
+
+<body class="dark-mode">
+
+<div class="container">
+
+  <div class="header">
+    <h1 class="site-title" id="pageTitle">Hjelp</h1>
+    <div class="subtitle" id="pageSubtitle">Kvimarka 92</div>
+
+    <div class="top-buttons">
+      <a class="top-button" href="javascript:history.back()" title="Tilbake">←</a>
+      <a class="top-button" href="index.html" title="Hovedside">⌂</a>
+    </div>
+  </div>
+
+  <div id="content">
+    <div class="loading">Laster innhold...</div>
+  </div>
+
+</div>
+
+<script>
+const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+
+function esc(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getFileUrl(fileField){
+  if(!Array.isArray(fileField) || !fileField.length){
+    return "";
+  }
+
+  const firstFile = fileField[0];
+
+  return firstFile?.url ||
+         firstFile?.visible_name ||
+         "";
+}
+
+async function fetchJson(url){
+  const res = await fetch(url);
+
+  if(!res.ok){
+    const text = await res.text();
+    throw new Error(text || "Request failed");
+  }
+
+  return await res.json();
+}
+
+function getCaseFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("case") || "";
+}
+
+function renderHelp(data){
+  const content = document.getElementById("content");
+  const pageTitle = document.getElementById("pageTitle");
+  const pageSubtitle = document.getElementById("pageSubtitle");
+
+  const caseName = data?.case?.name || "Hjelp";
+  const paragraphs = data?.paragraphs || [];
+
+  document.title = caseName + " - Kvimarka 92";
+  pageTitle.textContent = caseName;
+  pageSubtitle.textContent = "Kvimarka 92";
+
+  if(!paragraphs.length){
+    content.innerHTML =
+      `<div class="card">Det finnes ikke aktivt innhold for denne siden.</div>`;
+    return;
+  }
+
+  content.innerHTML = "";
+
+  paragraphs.forEach(paragraph => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const heading = paragraph.heading || paragraph.title || "";
+    const body = paragraph.body || "";
+    const imageUrl = getFileUrl(paragraph.image);
+
+    let html = "";
+
+    if(heading){
+      html += `<h2>${esc(heading)}</h2>`;
+    }
+
+    if(body){
+      html += `<div class="help-body">${esc(body)}</div>`;
+    }
+
+    if(imageUrl){
+      html += `<img class="help-image" src="${esc(imageUrl)}" alt="">`;
+    }
+
+    card.innerHTML = html;
+    content.appendChild(card);
+  });
+}
+
+async function loadHelp(){
+  const caseName = getCaseFromUrl();
+
+  if(!caseName){
+    throw new Error("Mangler help case i URL-en.");
+  }
+
+  const data = await fetchJson(
+    `${API_BASE}/help?case=${encodeURIComponent(caseName)}`
+  );
+
+  renderHelp(data);
+}
+
+loadHelp().catch(error => {
+  console.error(error);
+
+  document.getElementById("content").innerHTML =
+    `<div class="error-box">
+      Kunne ikke laste hjelpesiden.<br><br>${esc(error.message)}
+    </div>`;
+});
+</script>
+
+</body>
+</html>
