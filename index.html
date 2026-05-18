@@ -3,16 +3,697 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Kvimarka 92</title>
+
 <style>
-:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}.container{max-width:1200px;margin:auto}.header{text-align:center;margin-bottom:40px}.site-title{margin:0;font-size:32px}.tagline{margin-top:8px;color:var(--muted);font-size:17px}.section{margin-bottom:36px}.section h2{margin:0 0 14px;font-size:22px}.menu-area{display:flex;flex-direction:column;gap:18px}.menu-group{border:1px solid var(--border);border-radius:10px;padding:14px;background:rgba(127,127,127,.04)}.menu-group h3{margin:0 0 12px;font-size:18px}.menu-subgroup{margin-top:12px}.menu-subgroup h4{margin:0 0 10px;font-size:15px;color:var(--muted)}.button-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.menu-button{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:16px;font-weight:bold;box-sizing:border-box;text-align:center}.menu-button:hover{background:#e9eef2}body.dark-mode .menu-button:hover{background:#3a3a3a}.loading,.empty-message{color:var(--muted);padding:10px 0}.error-box{border:1px solid #b54;border-radius:8px;padding:14px;background:rgba(180,80,80,.12);color:var(--text)}.login-widget{position:absolute;top:20px;right:max(20px,calc((100vw - 1200px)/2));z-index:9999;height:38px;display:flex;align-items:center}.login-status{display:flex;align-items:center;justify-content:center;width:38px;height:38px;min-width:38px;min-height:38px;padding:0;border:1px solid var(--border);background:var(--card);border-radius:50%;color:var(--muted);text-decoration:none;font-size:13px;font-weight:bold;line-height:1;opacity:.86;box-sizing:border-box;cursor:pointer;white-space:nowrap}.login-status:hover{opacity:1;color:var(--text);background-color:var(--card)}.login-status.is-signin{border:none;border-radius:0;background-color:transparent;background-image:url("LogInDG.png");background-repeat:no-repeat;background-position:center;background-size:38px 38px;text-indent:-9999px;overflow:hidden}.login-menu{position:absolute;top:44px;right:0;min-width:190px;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.18);box-sizing:border-box}.login-menu-name{font-weight:bold;font-size:13px;margin-bottom:8px;color:var(--text);white-space:nowrap}.login-menu-link{display:block;padding:8px 10px;margin:0 -4px -4px;border-radius:8px;color:var(--link);text-decoration:none;font-weight:bold;font-size:13px}.login-menu-link:hover{background:rgba(127,127,127,.10)}.login-menu-link:active{background:rgba(127,127,127,.22)}@media(max-width:800px){body{padding:14px}.site-title{font-size:28px}.button-grid{grid-template-columns:1fr}.login-widget{top:10px;right:10px}}
+:root{
+  --bg:#f2f2f2;
+  --card:#ffffff;
+  --text:#333333;
+  --muted:#667;
+  --border:#cccccc;
+  --link:#1f789d;
+}
+
+body.dark-mode{
+  --bg:#151515;
+  --card:#242424;
+  --text:#eeeeee;
+  --muted:#bbbbbb;
+  --border:#555555;
+  --link:#7cc7e8;
+}
+
+body{
+  margin:0;
+  padding:20px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:36px;
+}
+
+.site-title{
+  margin:0;
+  font-size:32px;
+}
+
+.tagline{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:17px;
+}
+
+.loading,
+.empty-message{
+  color:var(--muted);
+  padding:10px 0;
+}
+
+.error-box{
+  border:1px solid #b54;
+  border-radius:8px;
+  padding:14px;
+  background:rgba(180,80,80,.12);
+  color:var(--text);
+}
+
+/* Path menu */
+
+.path-menu{
+  max-width:720px;
+  margin:0;
+}
+
+.menu-row{
+  margin-bottom:12px;
+}
+
+.menu-row.depth-0{ margin-left:0; }
+.menu-row.depth-1{ margin-left:30px; }
+.menu-row.depth-2{ margin-left:60px; }
+.menu-row.depth-3{ margin-left:90px; }
+.menu-row.depth-4{ margin-left:120px; }
+
+.path-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:260px;
+  min-height:44px;
+  padding:0 18px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:18px;
+  font-weight:bold;
+  box-sizing:border-box;
+  text-align:center;
+  cursor:pointer;
+  font-family:Arial,sans-serif;
+}
+
+.path-button:hover{
+  background:#e9eef2;
+}
+
+body.dark-mode .path-button:hover{
+  background:#3a3a3a;
+}
+
+.path-button.active{
+  outline:2px solid rgba(127,127,127,.25);
+}
+
+.path-button.leaf{
+  color:var(--text);
+}
+
+.path-button.placeholder{
+  opacity:.55;
+}
+
+/* Login widget */
+
+.login-widget{
+  position:absolute;
+  top:20px;
+  right:max(20px, calc((100vw - 1200px) / 2));
+  z-index:9999;
+  height:38px;
+  display:flex;
+  align-items:center;
+}
+
+.login-status{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:38px;
+  height:38px;
+  min-width:38px;
+  min-height:38px;
+  padding:0;
+  border:1px solid var(--border);
+  background:var(--card);
+  border-radius:50%;
+  color:var(--muted);
+  text-decoration:none;
+  font-size:13px;
+  font-weight:bold;
+  line-height:1;
+  opacity:.86;
+  box-sizing:border-box;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.login-status:hover{
+  opacity:1;
+  color:var(--text);
+  background-color:var(--card);
+}
+
+.login-status.is-signin{
+  border:none;
+  border-radius:0;
+  background-color:transparent;
+  background-image:url("LogInDG.png");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:38px 38px;
+  text-indent:-9999px;
+  overflow:hidden;
+}
+
+.login-menu{
+  position:absolute;
+  top:44px;
+  right:0;
+  min-width:190px;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--card);
+  color:var(--text);
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+  box-sizing:border-box;
+}
+
+.login-menu-name{
+  font-weight:bold;
+  font-size:13px;
+  margin-bottom:8px;
+  color:var(--text);
+  white-space:nowrap;
+}
+
+.login-menu-link{
+  display:block;
+  padding:8px 10px;
+  margin:0 -4px -4px;
+  border-radius:8px;
+  color:var(--link);
+  text-decoration:none;
+  font-weight:bold;
+  font-size:13px;
+}
+
+.login-menu-link:hover{
+  background:rgba(127,127,127,.10);
+}
+
+.login-menu-link:active{
+  background:rgba(127,127,127,.22);
+}
+
+@media(max-width:800px){
+  body{
+    padding:14px;
+  }
+
+  .site-title{
+    font-size:28px;
+  }
+
+  .login-widget{
+    top:10px;
+    right:10px;
+  }
+
+  .path-menu{
+    max-width:100%;
+  }
+
+  .path-button{
+    width:190px;
+    font-size:17px;
+  }
+
+  .menu-row.depth-0{ margin-left:0; }
+  .menu-row.depth-1{ margin-left:30px; }
+  .menu-row.depth-2{ margin-left:60px; }
+  .menu-row.depth-3{ margin-left:90px; }
+  .menu-row.depth-4{ margin-left:120px; }
+
+  .menu-row.depth-3 .path-button,
+  .menu-row.depth-4 .path-button{
+    width:calc(100vw - 150px);
+    min-width:150px;
+  }
+}
 </style>
 </head>
+
 <body class="dark-mode">
-<div class="login-widget"><a id="loginStatus" class="login-status is-signin" href="https://api-kvimarka92.carstereogarage.com/whoami">Sign in</a><div id="loginMenu" class="login-menu" style="display:none;"><div id="loginMenuName" class="login-menu-name"></div><a id="logoutLink" class="login-menu-link" href="#">Logg ut</a></div></div>
-<div class="container"><div class="header"><h1 class="site-title">Kvimarka 92</h1><div class="tagline">Informasjon • Dokumentasjon • Fellesskap</div></div><div id="statusBox" class="loading">Laster meny...</div><div id="publicSection" class="section" style="display:none;"><h2>Public</h2><div id="publicMenu" class="menu-area"></div></div><div id="privateSection" class="section" style="display:none;"><h2>Private</h2><div id="privateMenu" class="menu-area"></div></div><div id="adminSection" class="section" style="display:none;"><h2>Admin</h2><div id="adminMenu" class="menu-area"></div></div></div>
+
+<div class="login-widget">
+  <a id="loginStatus"
+     class="login-status is-signin"
+     href="https://api-kvimarka92.carstereogarage.com/whoami">
+     Sign in
+  </a>
+
+  <div id="loginMenu" class="login-menu" style="display:none;">
+    <div id="loginMenuName" class="login-menu-name"></div>
+    <a id="logoutLink" class="login-menu-link" href="#">Logg ut</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <h1 class="site-title">Kvimarka 92</h1>
+    <div class="tagline">Informasjon • Dokumentasjon • Fellesskap</div>
+  </div>
+
+  <div id="statusBox" class="loading">Laster meny...</div>
+
+  <div id="pathMenu" class="path-menu" style="display:none;"></div>
+
+</div>
+
 <script>
-const API_BASE="https://api-kvimarka92.carstereogarage.com";let currentUser=null;function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}function getInitials(v){const value=String(v||"").trim();if(!value)return"?";const namePart=value.includes("@")?value.split("@")[0]:value;const parts=namePart.split(/\s+/).filter(Boolean);if(parts.length>=2)return(parts[0][0]+parts[1][0]).toUpperCase();return namePart.slice(0,2).toUpperCase()}async function fetchJson(url,options={}){const res=await fetch(url,options);if(!res.ok){const text=await res.text();throw new Error(text||"Request failed")}return await res.json()}async function fetchCurrentUser(){try{return await fetchJson(`${API_BASE}/whoami`,{credentials:"include"})}catch(e){return null}}async function performLogout(){try{await fetch(`${API_BASE}/cdn-cgi/access/logout`,{method:"GET",credentials:"include",mode:"no-cors"})}catch(e){console.warn("Logout request may have been blocked, continuing anyway.",e)}window.location.href="index.html?logout="+Date.now()}function setupLoginWidget(){const loginStatus=document.getElementById("loginStatus"),loginMenu=document.getElementById("loginMenu"),loginMenuName=document.getElementById("loginMenuName"),logoutLink=document.getElementById("logoutLink");if(currentUser){const displayName=currentUser.name||currentUser.email||"Innlogget";loginStatus.textContent=getInitials(displayName);loginStatus.href="#";loginStatus.classList.remove("is-signin");loginStatus.classList.add("signed-in");loginStatus.title=displayName;loginMenuName.textContent=displayName;loginStatus.onclick=e=>{e.preventDefault();loginMenu.style.display=loginMenu.style.display==="block"?"none":"block"};logoutLink.onclick=e=>{e.preventDefault();performLogout()}}else{loginStatus.textContent="Sign in";loginStatus.href=`${API_BASE}/whoami`;loginStatus.classList.add("is-signin");loginStatus.classList.remove("signed-in");loginStatus.title="Logg inn";loginStatus.onclick=null;loginMenu.style.display="none"}}function groupItems(items){const groups=new Map();items.forEach(item=>{const level1=item.level1||"Meny",level2=item.level2||"",level3=item.level3||"";if(!groups.has(level1))groups.set(level1,new Map());const level2Map=groups.get(level1),subgroupKey=[level2,level3].filter(Boolean).join(" / ")||"_root";if(!level2Map.has(subgroupKey))level2Map.set(subgroupKey,[]);level2Map.get(subgroupKey).push(item)});return groups}function renderMenu(containerId,items){const container=document.getElementById(containerId);container.innerHTML="";if(!items.length){container.innerHTML='<div class="empty-message">Ingen menyvalg.</div>';return}const groups=groupItems(items);groups.forEach((subgroups,level1)=>{const groupEl=document.createElement("div");groupEl.className="menu-group";const title=document.createElement("h3");title.textContent=level1;groupEl.appendChild(title);subgroups.forEach((buttons,subgroupName)=>{const subgroupEl=document.createElement("div");subgroupEl.className="menu-subgroup";if(subgroupName!=="_root"){const subtitle=document.createElement("h4");subtitle.textContent=subgroupName;subgroupEl.appendChild(subtitle)}const grid=document.createElement("div");grid.className="button-grid";buttons.forEach(item=>{const a=document.createElement("a");a.className="menu-button";a.href=item.url;a.textContent=item.buttonText;if(item.openInNewTab){a.target="_blank";a.rel="noopener"}grid.appendChild(a)});subgroupEl.appendChild(grid);groupEl.appendChild(subgroupEl)});container.appendChild(groupEl)})}function filterAreaItems(items,area){return items.filter(item=>{if(area==="public")return item.public;if(area==="private")return item.private;if(area==="administrator")return item.administrator;return false})}async function loadPage(){const statusBox=document.getElementById("statusBox");currentUser=await fetchCurrentUser();setupLoginWidget();let menuData;if(currentUser){menuData=await fetchJson(`${API_BASE}/menu`,{credentials:"include"})}else{menuData=await fetchJson(`${API_BASE}/menu-public`)}const items=menuData.items||[],publicItems=filterAreaItems(items,"public"),privateItems=currentUser?filterAreaItems(items,"private"):[],adminItems=currentUser&&currentUser.role==="Administrator"?filterAreaItems(items,"administrator"):[];if(publicItems.length){document.getElementById("publicSection").style.display="block";renderMenu("publicMenu",publicItems)}if(privateItems.length){document.getElementById("privateSection").style.display="block";renderMenu("privateMenu",privateItems)}if(adminItems.length){document.getElementById("adminSection").style.display="block";renderMenu("adminMenu",adminItems)}statusBox.style.display="none"}document.addEventListener("click",function(event){const widget=document.querySelector(".login-widget"),menu=document.getElementById("loginMenu");if(widget&&menu&&!widget.contains(event.target))menu.style.display="none"});loadPage().catch(error=>{console.error(error);document.getElementById("statusBox").className="error-box";document.getElementById("statusBox").innerHTML=`Kunne ikke laste siden.<br><br>${esc(error.message)}`});
+const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+
+let currentUser = null;
+let allMenuItems = [];
+
+const menuState = {
+  area: "",
+  level1: "",
+  level2: "",
+  level3: ""
+};
+
+function esc(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getInitials(nameOrEmail){
+  const value = String(nameOrEmail || "").trim();
+
+  if(!value){
+    return "?";
+  }
+
+  const namePart = value.includes("@")
+    ? value.split("@")[0]
+    : value;
+
+  const parts = namePart
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if(parts.length >= 2){
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
+  return namePart.slice(0, 2).toUpperCase();
+}
+
+async function fetchJson(url, options = {}){
+  const res = await fetch(url, options);
+
+  if(!res.ok){
+    const text = await res.text();
+    throw new Error(text || "Request failed");
+  }
+
+  return await res.json();
+}
+
+async function fetchCurrentUser(){
+  try{
+    return await fetchJson(`${API_BASE}/whoami`, {
+      credentials:"include"
+    });
+  }catch(error){
+    return null;
+  }
+}
+
+async function performLogout(){
+  try{
+    await fetch(`${API_BASE}/cdn-cgi/access/logout`, {
+      method:"GET",
+      credentials:"include",
+      mode:"no-cors"
+    });
+  }catch(error){
+    console.warn("Logout request may have been blocked, continuing anyway.", error);
+  }
+
+  window.location.href = "index.html?logout=" + Date.now();
+}
+
+function setupLoginWidget(){
+  const loginStatus = document.getElementById("loginStatus");
+  const loginMenu = document.getElementById("loginMenu");
+  const loginMenuName = document.getElementById("loginMenuName");
+  const logoutLink = document.getElementById("logoutLink");
+
+  if(currentUser){
+    const displayName =
+      currentUser.name || currentUser.email || "Innlogget";
+
+    loginStatus.textContent = getInitials(displayName);
+    loginStatus.href = "#";
+    loginStatus.classList.remove("is-signin");
+    loginStatus.classList.add("signed-in");
+    loginStatus.title = displayName;
+
+    loginMenuName.textContent = displayName;
+
+    loginStatus.onclick = function(event){
+      event.preventDefault();
+      loginMenu.style.display =
+        loginMenu.style.display === "block" ? "none" : "block";
+    };
+
+    logoutLink.onclick = function(event){
+      event.preventDefault();
+      performLogout();
+    };
+  }else{
+    loginStatus.textContent = "Sign in";
+    loginStatus.href = `${API_BASE}/whoami`;
+    loginStatus.classList.add("is-signin");
+    loginStatus.classList.remove("signed-in");
+    loginStatus.title = "Logg inn";
+    loginStatus.onclick = null;
+    loginMenu.style.display = "none";
+  }
+}
+
+function getAvailableAreas(){
+  const areas = [
+    {
+      key:"public",
+      label:"Public",
+      visible:true
+    },
+    {
+      key:"private",
+      label:"Privat",
+      visible:!!currentUser
+    },
+    {
+      key:"administrator",
+      label:"Admin",
+      visible:!!currentUser && currentUser.role === "Administrator"
+    }
+  ];
+
+  return areas.filter(area => area.visible);
+}
+
+function itemBelongsToArea(item, area){
+  if(area === "public") return item.public;
+  if(area === "private") return item.private;
+  if(area === "administrator") return item.administrator;
+  return false;
+}
+
+function itemsForCurrentArea(){
+  if(!menuState.area){
+    return [];
+  }
+
+  return allMenuItems.filter(item =>
+    itemBelongsToArea(item, menuState.area)
+  );
+}
+
+function uniqueSorted(values){
+  return Array.from(new Set(values.filter(Boolean)))
+    .sort((a, b) => a.localeCompare(b, "no"));
+}
+
+function makeRow(depth, button){
+  const row = document.createElement("div");
+  row.className = `menu-row depth-${depth}`;
+  row.appendChild(button);
+  return row;
+}
+
+function makeButton(text, options = {}){
+  const button = document.createElement(options.href ? "a" : "button");
+  button.className = "path-button";
+
+  if(options.active){
+    button.classList.add("active");
+  }
+
+  if(options.leaf){
+    button.classList.add("leaf");
+  }
+
+  if(options.placeholder){
+    button.classList.add("placeholder");
+  }
+
+  button.textContent = text;
+
+  if(options.href){
+    button.href = options.href;
+
+    if(options.openInNewTab){
+      button.target = "_blank";
+      button.rel = "noopener";
+    }
+  }else{
+    button.type = "button";
+  }
+
+  if(options.onClick){
+    button.addEventListener("click", options.onClick);
+  }
+
+  return button;
+}
+
+function renderAreaButtons(container){
+  const areas = getAvailableAreas();
+
+  areas.forEach(area => {
+    const button = makeButton(area.label, {
+      active: menuState.area === area.key,
+      onClick: function(){
+        if(menuState.area === area.key){
+          menuState.area = "";
+        }else{
+          menuState.area = area.key;
+        }
+
+        menuState.level1 = "";
+        menuState.level2 = "";
+        menuState.level3 = "";
+
+        renderPathMenu();
+      }
+    });
+
+    container.appendChild(makeRow(0, button));
+  });
+}
+
+function renderLevel1(container){
+  if(!menuState.area){
+    return;
+  }
+
+  const items = itemsForCurrentArea();
+  const level1Values = uniqueSorted(items.map(item => item.level1 || "Meny"));
+
+  level1Values.forEach(level1 => {
+    const button = makeButton(level1, {
+      active: menuState.level1 === level1,
+      onClick: function(){
+        if(menuState.level1 === level1){
+          menuState.level1 = "";
+        }else{
+          menuState.level1 = level1;
+        }
+
+        menuState.level2 = "";
+        menuState.level3 = "";
+
+        renderPathMenu();
+      }
+    });
+
+    container.appendChild(makeRow(1, button));
+  });
+}
+
+function renderLevel2(container){
+  if(!menuState.area || !menuState.level1){
+    return;
+  }
+
+  const items = itemsForCurrentArea()
+    .filter(item => (item.level1 || "Meny") === menuState.level1);
+
+  const level2Values = uniqueSorted(items.map(item => item.level2));
+
+  if(!level2Values.length){
+    renderLeaves(container, items, 2);
+    return;
+  }
+
+  level2Values.forEach(level2 => {
+    const button = makeButton(level2, {
+      active: menuState.level2 === level2,
+      onClick: function(){
+        if(menuState.level2 === level2){
+          menuState.level2 = "";
+        }else{
+          menuState.level2 = level2;
+        }
+
+        menuState.level3 = "";
+
+        renderPathMenu();
+      }
+    });
+
+    container.appendChild(makeRow(2, button));
+  });
+}
+
+function renderLevel3(container){
+  if(!menuState.area || !menuState.level1 || !menuState.level2){
+    return;
+  }
+
+  const items = itemsForCurrentArea()
+    .filter(item => (item.level1 || "Meny") === menuState.level1)
+    .filter(item => item.level2 === menuState.level2);
+
+  const level3Values = uniqueSorted(items.map(item => item.level3));
+
+  if(!level3Values.length){
+    renderLeaves(container, items, 3);
+    return;
+  }
+
+  level3Values.forEach(level3 => {
+    const button = makeButton(level3, {
+      active: menuState.level3 === level3,
+      onClick: function(){
+        if(menuState.level3 === level3){
+          menuState.level3 = "";
+        }else{
+          menuState.level3 = level3;
+        }
+
+        renderPathMenu();
+      }
+    });
+
+    container.appendChild(makeRow(3, button));
+  });
+}
+
+function renderLevel4Leaves(container){
+  if(!menuState.area || !menuState.level1 || !menuState.level2 || !menuState.level3){
+    return;
+  }
+
+  const items = itemsForCurrentArea()
+    .filter(item => (item.level1 || "Meny") === menuState.level1)
+    .filter(item => item.level2 === menuState.level2)
+    .filter(item => item.level3 === menuState.level3);
+
+  renderLeaves(container, items, 4);
+}
+
+function renderLeaves(container, items, depth){
+  const leaves = items
+    .filter(item => item.buttonText && item.url)
+    .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+
+  leaves.forEach(item => {
+    const button = makeButton(item.buttonText, {
+      href: item.url,
+      openInNewTab: item.openInNewTab,
+      leaf: true
+    });
+
+    container.appendChild(makeRow(depth, button));
+  });
+}
+
+function renderPathMenu(){
+  const container = document.getElementById("pathMenu");
+  container.innerHTML = "";
+
+  renderAreaButtons(container);
+  renderLevel1(container);
+  renderLevel2(container);
+  renderLevel3(container);
+  renderLevel4Leaves(container);
+
+  container.style.display = "block";
+}
+
+async function loadPage(){
+  const statusBox = document.getElementById("statusBox");
+
+  currentUser = await fetchCurrentUser();
+  setupLoginWidget();
+
+  let menuData;
+
+  if(currentUser){
+    menuData = await fetchJson(`${API_BASE}/menu`, {
+      credentials:"include"
+    });
+  }else{
+    menuData = await fetchJson(`${API_BASE}/menu-public`);
+  }
+
+  allMenuItems = menuData.items || [];
+
+  renderPathMenu();
+  statusBox.style.display = "none";
+}
+
+document.addEventListener("click", function(event){
+  const widget = document.querySelector(".login-widget");
+  const menu = document.getElementById("loginMenu");
+
+  if(widget && menu && !widget.contains(event.target)){
+    menu.style.display = "none";
+  }
+});
+
+loadPage().catch(error => {
+  console.error(error);
+
+  document.getElementById("statusBox").className = "error-box";
+  document.getElementById("statusBox").innerHTML =
+    `Kunne ikke laste siden.<br><br>${esc(error.message)}`;
+});
 </script>
+
 </body>
 </html>
