@@ -114,7 +114,8 @@ body.dark-mode .path-button:hover{
 }
 
 .path-button.active{
-  outline:2px solid rgba(127,127,127,.25);
+  background:rgba(127,127,127,.12);
+  border-color:var(--muted);
 }
 
 .path-button.leaf{
@@ -512,6 +513,10 @@ function renderAreaButtons(container){
     });
 
     container.appendChild(makeRow(0, button));
+
+    if(menuState.area === area.key){
+      renderLevel1(container);
+    }
   });
 }
 
@@ -541,6 +546,10 @@ function renderLevel1(container){
     });
 
     container.appendChild(makeRow(1, button));
+
+    if(menuState.level1 === level1){
+      renderLevel2(container);
+    }
   });
 }
 
@@ -576,6 +585,10 @@ function renderLevel2(container){
     });
 
     container.appendChild(makeRow(2, button));
+
+    if(menuState.level2 === level2){
+      renderLevel3(container);
+    }
   });
 }
 
@@ -610,6 +623,10 @@ function renderLevel3(container){
     });
 
     container.appendChild(makeRow(3, button));
+
+    if(menuState.level3 === level3){
+      renderLevel4Leaves(container);
+    }
   });
 }
 
@@ -647,10 +664,6 @@ function renderPathMenu(){
   container.innerHTML = "";
 
   renderAreaButtons(container);
-  renderLevel1(container);
-  renderLevel2(container);
-  renderLevel3(container);
-  renderLevel4Leaves(container);
 
   container.style.display = "block";
 }
