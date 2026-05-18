@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kontakt - Kvimarka 92</title>
+
+<style>
+:root{
+  --bg:#f2f2f2;
+  --card:#ffffff;
+  --text:#333333;
+  --muted:#667;
+  --border:#cccccc;
+  --link:#1f789d;
+  --button:#1f789d;
+  --button-text:#ffffff;
+}
+
+body.dark-mode{
+  --bg:#151515;
+  --card:#242424;
+  --text:#eeeeee;
+  --muted:#bbbbbb;
+  --border:#555555;
+  --link:#7cc7e8;
+  --button:#2a86a8;
+  --button-text:#ffffff;
+}
+
+body{
+  margin:0;
+  padding:20px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+
+.container{
+  max-width:760px;
+  margin:auto;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:34px;
+}
+
+.site-title{
+  margin:0;
+  font-size:30px;
+}
+
+.subtitle{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:16px;
+}
+
+.top-buttons{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin:18px 0 0;
+}
+
+.top-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:46px;
+  height:42px;
+  padding:0 14px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:18px;
+  font-weight:bold;
+  box-sizing:border-box;
+}
+
+.top-button:hover{
+  background:#e9eef2;
+}
+
+body.dark-mode .top-button:hover{
+  background:#3a3a3a;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:22px;
+}
+
+.form-row{
+  margin-bottom:16px;
+}
+
+label{
+  display:block;
+  margin-bottom:7px;
+  font-weight:bold;
+}
+
+.required{
+  color:#d99a32;
+}
+
+input,
+textarea{
+  width:100%;
+  min-height:44px;
+  padding:0 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  font-size:16px;
+  font-family:Arial,sans-serif;
+  box-sizing:border-box;
+}
+
+textarea{
+  min-height:160px;
+  padding-top:12px;
+  resize:vertical;
+}
+
+.actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:20px;
+}
+
+.button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:130px;
+  height:44px;
+  padding:0 18px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  font-size:16px;
+  font-weight:bold;
+  text-decoration:none;
+  cursor:pointer;
+  box-sizing:border-box;
+}
+
+.button.primary{
+  background:var(--button);
+  color:var(--button-text);
+  border-color:var(--button);
+}
+
+.button:hover{
+  background:#e9eef2;
+}
+
+.button.primary:hover{
+  filter:brightness(1.08);
+}
+
+body.dark-mode .button:hover{
+  background:#3a3a3a;
+}
+
+body.dark-mode .button.primary:hover{
+  background:var(--button);
+  filter:brightness(1.12);
+}
+
+.message{
+  margin-top:18px;
+  padding:14px;
+  border-radius:8px;
+  line-height:1.45;
+}
+
+.message.success{
+  border:1px solid #4b8a55;
+  background:rgba(80,160,90,.15);
+}
+
+.message.error{
+  border:1px solid #b54;
+  background:rgba(180,80,80,.12);
+}
+
+.help-text{
+  color:var(--muted);
+  line-height:1.5;
+  margin:0 0 20px;
+}
+
+body.dark-mode input:-webkit-autofill,
+body.dark-mode input:-webkit-autofill:hover,
+body.dark-mode input:-webkit-autofill:focus,
+body.dark-mode textarea:-webkit-autofill,
+body.dark-mode textarea:-webkit-autofill:hover,
+body.dark-mode textarea:-webkit-autofill:focus{
+  -webkit-text-fill-color:var(--text);
+  -webkit-box-shadow:0 0 0 1000px var(--card) inset;
+  caret-color:var(--text);
+}
+
+@media(max-width:800px){
+  body{
+    padding:14px;
+  }
+
+  .site-title{
+    font-size:26px;
+  }
+
+  .card{
+    padding:18px;
+  }
+
+  .actions{
+    flex-direction:column;
+  }
+
+  .button{
+    width:100%;
+  }
+}
+</style>
+</head>
+
+<body class="dark-mode">
+
+<div class="container">
+
+  <div class="header">
+    <h1 class="site-title">Kontakt</h1>
+    <div class="subtitle">Kvimarka 92</div>
+
+    <div class="top-buttons">
+      <a class="top-button" href="javascript:history.back()" title="Tilbake">←</a>
+      <a class="top-button" href="index.html" title="Hovedside">⌂</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="help-text">
+      Bruk skjemaet under for å sende en melding. Felter merket med * må fylles ut.
+    </p>
+
+    <form id="contactForm">
+
+      <div class="form-row">
+        <label for="name">Navn <span class="required">*</span></label>
+        <input id="name" name="name" type="text" required>
+      </div>
+
+      <div class="form-row">
+        <label for="email">E-post <span class="required">*</span></label>
+        <input id="email" name="email" type="email" required>
+      </div>
+
+      <div class="form-row">
+        <label for="subject">Emne <span class="required">*</span></label>
+        <input id="subject" name="subject" type="text" required>
+      </div>
+
+      <div class="form-row">
+        <label for="message">Melding <span class="required">*</span></label>
+        <textarea id="message" name="message" required></textarea>
+      </div>
+
+      <div class="actions">
+        <a class="button" href="index.html">Avbryt</a>
+        <button class="button primary" type="submit" id="submitButton">
+          Send melding
+        </button>
+      </div>
+
+      <div id="statusMessage" style="display:none;"></div>
+
+    </form>
+  </div>
+
+</div>
+
+<script>
+const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+
+function esc(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function showMessage(type, message){
+  const el = document.getElementById("statusMessage");
+  el.className = "message " + type;
+  el.innerHTML = esc(message);
+  el.style.display = "block";
+}
+
+async function submitContact(event){
+  event.preventDefault();
+
+  const submitButton = document.getElementById("submitButton");
+  const form = document.getElementById("contactForm");
+
+  const payload = {
+    name: document.getElementById("name").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    subject: document.getElementById("subject").value.trim(),
+    message: document.getElementById("message").value.trim()
+  };
+
+  if(!payload.name || !payload.email || !payload.subject || !payload.message){
+    showMessage("error", "Fyll ut alle obligatoriske felter.");
+    return;
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Sender...";
+
+  try{
+    const res = await fetch(`${API_BASE}/contact`, {
+      method:"POST",
+      headers:{
+        "Content-Type":"text/plain"
+      },
+      body:JSON.stringify(payload)
+    });
+
+    if(!res.ok){
+      const text = await res.text();
+      throw new Error(text || "Meldingen kunne ikke sendes.");
+    }
+
+    form.reset();
+    showMessage("success", "Meldingen er sendt. Takk for at du tok kontakt.");
+  }catch(error){
+    console.error(error);
+    showMessage("error", "Meldingen kunne ikke sendes. Prøv igjen senere.");
+  }finally{
+    submitButton.disabled = false;
+    submitButton.textContent = "Send melding";
+  }
+}
+
+document.getElementById("contactForm").addEventListener("submit", submitContact);
+</script>
+
+</body>
+</html>
