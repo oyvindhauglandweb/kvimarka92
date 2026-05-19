@@ -489,6 +489,80 @@ function makeButton(text, options = {}){
   return button;
 }
 
+function getItemSort(item){
+  return Number(item.sortOrder || 0);
+}
+
+function getLevelValue(item, depth){
+  if(depth === 1) return String(item.level1 || "").trim();
+  if(depth === 2) return String(item.level2 || "").trim();
+  if(depth === 3) return String(item.level3 || "").trim();
+  return "";
+}
+
+function getNextLevelValue(item, depth){
+  return getLevelValue(item, depth);
+}
+
+function makeMenuNodes(items, depth){
+  const groupMap = new Map();
+  const nodes = [];
+
+  items.forEach(item => {
+    const groupName = getNextLevelValue(item, depth);
+
+    if(groupName){
+      if(!groupMap.has(groupName)){
+        groupMap.set(groupName, {
+          type:"group",
+          label:groupName,
+          sortOrder:getItemSort(item)
+        });
+      }else{
+        const existing = groupMap.get(groupName);
+        existing.sortOrder = Math.min(existing.sortOrder, getItemSort(item));
+      }
+    }else{
+      nodes.push({
+        type:"leaf",
+        item,
+        label:item.buttonText || "",
+        sortOrder:getItemSort(item)
+      });
+    }
+  });
+
+  groupMap.forEach(group => nodes.push(group));
+
+  return nodes
+    .filter(node => node.label)
+    .sort((a, b) => {
+      if(a.sortOrder !== b.sortOrder){
+        return a.sortOrder - b.sortOrder;
+      }
+
+      return a.label.localeCompare(b.label, "no");
+    });
+}
+
+function itemsMatchingPath(depth){
+  let items = itemsForCurrentArea();
+
+  if(depth >= 2){
+    items = items.filter(item => getLevelValue(item, 1) === menuState.level1);
+  }
+
+  if(depth >= 3){
+    items = items.filter(item => getLevelValue(item, 2) === menuState.level2);
+  }
+
+  if(depth >= 4){
+    items = items.filter(item => getLevelValue(item, 3) === menuState.level3);
+  }
+
+  return items;
+}
+
 function renderAreaButtons(container){
   const areas = getAvailableAreas();
 
@@ -513,147 +587,61 @@ function renderAreaButtons(container){
     container.appendChild(makeRow(0, button));
 
     if(menuState.area === area.key){
-      renderLevel1(container);
+      renderMenuDepth(container, 1);
     }
   });
 }
 
-function renderLevel1(container){
-  if(!menuState.area){
-    return;
-  }
+function renderMenuDepth(container, depth){
+  const items = itemsMatchingPath(depth);
+  const nodes = makeMenuNodes(items, depth);
 
-  const items = itemsForCurrentArea();
-  const level1Values = uniqueSorted(items.map(item => item.level1 || "Meny"));
+  nodes.forEach(node => {
+    if(node.type === "leaf"){
+      const item = node.item;
 
-  level1Values.forEach(level1 => {
-    const button = makeButton(level1, {
-      active: menuState.level1 === level1,
+      const button = makeButton(item.buttonText, {
+        href:item.url,
+        openInNewTab:item.openInNewTab,
+        leaf:true
+      });
+
+      container.appendChild(makeRow(depth, button));
+      return;
+    }
+
+    const stateKey =
+      depth === 1 ? "level1" :
+      depth === 2 ? "level2" :
+      "level3";
+
+    const button = makeButton(node.label, {
+      active: menuState[stateKey] === node.label,
       onClick: function(){
-        if(menuState.level1 === level1){
-          menuState.level1 = "";
+        if(menuState[stateKey] === node.label){
+          menuState[stateKey] = "";
         }else{
-          menuState.level1 = level1;
+          menuState[stateKey] = node.label;
         }
 
-        menuState.level2 = "";
-        menuState.level3 = "";
-
-        renderPathMenu();
-      }
-    });
-
-    container.appendChild(makeRow(1, button));
-
-    if(menuState.level1 === level1){
-      renderLevel2(container);
-    }
-  });
-}
-
-function renderLevel2(container){
-  if(!menuState.area || !menuState.level1){
-    return;
-  }
-
-  const items = itemsForCurrentArea()
-    .filter(item => (item.level1 || "Meny") === menuState.level1);
-
-  const level2Values = uniqueSorted(items.map(item => item.level2));
-
-  if(!level2Values.length){
-    renderLeaves(container, items, 2);
-    return;
-  }
-
-  level2Values.forEach(level2 => {
-    const button = makeButton(level2, {
-      active: menuState.level2 === level2,
-      onClick: function(){
-        if(menuState.level2 === level2){
+        if(depth <= 1){
           menuState.level2 = "";
-        }else{
-          menuState.level2 = level2;
-        }
-
-        menuState.level3 = "";
-
-        renderPathMenu();
-      }
-    });
-
-    container.appendChild(makeRow(2, button));
-
-    if(menuState.level2 === level2){
-      renderLevel3(container);
-    }
-  });
-}
-
-function renderLevel3(container){
-  if(!menuState.area || !menuState.level1 || !menuState.level2){
-    return;
-  }
-
-  const items = itemsForCurrentArea()
-    .filter(item => (item.level1 || "Meny") === menuState.level1)
-    .filter(item => item.level2 === menuState.level2);
-
-  const level3Values = uniqueSorted(items.map(item => item.level3));
-
-  if(!level3Values.length){
-    renderLeaves(container, items, 3);
-    return;
-  }
-
-  level3Values.forEach(level3 => {
-    const button = makeButton(level3, {
-      active: menuState.level3 === level3,
-      onClick: function(){
-        if(menuState.level3 === level3){
           menuState.level3 = "";
-        }else{
-          menuState.level3 = level3;
+        }
+
+        if(depth === 2){
+          menuState.level3 = "";
         }
 
         renderPathMenu();
       }
-    });
-
-    container.appendChild(makeRow(3, button));
-
-    if(menuState.level3 === level3){
-      renderLevel4Leaves(container);
-    }
-  });
-}
-
-function renderLevel4Leaves(container){
-  if(!menuState.area || !menuState.level1 || !menuState.level2 || !menuState.level3){
-    return;
-  }
-
-  const items = itemsForCurrentArea()
-    .filter(item => (item.level1 || "Meny") === menuState.level1)
-    .filter(item => item.level2 === menuState.level2)
-    .filter(item => item.level3 === menuState.level3);
-
-  renderLeaves(container, items, 4);
-}
-
-function renderLeaves(container, items, depth){
-  const leaves = items
-    .filter(item => item.buttonText && item.url)
-    .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
-
-  leaves.forEach(item => {
-    const button = makeButton(item.buttonText, {
-      href: item.url,
-      openInNewTab: item.openInNewTab,
-      leaf: true
     });
 
     container.appendChild(makeRow(depth, button));
+
+    if(menuState[stateKey] === node.label && depth < 3){
+      renderMenuDepth(container, depth + 1);
+    }
   });
 }
 
