@@ -84,12 +84,16 @@ body{
 .menu-row.depth-2{ margin-left:60px; }
 .menu-row.depth-3{ margin-left:90px; }
 .menu-row.depth-4{ margin-left:120px; }
+.menu-row.depth-5{ margin-left:150px; }
+.menu-row.depth-6{ margin-left:180px; }
+.menu-row.depth-7{ margin-left:210px; }
 
 .path-button{
   display:flex;
   align-items:center;
   justify-content:center;
   width:338px;
+  max-width:calc(100vw - 32px);
   min-height:44px;
   padding:0 18px;
   background:var(--card);
@@ -243,14 +247,18 @@ body.dark-mode .path-button:hover{
 
   .path-button{
     width:247px;
+    max-width:calc(100vw - 32px);
     font-size:17px;
   }
 
   .menu-row.depth-0{ margin-left:0; }
-  .menu-row.depth-1{ margin-left:30px; }
-  .menu-row.depth-2{ margin-left:60px; }
-  .menu-row.depth-3{ margin-left:90px; }
-  .menu-row.depth-4{ margin-left:120px; }
+  .menu-row.depth-1{ margin-left:24px; }
+  .menu-row.depth-2{ margin-left:48px; }
+  .menu-row.depth-3{ margin-left:72px; }
+  .menu-row.depth-4{ margin-left:96px; }
+  .menu-row.depth-5{ margin-left:120px; }
+  .menu-row.depth-6{ margin-left:144px; }
+  .menu-row.depth-7{ margin-left:168px; }
 
 }
 </style>
@@ -290,11 +298,18 @@ const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 let currentUser = null;
 let allMenuItems = [];
 
+const LEVEL_FIELDS = [
+  "level1",
+  "level2",
+  "level3",
+  "level4",
+  "level5",
+  "level6"
+];
+
 const menuState = {
   area: "",
-  level1: "",
-  level2: "",
-  level3: ""
+  selectedLevels: []
 };
 
 function esc(value){
@@ -494,14 +509,17 @@ function getItemSort(item){
 }
 
 function getLevelValue(item, depth){
-  if(depth === 1) return String(item.level1 || "").trim();
-  if(depth === 2) return String(item.level2 || "").trim();
-  if(depth === 3) return String(item.level3 || "").trim();
-  return "";
+  const fieldName = LEVEL_FIELDS[depth - 1];
+
+  if(!fieldName){
+    return "";
+  }
+
+  return String(item[fieldName] || "").trim();
 }
 
-function getNextLevelValue(item, depth){
-  return getLevelValue(item, depth);
+function resetLevelsFrom(depth){
+  menuState.selectedLevels = menuState.selectedLevels.slice(0, depth - 1);
 }
 
 function makeMenuNodes(items, depth){
@@ -509,7 +527,7 @@ function makeMenuNodes(items, depth){
   const nodes = [];
 
   items.forEach(item => {
-    const groupName = getNextLevelValue(item, depth);
+    const groupName = getLevelValue(item, depth);
 
     if(groupName){
       if(!groupMap.has(groupName)){
@@ -548,16 +566,12 @@ function makeMenuNodes(items, depth){
 function itemsMatchingPath(depth){
   let items = itemsForCurrentArea();
 
-  if(depth >= 2){
-    items = items.filter(item => getLevelValue(item, 1) === menuState.level1);
-  }
+  for(let i = 1; i < depth; i += 1){
+    const selectedValue = menuState.selectedLevels[i - 1] || "";
 
-  if(depth >= 3){
-    items = items.filter(item => getLevelValue(item, 2) === menuState.level2);
-  }
-
-  if(depth >= 4){
-    items = items.filter(item => getLevelValue(item, 3) === menuState.level3);
+    items = items.filter(item =>
+      getLevelValue(item, i) === selectedValue
+    );
   }
 
   return items;
@@ -576,9 +590,7 @@ function renderAreaButtons(container){
           menuState.area = area.key;
         }
 
-        menuState.level1 = "";
-        menuState.level2 = "";
-        menuState.level3 = "";
+        menuState.selectedLevels = [];
 
         renderPathMenu();
       }
@@ -610,27 +622,16 @@ function renderMenuDepth(container, depth){
       return;
     }
 
-    const stateKey =
-      depth === 1 ? "level1" :
-      depth === 2 ? "level2" :
-      "level3";
+    const currentValue = menuState.selectedLevels[depth - 1] || "";
 
     const button = makeButton(node.label, {
-      active: menuState[stateKey] === node.label,
+      active: currentValue === node.label,
       onClick: function(){
-        if(menuState[stateKey] === node.label){
-          menuState[stateKey] = "";
+        if(currentValue === node.label){
+          resetLevelsFrom(depth);
         }else{
-          menuState[stateKey] = node.label;
-        }
-
-        if(depth <= 1){
-          menuState.level2 = "";
-          menuState.level3 = "";
-        }
-
-        if(depth === 2){
-          menuState.level3 = "";
+          resetLevelsFrom(depth);
+          menuState.selectedLevels[depth - 1] = node.label;
         }
 
         renderPathMenu();
@@ -639,7 +640,7 @@ function renderMenuDepth(container, depth){
 
     container.appendChild(makeRow(depth, button));
 
-    if(menuState[stateKey] === node.label && depth < 3){
+    if(menuState.selectedLevels[depth - 1] === node.label && depth <= LEVEL_FIELDS.length){
       renderMenuDepth(container, depth + 1);
     }
   });
