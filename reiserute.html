@@ -568,11 +568,6 @@ function renderMap(stops){
     })
     .filter(stop => stop.coordinates);
 
-  console.log("Stops from API:", stops.length);
-  console.log("Valid map stops:", validStops.length);
-  console.log("First raw stop:", stops[0]);
-  console.log("First valid map stop:", validStops[0]);
-
   const points = validStops.map(stop => [
     stop.coordinates.lat,
     stop.coordinates.lng
