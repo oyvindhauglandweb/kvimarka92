@@ -442,17 +442,55 @@
       `;
     }
 
-    function parseCoordinate(value){
-      if(value === null || value === undefined){
-        return NaN;
-      }
+function parseCoordinate(value, type){
+  if(value === null || value === undefined){
+    return NaN;
+  }
 
-      return Number(
-        String(value)
-          .trim()
-          .replace(",", ".")
-      );
+  if(typeof value === "object"){
+    if(value.value !== undefined){
+      return parseCoordinate(value.value, type);
     }
+
+    if(value.name !== undefined){
+      return parseCoordinate(value.name, type);
+    }
+
+    if(value.text !== undefined){
+      return parseCoordinate(value.text, type);
+    }
+
+    return NaN;
+  }
+
+  let text = String(value).trim();
+
+  if(!text){
+    return NaN;
+  }
+
+  text = text.replace(",", ".");
+
+  let number = Number(text);
+
+  if(!Number.isFinite(number)){
+    return NaN;
+  }
+
+  if(type === "lat" && Math.abs(number) > 90){
+    number = number / 10000;
+  }
+
+  if(type === "lng" && Math.abs(number) > 180){
+    number = number / 10000;
+  }
+
+  if(type === "lng" && number > 0 && number > 30 && number < 180){
+    number = -number;
+  }
+
+  return number;
+}
 
     function normalizeLatLng(rawLat, rawLng){
       let lat = parseCoordinate(rawLat);
@@ -516,10 +554,10 @@ function parseCoordinate(value){
   );
 }
 
-function getStopCoordinate(stop, names){
+function getStopCoordinate(stop, names, type){
   for(const name of names){
     if(stop[name] !== undefined && stop[name] !== null && String(stop[name]).trim() !== ""){
-      return parseCoordinate(stop[name]);
+      return parseCoordinate(stop[name], type);
     }
   }
 
@@ -527,23 +565,23 @@ function getStopCoordinate(stop, names){
 }
 
 function normalizeLatLng(stop){
-  let lat = getStopCoordinate(stop, [
-    "latitude",
-    "Latitude",
-    "lat",
-    "Lat",
-    "field_8628028"
-  ]);
+let lat = getStopCoordinate(stop, [
+  "latitude",
+  "Latitude",
+  "lat",
+  "Lat",
+  "field_8628028"
+], "lat");
 
-  let lng = getStopCoordinate(stop, [
-    "longitude",
-    "Longitude",
-    "lng",
-    "Lng",
-    "lon",
-    "Lon",
-    "field_8628030"
-  ]);
+let lng = getStopCoordinate(stop, [
+  "longitude",
+  "Longitude",
+  "lng",
+  "Lng",
+  "lon",
+  "Lon",
+  "field_8628030"
+], "lng");
 
   if(
     Number.isFinite(lat) &&
