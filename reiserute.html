@@ -189,6 +189,69 @@
       border:1px solid var(--border);
     }
 
+.image-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:rgba(0,0,0,.82);
+  padding:24px;
+  box-sizing:border-box;
+  overflow:auto;
+}
+
+.image-modal.open{
+  display:block;
+}
+
+.image-modal-content{
+  max-width:1000px;
+  margin:40px auto;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+}
+
+.image-modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.image-modal-title{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.image-modal-close{
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  font-size:22px;
+  font-weight:bold;
+  width:42px;
+  height:42px;
+  cursor:pointer;
+}
+
+.image-modal-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+}
+
+.image-modal-image{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+    
     .loading{
       color:var(--muted);
       text-align:center;
@@ -293,6 +356,17 @@
     </div>
   </div>
 
+  <div class="image-modal" id="imageModal">
+    <div class="image-modal-content">
+      <div class="image-modal-header">
+        <div class="image-modal-title" id="imageModalTitle">Bilder</div>
+        <button class="image-modal-close" id="imageModalClose" type="button">×</button>
+      </div>
+
+      <div class="image-modal-grid" id="imageModalGrid"></div>
+    </div>
+  </div>
+  
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
@@ -305,14 +379,19 @@
         .replaceAll("'", "&#039;");
     }
 
-    function getFileUrl(fileField){
-      if(!Array.isArray(fileField) || !fileField.length){
-        return "";
-      }
+function getFileUrls(fileField){
+  if(!Array.isArray(fileField) || !fileField.length){
+    return [];
+  }
 
-      const firstFile = fileField[0];
-      return firstFile?.url || firstFile?.visible_name || "";
-    }
+  return fileField
+    .map(file => file?.url || file?.visible_name || "")
+    .filter(Boolean);
+}
+
+function getFileUrl(fileField){
+  return getFileUrls(fileField)[0] || "";
+}
 
     function getCaseFromUrl(){
       const params = new URLSearchParams(window.location.search);
@@ -547,6 +626,54 @@ function normalizeLatLng(stop){
 
   return { lat, lng };
 }
+
+function openImageModal(stop){
+  const imageUrls = getFileUrls(stop.image);
+
+  if(!imageUrls.length){
+    return;
+  }
+
+  const modal = document.getElementById("imageModal");
+  const title = document.getElementById("imageModalTitle");
+  const grid = document.getElementById("imageModalGrid");
+
+  title.textContent = stop.stopName || stop.title || "Bilder";
+
+  grid.innerHTML = imageUrls
+    .map(imageUrl => `
+      <a href="${esc(imageUrl)}" target="_blank" rel="noopener">
+        <img class="image-modal-image" src="${esc(imageUrl)}" alt="">
+      </a>
+    `)
+    .join("");
+
+  modal.classList.add("open");
+}
+
+function closeImageModal(){
+  const modal = document.getElementById("imageModal");
+  modal.classList.remove("open");
+}
+
+function setupImageModal(){
+  const modal = document.getElementById("imageModal");
+  const closeButton = document.getElementById("imageModalClose");
+
+  closeButton.addEventListener("click", closeImageModal);
+
+  modal.addEventListener("click", function(event){
+    if(event.target === modal){
+      closeImageModal();
+    }
+  });
+
+  document.addEventListener("keydown", function(event){
+    if(event.key === "Escape"){
+      closeImageModal();
+    }
+  });
+}
     
 function renderMap(stops){
   const map = L.map("map", {
@@ -625,19 +752,20 @@ function renderMap(stops){
       }
     });
 
-    const row = document.getElementById(`stop-${stop.displayNumber}`);
+const row = document.getElementById(`stop-${stop.displayNumber}`);
 
-    if(row){
-      row.style.cursor = "pointer";
+if(row){
+  const imageUrls = getFileUrls(stop.image);
 
-      row.addEventListener("click", function(){
-        map.setView([lat, lng], Math.max(map.getZoom(), 8), {
-          animate:true
-        });
+  if(imageUrls.length){
+    row.style.cursor = "pointer";
+    row.title = "Klikk for å vise bilder";
 
-        marker.openPopup();
-      });
-    }
+    row.addEventListener("click", function(){
+      openImageModal(stop);
+    });
+  }
+}
   });
 
   if(points.length){
@@ -688,7 +816,8 @@ function renderMap(stops){
         ${renderStopList(stops)}
       `;
 
-      renderMap(stops);
+setupImageModal();
+renderMap(stops);
     }
 
     async function loadRoute(){
