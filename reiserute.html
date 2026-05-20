@@ -1,98 +1,570 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reiserute - Kvimarka 92</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<style>
-:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--soft:#eaeaea}
-body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--soft:#333}
-body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-.container{max-width:1100px;margin:auto}.header{text-align:center;margin-bottom:24px}.site-title{margin:0;font-size:30px}.subtitle{margin-top:8px;color:var(--muted);font-size:16px}
-.top-buttons{display:flex;justify-content:center;gap:10px;margin:18px 0 0}.top-button{display:flex;align-items:center;justify-content:center;min-width:46px;height:42px;padding:0 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:18px;font-weight:bold;box-sizing:border-box}.top-button:hover{background:#e9eef2}body.dark-mode .top-button:hover{background:#3a3a3a}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:18px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reiserute - Kvimarka 92</title>
 
-  #map{
-  width:100%;
-  height:620px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:var(--soft);
-  box-sizing:border-box;
-  overflow:hidden;
-  position:relative;
-}
-  
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:18px}.summary-item{border:1px solid var(--border);border-radius:10px;padding:12px;background:rgba(127,127,127,.05)}.summary-label{color:var(--muted);font-size:13px;margin-bottom:4px}.summary-value{font-size:18px;font-weight:bold}
-.stop-list{display:flex;flex-direction:column;gap:10px}.stop-row{display:grid;grid-template-columns:48px 1fr;gap:12px;border:1px solid var(--border);border-radius:10px;padding:12px;background:rgba(127,127,127,.04)}.stop-number{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:var(--link);color:#fff;font-weight:bold}.stop-title{font-size:17px;font-weight:bold;margin-bottom:4px}.stop-meta{color:var(--muted);font-size:14px;line-height:1.45}.stop-description{margin-top:8px;line-height:1.5;white-space:pre-wrap}.stop-image{display:block;max-width:100%;height:auto;margin-top:10px;border-radius:10px;border:1px solid var(--border)}
-.loading{color:var(--muted);text-align:center;padding:24px}.error-box{border:1px solid #b54;border-radius:8px;padding:14px;background:rgba(180,80,80,.12);color:var(--text)}.leaflet-container{
-  background:var(--soft);
-  overflow:hidden;
-}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-.leaflet-container img{
-  max-width:none;
-}
-.route-marker{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#1f789d;color:#fff;border:2px solid #fff;font-size:13px;font-weight:bold;box-shadow:0 1px 5px rgba(0,0,0,.45)}.route-popup{color:#222;line-height:1.35}.route-popup-title{font-weight:bold;margin-bottom:4px}.route-popup-meta{font-size:12px}a{color:var(--link)}
-@media(max-width:800px){body{padding:12px}.site-title{font-size:26px}#map{height:520px}.card{padding:14px}.stop-row{grid-template-columns:40px 1fr;gap:10px}.stop-number{width:32px;height:32px;font-size:14px}}
-</style>
+  <style>
+    :root{
+      --bg:#f2f2f2;
+      --card:#fff;
+      --text:#333;
+      --muted:#667;
+      --border:#ccc;
+      --link:#1f789d;
+      --soft:#eaeaea;
+    }
+
+    body.dark-mode{
+      --bg:#151515;
+      --card:#242424;
+      --text:#eee;
+      --muted:#bbb;
+      --border:#555;
+      --link:#7cc7e8;
+      --soft:#333;
+    }
+
+    body{
+      margin:0;
+      padding:20px;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial,sans-serif;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:auto;
+    }
+
+    .header{
+      text-align:center;
+      margin-bottom:24px;
+    }
+
+    .site-title{
+      margin:0;
+      font-size:30px;
+    }
+
+    .subtitle{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:16px;
+    }
+
+    .top-buttons{
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      margin:18px 0 0;
+    }
+
+    .top-button{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-width:46px;
+      height:42px;
+      padding:0 14px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:8px;
+      color:var(--text);
+      text-decoration:none;
+      font-size:18px;
+      font-weight:bold;
+      box-sizing:border-box;
+    }
+
+    .top-button:hover{
+      background:#e9eef2;
+    }
+
+    body.dark-mode .top-button:hover{
+      background:#3a3a3a;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:18px;
+      margin-bottom:18px;
+    }
+
+    #map{
+      width:100%;
+      height:620px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:var(--soft);
+      box-sizing:border-box;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .summary{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:10px;
+      margin-bottom:18px;
+    }
+
+    .summary-item{
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px;
+      background:rgba(127,127,127,.05);
+    }
+
+    .summary-label{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:4px;
+    }
+
+    .summary-value{
+      font-size:18px;
+      font-weight:bold;
+    }
+
+    .stop-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .stop-row{
+      display:grid;
+      grid-template-columns:48px 1fr;
+      gap:12px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px;
+      background:rgba(127,127,127,.04);
+    }
+
+    .stop-number{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      background:var(--link);
+      color:#fff;
+      font-weight:bold;
+    }
+
+    .stop-title{
+      font-size:17px;
+      font-weight:bold;
+      margin-bottom:4px;
+    }
+
+    .stop-meta{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    .stop-description{
+      margin-top:8px;
+      line-height:1.5;
+      white-space:pre-wrap;
+    }
+
+    .stop-image{
+      display:block;
+      max-width:100%;
+      height:auto;
+      margin-top:10px;
+      border-radius:10px;
+      border:1px solid var(--border);
+    }
+
+    .loading{
+      color:var(--muted);
+      text-align:center;
+      padding:24px;
+    }
+
+    .error-box{
+      border:1px solid #b54;
+      border-radius:8px;
+      padding:14px;
+      background:rgba(180,80,80,.12);
+      color:var(--text);
+    }
+
+    .leaflet-container{
+      background:var(--soft);
+      overflow:hidden;
+    }
+
+    .leaflet-container img{
+      max-width:none;
+    }
+
+    .route-marker{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:#1f789d;
+      color:#fff;
+      border:2px solid #fff;
+      font-size:13px;
+      font-weight:bold;
+      box-shadow:0 1px 5px rgba(0,0,0,.45);
+    }
+
+    .route-popup{
+      color:#222;
+      line-height:1.35;
+    }
+
+    .route-popup-title{
+      font-weight:bold;
+      margin-bottom:4px;
+    }
+
+    .route-popup-meta{
+      font-size:12px;
+    }
+
+    a{
+      color:var(--link);
+    }
+
+    @media(max-width:800px){
+      body{
+        padding:12px;
+      }
+
+      .site-title{
+        font-size:26px;
+      }
+
+      #map{
+        height:520px;
+      }
+
+      .card{
+        padding:14px;
+      }
+
+      .stop-row{
+        grid-template-columns:40px 1fr;
+        gap:10px;
+      }
+
+      .stop-number{
+        width:32px;
+        height:32px;
+        font-size:14px;
+      }
+    }
+  </style>
 </head>
+
 <body class="dark-mode">
-<div class="container">
-  <div class="header">
-    <h1 class="site-title" id="pageTitle">Reiserute</h1>
-    <div class="subtitle" id="pageSubtitle">Kvimarka 92</div>
-    <div class="top-buttons">
-      <a class="top-button" href="javascript:history.back()" title="Tilbake">←</a>
-      <a class="top-button" href="index.html" title="Hovedside">⌂</a>
+  <div class="container">
+    <div class="header">
+      <h1 class="site-title" id="pageTitle">Reiserute</h1>
+      <div class="subtitle" id="pageSubtitle">Kvimarka 92</div>
+
+      <div class="top-buttons">
+        <a class="top-button" href="javascript:history.back()" title="Tilbake">←</a>
+        <a class="top-button" href="index.html" title="Hovedside">⌂</a>
+      </div>
+    </div>
+
+    <div id="content">
+      <div class="loading">Laster reiserute...</div>
     </div>
   </div>
-  <div id="content"><div class="loading">Laster reiserute...</div></div>
-</div>
-<script>
-const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-function esc(value){return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
-function getFileUrl(fileField){if(!Array.isArray(fileField)||!fileField.length)return "";const firstFile=fileField[0];return firstFile?.url||firstFile?.visible_name||"";}
-function getCaseFromUrl(){const params=new URLSearchParams(window.location.search);return params.get("case")||"";}
-async function fetchJson(url){const res=await fetch(url,{credentials:"include"});if(!res.ok){const text=await res.text();throw new Error(text||"Request failed");}return await res.json();}
-function formatDate(dateValue){if(!dateValue)return "";const parts=String(dateValue).split("-");if(parts.length!==3)return String(dateValue);return `${parts[2]}.${parts[1]}.${parts[0]}`;}
-function formatDateRange(from,to){const fromText=formatDate(from);const toText=formatDate(to);if(fromText&&toText&&fromText!==toText)return `${fromText}–${toText}`;return fromText||toText||"";}
-function firstDate(stops){return stops.map(stop=>stop.dateFrom||stop.dateTo).filter(Boolean)[0]||"";}
-function lastDate(stops){const dates=stops.map(stop=>stop.dateTo||stop.dateFrom).filter(Boolean);return dates[dates.length-1]||"";}
-function createNumberIcon(number){return L.divIcon({html:`<div class="route-marker">${number}</div>`,className:"",iconSize:[32,32],iconAnchor:[16,16],popupAnchor:[0,-16]});}
-function renderSummary(data){const stops=data.stops||[];const from=firstDate(stops);const to=lastDate(stops);return `<div class="summary"><div class="summary-item"><div class="summary-label">Periode</div><div class="summary-value">${esc(formatDateRange(from,to))||"-"}</div></div><div class="summary-item"><div class="summary-label">Antall stopp</div><div class="summary-value">${esc(stops.length)}</div></div><div class="summary-item"><div class="summary-label">Tilgang</div><div class="summary-value">${esc(data.case?.accessLevel||"")}</div></div></div>`;}
-function renderStopList(stops){return `<div class="card"><h2>Stopp</h2><div class="stop-list">${stops.map((stop,index)=>{const imageUrl=getFileUrl(stop.image);const dateText=formatDateRange(stop.dateFrom,stop.dateTo);const metaParts=[dateText,stop.roads?`Veier: ${stop.roads}`:"",stop.stopType||"",stop.transport||""].filter(Boolean);return `<div class="stop-row" id="stop-${index+1}"><div><div class="stop-number">${index+1}</div></div><div><div class="stop-title">${esc(stop.stopName||stop.title)}</div><div class="stop-meta">${esc(metaParts.join(" • "))}</div>${stop.description?`<div class="stop-description">${esc(stop.description)}</div>`:""}${imageUrl?`<img class="stop-image" src="${esc(imageUrl)}" alt="">`:""}</div></div>`;}).join("")}</div></div>`;}
-function renderMap(stops){const map=L.map("map",{scrollWheelZoom:false});L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap contributors"}).addTo(map);const points=[];stops.forEach((stop,index)=>{const lat=Number(stop.latitude);const lng=Number(stop.longitude);if(!lat||!lng)return;const dateText=formatDateRange(stop.dateFrom,stop.dateTo);const popupHtml=`<div class="route-popup"><div class="route-popup-title">${index+1}. ${esc(stop.stopName||stop.title)}</div><div class="route-popup-meta">${dateText?`${esc(dateText)}<br>`:""}${stop.roads?`Veier: ${esc(stop.roads)}<br>`:""}${stop.description?esc(stop.description):""}</div></div>`;const marker=L.marker([lat,lng],{icon:createNumberIcon(index+1)}).addTo(map);marker.bindPopup(popupHtml);marker.on("click",function(){const row=document.getElementById(`stop-${index+1}`);if(row)row.scrollIntoView({behavior:"smooth",block:"center"});});points.push([lat,lng]);});
 
-  if(points.length){
-    L.polyline(points, {
-      weight:3,
-      opacity:.85
-    }).addTo(map);
+  <script>
+    const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
-    map.fitBounds(points, {
-      padding:[30,30]
-    });
-  }else{
-    map.setView([59.91, 10.75], 5);
-  }
+    function esc(value){
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
 
-  setTimeout(function(){
-    map.invalidateSize();
+    function getFileUrl(fileField){
+      if(!Array.isArray(fileField) || !fileField.length){
+        return "";
+      }
 
-    if(points.length){
-      map.fitBounds(points, {
-        padding:[30,30]
+      const firstFile = fileField[0];
+      return firstFile?.url || firstFile?.visible_name || "";
+    }
+
+    function getCaseFromUrl(){
+      const params = new URLSearchParams(window.location.search);
+      return params.get("case") || "";
+    }
+
+    async function fetchJson(url){
+      const res = await fetch(url, {
+        credentials:"include"
+      });
+
+      if(!res.ok){
+        const text = await res.text();
+        throw new Error(text || "Request failed");
+      }
+
+      return await res.json();
+    }
+
+    function formatDate(dateValue){
+      if(!dateValue){
+        return "";
+      }
+
+      const parts = String(dateValue).split("-");
+
+      if(parts.length !== 3){
+        return String(dateValue);
+      }
+
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+
+    function formatDateRange(from, to){
+      const fromText = formatDate(from);
+      const toText = formatDate(to);
+
+      if(fromText && toText && fromText !== toText){
+        return `${fromText}–${toText}`;
+      }
+
+      return fromText || toText || "";
+    }
+
+    function firstDate(stops){
+      return stops
+        .map(stop => stop.dateFrom || stop.dateTo)
+        .filter(Boolean)[0] || "";
+    }
+
+    function lastDate(stops){
+      const dates = stops
+        .map(stop => stop.dateTo || stop.dateFrom)
+        .filter(Boolean);
+
+      return dates[dates.length - 1] || "";
+    }
+
+    function createNumberIcon(number){
+      return L.divIcon({
+        html:`<div class="route-marker">${number}</div>`,
+        className:"",
+        iconSize:[32,32],
+        iconAnchor:[16,16],
+        popupAnchor:[0,-16]
       });
     }
-  }, 150);
-}                          
-                          
-function renderRoute(data){const content=document.getElementById("content");const title=data.case?.title||data.case?.caseName||"Reiserute";const stops=data.stops||[];document.title=title+" - Reiserute";document.getElementById("pageTitle").textContent=title;document.getElementById("pageSubtitle").textContent="Reiserute";if(!stops.length){content.innerHTML=`<div class="error-box">Denne reiseruten har ingen aktive stopp med koordinater.</div>`;return;}content.innerHTML=`${renderSummary(data)}<div class="card"><div id="map"></div></div>${renderStopList(stops)}`;renderMap(stops);}
-async function loadRoute(){const caseName=getCaseFromUrl();if(!caseName)throw new Error("Mangler route case i URL-en.");const data=await fetchJson(`${API_BASE}/route?case=${encodeURIComponent(caseName)}`);renderRoute(data);}
-loadRoute().catch(error=>{console.error(error);document.getElementById("content").innerHTML=`<div class="error-box">Kunne ikke laste reiseruten.<br><br>${esc(error.message)}</div>`;});
-</script>
+
+    function renderSummary(data){
+      const stops = data.stops || [];
+      const from = firstDate(stops);
+      const to = lastDate(stops);
+
+      return `
+        <div class="summary">
+          <div class="summary-item">
+            <div class="summary-label">Periode</div>
+            <div class="summary-value">${esc(formatDateRange(from, to)) || "-"}</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="summary-label">Antall stopp</div>
+            <div class="summary-value">${esc(stops.length)}</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="summary-label">Tilgang</div>
+            <div class="summary-value">${esc(data.case?.accessLevel || "")}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStopList(stops){
+      return `
+        <div class="card">
+          <h2>Stopp</h2>
+          <div class="stop-list">
+            ${stops.map((stop, index) => {
+              const imageUrl = getFileUrl(stop.image);
+              const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
+              const metaParts = [
+                dateText,
+                stop.roads ? `Veier: ${stop.roads}` : "",
+                stop.stopType || "",
+                stop.transport || ""
+              ].filter(Boolean);
+
+              return `
+                <div class="stop-row" id="stop-${index + 1}">
+                  <div>
+                    <div class="stop-number">${index + 1}</div>
+                  </div>
+
+                  <div>
+                    <div class="stop-title">${esc(stop.stopName || stop.title)}</div>
+                    <div class="stop-meta">${esc(metaParts.join(" • "))}</div>
+
+                    ${stop.description ? `<div class="stop-description">${esc(stop.description)}</div>` : ""}
+                    ${imageUrl ? `<img class="stop-image" src="${esc(imageUrl)}" alt="">` : ""}
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMap(stops){
+      const map = L.map("map", {
+        scrollWheelZoom:false
+      });
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom:19,
+        attribution:"&copy; OpenStreetMap contributors"
+      }).addTo(map);
+
+      const points = [];
+
+      stops.forEach((stop, index) => {
+        const lat = Number(stop.latitude);
+        const lng = Number(stop.longitude);
+
+        if(!lat || !lng){
+          return;
+        }
+
+        const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
+
+        const popupHtml = `
+          <div class="route-popup">
+            <div class="route-popup-title">${index + 1}. ${esc(stop.stopName || stop.title)}</div>
+            <div class="route-popup-meta">
+              ${dateText ? `${esc(dateText)}<br>` : ""}
+              ${stop.roads ? `Veier: ${esc(stop.roads)}<br>` : ""}
+              ${stop.description ? esc(stop.description) : ""}
+            </div>
+          </div>
+        `;
+
+        const marker = L.marker([lat, lng], {
+          icon:createNumberIcon(index + 1)
+        }).addTo(map);
+
+        marker.bindPopup(popupHtml);
+
+        marker.on("click", function(){
+          const row = document.getElementById(`stop-${index + 1}`);
+
+          if(row){
+            row.scrollIntoView({
+              behavior:"smooth",
+              block:"center"
+            });
+          }
+        });
+
+        points.push([lat, lng]);
+      });
+
+      if(points.length){
+        L.polyline(points, {
+          weight:3,
+          opacity:.85
+        }).addTo(map);
+
+        map.fitBounds(points, {
+          padding:[30,30]
+        });
+      }else{
+        map.setView([59.91, 10.75], 5);
+      }
+
+      setTimeout(function(){
+        map.invalidateSize();
+
+        if(points.length){
+          map.fitBounds(points, {
+            padding:[30,30]
+          });
+        }
+      }, 150);
+    }
+
+    function renderRoute(data){
+      const content = document.getElementById("content");
+      const title = data.case?.title || data.case?.caseName || "Reiserute";
+      const stops = data.stops || [];
+
+      document.title = title + " - Reiserute";
+      document.getElementById("pageTitle").textContent = title;
+      document.getElementById("pageSubtitle").textContent = "Reiserute";
+
+      if(!stops.length){
+        content.innerHTML = `<div class="error-box">Denne reiseruten har ingen aktive stopp med koordinater.</div>`;
+        return;
+      }
+
+      content.innerHTML = `
+        ${renderSummary(data)}
+        <div class="card">
+          <div id="map"></div>
+        </div>
+        ${renderStopList(stops)}
+      `;
+
+      renderMap(stops);
+    }
+
+    async function loadRoute(){
+      const caseName = getCaseFromUrl();
+
+      if(!caseName){
+        throw new Error("Mangler route case i URL-en.");
+      }
+
+      const data = await fetchJson(`${API_BASE}/route?case=${encodeURIComponent(caseName)}`);
+      renderRoute(data);
+    }
+
+    loadRoute().catch(error => {
+      console.error(error);
+
+      document.getElementById("content").innerHTML = `
+        <div class="error-box">
+          Kunne ikke laste reiseruten.<br><br>
+          ${esc(error.message)}
+        </div>
+      `;
+    });
+  </script>
 </body>
 </html>
