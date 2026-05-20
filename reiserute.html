@@ -578,22 +578,41 @@ function renderMap(stops){
     const lng = stop.coordinates.lng;
     const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
 
-marker.bindPopup(popupHtml);
+    const popupHtml = `
+      <div class="route-popup">
+        <div class="route-popup-title">
+          ${stop.displayNumber}. ${esc(stop.stopName || stop.title)}
+        </div>
 
-marker.bindTooltip(
-  `${stop.displayNumber}. ${esc(stop.stopName || stop.title)}`,
-  {
-    direction: "top",
-    offset: [0, -16],
-    opacity: 0.95
-  }
-);
-    
+        <div class="route-popup-meta">
+          ${dateText ? `${esc(dateText)}<br>` : ""}
+          ${stop.roads ? `Veier: ${esc(stop.roads)}<br>` : ""}
+          ${stop.stopType ? `Type: ${esc(stop.stopType)}<br>` : ""}
+          ${stop.transport ? `Transport: ${esc(stop.transport)}<br>` : ""}
+        </div>
+
+        ${stop.description ? `
+          <div style="margin-top:8px;">
+            ${esc(stop.description)}
+          </div>
+        ` : ""}
+      </div>
+    `;
+
     const marker = L.marker([lat, lng], {
       icon:createNumberIcon(stop.displayNumber)
     }).addTo(map);
 
     marker.bindPopup(popupHtml);
+
+    marker.bindTooltip(
+      `${stop.displayNumber}. ${esc(stop.stopName || stop.title)}`,
+      {
+        direction:"top",
+        offset:[0,-16],
+        opacity:0.95
+      }
+    );
 
     marker.on("click", function(){
       const row = document.getElementById(`stop-${stop.displayNumber}`);
@@ -605,6 +624,20 @@ marker.bindTooltip(
         });
       }
     });
+
+    const row = document.getElementById(`stop-${stop.displayNumber}`);
+
+    if(row){
+      row.style.cursor = "pointer";
+
+      row.addEventListener("click", function(){
+        map.setView([lat, lng], Math.max(map.getZoom(), 8), {
+          animate:true
+        });
+
+        marker.openPopup();
+      });
+    }
   });
 
   if(points.length){
@@ -619,8 +652,6 @@ marker.bindTooltip(
     });
   }else{
     map.setView([39.5, -98.35], 4);
-
-    console.warn("No valid coordinates found. Check latitude/longitude field names in First raw stop.");
   }
 
   setTimeout(function(){
