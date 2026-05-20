@@ -578,17 +578,17 @@ function renderMap(stops){
     const lng = stop.coordinates.lng;
     const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
 
-    const popupHtml = `
-      <div class="route-popup">
-        <div class="route-popup-title">${stop.displayNumber}. ${esc(stop.stopName || stop.title)}</div>
-        <div class="route-popup-meta">
-          ${dateText ? `${esc(dateText)}<br>` : ""}
-          ${stop.roads ? `Veier: ${esc(stop.roads)}<br>` : ""}
-          ${stop.description ? esc(stop.description) : ""}
-        </div>
-      </div>
-    `;
+marker.bindPopup(popupHtml);
 
+marker.bindTooltip(
+  `${stop.displayNumber}. ${esc(stop.stopName || stop.title)}`,
+  {
+    direction: "top",
+    offset: [0, -16],
+    opacity: 0.95
+  }
+);
+    
     const marker = L.marker([lat, lng], {
       icon:createNumberIcon(stop.displayNumber)
     }).addTo(map);
