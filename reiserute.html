@@ -484,97 +484,181 @@
       };
     }
 
-    function renderMap(stops){
-      const map = L.map("map", {
-        scrollWheelZoom:false
-      });
+function parseCoordinate(value){
+  if(value === null || value === undefined){
+    return NaN;
+  }
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom:19,
-        attribution:"&copy; OpenStreetMap contributors"
-      }).addTo(map);
+  if(typeof value === "number"){
+    return value;
+  }
 
-      const validStops = stops
-        .map((stop, index) => {
-          const coordinates = normalizeLatLng(stop.latitude, stop.longitude);
-
-          return {
-            ...stop,
-            displayNumber:index + 1,
-            coordinates
-          };
-        })
-        .filter(stop => stop.coordinates);
-
-      console.log("Stops from API:", stops.length);
-      console.log("Valid map stops:", validStops.length);
-      console.log("First stop:", stops[0]);
-      console.log("First valid map stop:", validStops[0]);
-
-      const points = validStops.map(stop => [
-        stop.coordinates.lat,
-        stop.coordinates.lng
-      ]);
-
-      validStops.forEach(stop => {
-        const lat = stop.coordinates.lat;
-        const lng = stop.coordinates.lng;
-        const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
-
-        const popupHtml = `
-          <div class="route-popup">
-            <div class="route-popup-title">${stop.displayNumber}. ${esc(stop.stopName || stop.title)}</div>
-            <div class="route-popup-meta">
-              ${dateText ? `${esc(dateText)}<br>` : ""}
-              ${stop.roads ? `Veier: ${esc(stop.roads)}<br>` : ""}
-              ${stop.description ? esc(stop.description) : ""}
-            </div>
-          </div>
-        `;
-
-        const marker = L.marker([lat, lng], {
-          icon:createNumberIcon(stop.displayNumber)
-        }).addTo(map);
-
-        marker.bindPopup(popupHtml);
-
-        marker.on("click", function(){
-          const row = document.getElementById(`stop-${stop.displayNumber}`);
-
-          if(row){
-            row.scrollIntoView({
-              behavior:"smooth",
-              block:"center"
-            });
-          }
-        });
-      });
-
-      if(points.length){
-        L.polyline(points, {
-          weight:3,
-          opacity:.85
-        }).addTo(map);
-
-        map.fitBounds(points, {
-          padding:[30,30],
-          maxZoom:7
-        });
-      }else{
-        map.setView([39.5, -98.35], 4);
-      }
-
-      setTimeout(function(){
-        map.invalidateSize();
-
-        if(points.length){
-          map.fitBounds(points, {
-            padding:[30,30],
-            maxZoom:7
-          });
-        }
-      }, 250);
+  if(typeof value === "object"){
+    if(value.value !== undefined){
+      return parseCoordinate(value.value);
     }
+
+    if(value.name !== undefined){
+      return parseCoordinate(value.name);
+    }
+
+    if(value.text !== undefined){
+      return parseCoordinate(value.text);
+    }
+
+    return NaN;
+  }
+
+  return Number(
+    String(value)
+      .trim()
+      .replace(",", ".")
+  );
+}
+
+function getStopCoordinate(stop, names){
+  for(const name of names){
+    if(stop[name] !== undefined && stop[name] !== null && String(stop[name]).trim() !== ""){
+      return parseCoordinate(stop[name]);
+    }
+  }
+
+  return NaN;
+}
+
+function normalizeLatLng(stop){
+  let lat = getStopCoordinate(stop, [
+    "latitude",
+    "Latitude",
+    "lat",
+    "Lat",
+    "field_8628028"
+  ]);
+
+  let lng = getStopCoordinate(stop, [
+    "longitude",
+    "Longitude",
+    "lng",
+    "Lng",
+    "lon",
+    "Lon",
+    "field_8628030"
+  ]);
+
+  if(
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    Math.abs(lat) > 90 &&
+    Math.abs(lng) <= 90
+  ){
+    const oldLat = lat;
+    lat = lng;
+    lng = oldLat;
+  }
+
+  if(
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng) ||
+    Math.abs(lat) > 90 ||
+    Math.abs(lng) > 180
+  ){
+    return null;
+  }
+
+  return { lat, lng };
+}
+    
+function renderMap(stops){
+  const map = L.map("map", {
+    scrollWheelZoom:false
+  });
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom:19,
+    attribution:"&copy; OpenStreetMap contributors"
+  }).addTo(map);
+
+  const validStops = stops
+    .map((stop, index) => {
+      return {
+        ...stop,
+        displayNumber:index + 1,
+        coordinates:normalizeLatLng(stop)
+      };
+    })
+    .filter(stop => stop.coordinates);
+
+  console.log("Stops from API:", stops.length);
+  console.log("Valid map stops:", validStops.length);
+  console.log("First raw stop:", stops[0]);
+  console.log("First valid map stop:", validStops[0]);
+
+  const points = validStops.map(stop => [
+    stop.coordinates.lat,
+    stop.coordinates.lng
+  ]);
+
+  validStops.forEach(stop => {
+    const lat = stop.coordinates.lat;
+    const lng = stop.coordinates.lng;
+    const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
+
+    const popupHtml = `
+      <div class="route-popup">
+        <div class="route-popup-title">${stop.displayNumber}. ${esc(stop.stopName || stop.title)}</div>
+        <div class="route-popup-meta">
+          ${dateText ? `${esc(dateText)}<br>` : ""}
+          ${stop.roads ? `Veier: ${esc(stop.roads)}<br>` : ""}
+          ${stop.description ? esc(stop.description) : ""}
+        </div>
+      </div>
+    `;
+
+    const marker = L.marker([lat, lng], {
+      icon:createNumberIcon(stop.displayNumber)
+    }).addTo(map);
+
+    marker.bindPopup(popupHtml);
+
+    marker.on("click", function(){
+      const row = document.getElementById(`stop-${stop.displayNumber}`);
+
+      if(row){
+        row.scrollIntoView({
+          behavior:"smooth",
+          block:"center"
+        });
+      }
+    });
+  });
+
+  if(points.length){
+    L.polyline(points, {
+      weight:4,
+      opacity:.9
+    }).addTo(map);
+
+    map.fitBounds(points, {
+      padding:[30,30],
+      maxZoom:7
+    });
+  }else{
+    map.setView([39.5, -98.35], 4);
+
+    console.warn("No valid coordinates found. Check latitude/longitude field names in First raw stop.");
+  }
+
+  setTimeout(function(){
+    map.invalidateSize();
+
+    if(points.length){
+      map.fitBounds(points, {
+        padding:[30,30],
+        maxZoom:7
+      });
+    }
+  }, 250);
+}
 
     function renderRoute(data){
       const content = document.getElementById("content");
