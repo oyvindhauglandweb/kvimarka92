@@ -492,71 +492,13 @@ function parseCoordinate(value, type){
   return number;
 }
 
-    function normalizeLatLng(rawLat, rawLng){
-      let lat = parseCoordinate(rawLat);
-      let lng = parseCoordinate(rawLng);
-
-      if(
-        Number.isFinite(lat) &&
-        Number.isFinite(lng) &&
-        Math.abs(lat) > 90 &&
-        Math.abs(lng) <= 90
-      ){
-        const oldLat = lat;
-        lat = lng;
-        lng = oldLat;
-      }
-
-      if(
-        !Number.isFinite(lat) ||
-        !Number.isFinite(lng) ||
-        Math.abs(lat) > 90 ||
-        Math.abs(lng) > 180
-      ){
-        return null;
-      }
-
-      return {
-        lat,
-        lng
-      };
-    }
-
-function parseCoordinate(value){
-  if(value === null || value === undefined){
-    return NaN;
-  }
-
-  if(typeof value === "number"){
-    return value;
-  }
-
-  if(typeof value === "object"){
-    if(value.value !== undefined){
-      return parseCoordinate(value.value);
-    }
-
-    if(value.name !== undefined){
-      return parseCoordinate(value.name);
-    }
-
-    if(value.text !== undefined){
-      return parseCoordinate(value.text);
-    }
-
-    return NaN;
-  }
-
-  return Number(
-    String(value)
-      .trim()
-      .replace(",", ".")
-  );
-}
-
 function getStopCoordinate(stop, names, type){
   for(const name of names){
-    if(stop[name] !== undefined && stop[name] !== null && String(stop[name]).trim() !== ""){
+    if(
+      stop[name] !== undefined &&
+      stop[name] !== null &&
+      String(stop[name]).trim() !== ""
+    ){
       return parseCoordinate(stop[name], type);
     }
   }
@@ -565,23 +507,23 @@ function getStopCoordinate(stop, names, type){
 }
 
 function normalizeLatLng(stop){
-let lat = getStopCoordinate(stop, [
-  "latitude",
-  "Latitude",
-  "lat",
-  "Lat",
-  "field_8628028"
-], "lat");
+  let lat = getStopCoordinate(stop, [
+    "latitude",
+    "Latitude",
+    "lat",
+    "Lat",
+    "field_8628028"
+  ], "lat");
 
-let lng = getStopCoordinate(stop, [
-  "longitude",
-  "Longitude",
-  "lng",
-  "Lng",
-  "lon",
-  "Lon",
-  "field_8628030"
-], "lng");
+  let lng = getStopCoordinate(stop, [
+    "longitude",
+    "Longitude",
+    "lng",
+    "Lng",
+    "lon",
+    "Lon",
+    "field_8628030"
+  ], "lng");
 
   if(
     Number.isFinite(lat) &&
