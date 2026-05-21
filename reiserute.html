@@ -462,6 +462,8 @@ function getFileUrl(fileField){
 
     function renderSummary(data){
       const stops = data.stops || [];
+      console.log("First stop image field:", stops[0]?.image);
+      console.log("First stop full object:", stops[0]);
       const from = firstDate(stops);
       const to = lastDate(stops);
 
@@ -800,6 +802,21 @@ function renderMap(stops){
       const title = data.case?.title || data.case?.caseName || "Reiserute";
       const stops = data.stops || [];
 
+console.log(
+  "Stops with image field:",
+  stops
+    .map((stop, index) => ({
+      index:index + 1,
+      title:stop.title,
+      stopName:stop.stopName,
+      image:stop.image,
+      imageIsArray:Array.isArray(stop.image),
+      imageCount:Array.isArray(stop.image) ? stop.image.length : null,
+      parsedUrls:getFileUrls(stop.image)
+    }))
+    .filter(stop => stop.imageCount || stop.image)
+);
+      
       document.title = title + " - Reiserute";
       document.getElementById("pageTitle").textContent = title;
       document.getElementById("pageSubtitle").textContent = "Reiserute";
