@@ -493,12 +493,12 @@ function getFileUrl(fileField){
             ${stops.map((stop, index) => {
               const imageUrl = getFileUrl(stop.image);
               const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
-              const metaParts = [
-                dateText,
-                stop.roads ? `Veier: ${stop.roads}` : "",
-                stop.stopType || "",
-                stop.transport || ""
-              ].filter(Boolean);
+const metaParts = [
+  dateText,
+  stop.stopType || "",
+  stop.transport || "",
+  stop.roads ? `Veier: ${stop.roads}` : ""
+].filter(Boolean);
 
               return `
                 <div class="stop-row" id="stop-${index + 1}">
