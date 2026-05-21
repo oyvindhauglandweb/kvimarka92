@@ -140,16 +140,40 @@
       gap:10px;
     }
 
-    .stop-row{
-      display:grid;
-      grid-template-columns:48px 1fr;
-      gap:12px;
-      border:1px solid var(--border);
-      border-radius:10px;
-      padding:12px;
-      background:rgba(127,127,127,.04);
-    }
+.stop-row{
+  position:relative;
+  display:grid;
+  grid-template-columns:48px 1fr;
+  gap:12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  padding-right:56px;
+  background:rgba(127,127,127,.04);
+}
+    
+.stop-web-link{
+  position:absolute;
+  top:18px;
+  right:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border:2px solid var(--link);
+  border-radius:50%;
+  color:var(--link);
+  text-decoration:none;
+  font-size:20px;
+  font-weight:bold;
+  line-height:1;
+}
 
+.stop-web-link:hover{
+  background:rgba(124,199,232,.12);
+}
+    
     .stop-number{
       display:flex;
       align-items:center;
@@ -502,21 +526,34 @@ const metaParts = [
   stop.roads ? `Veier: ${stop.roads}` : ""
 ].filter(Boolean);
 
-              return `
-                <div class="stop-row" id="stop-${index + 1}" data-stop-index="${index}">
-                  <div>
-                    <div class="stop-number">${index + 1}</div>
-                  </div>
+const webLink = String(stop.webLink || "").trim();
 
-                  <div>
-                    <div class="stop-title">${esc(stop.stopName || stop.title)}</div>
-                    <div class="stop-meta">${esc(metaParts.join(" • "))}</div>
+return `
+  <div class="stop-row" id="stop-${index + 1}" data-stop-index="${index}">
+    ${webLink ? `
+      <a
+        class="stop-web-link"
+        href="${esc(webLink)}"
+        target="_blank"
+        rel="noopener"
+        title="Åpne webside"
+        onclick="event.stopPropagation();"
+      >i</a>
+    ` : ""}
 
-                    ${stop.description ? `<div class="stop-description">${esc(stop.description)}</div>` : ""}
-                    ${imageUrl ? `<img class="stop-image" src="${esc(imageUrl)}" alt="">` : ""}
-                  </div>
-                </div>
-              `;
+    <div>
+      <div class="stop-number">${index + 1}</div>
+    </div>
+
+    <div>
+      <div class="stop-title">${esc(stop.stopName || stop.title)}</div>
+      <div class="stop-meta">${esc(metaParts.join(" • "))}</div>
+
+      ${stop.description ? `<div class="stop-description">${esc(stop.description)}</div>` : ""}
+      ${imageUrl ? `<img class="stop-image" src="${esc(imageUrl)}" alt="">` : ""}
+    </div>
+  </div>
+`;
             }).join("")}
           </div>
         </div>
