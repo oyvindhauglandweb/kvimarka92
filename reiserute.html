@@ -168,6 +168,7 @@
   font-size:20px;
   font-weight:bold;
   line-height:1;
+  box-sizing:border-box;
 }
 
 .stop-web-link:hover{
@@ -519,6 +520,8 @@ function getFileUrl(fileField){
             ${stops.map((stop, index) => {
               const imageUrl = getFileUrl(stop.image);
               const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
+              const webLink = String(stop.webLink || "").trim();
+              
 const metaParts = [
   dateText,
   stop.stopType || "",
@@ -530,6 +533,16 @@ const webLink = String(stop.webLink || "").trim();
 
 return `
   <div class="stop-row" id="stop-${index + 1}" data-stop-index="${index}">
+  ${webLink ? `
+  <a
+    class="stop-web-link"
+    href="${esc(webLink)}"
+    target="_blank"
+    rel="noopener"
+    title="Åpne webside"
+    onclick="event.stopPropagation();"
+  >i</a>
+` : ""}
     ${webLink ? `
       <a
         class="stop-web-link"
