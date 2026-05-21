@@ -501,7 +501,7 @@ const metaParts = [
 ].filter(Boolean);
 
               return `
-                <div class="stop-row" id="stop-${index + 1}">
+                <div class="stop-row" id="stop-${index + 1}" data-stop-index="${index}">
                   <div>
                     <div class="stop-number">${index + 1}</div>
                   </div>
@@ -674,6 +674,31 @@ function setupImageModal(){
     }
   });
 }
+
+function setupStopImageClicks(stops){
+  document.querySelectorAll(".stop-row").forEach(row => {
+    const index = Number(row.dataset.stopIndex);
+    const stop = stops[index];
+
+    if(!stop){
+      return;
+    }
+
+    const imageUrls = getFileUrls(stop.image);
+
+    if(!imageUrls.length){
+      return;
+    }
+
+    row.style.cursor = "pointer";
+    row.title = "Klikk for å vise bilder";
+
+    row.addEventListener("click", function(event){
+      event.preventDefault();
+      openImageModal(stop);
+    });
+  });
+}
     
 function renderMap(stops){
   const map = L.map("map", {
@@ -742,20 +767,6 @@ function renderMap(stops){
     );
 
 
-const row = document.getElementById(`stop-${stop.displayNumber}`);
-
-if(row){
-  const imageUrls = getFileUrls(stop.image);
-
-  if(imageUrls.length){
-    row.style.cursor = "pointer";
-    row.title = "Klikk for å vise bilder";
-
-    row.addEventListener("click", function(){
-      openImageModal(stop);
-    });
-  }
-}
   });
 
   if(points.length){
@@ -807,6 +818,7 @@ if(row){
       `;
 
 setupImageModal();
+setupStopImageClicks(stops);
 renderMap(stops);
     }
 
