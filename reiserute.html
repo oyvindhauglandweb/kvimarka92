@@ -65,22 +65,22 @@
       margin:12px 0 0;
     }
 
-    .top-button{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-width:34px;
-      height:30px;
-      padding:0 14px;
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:7px;
-      color:var(--text);
-      text-decoration:none;
-      font-size:16px;
-      font-weight:bold;
-      box-sizing:border-box;
-    }
+.top-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:30px;
+  height:26px;
+  padding:0 8px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:6px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:14px;
+  font-weight:bold;
+  box-sizing:border-box;
+}
 
     .top-button:hover{
       background:#e9eef2;
@@ -487,8 +487,7 @@ function getFileUrl(fileField){
 
     function renderSummary(data){
       const stops = data.stops || [];
-      console.log("First stop image field:", stops[0]?.image);
-      console.log("First stop full object:", stops[0]);
+
       const from = firstDate(stops);
       const to = lastDate(stops);
 
@@ -512,66 +511,54 @@ function getFileUrl(fileField){
       `;
     }
 
-    function renderStopList(stops){
-      return `
-        <div class="card">
-          <h2>Stopp</h2>
-          <div class="stop-list">
-            ${stops.map((stop, index) => {
-              const imageUrl = getFileUrl(stop.image);
-              const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
-              const webLink = String(stop.webLink || "").trim();
-              
-const metaParts = [
-  dateText,
-  stop.stopType || "",
-  stop.transport || "",
-  stop.roads ? `Veier: ${stop.roads}` : ""
-].filter(Boolean);
+function renderStopList(stops){
+  return `
+    <div class="card">
+      <h2>Stopp</h2>
+      <div class="stop-list">
+        ${stops.map((stop, index) => {
+          const imageUrl = getFileUrl(stop.image);
+          const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
+          const webLink = String(stop.webLink || "").trim();
 
-const webLink = String(stop.webLink || "").trim();
+          const metaParts = [
+            dateText,
+            stop.stopType || "",
+            stop.transport || "",
+            stop.roads ? `Veier: ${stop.roads}` : ""
+          ].filter(Boolean);
 
-return `
-  <div class="stop-row" id="stop-${index + 1}" data-stop-index="${index}">
-  ${webLink ? `
-  <a
-    class="stop-web-link"
-    href="${esc(webLink)}"
-    target="_blank"
-    rel="noopener"
-    title="Åpne webside"
-    onclick="event.stopPropagation();"
-  >i</a>
-` : ""}
-    ${webLink ? `
-      <a
-        class="stop-web-link"
-        href="${esc(webLink)}"
-        target="_blank"
-        rel="noopener"
-        title="Åpne webside"
-        onclick="event.stopPropagation();"
-      >i</a>
-    ` : ""}
+          return `
+            <div class="stop-row" id="stop-${index + 1}" data-stop-index="${index}">
+              ${webLink ? `
+                <a
+                  class="stop-web-link"
+                  href="${esc(webLink)}"
+                  target="_blank"
+                  rel="noopener"
+                  title="Åpne webside"
+                  onclick="event.stopPropagation();"
+                >i</a>
+              ` : ""}
 
-    <div>
-      <div class="stop-number">${index + 1}</div>
+              <div>
+                <div class="stop-number">${index + 1}</div>
+              </div>
+
+              <div>
+                <div class="stop-title">${esc(stop.stopName || stop.title)}</div>
+                <div class="stop-meta">${esc(metaParts.join(" • "))}</div>
+
+                ${stop.description ? `<div class="stop-description">${esc(stop.description)}</div>` : ""}
+                ${imageUrl ? `<img class="stop-image" src="${esc(imageUrl)}" alt="">` : ""}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
     </div>
-
-    <div>
-      <div class="stop-title">${esc(stop.stopName || stop.title)}</div>
-      <div class="stop-meta">${esc(metaParts.join(" • "))}</div>
-
-      ${stop.description ? `<div class="stop-description">${esc(stop.description)}</div>` : ""}
-      ${imageUrl ? `<img class="stop-image" src="${esc(imageUrl)}" alt="">` : ""}
-    </div>
-  </div>
-`;
-            }).join("")}
-          </div>
-        </div>
-      `;
-    }
+  `;
+}
 
 function parseCoordinate(value, type){
   if(value === null || value === undefined){
