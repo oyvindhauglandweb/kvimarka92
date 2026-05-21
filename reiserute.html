@@ -109,12 +109,12 @@
       position:relative;
     }
 
-    .summary{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-      gap:10px;
-      margin-bottom:18px;
-    }
+.summary{
+  display:grid;
+  grid-template-columns:minmax(260px,2fr) minmax(90px,.5fr);
+  gap:10px;
+  margin-bottom:18px;
+}
 
     .summary-item{
       border:1px solid var(--border);
@@ -360,6 +360,9 @@
         height:32px;
         font-size:14px;
       }
+      .summary{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -485,31 +488,25 @@ function getFileUrl(fileField){
       });
     }
 
-    function renderSummary(data){
-      const stops = data.stops || [];
+function renderSummary(data){
+  const stops = data.stops || [];
+  const from = firstDate(stops);
+  const to = lastDate(stops);
 
-      const from = firstDate(stops);
-      const to = lastDate(stops);
+  return `
+    <div class="summary">
+      <div class="summary-item">
+        <div class="summary-label">Periode</div>
+        <div class="summary-value">${esc(formatDateRange(from, to)) || "-"}</div>
+      </div>
 
-      return `
-        <div class="summary">
-          <div class="summary-item">
-            <div class="summary-label">Periode</div>
-            <div class="summary-value">${esc(formatDateRange(from, to)) || "-"}</div>
-          </div>
-
-          <div class="summary-item">
-            <div class="summary-label">Antall stopp</div>
-            <div class="summary-value">${esc(stops.length)}</div>
-          </div>
-
-          <div class="summary-item">
-            <div class="summary-label">Tilgang</div>
-            <div class="summary-value">${esc(data.case?.accessLevel || "")}</div>
-          </div>
-        </div>
-      `;
-    }
+      <div class="summary-item">
+        <div class="summary-label">Antall stopp</div>
+        <div class="summary-value">${esc(stops.length)}</div>
+      </div>
+    </div>
+  `;
+}
 
 function renderStopList(stops){
   return `
