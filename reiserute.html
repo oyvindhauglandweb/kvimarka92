@@ -711,12 +711,12 @@ function renderMap(stops){
           ${stop.displayNumber}. ${esc(stop.stopName || stop.title)}
         </div>
 
-        <div class="route-popup-meta">
-          ${dateText ? `${esc(dateText)}<br>` : ""}
-          ${stop.roads ? `Veier: ${esc(stop.roads)}<br>` : ""}
-          ${stop.stopType ? `Type: ${esc(stop.stopType)}<br>` : ""}
-          ${stop.transport ? `Transport: ${esc(stop.transport)}<br>` : ""}
-        </div>
+ <div class="route-popup-meta">
+  ${dateText ? `${esc(dateText)}<br>` : ""}
+  ${stop.stopType ? `Type: ${esc(stop.stopType)}<br>` : ""}
+  ${stop.transport ? `Transport: ${esc(stop.transport)}<br>` : ""}
+  ${stop.roads ? `Veier: ${esc(stop.roads)}<br>` : ""}
+</div>
 
         ${stop.description ? `
           <div style="margin-top:8px;">
@@ -741,16 +741,6 @@ function renderMap(stops){
       }
     );
 
-    marker.on("click", function(){
-      const row = document.getElementById(`stop-${stop.displayNumber}`);
-
-      if(row){
-        row.scrollIntoView({
-          behavior:"smooth",
-          block:"center"
-        });
-      }
-    });
 
 const row = document.getElementById(`stop-${stop.displayNumber}`);
 
