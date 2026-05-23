@@ -748,9 +748,9 @@ textarea{
         </div>
 
         <div class="form-field full" id="firstImageField">
-          <label for="editFirstImage">Første bilde</label>
+          <label for="editFirstImage" id="firstImageLabel">Første bilde</label>
           <input id="editFirstImage" type="file" accept="image/*">
-          <div class="small-help">Valgfritt. Bildet legges inn som første bilde når nytt stopp opprettes.</div>
+          <div class="small-help" id="firstImageHelp">Valgfritt. Bildet legges inn som første bilde når nytt stopp opprettes.</div>
         </div>
 
         <div class="form-field full">
@@ -1350,6 +1350,43 @@ async function findGpsForCurrentStop(){
   }
 }
 
+function configureFirstImageField(mode){
+  const firstImageField = document.getElementById("firstImageField");
+  const firstImageLabel = document.getElementById("firstImageLabel");
+  const firstImageHelp = document.getElementById("firstImageHelp");
+  const firstImageInput = document.getElementById("editFirstImage");
+
+  if(firstImageInput){
+    firstImageInput.value = "";
+  }
+
+  if(!firstImageField){
+    return;
+  }
+
+  firstImageField.style.display = "flex";
+
+  if(mode === "create"){
+    if(firstImageLabel){
+      firstImageLabel.textContent = "Første bilde";
+    }
+
+    if(firstImageHelp){
+      firstImageHelp.textContent = "Valgfritt. Bildet legges inn som første bilde når nytt stopp opprettes.";
+    }
+
+    return;
+  }
+
+  if(firstImageLabel){
+    firstImageLabel.textContent = "Legg til bilde";
+  }
+
+  if(firstImageHelp){
+    firstImageHelp.textContent = "Valgfritt. Hvis du velger et bilde her, legges det inn som første bilde på dette stoppet når du lagrer.";
+  }
+}
+
 function openEditStopModal(stopId){
   const stop = currentStops.find(item => String(item.id) === String(stopId));
 
@@ -1361,10 +1398,7 @@ function openEditStopModal(stopId){
   editingStopId = Number(stop.id);
   document.getElementById("editModalTitle").textContent = "Rediger stopp";
   fillEditForm(stop);
-  const firstImageField = document.getElementById("firstImageField");
-  if(firstImageField){
-    firstImageField.style.display = "none";
-  }
+  configureFirstImageField("edit");
   document.getElementById("editModal").classList.add("open");
 }
 
@@ -1375,14 +1409,7 @@ function openCreateStopModal(insertIndex){
     ? Math.max(0, Math.min(Number(insertIndex), currentStops.length))
     : currentStops.length;
   document.getElementById("editModalTitle").textContent = "Legg til nytt stopp";
-  const firstImageField = document.getElementById("firstImageField");
-  if(firstImageField){
-    firstImageField.style.display = "flex";
-  }
-  const firstImageInput = document.getElementById("editFirstImage");
-  if(firstImageInput){
-    firstImageInput.value = "";
-  }
+  configureFirstImageField("create");
   fillEditForm({
     title:"",
     stopName:"",
@@ -1467,17 +1494,39 @@ async function saveStopForm(event){
       });
 
       const index = currentStops.findIndex(stop => Number(stop.id) === Number(editingStopId));
+      const firstImageInput = document.getElementById("editFirstImage");
+      const firstImageFile = firstImageInput?.files?.[0] || null;
+      let updatedImageList = index >= 0 && Array.isArray(currentStops[index].image)
+        ? [...currentStops[index].image]
+        : [];
+
+      if(firstImageFile){
+        setStatus("Laster opp bilde...");
+        const uploadedImage = await uploadRouteStopImage(firstImageFile);
+        updatedImageList = [uploadedImage, ...updatedImageList];
+
+        await fetchJson(`${API_BASE}/route-stop-images`, {
+          method:"POST",
+          headers:{
+            "Content-Type":"text/plain;charset=UTF-8"
+          },
+          body:JSON.stringify({
+            stopId:editingStopId,
+            image:updatedImageList
+          })
+        });
+      }
 
       if(index >= 0){
         currentStops[index] = {
           ...currentStops[index],
           ...values,
           id:editingStopId,
-          image:currentStops[index].image || []
+          image:updatedImageList
         };
       }
 
-      setStatus("Stoppet er lagret.", "success");
+      setStatus(firstImageFile ? "Stoppet er lagret, og bildet er lagt til." : "Stoppet er lagret.", "success");
     }else{
       const insertIndex = pendingCreateIndex === null
         ? currentStops.length
