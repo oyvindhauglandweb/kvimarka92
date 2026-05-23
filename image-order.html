@@ -289,6 +289,11 @@ body{
   cursor:default;
 }
 
+.batch-toolbar .selection-mode-button.active{
+  background:var(--link);
+  color:#fff;
+}
+
 .batch-toolbar .delete-button{
   color:#ff8b8b;
 }
@@ -504,6 +509,7 @@ body{
       <div id="status" class="status">Laster...</div>
 
       <div class="batch-toolbar" aria-label="Batch image controls">
+        <button type="button" onclick="toggleSelectionMode()" id="selectionModeButton" class="selection-mode-button" title="Start merking">☑</button>
         <button type="button" onclick="moveSelectedToStart()" id="batchFirstButton" title="Flytt merkede bilder først" disabled>⇤</button>
         <button type="button" onclick="moveSelectedLeft()" id="batchLeftButton" title="Flytt merkede bilder til venstre" disabled>←</button>
         <button type="button" onclick="moveSelectedRight()" id="batchRightButton" title="Flytt merkede bilder til høyre" disabled>→</button>
@@ -549,6 +555,7 @@ let draggedIndex = null;
 let pendingInsertIndex = null;
 let hasUnsavedChanges = false;
 let selectedImageIndices = new Set();
+let selectionMode = false;
 let viewerIndex = 0;
 let viewerTouchStartX = null;
 
@@ -696,10 +703,18 @@ function moveImageToEnd(index){
 
 function updateBatchButtons(){
   const selectedCount = selectedImageIndices.size;
-  const hasSelection = selectedCount > 0;
+  const hasSelection = selectionMode && selectedCount > 0;
   const selected = getSelectedIndices();
   const minIndex = selected.length ? Math.min(...selected) : 0;
   const maxIndex = selected.length ? Math.max(...selected) : 0;
+
+  const selectionButton = document.getElementById("selectionModeButton");
+
+  if(selectionButton){
+    selectionButton.classList.toggle("active", selectionMode);
+    selectionButton.title = selectionMode ? "Avslutt merking" : "Start merking";
+    selectionButton.textContent = selectionMode ? "☒" : "☑";
+  }
 
   const buttonStates = [
     ["batchFirstButton", hasSelection && minIndex > 0],
@@ -730,7 +745,21 @@ function clearSelectedImages(){
   updateBatchButtons();
 }
 
+function toggleSelectionMode(){
+  selectionMode = !selectionMode;
+
+  if(!selectionMode){
+    selectedImageIndices.clear();
+  }
+
+  renderImages();
+}
+
 function toggleImageSelection(index){
+  if(!selectionMode){
+    return;
+  }
+
   if(selectedImageIndices.has(index)){
     selectedImageIndices.delete(index);
   }else{
@@ -893,14 +922,16 @@ function renderImages(){
           <img src="${esc(imageUrl)}" alt="${esc(imageName)}">
         </button>
         <div class="image-caption">${esc(imageName)}</div>
-        <div class="image-controls">
-          <button
-            class="select-button ${selectedImageIndices.has(index) ? "selected" : ""}"
-            type="button"
-            onclick="toggleImageSelection(${index})"
-            title="Merk bilde for batch-håndtering"
-          >${selectedImageIndices.has(index) ? "✓ Merket" : "□ Merk"}</button>
-        </div>
+        ${selectionMode ? `
+          <div class="image-controls">
+            <button
+              class="select-button ${selectedImageIndices.has(index) ? "selected" : ""}"
+              type="button"
+              onclick="toggleImageSelection(${index})"
+              title="Merk bilde for batch-håndtering"
+            >${selectedImageIndices.has(index) ? "✓ Merket" : "□ Merk"}</button>
+          </div>
+        ` : ""}
       </div>
     `;
   }).join("");
@@ -1142,6 +1173,8 @@ async function reloadFromServer(){
     document.getElementById("pageSubtitle").textContent = routeData.case?.title || routeData.case?.caseName || caseName;
 
     hasUnsavedChanges = false;
+    selectionMode = false;
+    selectedImageIndices.clear();
     renderImages();
     updateRouteLink();
     document.getElementById("imagesCard").style.display = "block";
