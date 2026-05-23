@@ -206,15 +206,56 @@ body{
   overflow-wrap:anywhere;
 }
 
+.image-card.selected{
+  outline:3px solid var(--link);
+  outline-offset:2px;
+}
+
+.image-card.selected .image-number{
+  background:var(--success);
+}
+
 .image-controls{
   display:grid;
-  grid-template-columns:repeat(6,1fr);
+  grid-template-columns:1fr;
   gap:0;
   padding:8px;
   border-top:1px solid var(--border);
 }
 
 .image-controls button{
+  height:32px;
+  margin:0;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:var(--button);
+  color:var(--text);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.image-controls button:hover{
+  background:var(--button-hover);
+}
+
+.image-controls .select-button.selected{
+  background:var(--link);
+  color:#fff;
+}
+
+.batch-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:0;
+  flex:0 0 auto;
+}
+
+.batch-toolbar button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
   height:32px;
   margin:0;
   border:1px solid var(--border);
@@ -225,26 +266,46 @@ body{
   cursor:pointer;
 }
 
-.image-controls button:first-child{
+.batch-toolbar button:first-child{
   border-top-left-radius:7px;
   border-bottom-left-radius:7px;
 }
 
-.image-controls button:last-child{
+.batch-toolbar button:last-child{
   border-top-right-radius:7px;
   border-bottom-right-radius:7px;
 }
 
-.image-controls button + button{
+.batch-toolbar button + button{
   margin-left:-1px;
 }
 
-.image-controls button:hover{
+.batch-toolbar button:hover{
   background:var(--button-hover);
 }
 
-.image-controls .delete-button{
+.batch-toolbar button:disabled{
+  opacity:.45;
+  cursor:default;
+}
+
+.batch-toolbar .delete-button{
   color:#ff8b8b;
+}
+
+.status-toolbar-card{
+  padding:10px 12px;
+}
+
+.status-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.status-toolbar .status{
+  flex:1 1 auto;
 }
 
 .image-viewer{
@@ -438,8 +499,19 @@ body{
     </div>
   </div>
 
-  <div class="card">
-    <div id="status" class="status">Laster...</div>
+  <div class="card status-toolbar-card">
+    <div class="status-toolbar">
+      <div id="status" class="status">Laster...</div>
+
+      <div class="batch-toolbar" aria-label="Batch image controls">
+        <button type="button" onclick="moveSelectedToStart()" id="batchFirstButton" title="Flytt merkede bilder først" disabled>⇤</button>
+        <button type="button" onclick="moveSelectedLeft()" id="batchLeftButton" title="Flytt merkede bilder til venstre" disabled>←</button>
+        <button type="button" onclick="moveSelectedRight()" id="batchRightButton" title="Flytt merkede bilder til høyre" disabled>→</button>
+        <button type="button" onclick="moveSelectedToEnd()" id="batchLastButton" title="Flytt merkede bilder sist" disabled>⇥</button>
+        <button type="button" onclick="chooseImageForSelectedInsert()" id="batchAddButton" title="Legg til bilder ved første merkede bilde" disabled>+</button>
+        <button type="button" onclick="deleteSelectedImages()" id="batchDeleteButton" class="delete-button" title="Slett merkede bilder" disabled>🗑</button>
+      </div>
+    </div>
   </div>
 
   <div class="card" id="imagesCard" style="display:none;">
@@ -476,6 +548,7 @@ let currentImages = [];
 let draggedIndex = null;
 let pendingInsertIndex = null;
 let hasUnsavedChanges = false;
+let selectedImageIndices = new Set();
 let viewerIndex = 0;
 let viewerTouchStartX = null;
 
@@ -621,6 +694,168 @@ function moveImageToEnd(index){
   moveImage(index, currentImages.length - 1);
 }
 
+function updateBatchButtons(){
+  const selectedCount = selectedImageIndices.size;
+  const hasSelection = selectedCount > 0;
+  const selected = getSelectedIndices();
+  const minIndex = selected.length ? Math.min(...selected) : 0;
+  const maxIndex = selected.length ? Math.max(...selected) : 0;
+
+  const buttonStates = [
+    ["batchFirstButton", hasSelection && minIndex > 0],
+    ["batchLeftButton", hasSelection && minIndex > 0],
+    ["batchRightButton", hasSelection && maxIndex < currentImages.length - 1],
+    ["batchLastButton", hasSelection && maxIndex < currentImages.length - 1],
+    ["batchAddButton", hasSelection],
+    ["batchDeleteButton", hasSelection]
+  ];
+
+  buttonStates.forEach(([id, enabled]) => {
+    const button = document.getElementById(id);
+
+    if(button){
+      button.disabled = !enabled;
+    }
+  });
+}
+
+function getSelectedIndices(){
+  return [...selectedImageIndices]
+    .filter(index => index >= 0 && index < currentImages.length)
+    .sort((a, b) => a - b);
+}
+
+function clearSelectedImages(){
+  selectedImageIndices.clear();
+  updateBatchButtons();
+}
+
+function toggleImageSelection(index){
+  if(selectedImageIndices.has(index)){
+    selectedImageIndices.delete(index);
+  }else{
+    selectedImageIndices.add(index);
+  }
+
+  renderImages();
+}
+
+function moveSelectedLeft(){
+  const selected = getSelectedIndices();
+
+  if(!selected.length || selected[0] === 0){
+    return;
+  }
+
+  const selectedSet = new Set(selected);
+  const newSelected = new Set();
+
+  for(let i = 0; i < currentImages.length; i += 1){
+    if(selectedSet.has(i) && !selectedSet.has(i - 1)){
+      const temp = currentImages[i - 1];
+      currentImages[i - 1] = currentImages[i];
+      currentImages[i] = temp;
+      newSelected.add(i - 1);
+    }else if(selectedSet.has(i)){
+      newSelected.add(i);
+    }
+  }
+
+  selectedImageIndices = newSelected;
+  hasUnsavedChanges = true;
+  renderImages();
+}
+
+function moveSelectedRight(){
+  const selected = getSelectedIndices();
+
+  if(!selected.length || selected[selected.length - 1] === currentImages.length - 1){
+    return;
+  }
+
+  const selectedSet = new Set(selected);
+  const newSelected = new Set();
+
+  for(let i = currentImages.length - 1; i >= 0; i -= 1){
+    if(selectedSet.has(i) && !selectedSet.has(i + 1)){
+      const temp = currentImages[i + 1];
+      currentImages[i + 1] = currentImages[i];
+      currentImages[i] = temp;
+      newSelected.add(i + 1);
+    }else if(selectedSet.has(i)){
+      newSelected.add(i);
+    }
+  }
+
+  selectedImageIndices = newSelected;
+  hasUnsavedChanges = true;
+  renderImages();
+}
+
+function moveSelectedToStart(){
+  const selected = getSelectedIndices();
+
+  if(!selected.length || selected[0] === 0){
+    return;
+  }
+
+  const selectedSet = new Set(selected);
+  const selectedImages = currentImages.filter((_, index) => selectedSet.has(index));
+  const remainingImages = currentImages.filter((_, index) => !selectedSet.has(index));
+
+  currentImages = [...selectedImages, ...remainingImages];
+  selectedImageIndices = new Set(selectedImages.map((_, index) => index));
+  hasUnsavedChanges = true;
+  renderImages();
+}
+
+function moveSelectedToEnd(){
+  const selected = getSelectedIndices();
+
+  if(!selected.length || selected[selected.length - 1] === currentImages.length - 1){
+    return;
+  }
+
+  const selectedSet = new Set(selected);
+  const selectedImages = currentImages.filter((_, index) => selectedSet.has(index));
+  const remainingImages = currentImages.filter((_, index) => !selectedSet.has(index));
+  const startIndex = remainingImages.length;
+
+  currentImages = [...remainingImages, ...selectedImages];
+  selectedImageIndices = new Set(selectedImages.map((_, index) => startIndex + index));
+  hasUnsavedChanges = true;
+  renderImages();
+}
+
+function chooseImageForSelectedInsert(){
+  const selected = getSelectedIndices();
+
+  if(!selected.length){
+    return;
+  }
+
+  chooseImageForInsert(selected[0]);
+}
+
+function deleteSelectedImages(){
+  const selected = getSelectedIndices();
+
+  if(!selected.length){
+    return;
+  }
+
+  if(!confirm(`Slette ${selected.length} merkede bilde${selected.length === 1 ? "" : "r"} fra stoppet?`)){
+    return;
+  }
+
+  const selectedSet = new Set(selected);
+  currentImages = currentImages.filter((_, index) => !selectedSet.has(index));
+  selectedImageIndices.clear();
+  hasUnsavedChanges = true;
+  renderImages();
+  setStatus("Merkede bilder er fjernet lokalt. Trykk «Lagre bilderekkefølge» for å lagre endringen.", "success");
+}
+
 function renderImages(){
   const list = document.getElementById("imageList");
 
@@ -633,6 +868,8 @@ function renderImages(){
     `;
 
     document.getElementById("imageCountValue").textContent = "0";
+    selectedImageIndices.clear();
+    updateBatchButtons();
     return;
   }
 
@@ -642,7 +879,7 @@ function renderImages(){
 
     return `
       <div
-        class="image-card"
+        class="image-card ${selectedImageIndices.has(index) ? "selected" : ""}"
         draggable="true"
         data-index="${index}"
         ondragstart="handleDragStart(event, ${index})"
@@ -657,18 +894,20 @@ function renderImages(){
         </button>
         <div class="image-caption">${esc(imageName)}</div>
         <div class="image-controls">
-<button type="button" onclick="moveImageToStart(${index})" title="Flytt først" ${index === 0 ? "disabled" : ""}>⇤</button>
-<button type="button" onclick="moveImage(${index}, ${index - 1})" title="Flytt til venstre" ${index === 0 ? "disabled" : ""}>←</button>
-<button type="button" onclick="moveImage(${index}, ${index + 1})" title="Flytt til høyre" ${index === currentImages.length - 1 ? "disabled" : ""}>→</button>
-<button type="button" onclick="moveImageToEnd(${index})" title="Flytt sist" ${index === currentImages.length - 1 ? "disabled" : ""}>⇥</button>
-<button type="button" onclick="chooseImageForInsert(${index})" title="Legg til bilde her">+</button>
-<button type="button" onclick="deleteImage(${index})" title="Slett bilde">🗑</button>
+          <button
+            class="select-button ${selectedImageIndices.has(index) ? "selected" : ""}"
+            type="button"
+            onclick="toggleImageSelection(${index})"
+            title="Merk bilde for batch-håndtering"
+          >${selectedImageIndices.has(index) ? "✓ Merket" : "□ Merk"}</button>
         </div>
       </div>
     `;
   }).join("");
 
   document.getElementById("imageCountValue").textContent = String(currentImages.length);
+  selectedImageIndices = new Set(getSelectedIndices());
+  updateBatchButtons();
 }
 
 function updateImageViewer(){
@@ -752,6 +991,7 @@ function deleteImage(index){
   }
 
   currentImages.splice(index, 1);
+  selectedImageIndices.clear();
   hasUnsavedChanges = true;
   renderImages();
   setStatus("Bildet er fjernet lokalt. Trykk «Lagre bilderekkefølge» for å lagre endringen.", "success");
@@ -799,14 +1039,11 @@ async function handleImageUploadChange(event){
 
     currentImages.splice(insertIndex, 0, ...uploadedImages);
     pendingInsertIndex = null;
+    selectedImageIndices.clear();
     hasUnsavedChanges = true;
 
     renderImages();
-
-    setStatus(
-      `${uploadedImages.length} bilde${uploadedImages.length === 1 ? "" : "r"} er lastet opp og lagt inn i listen. Trykk «Lagre bilderekkefølge» for å lagre endringen på stoppet.`,
-      "success"
-    );
+    setStatus(`${uploadedImages.length} bilde${uploadedImages.length === 1 ? "" : "r"} er lastet opp og lagt inn i listen. Trykk «Lagre bilderekkefølge» for å lagre endringen på stoppet.`, "success");
   }catch(error){
     console.error(error);
     setStatus(`Kunne ikke laste opp bildene.<br><br>${esc(error.message)}`, "error");
@@ -899,6 +1136,7 @@ async function reloadFromServer(){
     currentImages = Array.isArray(currentStop.image)
       ? [...currentStop.image]
       : [];
+    selectedImageIndices.clear();
 
     document.getElementById("stopValue").textContent = currentStop.stopName || currentStop.title || String(stopId);
     document.getElementById("pageSubtitle").textContent = routeData.case?.title || routeData.case?.caseName || caseName;
