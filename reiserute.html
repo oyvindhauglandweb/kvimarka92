@@ -134,6 +134,33 @@
       font-weight:bold;
     }
 
+.summary-item{
+  position:relative;
+}
+
+.summary-map-link{
+  position:absolute;
+  top:12px;
+  right:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border:2px solid var(--link);
+  border-radius:50%;
+  color:var(--link);
+  text-decoration:none;
+  font-size:18px;
+  font-weight:bold;
+  line-height:1;
+  box-sizing:border-box;
+}
+
+.summary-map-link:hover{
+  background:rgba(124,199,232,.12);
+}
+    
     .stop-list{
       display:flex;
       flex-direction:column;
@@ -500,10 +527,16 @@ function renderSummary(data){
         <div class="summary-value">${esc(formatDateRange(from, to)) || "-"}</div>
       </div>
 
-      <div class="summary-item">
-        <div class="summary-label">Antall stopp</div>
-        <div class="summary-value">${esc(stops.length)}</div>
-      </div>
+<div class="summary-item">
+  <a
+    class="summary-map-link"
+    href="google-mymaps-export.html?case=${encodeURIComponent(data.case?.caseName || data.case?.title || "")}"
+    title="Eksporter til Google My Maps"
+  >⌖</a>
+
+  <div class="summary-label">Antall stopp</div>
+  <div class="summary-value">${esc(stops.length)}</div>
+</div>
     </div>
   `;
 }
