@@ -178,7 +178,7 @@ code{
 
   <div class="card">
     <label for="caseInput">Route case</label>
-    <input id="caseInput" value="USA 2006">
+    <input id="caseInput" value="">
 
     <div class="button-row">
       <button type="button" onclick="loadRoute()">Last stopp</button>
@@ -207,6 +207,19 @@ code{
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 let routeData = null;
+
+function getCaseFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("case") || "USA 2006";
+}
+
+function setInitialCase(){
+  const caseInput = document.getElementById("caseInput");
+
+  if(caseInput){
+    caseInput.value = getCaseFromUrl();
+  }
+}
 
 function esc(value){
   return String(value ?? "")
@@ -496,6 +509,14 @@ function downloadKml(){
     "application/vnd.google-earth.kml+xml;charset=utf-8"
   );
 }
+
+
+setInitialCase();
+
+if(new URLSearchParams(window.location.search).get("case")){
+  loadRoute();
+}
+
 </script>
 </body>
 </html>
