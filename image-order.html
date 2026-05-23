@@ -488,6 +488,14 @@ function moveImage(fromIndex, toIndex){
   renderImages();
 }
 
+function moveImageToStart(index){
+  moveImage(index, 0);
+}
+
+function moveImageToEnd(index){
+  moveImage(index, currentImages.length - 1);
+}
+
 function renderImages(){
   const list = document.getElementById("imageList");
 
@@ -524,12 +532,12 @@ function renderImages(){
         </a>
         <div class="image-caption">${esc(imageName)}</div>
         <div class="image-controls">
-<button type="button" onclick="moveImageToStart(index)" title="Flytt først">⇤</button>
-<button type="button" onclick="moveImage(index, -1)" title="Flytt til venstre">←</button>
-<button type="button" onclick="moveImage(index, 1)" title="Flytt til høyre">→</button>
-<button type="button" onclick="moveImageToEnd(index)" title="Flytt sist">⇥</button>
-<button type="button" onclick="addImageAt(index)" title="Legg til bilde her">+</button>
-<button type="button" onclick="deleteImage(index)" title="Slett bilde">🗑</button>
+<button type="button" onclick="moveImageToStart(${index})" title="Flytt først" ${index === 0 ? "disabled" : ""}>⇤</button>
+<button type="button" onclick="moveImage(${index}, ${index - 1})" title="Flytt til venstre" ${index === 0 ? "disabled" : ""}>←</button>
+<button type="button" onclick="moveImage(${index}, ${index + 1})" title="Flytt til høyre" ${index === currentImages.length - 1 ? "disabled" : ""}>→</button>
+<button type="button" onclick="moveImageToEnd(${index})" title="Flytt sist" ${index === currentImages.length - 1 ? "disabled" : ""}>⇥</button>
+<button type="button" onclick="chooseImageForInsert(${index})" title="Legg til bilde her">+</button>
+<button type="button" onclick="deleteImage(${index})" title="Slett bilde">🗑</button>
         </div>
       </div>
     `;
