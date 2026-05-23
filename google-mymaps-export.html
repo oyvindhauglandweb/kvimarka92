@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google My Maps Export - Kvimarka 92</title>
+<style>
+:root{
+  --bg:#f2f2f2;
+  --card:#ffffff;
+  --text:#333333;
+  --muted:#667;
+  --border:#cccccc;
+  --link:#1f789d;
+  --button:#ffffff;
+  --button-hover:#e9eef2;
+  --soft:#eaeaea;
+}
+body.dark-mode{
+  --bg:#151515;
+  --card:#242424;
+  --text:#eeeeee;
+  --muted:#bbbbbb;
+  --border:#555555;
+  --link:#7cc7e8;
+  --button:#242424;
+  --button-hover:#3a3a3a;
+  --soft:#333333;
+}
+body{
+  margin:0;
+  padding:20px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+}
+.header{
+  text-align:center;
+  margin-bottom:24px;
+}
+.site-title{
+  margin:0;
+  font-size:28px;
+}
+.subtitle{
+  margin-top:8px;
+  color:var(--muted);
+}
+.top-buttons{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  margin:10px 0 0;
+}
+.top-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:30px;
+  height:26px;
+  padding:0 8px;
+  background:var(--button);
+  border:1px solid var(--border);
+  border-radius:6px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:14px;
+  font-weight:bold;
+  box-sizing:border-box;
+  cursor:pointer;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:18px;
+}
+label{
+  display:block;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+input{
+  width:100%;
+  min-height:42px;
+  padding:0 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  font-size:16px;
+  box-sizing:border-box;
+}
+.button-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+button{
+  min-height:42px;
+  padding:0 14px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--button);
+  color:var(--text);
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:hover,.top-button:hover{
+  background:var(--button-hover);
+}
+.status{
+  margin-top:14px;
+  color:var(--muted);
+  line-height:1.5;
+}
+.error{
+  color:#d77;
+}
+.success{
+  color:#72c184;
+}
+.preview{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:14px;
+  font-size:14px;
+}
+.preview th,.preview td{
+  border:1px solid var(--border);
+  padding:8px;
+  text-align:left;
+  vertical-align:top;
+}
+.preview th{
+  background:var(--soft);
+}
+.help{
+  line-height:1.55;
+  color:var(--muted);
+}
+code{
+  background:var(--soft);
+  padding:2px 5px;
+  border-radius:4px;
+}
+@media(max-width:800px){
+  body{
+    padding:12px;
+  }
+  .button-row{
+    flex-direction:column;
+  }
+  button{
+    width:100%;
+  }
+}
+</style>
+</head>
+
+<body class="dark-mode">
+<div class="container">
+  <div class="header">
+    <h1 class="site-title">Google My Maps export</h1>
+    <div class="subtitle">Kvimarka 92 reiseruter</div>
+    <div class="top-buttons">
+      <a class="top-button" href="javascript:history.back()" title="Tilbake">←</a>
+      <a class="top-button" href="index.html" title="Hovedside">⌂</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <label for="caseInput">Route case</label>
+    <input id="caseInput" value="USA 2006">
+
+    <div class="button-row">
+      <button type="button" onclick="loadRoute()">Last stopp</button>
+      <button type="button" onclick="downloadCsv()" id="csvButton" disabled>Last ned CSV for Google My Maps</button>
+      <button type="button" onclick="downloadKml()" id="kmlButton" disabled>Last ned KML med punkter og rute-linje</button>
+    </div>
+
+    <div class="status" id="status">Skriv inn route case og trykk «Last stopp».</div>
+  </div>
+
+  <div class="card">
+    <div class="help">
+      <strong>Anbefalt bruk:</strong><br>
+      Bruk <code>CSV</code> hvis du bare vil importere stopp-punkter i Google My Maps.<br>
+      Bruk <code>KML</code> hvis du vil importere både stopp-punkter og en linje mellom stoppene.<br><br>
+      I Google My Maps: velg <strong>Import</strong>, last opp filen, velg <strong>Latitude</strong> og <strong>Longitude</strong> som posisjonskolonner, og velg <strong>Name</strong> som tittel.
+    </div>
+  </div>
+
+  <div class="card" id="previewCard" style="display:none;">
+    <h2>Forhåndsvisning</h2>
+    <div id="preview"></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+let routeData = null;
+
+function esc(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function csvEscape(value){
+  const text = String(value ?? "");
+  return `"${text.replaceAll('"', '""')}"`;
+}
+
+function kmlEscape(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+function formatDate(dateValue){
+  if(!dateValue){
+    return "";
+  }
+
+  const parts = String(dateValue).split("-");
+
+  if(parts.length !== 3){
+    return String(dateValue);
+  }
+
+  return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+
+function formatDateRange(from, to){
+  const fromText = formatDate(from);
+  const toText = formatDate(to);
+
+  if(fromText && toText && fromText !== toText){
+    return `${fromText}–${toText}`;
+  }
+
+  return fromText || toText || "";
+}
+
+function normalizeStop(stop, index){
+  const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
+  const name = stop.stopName || stop.title || `Stopp ${index + 1}`;
+  const descriptionParts = [
+    dateText ? `Dato: ${dateText}` : "",
+    stop.stopType ? `Type: ${stop.stopType}` : "",
+    stop.transport ? `Transport: ${stop.transport}` : "",
+    stop.roads ? `Veier: ${stop.roads}` : "",
+    stop.description || ""
+  ].filter(Boolean);
+
+  return {
+    number:index + 1,
+    name:`${index + 1}. ${name}`,
+    latitude:Number(stop.latitude),
+    longitude:Number(stop.longitude),
+    dateFrom:stop.dateFrom || "",
+    dateTo:stop.dateTo || "",
+    dateRange:dateText,
+    roads:stop.roads || "",
+    stopType:stop.stopType || "",
+    transport:stop.transport || "",
+    description:descriptionParts.join("\n"),
+    sortOrder:stop.sortOrder || index + 1
+  };
+}
+
+function getNormalizedStops(){
+  if(!routeData || !Array.isArray(routeData.stops)){
+    return [];
+  }
+
+  return routeData.stops
+    .map(normalizeStop)
+    .filter(stop =>
+      Number.isFinite(stop.latitude) &&
+      Number.isFinite(stop.longitude) &&
+      Math.abs(stop.latitude) <= 90 &&
+      Math.abs(stop.longitude) <= 180
+    );
+}
+
+async function loadRoute(){
+  const caseName = document.getElementById("caseInput").value.trim();
+  const status = document.getElementById("status");
+
+  if(!caseName){
+    status.innerHTML = `<span class="error">Mangler route case.</span>`;
+    return;
+  }
+
+  status.textContent = "Laster reiserute...";
+  document.getElementById("csvButton").disabled = true;
+  document.getElementById("kmlButton").disabled = true;
+  document.getElementById("previewCard").style.display = "none";
+
+  try{
+    const res = await fetch(`${API_BASE}/route?case=${encodeURIComponent(caseName)}`, {
+      credentials:"include"
+    });
+
+    if(!res.ok){
+      const text = await res.text();
+      throw new Error(text || `HTTP ${res.status}`);
+    }
+
+    routeData = await res.json();
+    const stops = getNormalizedStops();
+
+    if(!stops.length){
+      status.innerHTML = `<span class="error">Fant ingen stopp med gyldige koordinater.</span>`;
+      return;
+    }
+
+    document.getElementById("csvButton").disabled = false;
+    document.getElementById("kmlButton").disabled = false;
+
+    status.innerHTML =
+      `<span class="success">Fant ${stops.length} stopp for ${esc(routeData.case?.title || routeData.case?.caseName || caseName)}.</span>`;
+
+    renderPreview(stops);
+  }catch(error){
+    console.error(error);
+    status.innerHTML = `<span class="error">Kunne ikke laste ruten.<br><br>${esc(error.message)}</span>`;
+  }
+}
+
+function renderPreview(stops){
+  const previewCard = document.getElementById("previewCard");
+  const preview = document.getElementById("preview");
+
+  const rows = stops.slice(0, 10).map(stop => `
+    <tr>
+      <td>${esc(stop.name)}</td>
+      <td>${esc(stop.latitude.toFixed(4))}</td>
+      <td>${esc(stop.longitude.toFixed(4))}</td>
+      <td>${esc(stop.dateRange)}</td>
+    </tr>
+  `).join("");
+
+  preview.innerHTML = `
+    <table class="preview">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${stops.length > 10 ? `<div class="status">Viser de første 10 av ${stops.length} stopp.</div>` : ""}
+  `;
+
+  previewCard.style.display = "block";
+}
+
+function downloadTextFile(filename, content, mimeType){
+  const blob = new Blob([content], {
+    type:mimeType
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(url);
+}
+
+function safeFileName(value){
+  return String(value || "route")
+    .trim()
+    .replace(/[^\wæøåÆØÅ-]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_|_$/g, "");
+}
+
+function downloadCsv(){
+  const stops = getNormalizedStops();
+
+  if(!stops.length){
+    return;
+  }
+
+  const headers = [
+    "Name",
+    "Latitude",
+    "Longitude",
+    "Description",
+    "Date from",
+    "Date to",
+    "Roads",
+    "Stop type",
+    "Transport",
+    "Sort order"
+  ];
+
+  const lines = [
+    headers.map(csvEscape).join(","),
+    ...stops.map(stop => [
+      stop.name,
+      stop.latitude.toFixed(6),
+      stop.longitude.toFixed(6),
+      stop.description,
+      stop.dateFrom,
+      stop.dateTo,
+      stop.roads,
+      stop.stopType,
+      stop.transport,
+      stop.sortOrder
+    ].map(csvEscape).join(","))
+  ];
+
+  const caseName = routeData.case?.caseName || routeData.case?.title || "route";
+  downloadTextFile(
+    `${safeFileName(caseName)}_google_mymaps.csv`,
+    lines.join("\r\n"),
+    "text/csv;charset=utf-8"
+  );
+}
+
+function downloadKml(){
+  const stops = getNormalizedStops();
+
+  if(!stops.length){
+    return;
+  }
+
+  const caseName = routeData.case?.title || routeData.case?.caseName || "Reiserute";
+  const coordinates = stops
+    .map(stop => `${stop.longitude.toFixed(6)},${stop.latitude.toFixed(6)},0`)
+    .join(" ");
+
+  const pointPlacemarks = stops.map(stop => `
+    <Placemark>
+      <name>${kmlEscape(stop.name)}</name>
+      <description>${kmlEscape(stop.description)}</description>
+      <Point>
+        <coordinates>${stop.longitude.toFixed(6)},${stop.latitude.toFixed(6)},0</coordinates>
+      </Point>
+    </Placemark>
+  `).join("");
+
+  const kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>${kmlEscape(caseName)}</name>
+
+    <Style id="routeLine">
+      <LineStyle>
+        <color>ff9d781f</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+
+    <Placemark>
+      <name>${kmlEscape(caseName)} - rute</name>
+      <styleUrl>#routeLine</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>${coordinates}</coordinates>
+      </LineString>
+    </Placemark>
+
+    ${pointPlacemarks}
+  </Document>
+</kml>`;
+
+  downloadTextFile(
+    `${safeFileName(caseName)}_google_mymaps.kml`,
+    kml,
+    "application/vnd.google-earth.kml+xml;charset=utf-8"
+  );
+}
+</script>
+</body>
+</html>
