@@ -114,8 +114,20 @@ body{
 .top-grid{
   display:grid;
   grid-template-columns:1fr auto;
-  gap:14px;
-  align-items:start;
+  gap:10px;
+  align-items:stretch;
+  margin-bottom:18px;
+}
+
+.top-grid > .card{
+  padding:10px 12px;
+  margin-bottom:0;
+  display:flex;
+  align-items:center;
+}
+
+.top-grid > .card:last-child{
+  justify-content:center;
 }
 
 .route-info{
@@ -157,16 +169,22 @@ body{
 
 .batch-toolbar{
   display:flex;
-  gap:0;
+  align-items:center;
   justify-content:flex-end;
+  gap:0;
 }
 
 .batch-toolbar .action-button{
   min-width:34px;
   width:34px;
+  height:32px;
   padding:0;
   border-radius:0;
   margin:0;
+}
+
+.batch-toolbar .action-button + .action-button{
+  margin-left:-1px;
 }
 
 .batch-toolbar .action-button:first-child{
@@ -238,6 +256,20 @@ body{
   background:var(--soft);
   color:var(--muted);
   font-weight:bold;
+}
+
+.stop-thumb-button{
+  display:block;
+  width:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+}
+
+.stop-thumb-button:hover .stop-thumb,
+.stop-thumb-button:hover .stop-thumb-placeholder{
+  filter:brightness(1.08);
 }
 
 .stop-info{
@@ -434,6 +466,10 @@ textarea{
     grid-template-columns:1fr;
   }
 
+  .top-grid > .card:last-child{
+    justify-content:flex-start;
+  }
+
   .batch-toolbar{
     justify-content:flex-start;
   }
@@ -519,11 +555,11 @@ textarea{
 
     <div class="card">
       <div class="batch-toolbar" title="Batch-håndtering">
-        <button class="action-button" id="selectionModeButton" type="button" onclick="toggleSelectionMode()" title="Start/avslutt merking">+</button>
         <button class="action-button" type="button" onclick="moveSelectedToStart()" id="batchFirstButton" title="Flytt merkede først">⇤</button>
         <button class="action-button" type="button" onclick="moveSelected(-1)" id="batchLeftButton" title="Flytt merkede til venstre">←</button>
         <button class="action-button" type="button" onclick="moveSelected(1)" id="batchRightButton" title="Flytt merkede til høyre">→</button>
         <button class="action-button" type="button" onclick="moveSelectedToEnd()" id="batchLastButton" title="Flytt merkede sist">⇥</button>
+        <button class="action-button" id="selectionModeButton" type="button" onclick="toggleSelectionMode()" title="Start/avslutt merking">+</button>
         <button class="action-button" type="button" onclick="deactivateSelectedStops()" id="batchDeleteButton" title="Deaktiver merkede stopp">🗑</button>
       </div>
     </div>
@@ -756,6 +792,16 @@ function updateToolbar(){
   document.getElementById("batchDeleteButton").disabled = !hasSelection;
 }
 
+function openImageOrderForStop(stopId){
+  const caseName = getCaseFromUrl();
+
+  if(!caseName || !stopId){
+    return;
+  }
+
+  window.location.href = `image-order.html?case=${encodeURIComponent(caseName)}&stop=${encodeURIComponent(stopId)}`;
+}
+
 function renderStops(){
   const list = document.getElementById("stopList");
 
@@ -773,7 +819,14 @@ function renderStops(){
     return `
       <div class="stop-card ${selected ? "selected" : ""}" data-id="${esc(stop.id)}">
         <div class="stop-number">${index + 1}</div>
-        ${imageUrl ? `<img class="stop-thumb" src="${esc(imageUrl)}" alt="">` : `<div class="stop-thumb-placeholder">Ingen bilde</div>`}
+        <button
+          class="stop-thumb-button"
+          type="button"
+          onclick="openImageOrderForStop('${esc(stop.id)}')"
+          title="Rediger bilder for dette stoppet"
+        >
+          ${imageUrl ? `<img class="stop-thumb" src="${esc(imageUrl)}" alt="">` : `<div class="stop-thumb-placeholder">Ingen bilde</div>`}
+        </button>
         <div class="stop-info">
           <div class="stop-title">${esc(stop.stopName || stop.title || `Stopp ${index + 1}`)}</div>
           <div class="stop-meta">${esc(metaParts.join(" • "))}</div>
