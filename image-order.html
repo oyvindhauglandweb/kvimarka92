@@ -301,7 +301,7 @@ body{
     <h1 class="site-title">Sorter bilder</h1>
     <div class="subtitle" id="pageSubtitle">Kvimarka 92</div>
     <div class="top-buttons">
-      <a class="top-button" href="javascript:history.back()" title="Tilbake">←</a>
+      <a class="top-button" id="backToRouteButton" href="reiserute.html" title="Tilbake til reiserute">←</a>
       <a class="top-button" href="index.html" title="Hovedside">⌂</a>
     </div>
   </div>
@@ -377,6 +377,44 @@ function setStatus(message, type){
   const status = document.getElementById("status");
   status.className = "status" + (type ? ` ${type}` : "");
   status.innerHTML = message;
+}
+
+function scrollToStatus(){
+  const status = document.getElementById("status");
+
+  if(status){
+    status.scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+  }
+}
+
+function getCurrentStopNumber(){
+  if(!routeData || !Array.isArray(routeData.stops) || !currentStop){
+    return 0;
+  }
+
+  const index = routeData.stops.findIndex(stop => Number(stop.id) === Number(currentStop.id));
+
+  return index >= 0 ? index + 1 : 0;
+}
+
+function updateRouteLink(){
+  const caseName = getCaseFromUrl();
+  const stopNumber = getCurrentStopNumber();
+  const refreshValue = Date.now();
+  const hash = stopNumber ? `#stop-${stopNumber}` : "";
+
+  const href = `reiserute.html?case=${encodeURIComponent(caseName)}&refresh=${refreshValue}${hash}`;
+
+  document.getElementById("routeLink").href = href;
+
+  const backButton = document.getElementById("backToRouteButton");
+
+  if(backButton){
+    backButton.href = href;
+  }
 }
 
 async function fetchJson(url, options){
@@ -614,7 +652,9 @@ async function loadPage(){
 
   document.getElementById("caseValue").textContent = caseName || "-";
   document.getElementById("stopValue").textContent = stopId ? String(stopId) : "-";
-  document.getElementById("routeLink").href = `reiserute.html?case=${encodeURIComponent(caseName)}`;
+  const initialRouteHref = `reiserute.html?case=${encodeURIComponent(caseName)}&refresh=${Date.now()}`;
+  document.getElementById("routeLink").href = initialRouteHref;
+  document.getElementById("backToRouteButton").href = initialRouteHref;
 
   if(!caseName || !stopId){
     setStatus("Mangler case eller stop i URL-en.<br><br>Eksempel: <code>image-order.html?case=USA%202006&stop=123</code>", "error");
@@ -661,6 +701,7 @@ async function reloadFromServer(){
 
     hasUnsavedChanges = false;
     renderImages();
+    updateRouteLink();
     document.getElementById("imagesCard").style.display = "block";
 
     if(!currentImages.length){
@@ -699,10 +740,13 @@ async function saveImageOrder(){
     });
 
     hasUnsavedChanges = false;
-    setStatus("Bilderekkefølgen er lagret.", "success");
+    updateRouteLink();
+    setStatus("Bilderekkefølgen er lagret. Når du går tilbake til reiseruten, lastes siden på nytt og hopper til dette stoppet.", "success");
+    scrollToStatus();
   }catch(error){
     console.error(error);
     setStatus(`Kunne ikke lagre bilderekkefølgen.<br><br>${esc(error.message)}`, "error");
+    scrollToStatus();
   }finally{
     saveButton.disabled = false;
   }
