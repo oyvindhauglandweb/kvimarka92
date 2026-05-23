@@ -312,6 +312,21 @@ const menuState = {
   selectedLevels: []
 };
 
+const MENU_STATE_STORAGE_KEY = "kvimarka92MenuState";
+
+const ROUTE_MENU_KEYWORDS = [
+  "ferie",
+  "ferier",
+  "ferietur",
+  "ferieturer",
+  "reiserute",
+  "reiseruter",
+  "route",
+  "routes",
+  "holiday",
+  "holidays"
+];
+
 function esc(value){
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -518,6 +533,70 @@ function getLevelValue(item, depth){
   return String(item[fieldName] || "").trim();
 }
 
+function saveMenuState(){
+  try{
+    sessionStorage.setItem(MENU_STATE_STORAGE_KEY, JSON.stringify(menuState));
+  }catch(error){
+    console.warn("Could not save menu state.", error);
+  }
+}
+
+function restoreMenuState(){
+  try{
+    const saved = JSON.parse(sessionStorage.getItem(MENU_STATE_STORAGE_KEY) || "null");
+
+    if(!saved || typeof saved !== "object"){
+      return;
+    }
+
+    const availableAreas = getAvailableAreas().map(area => area.key);
+
+    if(!availableAreas.includes(saved.area)){
+      return;
+    }
+
+    menuState.area = saved.area || "";
+    menuState.selectedLevels = Array.isArray(saved.selectedLevels)
+      ? saved.selectedLevels
+      : [];
+  }catch(error){
+    console.warn("Could not restore menu state.", error);
+  }
+}
+
+function isRouteMenuItem(item){
+  const values = [
+    item.buttonText,
+    ...LEVEL_FIELDS.map(fieldName => item[fieldName])
+  ]
+    .map(value => String(value || "").trim().toLowerCase())
+    .filter(Boolean);
+
+  return values.some(value =>
+    ROUTE_MENU_KEYWORDS.some(keyword => value.includes(keyword))
+  );
+}
+
+function getMenuItemUrl(item){
+  const rawUrl = String(item.url || "").trim();
+
+  if(!isRouteMenuItem(item)){
+    return rawUrl;
+  }
+
+  if(/(?:^|\/)reiserute\.html(?:\?|$)/i.test(rawUrl)){
+    return rawUrl;
+  }
+
+  const caseName = String(item.buttonText || "").trim();
+
+  if(!caseName){
+    return rawUrl;
+  }
+
+  return `reiserute.html?case=${encodeURIComponent(caseName)}`;
+}
+
 function resetLevelsFrom(depth){
   menuState.selectedLevels = menuState.selectedLevels.slice(0, depth - 1);
 }
@@ -591,7 +670,9 @@ function renderAreaButtons(container){
         }
 
         menuState.selectedLevels = [];
+        saveMenuState();
 
+        saveMenuState();
         renderPathMenu();
       }
     });
@@ -613,9 +694,12 @@ function renderMenuDepth(container, depth){
       const item = node.item;
 
       const button = makeButton(item.buttonText, {
-        href:item.url,
+        href:getMenuItemUrl(item),
         openInNewTab:item.openInNewTab,
-        leaf:true
+        leaf:true,
+        onClick:function(){
+          saveMenuState();
+        }
       });
 
       container.appendChild(makeRow(depth, button));
@@ -634,6 +718,7 @@ function renderMenuDepth(container, depth){
           menuState.selectedLevels[depth - 1] = node.label;
         }
 
+        saveMenuState();
         renderPathMenu();
       }
     });
@@ -673,6 +758,7 @@ async function loadPage(){
 
   allMenuItems = menuData.items || [];
 
+  restoreMenuState();
   renderPathMenu();
   statusBox.style.display = "none";
 }
