@@ -936,7 +936,7 @@ function setupImageModal(){
     passive:true
   });
 }
-  });
+
 }
 
 function setupStopImageClicks(stops){
@@ -1064,22 +1064,7 @@ function renderMap(stops){
       const title = data.case?.title || data.case?.caseName || "Reiserute";
       const stops = data.stops || [];
 
-console.log(
-  "Stops with image field:",
-  stops
-    .map((stop, index) => ({
-      index:index + 1,
-      title:stop.title,
-      stopName:stop.stopName,
-      image:stop.image,
-      imageIsArray:Array.isArray(stop.image),
-      imageCount:Array.isArray(stop.image) ? stop.image.length : null,
-      parsedUrls:getFileUrls(stop.image)
-    }))
-    .filter(stop => stop.imageCount || stop.image)
-);
-      
-      document.title = title + " - Reiserute";
+document.title = title + " - Reiserute";
       document.getElementById("pageTitle").textContent = title;
       document.getElementById("pageSubtitle").textContent = "Reiserute";
 
