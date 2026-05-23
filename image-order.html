@@ -217,7 +217,7 @@ body{
 
 .image-controls{
   display:grid;
-  grid-template-columns:1fr;
+  grid-template-columns:repeat(6,1fr);
   gap:0;
   padding:8px;
   border-top:1px solid var(--border);
@@ -227,11 +227,21 @@ body{
   height:32px;
   margin:0;
   border:1px solid var(--border);
-  border-radius:7px;
+  border-radius:0;
   background:var(--button);
   color:var(--text);
   font-weight:bold;
   cursor:pointer;
+}
+
+.image-controls button:first-child{
+  border-top-left-radius:7px;
+  border-bottom-left-radius:7px;
+}
+
+.image-controls button:last-child{
+  border-top-right-radius:7px;
+  border-bottom-right-radius:7px;
 }
 
 .image-controls button:hover{
@@ -396,7 +406,7 @@ body{
 }
 
 @media(max-width:800px){
-  .image-controls{
+ .image-controls{
     padding:6px;
     gap:0;
   }
@@ -924,16 +934,14 @@ function renderImages(){
           <img src="${esc(imageUrl)}" alt="${esc(imageName)}">
         </button>
         <div class="image-caption">${esc(imageName)}</div>
-        ${selectionMode ? `
-          <div class="image-controls">
-            <button
-              class="select-button ${selectedImageIndices.has(index) ? "selected" : ""}"
-              type="button"
-              onclick="toggleImageSelection(${index})"
-              title="Merk bilde for batch-håndtering"
-            >${selectedImageIndices.has(index) ? "✓ Merket" : "□ Merk"}</button>
-          </div>
-        ` : ""}
+        <div class="image-controls">
+          <button type="button" onclick="moveImageToStart(${index})" title="Flytt først" ${index === 0 ? "disabled" : ""}>⇤</button>
+          <button type="button" onclick="moveImage(${index}, ${index - 1})" title="Flytt til venstre" ${index === 0 ? "disabled" : ""}>←</button>
+          <button type="button" onclick="moveImage(${index}, ${index + 1})" title="Flytt til høyre" ${index === currentImages.length - 1 ? "disabled" : ""}>→</button>
+          <button type="button" onclick="moveImageToEnd(${index})" title="Flytt sist" ${index === currentImages.length - 1 ? "disabled" : ""}>⇥</button>
+          <button type="button" onclick="chooseImageForInsert(${index})" title="Legg til bilde her">+</button>
+          <button type="button" onclick="deleteImage(${index})" class="delete-button" title="Slett bilde">🗑</button>
+        </div>
       </div>
     `;
   }).join("");
@@ -965,6 +973,11 @@ function updateImageViewer(){
 
 function openImageViewer(index){
   if(!currentImages.length){
+    return;
+  }
+
+  if(selectionMode){
+    toggleImageSelection(index);
     return;
   }
 
