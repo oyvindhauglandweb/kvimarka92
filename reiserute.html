@@ -415,6 +415,40 @@
       color:var(--text);
     }
 
+.route-action-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:0 14px;
+  margin-top:10px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:14px;
+  font-weight:bold;
+  box-sizing:border-box;
+  cursor:pointer;
+}
+
+.route-action-button:hover{
+  background:#e9eef2;
+}
+
+body.dark-mode .route-action-button:hover{
+  background:#3a3a3a;
+}
+
+.empty-route-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+
     .leaflet-container{
       background:var(--soft);
       overflow:hidden;
@@ -498,7 +532,7 @@
       <div class="subtitle" id="pageSubtitle">Kvimarka 92</div>
 
       <div class="top-buttons">
-        <a class="top-button" href="index.html" title="Til hovedside">←</a>
+        <a class="top-button" href="javascript:history.back()" title="Tilbake">←</a>
         <a class="top-button" href="index.html" title="Hovedside">⌂</a>
       </div>
     </div>
@@ -581,14 +615,18 @@ function getFileUrl(fileField){
       return params.get("case") || "";
     }
 
-    async function fetchJson(url){
+    async function fetchJson(url, options){
       const res = await fetch(url, {
-        credentials:"include"
+        credentials:"include",
+        ...(options || {})
       });
 
       if(!res.ok){
         const text = await res.text();
-        throw new Error(text || "Request failed");
+        const error = new Error(text || "Request failed");
+        error.status = res.status;
+        error.responseText = text;
+        return Promise.reject(error);
       }
 
       return await res.json();
@@ -734,6 +772,98 @@ function renderStopList(stops){
     </div>
   `;
 }
+
+
+function renderMissingRouteCase(caseName){
+  const content = document.getElementById("content");
+
+  document.title = `${caseName} - Reiserute`;
+  document.getElementById("pageTitle").textContent = caseName || "Reiserute";
+  document.getElementById("pageSubtitle").textContent = "Reiserute";
+
+  content.innerHTML = `
+    <div class="error-box">
+      <h2>Reiseruten finnes ikke ennå</h2>
+      <p>Fant ingen Route Case for <strong>${esc(caseName)}</strong>.</p>
+
+      ${currentUser?.role === "Administrator" ? `
+        <button class="route-action-button" type="button" onclick="createRouteCase()">
+          Opprett reiserute
+        </button>
+      ` : `
+        <p>Kontakt administrator for å opprette denne reiseruten.</p>
+      `}
+    </div>
+  `;
+}
+
+function renderEmptyRoute(data){
+  const content = document.getElementById("content");
+  const caseName = data.case?.caseName || data.case?.title || getCaseFromUrl();
+  const title = data.case?.title || caseName || "Reiserute";
+
+  document.title = title + " - Reiserute";
+  document.getElementById("pageTitle").textContent = title;
+  document.getElementById("pageSubtitle").textContent = "Reiserute";
+
+  content.innerHTML = `
+    ${renderSummary(data)}
+    <div class="card">
+      <h2>Ingen stoppesteder ennå</h2>
+      <p>Denne reiseruten er opprettet, men har ingen aktive stoppesteder ennå.</p>
+
+      ${currentUser?.role === "Administrator" ? `
+        <div class="empty-route-actions">
+          <a class="route-action-button" href="stop-order.html?case=${encodeURIComponent(caseName)}">
+            Rediger stoppesteder
+          </a>
+        </div>
+      ` : ""}
+    </div>
+  `;
+}
+
+async function createRouteCase(){
+  const caseName = getCaseFromUrl();
+  const content = document.getElementById("content");
+
+  if(!caseName){
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="card">
+      Oppretter reiserute for <strong>${esc(caseName)}</strong>...
+    </div>
+  `;
+
+  try{
+    await fetchJson(`${API_BASE}/route-case-create`, {
+      method:"POST",
+      headers:{
+        "Content-Type":"text/plain;charset=UTF-8"
+      },
+      body:JSON.stringify({
+        caseName,
+        title:caseName,
+        accessLevel:"Private"
+      })
+    });
+
+    window.location.href =
+      `reiserute.html?case=${encodeURIComponent(caseName)}&refresh=${Date.now()}`;
+  }catch(error){
+    console.error(error);
+
+    content.innerHTML = `
+      <div class="error-box">
+        Kunne ikke opprette reiseruten.<br><br>
+        ${esc(error.message)}
+      </div>
+    `;
+  }
+}
+
 
 function parseCoordinate(value, type){
   if(value === null || value === undefined){
@@ -1106,7 +1236,7 @@ document.title = title + " - Reiserute";
       document.getElementById("pageSubtitle").textContent = "Reiserute";
 
       if(!stops.length){
-        content.innerHTML = `<div class="error-box">Denne reiseruten har ingen aktive stoppesteder med koordinater.</div>`;
+        renderEmptyRoute(data);
         return;
       }
 
@@ -1149,9 +1279,25 @@ async function fetchCurrentUser(){
         throw new Error("Mangler route case i URL-en.");
       }
 
-      const data = await fetchJson(`${API_BASE}/route?case=${encodeURIComponent(caseName)}`);
       currentUser = await fetchCurrentUser();
-      renderRoute(data);
+
+      try{
+        const data = await fetchJson(`${API_BASE}/route?case=${encodeURIComponent(caseName)}`);
+        renderRoute(data);
+      }catch(error){
+        const message = String(error.message || "");
+        const responseText = String(error.responseText || "");
+
+        if(
+          error.status === 404 &&
+          (message.includes("Route case not found") || responseText.includes("Route case not found"))
+        ){
+          renderMissingRouteCase(caseName);
+          return;
+        }
+
+        throw error;
+      }
     }
 
     loadRoute().catch(error => {
