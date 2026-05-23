@@ -630,6 +630,19 @@ textarea{
         </div>
 
         <div class="form-field full">
+          <button
+            class="action-button"
+            type="button"
+            onclick="findGpsForCurrentStop()"
+            id="findGpsButton"
+            title="Finn GPS-koordinater basert på stoppnavn"
+          >Finn GPS</button>
+          <div class="small-help" id="gpsHelpText">
+            Søker etter GPS-koordinater basert på stoppnavn/title og fyller inn Latitude/Longitude. Kontroller treffet før du lagrer.
+          </div>
+        </div>
+
+        <div class="form-field full">
           <label for="editRoads">Veier</label>
           <input id="editRoads" type="text">
         </div>
@@ -1039,6 +1052,81 @@ function readEditForm(){
     webLink:document.getElementById("editWebLink").value.trim(),
     description:document.getElementById("editDescription").value.trim()
   };
+}
+
+
+function buildGpsSearchQuery(){
+  const stopName = document.getElementById("editStopName").value.trim();
+  const title = document.getElementById("editTitle").value.trim();
+  const description = document.getElementById("editDescription").value.trim();
+
+  const primaryName = stopName || title;
+
+  if(!primaryName){
+    return "";
+  }
+
+  const extraContext = description
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean)[0] || "";
+
+  return [
+    primaryName,
+    extraContext,
+    "USA"
+  ].filter(Boolean).join(", ");
+}
+
+async function findGpsForCurrentStop(){
+  const button = document.getElementById("findGpsButton");
+  const query = buildGpsSearchQuery();
+
+  if(!query){
+    setStatus("Mangler stoppnavn/title å søke etter.", "error");
+    return;
+  }
+
+  if(button){
+    button.disabled = true;
+    button.textContent = "Søker...";
+  }
+
+  setStatus(`Søker etter GPS-koordinater for <strong>${esc(query)}</strong>...`);
+
+  try{
+    const data = await fetchJson(`${API_BASE}/geocode?q=${encodeURIComponent(query)}`);
+
+    if(!data.results || !data.results.length){
+      setStatus(`Fant ingen GPS-treff for <strong>${esc(query)}</strong>.`, "error");
+      return;
+    }
+
+    const best = data.results[0];
+    const latitude = Number(best.latitude);
+    const longitude = Number(best.longitude);
+
+    if(!Number.isFinite(latitude) || !Number.isFinite(longitude)){
+      setStatus("GPS-treffet manglet gyldige koordinater.", "error");
+      return;
+    }
+
+    document.getElementById("editLatitude").value = latitude.toFixed(4);
+    document.getElementById("editLongitude").value = longitude.toFixed(4);
+
+    setStatus(
+      `Fant GPS-koordinater:<br><strong>${esc(best.name || query)}</strong><br>${latitude.toFixed(4)}, ${longitude.toFixed(4)}<br><br>Kontroller treffet og trykk «Lagre stopp» hvis det stemmer.`,
+      "success"
+    );
+  }catch(error){
+    console.error(error);
+    setStatus(`Kunne ikke finne GPS-koordinater.<br><br>${esc(error.message)}`, "error");
+  }finally{
+    if(button){
+      button.disabled = false;
+      button.textContent = "Finn GPS";
+    }
+  }
 }
 
 function openEditStopModal(stopId){
