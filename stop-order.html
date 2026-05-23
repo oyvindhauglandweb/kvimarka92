@@ -235,7 +235,7 @@ body{
 .add-first-stop-button:hover{
   background:var(--button-hover);
 }
-  
+
 .stop-card{
   border:1px solid var(--border);
   border-radius:12px;
@@ -747,6 +747,12 @@ textarea{
           <input id="editWebLink" type="url">
         </div>
 
+        <div class="form-field full" id="firstImageField">
+          <label for="editFirstImage">Første bilde</label>
+          <input id="editFirstImage" type="file" accept="image/*">
+          <div class="small-help">Valgfritt. Bildet legges inn som første bilde når nytt stopp opprettes.</div>
+        </div>
+
         <div class="form-field full">
           <label for="editDescription">Beskrivelse</label>
           <textarea id="editDescription"></textarea>
@@ -913,27 +919,29 @@ function openImageOrderForStop(stopId){
 
 function renderStops(){
   const list = document.getElementById("stopList");
-if(!currentStops.length){
-  list.innerHTML = `
-    <div class="add-first-stop-card">
-      <div class="small-help" style="margin-bottom:12px;">
-        Denne reiseruten har ingen stoppesteder ennå.
+
+  if(!currentStops.length){
+    list.innerHTML = `
+      <div class="add-first-stop-card">
+        <div class="small-help" style="margin-bottom:12px;">
+          Denne reiseruten har ingen stoppesteder ennå.
+        </div>
+
+        <button
+          class="add-first-stop-button"
+          type="button"
+          onclick="openCreateStopModal(0)"
+        >
+          + Legg til første stoppested
+        </button>
       </div>
+    `;
 
-      <button
-        class="add-first-stop-button"
-        type="button"
-        onclick="openCreateStopModal(0)"
-      >
-        + Legg til første stoppested
-      </button>
-    </div>
-  `;
+    document.getElementById("stopCountValue").textContent = "0";
+    updateToolbar();
+    return;
+  }
 
-  document.getElementById("stopCountValue").textContent = "0";
-  updateToolbar();
-  return;
-}
   list.innerHTML = currentStops.map((stop, index) => {
     const selected = selectedStopIds.has(String(stop.id));
     const imageUrl = getImageUrl(stop.image);
@@ -1216,6 +1224,10 @@ function fillEditForm(stop){
   document.getElementById("editRoads").value = stop.roads || "";
   document.getElementById("editWebLink").value = stop.webLink || "";
   document.getElementById("editDescription").value = stop.description || "";
+  const firstImageInput = document.getElementById("editFirstImage");
+  if(firstImageInput){
+    firstImageInput.value = "";
+  }
   setSuggestedGpsQuery();
 }
 
@@ -1349,6 +1361,10 @@ function openEditStopModal(stopId){
   editingStopId = Number(stop.id);
   document.getElementById("editModalTitle").textContent = "Rediger stopp";
   fillEditForm(stop);
+  const firstImageField = document.getElementById("firstImageField");
+  if(firstImageField){
+    firstImageField.style.display = "none";
+  }
   document.getElementById("editModal").classList.add("open");
 }
 
@@ -1359,6 +1375,14 @@ function openCreateStopModal(insertIndex){
     ? Math.max(0, Math.min(Number(insertIndex), currentStops.length))
     : currentStops.length;
   document.getElementById("editModalTitle").textContent = "Legg til nytt stopp";
+  const firstImageField = document.getElementById("firstImageField");
+  if(firstImageField){
+    firstImageField.style.display = "flex";
+  }
+  const firstImageInput = document.getElementById("editFirstImage");
+  if(firstImageInput){
+    firstImageInput.value = "";
+  }
   fillEditForm({
     title:"",
     stopName:"",
@@ -1386,6 +1410,24 @@ function editSelectedStop(){
   }
 
   openEditStopModal(Array.from(selectedStopIds)[0]);
+}
+
+async function uploadRouteStopImage(file){
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE}/route-stop-image-upload`, {
+    method:"POST",
+    credentials:"include",
+    body:formData
+  });
+
+  if(!res.ok){
+    const text = await res.text();
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+
+  return await res.json();
 }
 
 async function saveStopForm(event){
@@ -1453,6 +1495,15 @@ async function saveStopForm(event){
         ? (previousSortOrder + nextSortOrder) / 2
         : previousSortOrder + 10;
 
+      const firstImageInput = document.getElementById("editFirstImage");
+      const firstImageFile = firstImageInput?.files?.[0] || null;
+      let firstImage = null;
+
+      if(firstImageFile){
+        setStatus("Laster opp første bilde...");
+        firstImage = await uploadRouteStopImage(firstImageFile);
+      }
+
       const result = await fetchJson(`${API_BASE}/route-stop-create`, {
         method:"POST",
         headers:{
@@ -1462,7 +1513,8 @@ async function saveStopForm(event){
           caseName:getCaseFromUrl(),
           data:{
             ...values,
-            sortOrder
+            sortOrder,
+            image:firstImage ? [firstImage] : []
           }
         })
       });
