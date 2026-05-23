@@ -199,7 +199,7 @@ body{
 
 .image-controls{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(6,1fr);
   gap:6px;
   padding:10px;
   border-top:1px solid var(--border);
@@ -216,6 +216,37 @@ body{
 }
 
 .image-controls button:hover{
+  background:var(--button-hover);
+}
+
+.image-controls .delete-button{
+  color:#ff8b8b;
+}
+
+.add-first-card{
+  grid-column:1 / -1;
+  border:1px dashed var(--border);
+  border-radius:12px;
+  padding:22px;
+  text-align:center;
+  background:rgba(127,127,127,.04);
+}
+
+.add-first-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:0 14px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--button);
+  color:var(--text);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.add-first-button:hover{
   background:var(--button-hover);
 }
 
@@ -302,6 +333,7 @@ body{
     </div>
 
     <div id="imageList" class="image-list" style="margin-top:14px;"></div>
+    <input id="imageUploadInput" type="file" accept="image/*" style="display:none;">
 
     <div class="save-row">
       <a class="action-button" id="routeLink" href="reiserute.html">Til reiserute</a>
@@ -319,6 +351,7 @@ let routeData = null;
 let currentStop = null;
 let currentImages = [];
 let draggedIndex = null;
+let pendingInsertIndex = null;
 let hasUnsavedChanges = false;
 
 function esc(value){
@@ -420,6 +453,18 @@ function moveImage(fromIndex, toIndex){
 function renderImages(){
   const list = document.getElementById("imageList");
 
+  if(!currentImages.length){
+    list.innerHTML = `
+      <div class="add-first-card">
+        <div class="small-help" style="margin-bottom:12px;">Dette stoppet har ingen bilder.</div>
+        <button class="add-first-button" type="button" onclick="chooseImageForInsert(0)">＋ Legg til første bilde</button>
+      </div>
+    `;
+
+    document.getElementById("imageCountValue").textContent = "0";
+    return;
+  }
+
   list.innerHTML = currentImages.map((image, index) => {
     const imageUrl = getImageUrl(image);
     const imageName = getImageName(image, index);
@@ -445,12 +490,87 @@ function renderImages(){
           <button type="button" onclick="moveImage(${index}, ${index - 1})" ${index === 0 ? "disabled" : ""} title="Flytt opp">↑</button>
           <button type="button" onclick="moveImage(${index}, ${index + 1})" ${index === currentImages.length - 1 ? "disabled" : ""} title="Flytt ned">↓</button>
           <button type="button" onclick="moveImage(${index}, ${currentImages.length - 1})" ${index === currentImages.length - 1 ? "disabled" : ""} title="Flytt sist">⇥</button>
+          <button type="button" onclick="chooseImageForInsert(${index})" title="Legg til nytt bilde her">＋</button>
+          <button class="delete-button" type="button" onclick="deleteImage(${index})" title="Slett bildet fra stoppet">🗑</button>
         </div>
       </div>
     `;
   }).join("");
 
   document.getElementById("imageCountValue").textContent = String(currentImages.length);
+}
+
+function chooseImageForInsert(index){
+  pendingInsertIndex = Math.max(0, Math.min(index, currentImages.length));
+
+  const input = document.getElementById("imageUploadInput");
+  input.value = "";
+  input.click();
+}
+
+function deleteImage(index){
+  if(index < 0 || index >= currentImages.length){
+    return;
+  }
+
+  const imageName = getImageName(currentImages[index], index);
+
+  if(!confirm(`Slette dette bildet fra stoppet?\n\n${imageName}`)){
+    return;
+  }
+
+  currentImages.splice(index, 1);
+  hasUnsavedChanges = true;
+  renderImages();
+  setStatus("Bildet er fjernet lokalt. Trykk «Lagre bilderekkefølge» for å lagre endringen.", "success");
+}
+
+async function uploadRouteStopImage(file){
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE}/route-stop-image-upload`, {
+    method:"POST",
+    credentials:"include",
+    body:formData
+  });
+
+  if(!res.ok){
+    const text = await res.text();
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+
+  return await res.json();
+}
+
+async function handleImageUploadChange(event){
+  const file = event.target.files && event.target.files[0];
+
+  if(!file){
+    return;
+  }
+
+  const insertIndex = pendingInsertIndex === null
+    ? currentImages.length
+    : pendingInsertIndex;
+
+  setStatus("Laster opp nytt bilde...");
+
+  try{
+    const uploadedImage = await uploadRouteStopImage(file);
+
+    currentImages.splice(insertIndex, 0, uploadedImage);
+    pendingInsertIndex = null;
+    hasUnsavedChanges = true;
+
+    renderImages();
+    setStatus("Nytt bilde er lastet opp og lagt inn i listen. Trykk «Lagre bilderekkefølge» for å lagre endringen på stoppet.", "success");
+  }catch(error){
+    console.error(error);
+    setStatus(`Kunne ikke laste opp bildet.<br><br>${esc(error.message)}`, "error");
+  }finally{
+    event.target.value = "";
+  }
 }
 
 function handleDragStart(event, index){
@@ -539,15 +659,15 @@ async function reloadFromServer(){
     document.getElementById("stopValue").textContent = currentStop.stopName || currentStop.title || String(stopId);
     document.getElementById("pageSubtitle").textContent = routeData.case?.title || routeData.case?.caseName || caseName;
 
-    if(!currentImages.length){
-      setStatus("Dette stoppet har ingen bilder å sortere.", "error");
-      document.getElementById("imageCountValue").textContent = "0";
-      return;
-    }
-
     hasUnsavedChanges = false;
     renderImages();
     document.getElementById("imagesCard").style.display = "block";
+
+    if(!currentImages.length){
+      setStatus(`Klar. Dette stoppet har ingen bilder ennå. Du kan legge til første bilde.`, "success");
+      return;
+    }
+
     setStatus(`Klar. Sorterer bilder for <strong>${esc(currentStop.stopName || currentStop.title || stopId)}</strong>.`, "success");
   }catch(error){
     console.error(error);
@@ -559,7 +679,7 @@ async function saveImageOrder(){
   const stopId = getStopIdFromUrl();
   const saveButton = document.getElementById("saveButton");
 
-  if(!stopId || !currentImages.length){
+  if(!stopId){
     return;
   }
 
@@ -596,6 +716,8 @@ window.addEventListener("beforeunload", function(event){
   event.preventDefault();
   event.returnValue = "";
 });
+
+document.getElementById("imageUploadInput").addEventListener("change", handleImageUploadChange);
 
 loadPage().catch(error => {
   console.error(error);
