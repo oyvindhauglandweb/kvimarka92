@@ -253,6 +253,25 @@ body{
   color:#fff;
 }
 
+
+.image-controls.selection-controls{
+  grid-template-columns:1fr;
+}
+
+.image-controls.selection-controls button{
+  border-radius:7px;
+}
+
+.image-controls .mark-button{
+  background:var(--button);
+}
+
+.image-controls .mark-button.selected{
+  background:var(--link);
+  color:#fff;
+  border-color:var(--link);
+}
+
 .batch-toolbar{
   display:flex;
   align-items:center;
@@ -921,7 +940,7 @@ function renderImages(){
     return `
       <div
         class="image-card ${selectedImageIndices.has(index) ? "selected" : ""}"
-        draggable="true"
+        draggable="${selectionMode ? "false" : "true"}"
         data-index="${index}"
         ondragstart="handleDragStart(event, ${index})"
         ondragover="handleDragOver(event, ${index})"
@@ -934,14 +953,25 @@ function renderImages(){
           <img src="${esc(imageUrl)}" alt="${esc(imageName)}">
         </button>
         <div class="image-caption">${esc(imageName)}</div>
-        <div class="image-controls">
-          <button type="button" onclick="moveImageToStart(${index})" title="Flytt først" ${index === 0 ? "disabled" : ""}>⇤</button>
-          <button type="button" onclick="moveImage(${index}, ${index - 1})" title="Flytt til venstre" ${index === 0 ? "disabled" : ""}>←</button>
-          <button type="button" onclick="moveImage(${index}, ${index + 1})" title="Flytt til høyre" ${index === currentImages.length - 1 ? "disabled" : ""}>→</button>
-          <button type="button" onclick="moveImageToEnd(${index})" title="Flytt sist" ${index === currentImages.length - 1 ? "disabled" : ""}>⇥</button>
-          <button type="button" onclick="chooseImageForInsert(${index})" title="Legg til bilde her">+</button>
-          <button type="button" onclick="deleteImage(${index})" class="delete-button" title="Slett bilde">🗑</button>
-        </div>
+        ${selectionMode ? `
+          <div class="image-controls selection-controls">
+            <button
+              type="button"
+              class="mark-button ${selectedImageIndices.has(index) ? "selected" : ""}"
+              onclick="toggleImageSelection(${index})"
+              title="${selectedImageIndices.has(index) ? "Fjern merking" : "Merk bilde"}"
+            >${selectedImageIndices.has(index) ? "✓ Merket" : "Merk"}</button>
+          </div>
+        ` : `
+          <div class="image-controls">
+            <button type="button" onclick="moveImageToStart(${index})" title="Flytt først" ${index === 0 ? "disabled" : ""}>⇤</button>
+            <button type="button" onclick="moveImage(${index}, ${index - 1})" title="Flytt til venstre" ${index === 0 ? "disabled" : ""}>←</button>
+            <button type="button" onclick="moveImage(${index}, ${index + 1})" title="Flytt til høyre" ${index === currentImages.length - 1 ? "disabled" : ""}>→</button>
+            <button type="button" onclick="moveImageToEnd(${index})" title="Flytt sist" ${index === currentImages.length - 1 ? "disabled" : ""}>⇥</button>
+            <button type="button" onclick="chooseImageForInsert(${index})" title="Legg til bilde her">+</button>
+            <button type="button" onclick="deleteImage(${index})" class="delete-button" title="Slett bilde">🗑</button>
+          </div>
+        `}
       </div>
     `;
   }).join("");

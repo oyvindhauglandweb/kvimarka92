@@ -259,10 +259,14 @@ body{
 
 .stop-controls{
   display:grid;
-  grid-template-columns:repeat(6,1fr);
+  grid-template-columns:repeat(7,1fr);
   gap:0;
   padding:8px;
   border-top:1px solid var(--border);
+}
+
+.stop-controls.selection-controls{
+  grid-template-columns:1fr;
 }
 
 .stop-controls button{
@@ -290,6 +294,25 @@ body{
   background:var(--link);
   color:#fff;
   border-color:var(--link);
+}
+
+
+.stop-controls.selection-controls button{
+  border-radius:7px;
+}
+
+.stop-controls .mark-button{
+  background:var(--button);
+}
+
+.stop-controls .mark-button.selected{
+  background:var(--link);
+  color:#fff;
+  border-color:var(--link);
+}
+
+.stop-controls .delete-button{
+  color:#ff8b8b;
 }
 
 .save-row{
@@ -423,7 +446,26 @@ textarea{
     min-height:150px;
   }
 
-  .save-row{
+  
+.stop-controls.selection-controls button{
+  border-radius:7px;
+}
+
+.stop-controls .mark-button{
+  background:var(--button);
+}
+
+.stop-controls .mark-button.selected{
+  background:var(--link);
+  color:#fff;
+  border-color:var(--link);
+}
+
+.stop-controls .delete-button{
+  color:#ff8b8b;
+}
+
+.save-row{
     flex-direction:column;
   }
 
@@ -482,8 +524,6 @@ textarea{
         <button class="action-button" type="button" onclick="moveSelected(-1)" id="batchLeftButton" title="Flytt merkede til venstre">←</button>
         <button class="action-button" type="button" onclick="moveSelected(1)" id="batchRightButton" title="Flytt merkede til høyre">→</button>
         <button class="action-button" type="button" onclick="moveSelectedToEnd()" id="batchLastButton" title="Flytt merkede sist">⇥</button>
-        <button class="action-button" type="button" onclick="openCreateStopModal()" title="Legg til nytt stopp">＋</button>
-        <button class="action-button" type="button" onclick="editSelectedStop()" id="batchEditButton" title="Rediger ett merket stopp">✎</button>
         <button class="action-button" type="button" onclick="deactivateSelectedStops()" id="batchDeleteButton" title="Deaktiver merkede stopp">🗑</button>
       </div>
     </div>
@@ -588,6 +628,7 @@ let selectionMode = false;
 let hasUnsavedChanges = false;
 let editMode = "edit";
 let editingStopId = null;
+let pendingCreateIndex = null;
 
 function esc(value){
   return String(value ?? "")
@@ -692,18 +733,27 @@ function updateRouteLink(){
 }
 
 function updateToolbar(){
+  const selectedIndexes = getSelectedIndexes();
   const count = selectedStopIds.size;
+  const hasSelection = selectionMode && count > 0;
+  const minIndex = selectedIndexes.length ? Math.min(...selectedIndexes) : 0;
+  const maxIndex = selectedIndexes.length ? Math.max(...selectedIndexes) : 0;
   const selectionButton = document.getElementById("selectionModeButton");
 
-  selectionButton.classList.toggle("selection-active", selectionMode);
+  if(selectionButton){
+    selectionButton.classList.toggle("selection-active", selectionMode);
+    selectionButton.title = selectionMode ? "Avslutt merking" : "Start merking";
+    selectionButton.textContent = "+";
+    selectionButton.disabled = currentStops.length === 0;
+  }
+
   document.getElementById("selectedCountValue").textContent = String(count);
 
-  document.getElementById("batchFirstButton").disabled = count === 0;
-  document.getElementById("batchLeftButton").disabled = count === 0;
-  document.getElementById("batchRightButton").disabled = count === 0;
-  document.getElementById("batchLastButton").disabled = count === 0;
-  document.getElementById("batchEditButton").disabled = count !== 1;
-  document.getElementById("batchDeleteButton").disabled = count === 0;
+  document.getElementById("batchFirstButton").disabled = !(hasSelection && minIndex > 0);
+  document.getElementById("batchLeftButton").disabled = !(hasSelection && minIndex > 0);
+  document.getElementById("batchRightButton").disabled = !(hasSelection && maxIndex < currentStops.length - 1);
+  document.getElementById("batchLastButton").disabled = !(hasSelection && maxIndex < currentStops.length - 1);
+  document.getElementById("batchDeleteButton").disabled = !hasSelection;
 }
 
 function renderStops(){
@@ -729,14 +779,26 @@ function renderStops(){
           <div class="stop-meta">${esc(metaParts.join(" • "))}</div>
           <div class="stop-meta" style="margin-top:6px;">${esc(stop.latitude)}, ${esc(stop.longitude)}</div>
         </div>
-        <div class="stop-controls">
-          <button type="button" onclick="moveStopToStart(${index})" title="Flytt først" ${index === 0 ? "disabled" : ""}>⇤</button>
-          <button type="button" onclick="moveStop(${index}, ${index - 1})" title="Flytt til venstre" ${index === 0 ? "disabled" : ""}>←</button>
-          <button type="button" onclick="moveStop(${index}, ${index + 1})" title="Flytt til høyre" ${index === currentStops.length - 1 ? "disabled" : ""}>→</button>
-          <button type="button" onclick="moveStopToEnd(${index})" title="Flytt sist" ${index === currentStops.length - 1 ? "disabled" : ""}>⇥</button>
-          <button type="button" onclick="toggleStopSelection('${esc(stop.id)}')" title="Merk stopp" class="${selected ? "select-active" : ""}">+</button>
-          <button type="button" onclick="openEditStopModal('${esc(stop.id)}')" title="Rediger stopp">✎</button>
-        </div>
+        ${selectionMode ? `
+          <div class="stop-controls selection-controls">
+            <button
+              type="button"
+              class="mark-button ${selected ? "selected" : ""}"
+              onclick="toggleStopSelection('${esc(stop.id)}')"
+              title="${selected ? "Fjern merking" : "Merk stopp"}"
+            >${selected ? "✓ Merket" : "Merk"}</button>
+          </div>
+        ` : `
+          <div class="stop-controls">
+            <button type="button" onclick="moveStopToStart(${index})" title="Flytt først" ${index === 0 ? "disabled" : ""}>⇤</button>
+            <button type="button" onclick="moveStop(${index}, ${index - 1})" title="Flytt til venstre" ${index === 0 ? "disabled" : ""}>←</button>
+            <button type="button" onclick="moveStop(${index}, ${index + 1})" title="Flytt til høyre" ${index === currentStops.length - 1 ? "disabled" : ""}>→</button>
+            <button type="button" onclick="moveStopToEnd(${index})" title="Flytt sist" ${index === currentStops.length - 1 ? "disabled" : ""}>⇥</button>
+            <button type="button" onclick="openCreateStopModal(${index + 1})" title="Legg til nytt stopp etter dette">+</button>
+            <button type="button" onclick="openEditStopModal('${esc(stop.id)}')" title="Rediger stopp">✎</button>
+            <button type="button" onclick="deactivateOneStop('${esc(stop.id)}')" class="delete-button" title="Deaktiver stopp">🗑</button>
+          </div>
+        `}
       </div>
     `;
   }).join("");
@@ -782,7 +844,7 @@ function toggleSelectionMode(){
 
 function toggleStopSelection(stopId){
   if(!selectionMode){
-    selectionMode = true;
+    return;
   }
 
   if(selectedStopIds.has(String(stopId))){
@@ -940,9 +1002,12 @@ function openEditStopModal(stopId){
   document.getElementById("editModal").classList.add("open");
 }
 
-function openCreateStopModal(){
+function openCreateStopModal(insertIndex){
   editMode = "create";
   editingStopId = null;
+  pendingCreateIndex = Number.isFinite(Number(insertIndex))
+    ? Math.max(0, Math.min(Number(insertIndex), currentStops.length))
+    : currentStops.length;
   document.getElementById("editModalTitle").textContent = "Legg til nytt stopp";
   fillEditForm({
     title:"",
@@ -1016,6 +1081,22 @@ async function saveStopForm(event){
 
       setStatus("Stoppet er lagret.", "success");
     }else{
+      const insertIndex = pendingCreateIndex === null
+        ? currentStops.length
+        : Math.max(0, Math.min(pendingCreateIndex, currentStops.length));
+
+      const previousSortOrder = insertIndex > 0
+        ? Number(currentStops[insertIndex - 1]?.sortOrder || insertIndex * 10)
+        : 0;
+
+      const nextSortOrder = insertIndex < currentStops.length
+        ? Number(currentStops[insertIndex]?.sortOrder || (insertIndex + 1) * 10)
+        : previousSortOrder + 20;
+
+      const sortOrder = insertIndex < currentStops.length
+        ? (previousSortOrder + nextSortOrder) / 2
+        : previousSortOrder + 10;
+
       const result = await fetchJson(`${API_BASE}/route-stop-create`, {
         method:"POST",
         headers:{
@@ -1025,11 +1106,12 @@ async function saveStopForm(event){
           caseName:getCaseFromUrl(),
           data:{
             ...values,
-            sortOrder:(currentStops.length + 1) * 10
+            sortOrder
           }
         })
       });
 
+      pendingCreateIndex = null;
       setStatus("Nytt stopp er opprettet. Laster listen på nytt...", "success");
       closeEditModal();
       await reloadFromServer();
@@ -1045,6 +1127,27 @@ async function saveStopForm(event){
   }finally{
     saveButton.disabled = false;
   }
+}
+
+
+async function deactivateOneStop(stopId){
+  if(!stopId){
+    return;
+  }
+
+  const stop = currentStops.find(item => String(item.id) === String(stopId));
+  const stopName = stop?.stopName || stop?.title || `Stopp ${stopId}`;
+
+  if(!confirm(`Deaktivere dette stoppet?
+
+${stopName}
+
+Stoppet slettes ikke permanent, men settes til Inactive.`)){
+    return;
+  }
+
+  selectedStopIds = new Set([String(stopId)]);
+  await deactivateSelectedStops();
 }
 
 async function deactivateSelectedStops(){
