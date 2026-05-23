@@ -298,19 +298,29 @@ body{
   color:#ff8b8b;
 }
 
-.status-toolbar-card{
-  padding:10px 12px;
+.status-action-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  margin-bottom:18px;
+  align-items:stretch;
 }
 
-.status-toolbar{
+.status-card,
+.batch-toolbar-card{
+  padding:10px 12px;
+  margin-bottom:0;
+}
+
+.status-card{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:12px;
 }
 
-.status-toolbar .status{
-  flex:1 1 auto;
+.batch-toolbar-card{
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 .image-viewer{
@@ -504,17 +514,18 @@ body{
     </div>
   </div>
 
-  <div class="card status-toolbar-card">
-    <div class="status-toolbar">
+  <div class="status-action-row">
+    <div class="card status-card">
       <div id="status" class="status">Laster...</div>
+    </div>
 
+    <div class="card batch-toolbar-card">
       <div class="batch-toolbar" aria-label="Batch image controls">
-        <button type="button" onclick="toggleSelectionMode()" id="selectionModeButton" class="selection-mode-button" title="Start merking">☑</button>
         <button type="button" onclick="moveSelectedToStart()" id="batchFirstButton" title="Flytt merkede bilder først" disabled>⇤</button>
         <button type="button" onclick="moveSelectedLeft()" id="batchLeftButton" title="Flytt merkede bilder til venstre" disabled>←</button>
         <button type="button" onclick="moveSelectedRight()" id="batchRightButton" title="Flytt merkede bilder til høyre" disabled>→</button>
         <button type="button" onclick="moveSelectedToEnd()" id="batchLastButton" title="Flytt merkede bilder sist" disabled>⇥</button>
-        <button type="button" onclick="chooseImageForSelectedInsert()" id="batchAddButton" title="Legg til bilder ved første merkede bilde" disabled>+</button>
+        <button type="button" onclick="toggleSelectionMode()" id="selectionModeButton" class="selection-mode-button" title="Start merking">+</button>
         <button type="button" onclick="deleteSelectedImages()" id="batchDeleteButton" class="delete-button" title="Slett merkede bilder" disabled>🗑</button>
       </div>
     </div>
@@ -713,7 +724,8 @@ function updateBatchButtons(){
   if(selectionButton){
     selectionButton.classList.toggle("active", selectionMode);
     selectionButton.title = selectionMode ? "Avslutt merking" : "Start merking";
-    selectionButton.textContent = selectionMode ? "☒" : "☑";
+    selectionButton.textContent = "+";
+    selectionButton.disabled = currentImages.length === 0;
   }
 
   const buttonStates = [
@@ -721,7 +733,6 @@ function updateBatchButtons(){
     ["batchLeftButton", hasSelection && minIndex > 0],
     ["batchRightButton", hasSelection && maxIndex < currentImages.length - 1],
     ["batchLastButton", hasSelection && maxIndex < currentImages.length - 1],
-    ["batchAddButton", hasSelection],
     ["batchDeleteButton", hasSelection]
   ];
 
@@ -856,16 +867,6 @@ function moveSelectedToEnd(){
   renderImages();
 }
 
-function chooseImageForSelectedInsert(){
-  const selected = getSelectedIndices();
-
-  if(!selected.length){
-    return;
-  }
-
-  chooseImageForInsert(selected[0]);
-}
-
 function deleteSelectedImages(){
   const selected = getSelectedIndices();
 
@@ -897,6 +898,7 @@ function renderImages(){
     `;
 
     document.getElementById("imageCountValue").textContent = "0";
+    selectionMode = false;
     selectedImageIndices.clear();
     updateBatchButtons();
     return;
