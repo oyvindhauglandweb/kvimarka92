@@ -209,19 +209,34 @@ body{
 .image-controls{
   display:grid;
   grid-template-columns:repeat(6,1fr);
-  gap:6px;
-  padding:10px;
+  gap:0;
+  padding:8px;
   border-top:1px solid var(--border);
 }
 
 .image-controls button{
   height:32px;
+  margin:0;
   border:1px solid var(--border);
-  border-radius:7px;
+  border-radius:0;
   background:var(--button);
   color:var(--text);
   font-weight:bold;
   cursor:pointer;
+}
+
+.image-controls button:first-child{
+  border-top-left-radius:7px;
+  border-bottom-left-radius:7px;
+}
+
+.image-controls button:last-child{
+  border-top-right-radius:7px;
+  border-bottom-right-radius:7px;
+}
+
+.image-controls button + button{
+  margin-left:-1px;
 }
 
 .image-controls button:hover{
@@ -307,11 +322,13 @@ body{
 @media(max-width:800px){
   .image-controls{
     padding:6px;
+    gap:0;
   }
 
   .image-controls button{
     height:30px;
     font-size:13px;
+    margin:0;
   }
 
   .image-viewer-button{
