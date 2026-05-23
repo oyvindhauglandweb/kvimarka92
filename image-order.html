@@ -448,7 +448,7 @@ body{
     </div>
 
     <div id="imageList" class="image-list" style="margin-top:14px;"></div>
-    <input id="imageUploadInput" type="file" accept="image/*" style="display:none;">
+    <input id="imageUploadInput" type="file" accept="image/*" multiple style="display:none;">
 
     <div class="save-row">
       <a class="action-button" id="routeLink" href="reiserute.html">Til reiserute</a>
@@ -776,9 +776,9 @@ async function uploadRouteStopImage(file){
 }
 
 async function handleImageUploadChange(event){
-  const file = event.target.files && event.target.files[0];
+  const files = Array.from(event.target.files || []);
 
-  if(!file){
+  if(!files.length){
     return;
   }
 
@@ -786,20 +786,30 @@ async function handleImageUploadChange(event){
     ? currentImages.length
     : pendingInsertIndex;
 
-  setStatus("Laster opp nytt bilde...");
+  setStatus(`Laster opp ${files.length} bilde${files.length === 1 ? "" : "r"}...`);
 
   try{
-    const uploadedImage = await uploadRouteStopImage(file);
+    const uploadedImages = [];
 
-    currentImages.splice(insertIndex, 0, uploadedImage);
+    for(let i = 0; i < files.length; i += 1){
+      setStatus(`Laster opp bilde ${i + 1} av ${files.length}...`);
+      const uploadedImage = await uploadRouteStopImage(files[i]);
+      uploadedImages.push(uploadedImage);
+    }
+
+    currentImages.splice(insertIndex, 0, ...uploadedImages);
     pendingInsertIndex = null;
     hasUnsavedChanges = true;
 
     renderImages();
-    setStatus("Nytt bilde er lastet opp og lagt inn i listen. Trykk «Lagre bilderekkefølge» for å lagre endringen på stoppet.", "success");
+
+    setStatus(
+      `${uploadedImages.length} bilde${uploadedImages.length === 1 ? "" : "r"} er lastet opp og lagt inn i listen. Trykk «Lagre bilderekkefølge» for å lagre endringen på stoppet.`,
+      "success"
+    );
   }catch(error){
     console.error(error);
-    setStatus(`Kunne ikke laste opp bildet.<br><br>${esc(error.message)}`, "error");
+    setStatus(`Kunne ikke laste opp bildene.<br><br>${esc(error.message)}`, "error");
   }finally{
     event.target.value = "";
   }
