@@ -1454,7 +1454,14 @@ async function uploadRouteStopImage(file){
     throw new Error(text || `HTTP ${res.status}`);
   }
 
-  return await res.json();
+  const uploadedImage = await res.json();
+  const originalName = file?.name || uploadedImage.visible_name || uploadedImage.original_name || uploadedImage.name || "Bilde";
+
+  return {
+    ...uploadedImage,
+    visible_name:originalName,
+    original_name:uploadedImage.original_name || originalName
+  };
 }
 
 async function saveStopForm(event){
