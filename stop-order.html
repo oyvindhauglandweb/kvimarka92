@@ -686,26 +686,14 @@ textarea{
         <div class="form-field">
           <label for="editStopType">Aktivitet</label>
           <select id="editStopType">
-            <option value="">Velg aktivitet...</option>
-            <option value="Start">Start</option>
-            <option value="By">By</option>
-            <option value="Sightseeing">Sightseeing</option>
-            <option value="Stopp">Stopp</option>
-            <option value="Til neste dag">Til neste dag</option>
-            <option value="Slutt">Slutt</option>
+            <option value="">Laster aktiviteter...</option>
           </select>
         </div>
 
         <div class="form-field">
           <label for="editTransport">Transport</label>
           <select id="editTransport">
-            <option value="">Velg transport...</option>
-            <option value="Bil">Bil</option>
-            <option value="Fly">Fly</option>
-            <option value="Tog">Tog</option>
-            <option value="Båt">Båt</option>
-            <option value="Buss">Buss</option>
-            <option value="Gange">Gange</option>
+            <option value="">Laster transport...</option>
           </select>
         </div>
 
@@ -780,6 +768,10 @@ let editMode = "edit";
 let editingStopId = null;
 let pendingCreateIndex = null;
 let titleManuallyEdited = false;
+let routeStopFieldOptions = {
+  stopType:[],
+  transport:[]
+};
 
 function esc(value){
   return String(value ?? "")
@@ -1190,6 +1182,62 @@ function updateTitleFromStopName(force){
 
   titleInput.value = makeAutoTitle(stopNameInput.value);
 }
+
+
+async function loadRouteStopFieldOptions(){
+  try{
+    const data = await fetchJson(`${API_BASE}/route-stop-field-options`);
+
+    routeStopFieldOptions = {
+      stopType:Array.isArray(data.stopType) ? data.stopType : [],
+      transport:Array.isArray(data.transport) ? data.transport : []
+    };
+
+    populateSelectOptions("editStopType", routeStopFieldOptions.stopType, "Velg aktivitet...");
+    populateSelectOptions("editTransport", routeStopFieldOptions.transport, "Velg transport...");
+  }catch(error){
+    console.warn("Could not load route stop field options.", error);
+
+    populateSelectOptions("editStopType", [], "Kunne ikke laste aktiviteter");
+    populateSelectOptions("editTransport", [], "Kunne ikke laste transport");
+  }
+}
+
+function populateSelectOptions(selectId, values, placeholder){
+  const select = document.getElementById(selectId);
+
+  if(!select){
+    return;
+  }
+
+  const currentValue = select.value;
+
+  select.innerHTML = "";
+
+  const emptyOption = document.createElement("option");
+  emptyOption.value = "";
+  emptyOption.textContent = placeholder;
+  select.appendChild(emptyOption);
+
+  values.forEach(value => {
+    const text = String(value || "").trim();
+
+    if(!text){
+      return;
+    }
+
+    const option = document.createElement("option");
+    option.value = text;
+    option.textContent = text;
+    select.appendChild(option);
+  });
+
+  if(currentValue){
+    ensureSelectOption(selectId, currentValue);
+    select.value = currentValue;
+  }
+}
+
 
 function ensureSelectOption(selectId, value){
   const select = document.getElementById(selectId);
@@ -1673,6 +1721,7 @@ async function loadPage(){
     return;
   }
 
+  await loadRouteStopFieldOptions();
   await reloadFromServer();
 }
 
