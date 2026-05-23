@@ -660,7 +660,7 @@ function renderSummary(data){
     <a
       class="summary-stop-edit-link"
       href="stop-order.html?case=${encodeURIComponent(data.case?.caseName || data.case?.title || "")}"
-      title="Rediger stopp"
+      title="Rediger stoppesteder"
     >✎</a>
   ` : ""}
 
@@ -670,7 +670,7 @@ function renderSummary(data){
     title="Eksporter til Google My Maps"
   >⌖</a>
 
-  <div class="summary-label">Antall stopp</div>
+  <div class="summary-label">Antall stoppesteder</div>
   <div class="summary-value">${esc(stops.length)}</div>
 </div>
     </div>
@@ -680,7 +680,7 @@ function renderSummary(data){
 function renderStopList(stops){
   return `
     <div class="card">
-      <h2>Stopp</h2>
+      <h2>Stoppesteder</h2>
       <div class="stop-list">
         ${stops.map((stop, index) => {
           const imageUrl = getFileUrl(stop.image);
@@ -1106,7 +1106,7 @@ document.title = title + " - Reiserute";
       document.getElementById("pageSubtitle").textContent = "Reiserute";
 
       if(!stops.length){
-        content.innerHTML = `<div class="error-box">Denne reiseruten har ingen aktive stopp med koordinater.</div>`;
+        content.innerHTML = `<div class="error-box">Denne reiseruten har ingen aktive stoppesteder med koordinater.</div>`;
         return;
       }
 
