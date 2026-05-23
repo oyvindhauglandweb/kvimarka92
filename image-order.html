@@ -181,6 +181,15 @@ body{
   z-index:2;
 }
 
+.image-open-button{
+  display:block;
+  width:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+}
+
 .image-card img{
   width:100%;
   aspect-ratio:4/3;
@@ -221,6 +230,95 @@ body{
 
 .image-controls .delete-button{
   color:#ff8b8b;
+}
+
+.image-viewer{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:rgba(0,0,0,.9);
+  align-items:center;
+  justify-content:center;
+  padding:48px 16px;
+  box-sizing:border-box;
+}
+
+.image-viewer.open{
+  display:flex;
+}
+
+.image-viewer-image{
+  max-width:100%;
+  max-height:82vh;
+  object-fit:contain;
+  border-radius:10px;
+  background:#111;
+}
+
+.image-viewer-caption{
+  position:absolute;
+  left:16px;
+  right:16px;
+  bottom:12px;
+  text-align:center;
+  color:#fff;
+  font-size:14px;
+  overflow-wrap:anywhere;
+}
+
+.image-viewer-button{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:42px;
+  height:42px;
+  border:1px solid rgba(255,255,255,.45);
+  border-radius:50%;
+  background:rgba(0,0,0,.35);
+  color:#fff;
+  font-size:28px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.image-viewer-button:hover{
+  background:rgba(255,255,255,.16);
+}
+
+.image-viewer-close{
+  top:12px;
+  right:12px;
+}
+
+.image-viewer-prev{
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+}
+
+.image-viewer-next{
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+}
+
+@media(max-width:800px){
+  .image-controls{
+    padding:6px;
+  }
+
+  .image-controls button{
+    height:30px;
+    font-size:13px;
+  }
+
+  .image-viewer-button{
+    width:38px;
+    height:38px;
+    font-size:24px;
+  }
 }
 
 .add-first-card{
@@ -343,6 +441,14 @@ body{
   </div>
 </div>
 
+<div class="image-viewer" id="imageViewer" onclick="handleViewerBackdropClick(event)">
+  <button class="image-viewer-button image-viewer-close" type="button" onclick="closeImageViewer()" title="Lukk">×</button>
+  <button class="image-viewer-button image-viewer-prev" type="button" onclick="showPreviousImage()" title="Forrige bilde">‹</button>
+  <img class="image-viewer-image" id="imageViewerImage" alt="">
+  <button class="image-viewer-button image-viewer-next" type="button" onclick="showNextImage()" title="Neste bilde">›</button>
+  <div class="image-viewer-caption" id="imageViewerCaption"></div>
+</div>
+
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
@@ -353,6 +459,8 @@ let currentImages = [];
 let draggedIndex = null;
 let pendingInsertIndex = null;
 let hasUnsavedChanges = false;
+let viewerIndex = 0;
+let viewerTouchStartX = null;
 
 function esc(value){
   return String(value ?? "")
@@ -527,9 +635,9 @@ function renderImages(){
         ondragend="handleDragEnd(event)"
       >
         <div class="image-number">${index + 1}</div>
-        <a href="${esc(imageUrl)}" target="_blank" rel="noopener" title="Åpne bilde">
+        <button class="image-open-button" type="button" onclick="openImageViewer(${index})" title="Åpne bilde">
           <img src="${esc(imageUrl)}" alt="${esc(imageName)}">
-        </a>
+        </button>
         <div class="image-caption">${esc(imageName)}</div>
         <div class="image-controls">
 <button type="button" onclick="moveImageToStart(${index})" title="Flytt først" ${index === 0 ? "disabled" : ""}>⇤</button>
@@ -544,6 +652,67 @@ function renderImages(){
   }).join("");
 
   document.getElementById("imageCountValue").textContent = String(currentImages.length);
+}
+
+function updateImageViewer(){
+  const viewer = document.getElementById("imageViewer");
+  const imageElement = document.getElementById("imageViewerImage");
+  const caption = document.getElementById("imageViewerCaption");
+
+  if(!viewer || !imageElement || !caption || !currentImages.length){
+    return;
+  }
+
+  viewerIndex = Math.max(0, Math.min(viewerIndex, currentImages.length - 1));
+
+  const image = currentImages[viewerIndex];
+  const imageUrl = getImageUrl(image);
+  const imageName = getImageName(image, viewerIndex);
+
+  imageElement.src = imageUrl;
+  imageElement.alt = imageName;
+  caption.textContent = `${viewerIndex + 1} / ${currentImages.length} - ${imageName}`;
+}
+
+function openImageViewer(index){
+  if(!currentImages.length){
+    return;
+  }
+
+  viewerIndex = index;
+  updateImageViewer();
+
+  const viewer = document.getElementById("imageViewer");
+  viewer.classList.add("open");
+}
+
+function closeImageViewer(){
+  const viewer = document.getElementById("imageViewer");
+  viewer.classList.remove("open");
+}
+
+function showPreviousImage(){
+  if(!currentImages.length){
+    return;
+  }
+
+  viewerIndex = (viewerIndex - 1 + currentImages.length) % currentImages.length;
+  updateImageViewer();
+}
+
+function showNextImage(){
+  if(!currentImages.length){
+    return;
+  }
+
+  viewerIndex = (viewerIndex + 1) % currentImages.length;
+  updateImageViewer();
+}
+
+function handleViewerBackdropClick(event){
+  if(event.target.id === "imageViewer"){
+    closeImageViewer();
+  }
 }
 
 function chooseImageForInsert(index){
@@ -768,6 +937,51 @@ window.addEventListener("beforeunload", function(event){
   event.preventDefault();
   event.returnValue = "";
 });
+
+document.addEventListener("keydown", function(event){
+  const viewer = document.getElementById("imageViewer");
+
+  if(!viewer || !viewer.classList.contains("open")){
+    return;
+  }
+
+  if(event.key === "Escape"){
+    closeImageViewer();
+  }
+
+  if(event.key === "ArrowLeft"){
+    showPreviousImage();
+  }
+
+  if(event.key === "ArrowRight"){
+    showNextImage();
+  }
+});
+
+document.getElementById("imageViewer").addEventListener("touchstart", function(event){
+  viewerTouchStartX = event.changedTouches[0].screenX;
+}, { passive:true });
+
+document.getElementById("imageViewer").addEventListener("touchend", function(event){
+  if(viewerTouchStartX === null){
+    return;
+  }
+
+  const touchEndX = event.changedTouches[0].screenX;
+  const diff = touchEndX - viewerTouchStartX;
+  viewerTouchStartX = null;
+
+  if(Math.abs(diff) < 45){
+    return;
+  }
+
+  if(diff > 0){
+    showPreviousImage();
+  }else{
+    showNextImage();
+  }
+}, { passive:true });
+
 
 document.getElementById("imageUploadInput").addEventListener("change", handleImageUploadChange);
 
