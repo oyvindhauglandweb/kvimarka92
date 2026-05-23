@@ -524,12 +524,12 @@ function renderImages(){
         </a>
         <div class="image-caption">${esc(imageName)}</div>
         <div class="image-controls">
-          <button type="button" onclick="moveImage(${index}, 0)" ${index === 0 ? "disabled" : ""} title="Flytt først">⇤</button>
-          <button type="button" onclick="moveImage(${index}, ${index - 1})" ${index === 0 ? "disabled" : ""} title="Flytt opp">↑</button>
-          <button type="button" onclick="moveImage(${index}, ${index + 1})" ${index === currentImages.length - 1 ? "disabled" : ""} title="Flytt ned">↓</button>
-          <button type="button" onclick="moveImage(${index}, ${currentImages.length - 1})" ${index === currentImages.length - 1 ? "disabled" : ""} title="Flytt sist">⇥</button>
-          <button type="button" onclick="chooseImageForInsert(${index})" title="Legg til nytt bilde her">＋</button>
-          <button class="delete-button" type="button" onclick="deleteImage(${index})" title="Slett bildet fra stoppet">🗑</button>
+<button type="button" onclick="moveImageToStart(index)" title="Flytt først">⇤</button>
+<button type="button" onclick="moveImage(index, -1)" title="Flytt til venstre">←</button>
+<button type="button" onclick="moveImage(index, 1)" title="Flytt til høyre">→</button>
+<button type="button" onclick="moveImageToEnd(index)" title="Flytt sist">⇥</button>
+<button type="button" onclick="addImageAt(index)" title="Legg til bilde her">+</button>
+<button type="button" onclick="deleteImage(index)" title="Slett bilde">🗑</button>
         </div>
       </div>
     `;
