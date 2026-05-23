@@ -577,18 +577,34 @@ function isRouteMenuItem(item){
   );
 }
 
+function getRouteCaseNameForItem(item){
+  const buttonText = String(item.buttonText || "").trim();
+
+  if(buttonText.toLowerCase() === "reiserute"){
+    const selectedRouteCase = menuState.selectedLevels
+      .filter(Boolean)
+      .slice(-1)[0] || "";
+
+    if(selectedRouteCase){
+      return selectedRouteCase;
+    }
+  }
+
+  return buttonText;
+}
+
 function getMenuItemUrl(item){
   const rawUrl = String(item.url || "").trim();
-
-  if(!isRouteMenuItem(item)){
-    return rawUrl;
-  }
 
   if(/(?:^|\/)reiserute\.html(?:\?|$)/i.test(rawUrl)){
     return rawUrl;
   }
 
-  const caseName = String(item.buttonText || "").trim();
+  if(!isRouteMenuItem(item)){
+    return rawUrl;
+  }
+
+  const caseName = getRouteCaseNameForItem(item);
 
   if(!caseName){
     return rawUrl;
@@ -670,8 +686,6 @@ function renderAreaButtons(container){
         }
 
         menuState.selectedLevels = [];
-        saveMenuState();
-
         saveMenuState();
         renderPathMenu();
       }
