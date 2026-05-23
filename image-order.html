@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorter bilder - Kvimarka 92</title>
+<style>
+:root{
+  --bg:#f2f2f2;
+  --card:#ffffff;
+  --text:#333333;
+  --muted:#667;
+  --border:#cccccc;
+  --link:#1f789d;
+  --button:#ffffff;
+  --button-hover:#e9eef2;
+  --soft:#eaeaea;
+  --danger:#b85c5c;
+  --success:#72c184;
+}
+
+body.dark-mode{
+  --bg:#151515;
+  --card:#242424;
+  --text:#eeeeee;
+  --muted:#bbbbbb;
+  --border:#555555;
+  --link:#7cc7e8;
+  --button:#242424;
+  --button-hover:#3a3a3a;
+  --soft:#333333;
+}
+
+body{
+  margin:0;
+  padding:20px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+
+.container{
+  max-width:1050px;
+  margin:auto;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:24px;
+}
+
+.site-title{
+  margin:0;
+  font-size:28px;
+}
+
+.subtitle{
+  margin-top:8px;
+  color:var(--muted);
+}
+
+.top-buttons{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  margin:10px 0 0;
+}
+
+.top-button,
+.action-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:30px;
+  height:26px;
+  padding:0 8px;
+  background:var(--button);
+  border:1px solid var(--border);
+  border-radius:6px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:14px;
+  font-weight:bold;
+  box-sizing:border-box;
+  cursor:pointer;
+}
+
+.action-button{
+  height:36px;
+  min-width:90px;
+  padding:0 12px;
+}
+
+.top-button:hover,
+.action-button:hover{
+  background:var(--button-hover);
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:18px;
+}
+
+.route-info{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
+
+.info-box{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  background:rgba(127,127,127,.05);
+}
+
+.info-label{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:4px;
+}
+
+.info-value{
+  font-size:17px;
+  font-weight:bold;
+}
+
+.status{
+  line-height:1.5;
+  color:var(--muted);
+}
+
+.status.error{
+  color:#d77;
+}
+
+.status.success{
+  color:var(--success);
+}
+
+.image-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:14px;
+}
+
+.image-card{
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(127,127,127,.04);
+  position:relative;
+}
+
+.image-card.dragging{
+  opacity:.45;
+}
+
+.image-card.drag-over{
+  outline:3px solid var(--link);
+  outline-offset:2px;
+}
+
+.image-number{
+  position:absolute;
+  top:8px;
+  left:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:var(--link);
+  color:#fff;
+  font-weight:bold;
+  font-size:13px;
+  z-index:2;
+}
+
+.image-card img{
+  width:100%;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  background:var(--soft);
+  display:block;
+}
+
+.image-caption{
+  padding:10px;
+  color:var(--muted);
+  font-size:13px;
+  min-height:34px;
+  overflow-wrap:anywhere;
+}
+
+.image-controls{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  padding:10px;
+  border-top:1px solid var(--border);
+}
+
+.image-controls button{
+  height:32px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:var(--button);
+  color:var(--text);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.image-controls button:hover{
+  background:var(--button-hover);
+}
+
+.image-controls button:disabled{
+  opacity:.45;
+  cursor:default;
+}
+
+.save-row{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.save-button{
+  background:var(--link);
+  color:#fff;
+  border:none;
+}
+
+.small-help{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.5;
+}
+
+@media(max-width:800px){
+  body{
+    padding:12px;
+  }
+
+  .image-list{
+    grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+  }
+
+  .save-row{
+    flex-direction:column;
+  }
+
+  .action-button{
+    width:100%;
+  }
+}
+</style>
+</head>
+
+<body class="dark-mode">
+<div class="container">
+  <div class="header">
+    <h1 class="site-title">Sorter bilder</h1>
+    <div class="subtitle" id="pageSubtitle">Kvimarka 92</div>
+    <div class="top-buttons">
+      <a class="top-button" href="javascript:history.back()" title="Tilbake">←</a>
+      <a class="top-button" href="index.html" title="Hovedside">⌂</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="route-info">
+      <div class="info-box">
+        <div class="info-label">Route case</div>
+        <div class="info-value" id="caseValue">-</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">Stopp</div>
+        <div class="info-value" id="stopValue">-</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">Antall bilder</div>
+        <div class="info-value" id="imageCountValue">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="status" class="status">Laster...</div>
+  </div>
+
+  <div class="card" id="imagesCard" style="display:none;">
+    <div class="small-help">
+      Dra bildene for å endre rekkefølgen, eller bruk knappene under hvert bilde. Første bilde blir hovedbildet i reiseruten.
+    </div>
+
+    <div id="imageList" class="image-list" style="margin-top:14px;"></div>
+
+    <div class="save-row">
+      <a class="action-button" id="routeLink" href="reiserute.html">Til reiserute</a>
+      <button class="action-button" type="button" onclick="reloadFromServer()">Angre / last på nytt</button>
+      <button class="action-button save-button" type="button" onclick="saveImageOrder()" id="saveButton">Lagre bilderekkefølge</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+
+let currentUser = null;
+let routeData = null;
+let currentStop = null;
+let currentImages = [];
+let draggedIndex = null;
+let hasUnsavedChanges = false;
+
+function esc(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getCaseFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("case") || "";
+}
+
+function getStopIdFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  return Number(params.get("stop") || 0);
+}
+
+function setStatus(message, type){
+  const status = document.getElementById("status");
+  status.className = "status" + (type ? ` ${type}` : "");
+  status.innerHTML = message;
+}
+
+async function fetchJson(url, options){
+  const res = await fetch(url, {
+    credentials:"include",
+    ...(options || {})
+  });
+
+  if(!res.ok){
+    const text = await res.text();
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+
+  return await res.json();
+}
+
+async function fetchCurrentUser(){
+  try{
+    return await fetchJson(`${API_BASE}/whoami`);
+  }catch(error){
+    return null;
+  }
+}
+
+function getImageUrl(image){
+  if(!image){
+    return "";
+  }
+
+  if(typeof image === "string"){
+    return image;
+  }
+
+  return (
+    image.url ||
+    image.download_url ||
+    image.thumbnails?.large?.url ||
+    image.thumbnails?.large ||
+    image.thumbnails?.small?.url ||
+    image.thumbnails?.small ||
+    ""
+  );
+}
+
+function getImageName(image, index){
+  if(!image){
+    return `Bilde ${index + 1}`;
+  }
+
+  if(typeof image === "string"){
+    return image.split("/").pop() || `Bilde ${index + 1}`;
+  }
+
+  return image.visible_name || image.name || image.original_name || `Bilde ${index + 1}`;
+}
+
+function moveImage(fromIndex, toIndex){
+  if(
+    fromIndex < 0 ||
+    fromIndex >= currentImages.length ||
+    toIndex < 0 ||
+    toIndex >= currentImages.length ||
+    fromIndex === toIndex
+  ){
+    return;
+  }
+
+  const [image] = currentImages.splice(fromIndex, 1);
+  currentImages.splice(toIndex, 0, image);
+  hasUnsavedChanges = true;
+  renderImages();
+}
+
+function renderImages(){
+  const list = document.getElementById("imageList");
+
+  list.innerHTML = currentImages.map((image, index) => {
+    const imageUrl = getImageUrl(image);
+    const imageName = getImageName(image, index);
+
+    return `
+      <div
+        class="image-card"
+        draggable="true"
+        data-index="${index}"
+        ondragstart="handleDragStart(event, ${index})"
+        ondragover="handleDragOver(event, ${index})"
+        ondragleave="handleDragLeave(event)"
+        ondrop="handleDrop(event, ${index})"
+        ondragend="handleDragEnd(event)"
+      >
+        <div class="image-number">${index + 1}</div>
+        <a href="${esc(imageUrl)}" target="_blank" rel="noopener" title="Åpne bilde">
+          <img src="${esc(imageUrl)}" alt="${esc(imageName)}">
+        </a>
+        <div class="image-caption">${esc(imageName)}</div>
+        <div class="image-controls">
+          <button type="button" onclick="moveImage(${index}, 0)" ${index === 0 ? "disabled" : ""} title="Flytt først">⇤</button>
+          <button type="button" onclick="moveImage(${index}, ${index - 1})" ${index === 0 ? "disabled" : ""} title="Flytt opp">↑</button>
+          <button type="button" onclick="moveImage(${index}, ${index + 1})" ${index === currentImages.length - 1 ? "disabled" : ""} title="Flytt ned">↓</button>
+          <button type="button" onclick="moveImage(${index}, ${currentImages.length - 1})" ${index === currentImages.length - 1 ? "disabled" : ""} title="Flytt sist">⇥</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("imageCountValue").textContent = String(currentImages.length);
+}
+
+function handleDragStart(event, index){
+  draggedIndex = index;
+  event.currentTarget.classList.add("dragging");
+  event.dataTransfer.effectAllowed = "move";
+}
+
+function handleDragOver(event, index){
+  event.preventDefault();
+  event.currentTarget.classList.add("drag-over");
+}
+
+function handleDragLeave(event){
+  event.currentTarget.classList.remove("drag-over");
+}
+
+function handleDrop(event, index){
+  event.preventDefault();
+  event.currentTarget.classList.remove("drag-over");
+
+  if(draggedIndex === null){
+    return;
+  }
+
+  moveImage(draggedIndex, index);
+  draggedIndex = null;
+}
+
+function handleDragEnd(event){
+  event.currentTarget.classList.remove("dragging");
+  document.querySelectorAll(".image-card.drag-over").forEach(card => {
+    card.classList.remove("drag-over");
+  });
+  draggedIndex = null;
+}
+
+async function loadPage(){
+  const caseName = getCaseFromUrl();
+  const stopId = getStopIdFromUrl();
+
+  document.getElementById("caseValue").textContent = caseName || "-";
+  document.getElementById("stopValue").textContent = stopId ? String(stopId) : "-";
+  document.getElementById("routeLink").href = `reiserute.html?case=${encodeURIComponent(caseName)}`;
+
+  if(!caseName || !stopId){
+    setStatus("Mangler case eller stop i URL-en.<br><br>Eksempel: <code>image-order.html?case=USA%202006&stop=123</code>", "error");
+    return;
+  }
+
+  currentUser = await fetchCurrentUser();
+
+  if(!currentUser){
+    setStatus("Du må være innlogget for å sortere bilder.", "error");
+    return;
+  }
+
+  if(currentUser.role !== "Administrator"){
+    setStatus("Denne siden er bare tilgjengelig for administratorer.", "error");
+    return;
+  }
+
+  await reloadFromServer();
+}
+
+async function reloadFromServer(){
+  const caseName = getCaseFromUrl();
+  const stopId = getStopIdFromUrl();
+
+  setStatus("Laster stopp og bilder...");
+  document.getElementById("imagesCard").style.display = "none";
+
+  try{
+    routeData = await fetchJson(`${API_BASE}/route?case=${encodeURIComponent(caseName)}`);
+    currentStop = (routeData.stops || []).find(stop => Number(stop.id) === Number(stopId));
+
+    if(!currentStop){
+      setStatus("Fant ikke dette stoppet i valgt reiserute.", "error");
+      return;
+    }
+
+    currentImages = Array.isArray(currentStop.image)
+      ? [...currentStop.image]
+      : [];
+
+    document.getElementById("stopValue").textContent = currentStop.stopName || currentStop.title || String(stopId);
+    document.getElementById("pageSubtitle").textContent = routeData.case?.title || routeData.case?.caseName || caseName;
+
+    if(!currentImages.length){
+      setStatus("Dette stoppet har ingen bilder å sortere.", "error");
+      document.getElementById("imageCountValue").textContent = "0";
+      return;
+    }
+
+    hasUnsavedChanges = false;
+    renderImages();
+    document.getElementById("imagesCard").style.display = "block";
+    setStatus(`Klar. Sorterer bilder for <strong>${esc(currentStop.stopName || currentStop.title || stopId)}</strong>.`, "success");
+  }catch(error){
+    console.error(error);
+    setStatus(`Kunne ikke laste bildene.<br><br>${esc(error.message)}`, "error");
+  }
+}
+
+async function saveImageOrder(){
+  const stopId = getStopIdFromUrl();
+  const saveButton = document.getElementById("saveButton");
+
+  if(!stopId || !currentImages.length){
+    return;
+  }
+
+  saveButton.disabled = true;
+  setStatus("Lagrer ny bilderekkefølge...");
+
+  try{
+    await fetchJson(`${API_BASE}/route-stop-images`, {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        stopId,
+        image:currentImages
+      })
+    });
+
+    hasUnsavedChanges = false;
+    setStatus("Bilderekkefølgen er lagret.", "success");
+  }catch(error){
+    console.error(error);
+    setStatus(`Kunne ikke lagre bilderekkefølgen.<br><br>${esc(error.message)}`, "error");
+  }finally{
+    saveButton.disabled = false;
+  }
+}
+
+window.addEventListener("beforeunload", function(event){
+  if(!hasUnsavedChanges){
+    return;
+  }
+
+  event.preventDefault();
+  event.returnValue = "";
+});
+
+loadPage().catch(error => {
+  console.error(error);
+  setStatus(`Kunne ikke starte siden.<br><br>${esc(error.message)}`, "error");
+});
+</script>
+</body>
+</html>
