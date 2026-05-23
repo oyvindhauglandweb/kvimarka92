@@ -209,6 +209,33 @@ body{
   gap:14px;
 }
 
+.add-first-stop-card{
+  grid-column:1 / -1;
+  border:1px dashed var(--border);
+  border-radius:12px;
+  padding:22px;
+  text-align:center;
+  background:rgba(127,127,127,.04);
+}
+
+.add-first-stop-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:0 14px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--button);
+  color:var(--text);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.add-first-stop-button:hover{
+  background:var(--button-hover);
+}
+  
 .stop-card{
   border:1px solid var(--border);
   border-radius:12px;
@@ -886,7 +913,27 @@ function openImageOrderForStop(stopId){
 
 function renderStops(){
   const list = document.getElementById("stopList");
+if(!currentStops.length){
+  list.innerHTML = `
+    <div class="add-first-stop-card">
+      <div class="small-help" style="margin-bottom:12px;">
+        Denne reiseruten har ingen stoppesteder ennå.
+      </div>
 
+      <button
+        class="add-first-stop-button"
+        type="button"
+        onclick="openCreateStopModal(0)"
+      >
+        + Legg til første stoppested
+      </button>
+    </div>
+  `;
+
+  document.getElementById("stopCountValue").textContent = "0";
+  updateToolbar();
+  return;
+}
   list.innerHTML = currentStops.map((stop, index) => {
     const selected = selectedStopIds.has(String(stop.id));
     const imageUrl = getImageUrl(stop.image);
