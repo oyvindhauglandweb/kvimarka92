@@ -448,6 +448,49 @@ body.dark-mode .route-action-button:hover{
   margin-top:12px;
 }
 
+.general-description-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:18px;
+}
+
+.general-description-title{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:8px;
+}
+
+.general-description-text{
+  line-height:1.55;
+  white-space:pre-wrap;
+}
+
+.create-route-form{
+  margin-top:14px;
+}
+
+.create-route-label{
+  display:block;
+  margin:12px 0 6px;
+  font-weight:bold;
+}
+
+.create-route-description{
+  width:100%;
+  min-height:130px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+  font-size:15px;
+  box-sizing:border-box;
+  resize:vertical;
+}
+
 
     .leaflet-container{
       background:var(--soft);
@@ -681,6 +724,22 @@ function getFileUrl(fileField){
       });
     }
 
+
+function renderGeneralDescription(data){
+  const description = String(data.case?.generalDescription || "").trim();
+
+  if(!description){
+    return "";
+  }
+
+  return `
+    <div class="general-description-card">
+      <div class="general-description-title">Generell beskrivelse</div>
+      <div class="general-description-text">${esc(description)}</div>
+    </div>
+  `;
+}
+
 function renderSummary(data){
   const stops = data.stops || [];
   const from = firstDate(stops);
@@ -787,9 +846,18 @@ function renderMissingRouteCase(caseName){
       <p>Fant ingen Route Case for <strong>${esc(caseName)}</strong>.</p>
 
       ${currentUser?.role === "Administrator" ? `
-        <button class="route-action-button" type="button" onclick="createRouteCase()">
-          Opprett reiserute
-        </button>
+        <div class="create-route-form">
+          <label class="create-route-label" for="newRouteDescription">Generell beskrivelse</label>
+          <textarea
+            class="create-route-description"
+            id="newRouteDescription"
+            placeholder="Skriv en kort generell beskrivelse av reiseruten..."
+          ></textarea>
+
+          <button class="route-action-button" type="button" onclick="createRouteCase()">
+            Opprett reiserute
+          </button>
+        </div>
       ` : `
         <p>Kontakt administrator for å opprette denne reiseruten.</p>
       `}
@@ -807,6 +875,7 @@ function renderEmptyRoute(data){
   document.getElementById("pageSubtitle").textContent = "Reiserute";
 
   content.innerHTML = `
+    ${renderGeneralDescription(data)}
     ${renderSummary(data)}
     <div class="card">
       <h2>Ingen stoppesteder ennå</h2>
@@ -826,6 +895,8 @@ function renderEmptyRoute(data){
 async function createRouteCase(){
   const caseName = getCaseFromUrl();
   const content = document.getElementById("content");
+  const descriptionField = document.getElementById("newRouteDescription");
+  const generalDescription = descriptionField ? descriptionField.value.trim() : "";
 
   if(!caseName){
     return;
@@ -846,7 +917,8 @@ async function createRouteCase(){
       body:JSON.stringify({
         caseName,
         title:caseName,
-        accessLevel:"Private"
+        accessLevel:"Private",
+        generalDescription
       })
     });
 
@@ -1241,6 +1313,7 @@ document.title = title + " - Reiserute";
       }
 
       content.innerHTML = `
+        ${renderGeneralDescription(data)}
         ${renderSummary(data)}
         <div class="card">
           <div id="map"></div>
