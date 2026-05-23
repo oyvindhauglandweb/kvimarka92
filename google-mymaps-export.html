@@ -359,8 +359,10 @@ async function loadRoute(){
 function renderPreview(stops){
   const previewCard = document.getElementById("previewCard");
   const preview = document.getElementById("preview");
+  const previewLimit = 100;
+  const visibleStops = stops.slice(0, previewLimit);
 
-  const rows = stops.slice(0, 10).map(stop => `
+  const rows = visibleStops.map(stop => `
     <tr>
       <td>${esc(stop.name)}</td>
       <td>${esc(stop.latitude.toFixed(4))}</td>
@@ -381,7 +383,7 @@ function renderPreview(stops){
       </thead>
       <tbody>${rows}</tbody>
     </table>
-    ${stops.length > 10 ? `<div class="status">Viser de første 10 av ${stops.length} stopp.</div>` : ""}
+    ${stops.length > previewLimit ? `<div class="status">Viser de første ${previewLimit} av ${stops.length} stopp.</div>` : `<div class="status">Viser alle ${stops.length} stopp.</div>`}
   `;
 
   previewCard.style.display = "block";
