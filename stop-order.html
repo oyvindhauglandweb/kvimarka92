@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rediger stopp - Kvimarka 92</title>
+<style>
+:root{
+  --bg:#f2f2f2;
+  --card:#ffffff;
+  --text:#333333;
+  --muted:#667;
+  --border:#cccccc;
+  --link:#1f789d;
+  --button:#ffffff;
+  --button-hover:#e9eef2;
+  --soft:#eaeaea;
+  --danger:#b85c5c;
+  --success:#72c184;
+}
+
+body.dark-mode{
+  --bg:#151515;
+  --card:#242424;
+  --text:#eeeeee;
+  --muted:#bbbbbb;
+  --border:#555555;
+  --link:#7cc7e8;
+  --button:#242424;
+  --button-hover:#3a3a3a;
+  --soft:#333333;
+}
+
+body{
+  margin:0;
+  padding:20px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+
+.container{
+  max-width:1180px;
+  margin:auto;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:24px;
+}
+
+.site-title{
+  margin:0;
+  font-size:28px;
+}
+
+.subtitle{
+  margin-top:8px;
+  color:var(--muted);
+}
+
+.top-buttons{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  margin:10px 0 0;
+}
+
+.top-button,
+.action-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:30px;
+  height:26px;
+  padding:0 8px;
+  background:var(--button);
+  border:1px solid var(--border);
+  border-radius:6px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:14px;
+  font-weight:bold;
+  box-sizing:border-box;
+  cursor:pointer;
+}
+
+.action-button{
+  height:36px;
+  min-width:90px;
+  padding:0 12px;
+}
+
+.top-button:hover,
+.action-button:hover,
+.stop-controls button:hover{
+  background:var(--button-hover);
+}
+
+.action-button:disabled,
+.stop-controls button:disabled{
+  opacity:.45;
+  cursor:default;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:18px;
+}
+
+.top-grid{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:14px;
+  align-items:start;
+}
+
+.route-info{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
+
+.info-box{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  background:rgba(127,127,127,.05);
+}
+
+.info-label{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:4px;
+}
+
+.info-value{
+  font-size:17px;
+  font-weight:bold;
+}
+
+.status{
+  line-height:1.5;
+  color:var(--muted);
+}
+
+.status.error{
+  color:#d77;
+}
+
+.status.success{
+  color:var(--success);
+}
+
+.batch-toolbar{
+  display:flex;
+  gap:0;
+  justify-content:flex-end;
+}
+
+.batch-toolbar .action-button{
+  min-width:34px;
+  width:34px;
+  padding:0;
+  border-radius:0;
+  margin:0;
+}
+
+.batch-toolbar .action-button:first-child{
+  border-top-left-radius:7px;
+  border-bottom-left-radius:7px;
+}
+
+.batch-toolbar .action-button:last-child{
+  border-top-right-radius:7px;
+  border-bottom-right-radius:7px;
+}
+
+.batch-toolbar .selection-active{
+  background:var(--link);
+  color:#fff;
+  border-color:var(--link);
+}
+
+.stop-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(235px,1fr));
+  gap:14px;
+}
+
+.stop-card{
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(127,127,127,.04);
+  position:relative;
+}
+
+.stop-card.selected{
+  outline:3px solid var(--link);
+  outline-offset:2px;
+}
+
+.stop-number{
+  position:absolute;
+  top:8px;
+  left:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:var(--link);
+  color:#fff;
+  font-weight:bold;
+  font-size:13px;
+  z-index:2;
+}
+
+.stop-thumb{
+  width:100%;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  background:var(--soft);
+  display:block;
+}
+
+.stop-thumb-placeholder{
+  width:100%;
+  aspect-ratio:4/3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--soft);
+  color:var(--muted);
+  font-weight:bold;
+}
+
+.stop-info{
+  padding:10px;
+  min-height:126px;
+}
+
+.stop-title{
+  font-size:16px;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+.stop-meta{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.stop-controls{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:0;
+  padding:8px;
+  border-top:1px solid var(--border);
+}
+
+.stop-controls button{
+  height:32px;
+  margin:0;
+  border:1px solid var(--border);
+  border-radius:0;
+  background:var(--button);
+  color:var(--text);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.stop-controls button:first-child{
+  border-top-left-radius:7px;
+  border-bottom-left-radius:7px;
+}
+
+.stop-controls button:last-child{
+  border-top-right-radius:7px;
+  border-bottom-right-radius:7px;
+}
+
+.stop-controls .select-active{
+  background:var(--link);
+  color:#fff;
+  border-color:var(--link);
+}
+
+.save-row{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.save-button{
+  background:var(--link);
+  color:#fff;
+  border:none;
+}
+
+.small-help{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.5;
+}
+
+.edit-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:rgba(0,0,0,.84);
+  padding:20px;
+  box-sizing:border-box;
+  overflow:auto;
+}
+
+.edit-modal.open{
+  display:block;
+}
+
+.edit-modal-content{
+  max-width:900px;
+  margin:30px auto;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+}
+
+.edit-modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.edit-modal-title{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.edit-modal-close{
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--button);
+  color:var(--text);
+  width:42px;
+  height:42px;
+  font-size:24px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(220px,1fr));
+  gap:14px;
+}
+
+.form-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.form-field.full{
+  grid-column:1 / -1;
+}
+
+label{
+  font-size:14px;
+  font-weight:bold;
+}
+
+input,
+textarea{
+  width:100%;
+  min-height:40px;
+  padding:0 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  font-size:15px;
+  font-family:Arial,sans-serif;
+  box-sizing:border-box;
+}
+
+textarea{
+  min-height:110px;
+  padding:10px 12px;
+  resize:vertical;
+}
+
+@media(max-width:800px){
+  body{
+    padding:12px;
+  }
+
+  .top-grid{
+    grid-template-columns:1fr;
+  }
+
+  .batch-toolbar{
+    justify-content:flex-start;
+  }
+
+  .stop-list{
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  }
+
+  .stop-info{
+    min-height:150px;
+  }
+
+  .save-row{
+    flex-direction:column;
+  }
+
+  .action-button{
+    width:100%;
+  }
+
+  .batch-toolbar .action-button{
+    width:34px;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body class="dark-mode">
+<div class="container">
+  <div class="header">
+    <h1 class="site-title">Rediger stopp</h1>
+    <div class="subtitle" id="pageSubtitle">Kvimarka 92</div>
+    <div class="top-buttons">
+      <a class="top-button" id="backToRouteButton" href="reiserute.html" title="Tilbake til reiserute">←</a>
+      <a class="top-button" href="index.html" title="Hovedside">⌂</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="route-info">
+      <div class="info-box">
+        <div class="info-label">Route case</div>
+        <div class="info-value" id="caseValue">-</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">Antall stopp</div>
+        <div class="info-value" id="stopCountValue">-</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">Merket</div>
+        <div class="info-value" id="selectedCountValue">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="top-grid">
+    <div class="card">
+      <div id="status" class="status">Laster...</div>
+    </div>
+
+    <div class="card">
+      <div class="batch-toolbar" title="Batch-håndtering">
+        <button class="action-button" id="selectionModeButton" type="button" onclick="toggleSelectionMode()" title="Start/avslutt merking">+</button>
+        <button class="action-button" type="button" onclick="moveSelectedToStart()" id="batchFirstButton" title="Flytt merkede først">⇤</button>
+        <button class="action-button" type="button" onclick="moveSelected(-1)" id="batchLeftButton" title="Flytt merkede til venstre">←</button>
+        <button class="action-button" type="button" onclick="moveSelected(1)" id="batchRightButton" title="Flytt merkede til høyre">→</button>
+        <button class="action-button" type="button" onclick="moveSelectedToEnd()" id="batchLastButton" title="Flytt merkede sist">⇥</button>
+        <button class="action-button" type="button" onclick="openCreateStopModal()" title="Legg til nytt stopp">＋</button>
+        <button class="action-button" type="button" onclick="editSelectedStop()" id="batchEditButton" title="Rediger ett merket stopp">✎</button>
+        <button class="action-button" type="button" onclick="deactivateSelectedStops()" id="batchDeleteButton" title="Deaktiver merkede stopp">🗑</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="stopsCard" style="display:none;">
+    <div class="small-help">
+      Bruk knappene under hvert stopp eller batch-knappene oppe til høyre. «Slett» deaktiverer stoppet, slik at det kan gjenopprettes i Baserow senere.
+    </div>
+
+    <div id="stopList" class="stop-list" style="margin-top:14px;"></div>
+
+    <div class="save-row">
+      <a class="action-button" id="routeLink" href="reiserute.html">Til reiserute</a>
+      <button class="action-button" type="button" onclick="reloadFromServer()">Angre / last på nytt</button>
+      <button class="action-button save-button" type="button" onclick="saveStopOrder()" id="saveOrderButton">Lagre stopprekkefølge</button>
+    </div>
+  </div>
+</div>
+
+<div class="edit-modal" id="editModal">
+  <div class="edit-modal-content">
+    <div class="edit-modal-header">
+      <div class="edit-modal-title" id="editModalTitle">Rediger stopp</div>
+      <button class="edit-modal-close" type="button" onclick="closeEditModal()">×</button>
+    </div>
+
+    <form id="stopForm">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="editStopName">Stoppnavn</label>
+          <input id="editStopName" type="text">
+        </div>
+
+        <div class="form-field">
+          <label for="editTitle">Title</label>
+          <input id="editTitle" type="text">
+        </div>
+
+        <div class="form-field">
+          <label for="editDateFrom">Date from</label>
+          <input id="editDateFrom" type="date">
+        </div>
+
+        <div class="form-field">
+          <label for="editDateTo">Date to</label>
+          <input id="editDateTo" type="date">
+        </div>
+
+        <div class="form-field">
+          <label for="editStopType">Type</label>
+          <input id="editStopType" type="text" placeholder="By, Sightseeing, Stopp...">
+        </div>
+
+        <div class="form-field">
+          <label for="editTransport">Transport</label>
+          <input id="editTransport" type="text" placeholder="Bil, Fly...">
+        </div>
+
+        <div class="form-field">
+          <label for="editLatitude">Latitude</label>
+          <input id="editLatitude" type="number" step="0.0001">
+        </div>
+
+        <div class="form-field">
+          <label for="editLongitude">Longitude</label>
+          <input id="editLongitude" type="number" step="0.0001">
+        </div>
+
+        <div class="form-field full">
+          <label for="editRoads">Veier</label>
+          <input id="editRoads" type="text">
+        </div>
+
+        <div class="form-field full">
+          <label for="editWebLink">WEB link</label>
+          <input id="editWebLink" type="url">
+        </div>
+
+        <div class="form-field full">
+          <label for="editDescription">Beskrivelse</label>
+          <textarea id="editDescription"></textarea>
+        </div>
+      </div>
+
+      <div class="save-row">
+        <button class="action-button" type="button" onclick="closeEditModal()">Avbryt</button>
+        <button class="action-button save-button" type="submit" id="saveStopButton">Lagre stopp</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+
+let currentUser = null;
+let routeData = null;
+let currentStops = [];
+let selectedStopIds = new Set();
+let selectionMode = false;
+let hasUnsavedChanges = false;
+let editMode = "edit";
+let editingStopId = null;
+
+function esc(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getCaseFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("case") || "";
+}
+
+async function fetchJson(url, options){
+  const res = await fetch(url, {
+    credentials:"include",
+    ...(options || {})
+  });
+
+  if(!res.ok){
+    const text = await res.text();
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+
+  return await res.json();
+}
+
+async function fetchCurrentUser(){
+  try{
+    return await fetchJson(`${API_BASE}/whoami`);
+  }catch(error){
+    return null;
+  }
+}
+
+function setStatus(message, type){
+  const status = document.getElementById("status");
+  status.className = "status" + (type ? ` ${type}` : "");
+  status.innerHTML = message;
+}
+
+function formatDate(dateValue){
+  if(!dateValue){
+    return "";
+  }
+
+  const parts = String(dateValue).split("-");
+
+  if(parts.length !== 3){
+    return String(dateValue);
+  }
+
+  return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+
+function formatDateRange(from, to){
+  const fromText = formatDate(from);
+  const toText = formatDate(to);
+
+  if(fromText && toText && fromText !== toText){
+    return `${fromText}–${toText}`;
+  }
+
+  return fromText || toText || "";
+}
+
+function getImageUrl(imageField){
+  if(!Array.isArray(imageField) || !imageField.length){
+    return "";
+  }
+
+  const image = imageField[0];
+
+  if(!image){
+    return "";
+  }
+
+  if(typeof image === "string"){
+    return image;
+  }
+
+  return (
+    image.url ||
+    image.download_url ||
+    image.thumbnails?.large?.url ||
+    image.thumbnails?.large ||
+    image.thumbnails?.small?.url ||
+    image.thumbnails?.small ||
+    ""
+  );
+}
+
+function updateRouteLink(){
+  const caseName = getCaseFromUrl();
+  const refreshValue = Date.now();
+  const href = `reiserute.html?case=${encodeURIComponent(caseName)}&refresh=${refreshValue}`;
+
+  document.getElementById("routeLink").href = href;
+  document.getElementById("backToRouteButton").href = href;
+}
+
+function updateToolbar(){
+  const count = selectedStopIds.size;
+  const selectionButton = document.getElementById("selectionModeButton");
+
+  selectionButton.classList.toggle("selection-active", selectionMode);
+  document.getElementById("selectedCountValue").textContent = String(count);
+
+  document.getElementById("batchFirstButton").disabled = count === 0;
+  document.getElementById("batchLeftButton").disabled = count === 0;
+  document.getElementById("batchRightButton").disabled = count === 0;
+  document.getElementById("batchLastButton").disabled = count === 0;
+  document.getElementById("batchEditButton").disabled = count !== 1;
+  document.getElementById("batchDeleteButton").disabled = count === 0;
+}
+
+function renderStops(){
+  const list = document.getElementById("stopList");
+
+  list.innerHTML = currentStops.map((stop, index) => {
+    const selected = selectedStopIds.has(String(stop.id));
+    const imageUrl = getImageUrl(stop.image);
+    const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
+    const metaParts = [
+      dateText,
+      stop.stopType || "",
+      stop.transport || "",
+      stop.roads ? `Veier: ${stop.roads}` : ""
+    ].filter(Boolean);
+
+    return `
+      <div class="stop-card ${selected ? "selected" : ""}" data-id="${esc(stop.id)}">
+        <div class="stop-number">${index + 1}</div>
+        ${imageUrl ? `<img class="stop-thumb" src="${esc(imageUrl)}" alt="">` : `<div class="stop-thumb-placeholder">Ingen bilde</div>`}
+        <div class="stop-info">
+          <div class="stop-title">${esc(stop.stopName || stop.title || `Stopp ${index + 1}`)}</div>
+          <div class="stop-meta">${esc(metaParts.join(" • "))}</div>
+          <div class="stop-meta" style="margin-top:6px;">${esc(stop.latitude)}, ${esc(stop.longitude)}</div>
+        </div>
+        <div class="stop-controls">
+          <button type="button" onclick="moveStopToStart(${index})" title="Flytt først" ${index === 0 ? "disabled" : ""}>⇤</button>
+          <button type="button" onclick="moveStop(${index}, ${index - 1})" title="Flytt til venstre" ${index === 0 ? "disabled" : ""}>←</button>
+          <button type="button" onclick="moveStop(${index}, ${index + 1})" title="Flytt til høyre" ${index === currentStops.length - 1 ? "disabled" : ""}>→</button>
+          <button type="button" onclick="moveStopToEnd(${index})" title="Flytt sist" ${index === currentStops.length - 1 ? "disabled" : ""}>⇥</button>
+          <button type="button" onclick="toggleStopSelection('${esc(stop.id)}')" title="Merk stopp" class="${selected ? "select-active" : ""}">+</button>
+          <button type="button" onclick="openEditStopModal('${esc(stop.id)}')" title="Rediger stopp">✎</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("stopCountValue").textContent = String(currentStops.length);
+  updateToolbar();
+}
+
+function moveStop(fromIndex, toIndex){
+  if(
+    fromIndex < 0 ||
+    fromIndex >= currentStops.length ||
+    toIndex < 0 ||
+    toIndex >= currentStops.length ||
+    fromIndex === toIndex
+  ){
+    return;
+  }
+
+  const [stop] = currentStops.splice(fromIndex, 1);
+  currentStops.splice(toIndex, 0, stop);
+  hasUnsavedChanges = true;
+  renderStops();
+}
+
+function moveStopToStart(index){
+  moveStop(index, 0);
+}
+
+function moveStopToEnd(index){
+  moveStop(index, currentStops.length - 1);
+}
+
+function toggleSelectionMode(){
+  selectionMode = !selectionMode;
+
+  if(!selectionMode){
+    selectedStopIds.clear();
+  }
+
+  renderStops();
+}
+
+function toggleStopSelection(stopId){
+  if(!selectionMode){
+    selectionMode = true;
+  }
+
+  if(selectedStopIds.has(String(stopId))){
+    selectedStopIds.delete(String(stopId));
+  }else{
+    selectedStopIds.add(String(stopId));
+  }
+
+  renderStops();
+}
+
+function getSelectedIndexes(){
+  return currentStops
+    .map((stop, index) => selectedStopIds.has(String(stop.id)) ? index : -1)
+    .filter(index => index >= 0);
+}
+
+function moveSelected(direction){
+  const indexes = getSelectedIndexes();
+
+  if(!indexes.length){
+    return;
+  }
+
+  if(direction < 0){
+    const first = indexes[0];
+
+    if(first === 0){
+      return;
+    }
+
+    const before = currentStops[first - 1];
+    currentStops.splice(first - 1, 1);
+    currentStops.splice(indexes[indexes.length - 1], 0, before);
+  }else{
+    const last = indexes[indexes.length - 1];
+
+    if(last === currentStops.length - 1){
+      return;
+    }
+
+    const after = currentStops[last + 1];
+    currentStops.splice(last + 1, 1);
+    currentStops.splice(indexes[0], 0, after);
+  }
+
+  hasUnsavedChanges = true;
+  renderStops();
+}
+
+function moveSelectedToStart(){
+  const selected = currentStops.filter(stop => selectedStopIds.has(String(stop.id)));
+
+  if(!selected.length){
+    return;
+  }
+
+  const rest = currentStops.filter(stop => !selectedStopIds.has(String(stop.id)));
+  currentStops = [...selected, ...rest];
+  hasUnsavedChanges = true;
+  renderStops();
+}
+
+function moveSelectedToEnd(){
+  const selected = currentStops.filter(stop => selectedStopIds.has(String(stop.id)));
+
+  if(!selected.length){
+    return;
+  }
+
+  const rest = currentStops.filter(stop => !selectedStopIds.has(String(stop.id)));
+  currentStops = [...rest, ...selected];
+  hasUnsavedChanges = true;
+  renderStops();
+}
+
+async function saveStopOrder(){
+  const saveButton = document.getElementById("saveOrderButton");
+  saveButton.disabled = true;
+  setStatus("Lagrer ny stopprekkefølge...");
+
+  try{
+    await fetchJson(`${API_BASE}/route-stops-reorder`, {
+      method:"POST",
+      headers:{
+        "Content-Type":"text/plain;charset=UTF-8"
+      },
+      body:JSON.stringify({
+        stops:currentStops.map((stop, index) => ({
+          id:Number(stop.id),
+          sortOrder:(index + 1) * 10
+        }))
+      })
+    });
+
+    currentStops = currentStops.map((stop, index) => ({
+      ...stop,
+      sortOrder:(index + 1) * 10
+    }));
+
+    hasUnsavedChanges = false;
+    updateRouteLink();
+    setStatus("Stopprekkefølgen er lagret. Når du går tilbake til reiseruten, lastes siden på nytt.", "success");
+    document.getElementById("status").scrollIntoView({ behavior:"smooth", block:"center" });
+  }catch(error){
+    console.error(error);
+    setStatus(`Kunne ikke lagre stopprekkefølgen.<br><br>${esc(error.message)}`, "error");
+    document.getElementById("status").scrollIntoView({ behavior:"smooth", block:"center" });
+  }finally{
+    saveButton.disabled = false;
+  }
+}
+
+function fillEditForm(stop){
+  document.getElementById("editStopName").value = stop.stopName || "";
+  document.getElementById("editTitle").value = stop.title || "";
+  document.getElementById("editDateFrom").value = stop.dateFrom || "";
+  document.getElementById("editDateTo").value = stop.dateTo || "";
+  document.getElementById("editStopType").value = stop.stopType || "";
+  document.getElementById("editTransport").value = stop.transport || "";
+  document.getElementById("editLatitude").value = stop.latitude || "";
+  document.getElementById("editLongitude").value = stop.longitude || "";
+  document.getElementById("editRoads").value = stop.roads || "";
+  document.getElementById("editWebLink").value = stop.webLink || "";
+  document.getElementById("editDescription").value = stop.description || "";
+}
+
+function readEditForm(){
+  return {
+    stopName:document.getElementById("editStopName").value.trim(),
+    title:document.getElementById("editTitle").value.trim(),
+    dateFrom:document.getElementById("editDateFrom").value,
+    dateTo:document.getElementById("editDateTo").value,
+    stopType:document.getElementById("editStopType").value.trim(),
+    transport:document.getElementById("editTransport").value.trim(),
+    latitude:Number(document.getElementById("editLatitude").value),
+    longitude:Number(document.getElementById("editLongitude").value),
+    roads:document.getElementById("editRoads").value.trim(),
+    webLink:document.getElementById("editWebLink").value.trim(),
+    description:document.getElementById("editDescription").value.trim()
+  };
+}
+
+function openEditStopModal(stopId){
+  const stop = currentStops.find(item => String(item.id) === String(stopId));
+
+  if(!stop){
+    return;
+  }
+
+  editMode = "edit";
+  editingStopId = Number(stop.id);
+  document.getElementById("editModalTitle").textContent = "Rediger stopp";
+  fillEditForm(stop);
+  document.getElementById("editModal").classList.add("open");
+}
+
+function openCreateStopModal(){
+  editMode = "create";
+  editingStopId = null;
+  document.getElementById("editModalTitle").textContent = "Legg til nytt stopp";
+  fillEditForm({
+    title:"",
+    stopName:"",
+    dateFrom:"",
+    dateTo:"",
+    stopType:"",
+    transport:"",
+    latitude:"",
+    longitude:"",
+    roads:"",
+    webLink:"",
+    description:""
+  });
+  document.getElementById("editModal").classList.add("open");
+}
+
+function closeEditModal(){
+  document.getElementById("editModal").classList.remove("open");
+}
+
+function editSelectedStop(){
+  if(selectedStopIds.size !== 1){
+    return;
+  }
+
+  openEditStopModal(Array.from(selectedStopIds)[0]);
+}
+
+async function saveStopForm(event){
+  event.preventDefault();
+
+  const saveButton = document.getElementById("saveStopButton");
+  const values = readEditForm();
+
+  if(!values.stopName && !values.title){
+    alert("Stoppnavn eller title må fylles ut.");
+    return;
+  }
+
+  if(!Number.isFinite(values.latitude) || !Number.isFinite(values.longitude)){
+    alert("Latitude og longitude må være gyldige tall.");
+    return;
+  }
+
+  saveButton.disabled = true;
+
+  try{
+    if(editMode === "edit"){
+      const result = await fetchJson(`${API_BASE}/route-stop-update`, {
+        method:"POST",
+        headers:{
+          "Content-Type":"text/plain;charset=UTF-8"
+        },
+        body:JSON.stringify({
+          stopId:editingStopId,
+          data:values
+        })
+      });
+
+      const index = currentStops.findIndex(stop => Number(stop.id) === Number(editingStopId));
+
+      if(index >= 0){
+        currentStops[index] = {
+          ...currentStops[index],
+          ...values,
+          id:editingStopId,
+          image:currentStops[index].image || []
+        };
+      }
+
+      setStatus("Stoppet er lagret.", "success");
+    }else{
+      const result = await fetchJson(`${API_BASE}/route-stop-create`, {
+        method:"POST",
+        headers:{
+          "Content-Type":"text/plain;charset=UTF-8"
+        },
+        body:JSON.stringify({
+          caseName:getCaseFromUrl(),
+          data:{
+            ...values,
+            sortOrder:(currentStops.length + 1) * 10
+          }
+        })
+      });
+
+      setStatus("Nytt stopp er opprettet. Laster listen på nytt...", "success");
+      closeEditModal();
+      await reloadFromServer();
+      return;
+    }
+
+    closeEditModal();
+    renderStops();
+    updateRouteLink();
+  }catch(error){
+    console.error(error);
+    alert("Kunne ikke lagre stoppet:\n\n" + error.message);
+  }finally{
+    saveButton.disabled = false;
+  }
+}
+
+async function deactivateSelectedStops(){
+  const stopIds = Array.from(selectedStopIds).map(Number);
+
+  if(!stopIds.length){
+    return;
+  }
+
+  if(!confirm(`Deaktivere ${stopIds.length} stopp?\n\nStoppene slettes ikke permanent, men settes til Inactive.`)){
+    return;
+  }
+
+  setStatus("Deaktiverer stopp...");
+
+  try{
+    await fetchJson(`${API_BASE}/route-stop-deactivate`, {
+      method:"POST",
+      headers:{
+        "Content-Type":"text/plain;charset=UTF-8"
+      },
+      body:JSON.stringify({
+        stopIds
+      })
+    });
+
+    currentStops = currentStops.filter(stop => !selectedStopIds.has(String(stop.id)));
+    selectedStopIds.clear();
+    selectionMode = false;
+    hasUnsavedChanges = true;
+    renderStops();
+    setStatus("Stoppene er deaktivert. Lagre stopprekkefølgen etterpå hvis du vil normalisere sorteringen.", "success");
+  }catch(error){
+    console.error(error);
+    setStatus(`Kunne ikke deaktivere stopp.<br><br>${esc(error.message)}`, "error");
+  }
+}
+
+async function loadPage(){
+  const caseName = getCaseFromUrl();
+
+  document.getElementById("caseValue").textContent = caseName || "-";
+  updateRouteLink();
+
+  if(!caseName){
+    setStatus("Mangler case i URL-en.<br><br>Eksempel: <code>stop-order.html?case=USA%202006</code>", "error");
+    return;
+  }
+
+  currentUser = await fetchCurrentUser();
+
+  if(!currentUser){
+    setStatus("Du må være innlogget for å redigere stopp.", "error");
+    return;
+  }
+
+  if(currentUser.role !== "Administrator"){
+    setStatus("Denne siden er bare tilgjengelig for administratorer.", "error");
+    return;
+  }
+
+  await reloadFromServer();
+}
+
+async function reloadFromServer(){
+  const caseName = getCaseFromUrl();
+
+  setStatus("Laster stopp...");
+  document.getElementById("stopsCard").style.display = "none";
+
+  try{
+    routeData = await fetchJson(`${API_BASE}/route?case=${encodeURIComponent(caseName)}`);
+    currentStops = Array.isArray(routeData.stops) ? [...routeData.stops] : [];
+    selectedStopIds.clear();
+    selectionMode = false;
+    hasUnsavedChanges = false;
+
+    document.getElementById("pageSubtitle").textContent = routeData.case?.title || routeData.case?.caseName || caseName;
+    document.getElementById("stopsCard").style.display = "block";
+    updateRouteLink();
+    renderStops();
+    setStatus(`Klar. Redigerer stopp for <strong>${esc(routeData.case?.title || caseName)}</strong>.`, "success");
+  }catch(error){
+    console.error(error);
+    setStatus(`Kunne ikke laste stopp.<br><br>${esc(error.message)}`, "error");
+  }
+}
+
+window.addEventListener("beforeunload", function(event){
+  if(!hasUnsavedChanges){
+    return;
+  }
+
+  event.preventDefault();
+  event.returnValue = "";
+});
+
+document.getElementById("stopForm").addEventListener("submit", saveStopForm);
+
+document.getElementById("editModal").addEventListener("click", function(event){
+  if(event.target.id === "editModal"){
+    closeEditModal();
+  }
+});
+
+document.addEventListener("keydown", function(event){
+  if(event.key === "Escape"){
+    closeEditModal();
+  }
+});
+
+loadPage().catch(error => {
+  console.error(error);
+  setStatus(`Kunne ikke starte siden.<br><br>${esc(error.message)}`, "error");
+});
+</script>
+</body>
+</html>
