@@ -457,6 +457,25 @@
         .replaceAll("'", "&#039;");
     }
 
+function scrollToHashStop(){
+  if(!window.location.hash){
+    return;
+  }
+
+  const target = document.querySelector(window.location.hash);
+
+  if(!target){
+    return;
+  }
+
+  setTimeout(function(){
+    target.scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+  }, 300);
+}
+    
 function getFileUrls(fileField){
   if(!Array.isArray(fileField) || !fileField.length){
     return [];
@@ -936,6 +955,7 @@ console.log(
 setupImageModal();
 setupStopImageClicks(stops);
 renderMap(stops);
+scrollToHashStop();
     }
 
 let currentUser = null;
