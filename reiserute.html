@@ -500,7 +500,11 @@
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-
+let imageModalImages = [];
+let imageModalTitle = "";
+let imageModalIndex = 0;
+let imageModalTouchStartX = null;
+    
     function esc(value){
       return String(value ?? "")
         .replaceAll("&", "&amp;")
@@ -807,33 +811,73 @@ function openImageModal(stop){
     return;
   }
 
-  const modal = document.getElementById("imageModal");
+  imageModalImages = imageUrls;
+  imageModalTitle = stop.stopName || stop.title || "Bilder";
+  imageModalIndex = 0;
+
+  showImageModalImage();
+  document.getElementById("imageModal").classList.add("open");
+}
+
+function showImageModalImage(){
+  const image = document.getElementById("imageModalImage");
   const title = document.getElementById("imageModalTitle");
-  const grid = document.getElementById("imageModalGrid");
 
-  title.textContent = stop.stopName || stop.title || "Bilder";
+  if(!imageModalImages.length){
+    return;
+  }
 
-  grid.innerHTML = imageUrls
-    .map(imageUrl => `
-      <a href="${esc(imageUrl)}" target="_blank" rel="noopener">
-        <img class="image-modal-image" src="${esc(imageUrl)}" alt="">
-      </a>
-    `)
-    .join("");
+  const imageUrl = imageModalImages[imageModalIndex];
 
-  modal.classList.add("open");
+  image.src = imageUrl;
+  title.textContent =
+    `${imageModalTitle} — ${imageModalIndex + 1} av ${imageModalImages.length}`;
+}
+
+function showPreviousImage(){
+  if(!imageModalImages.length){
+    return;
+  }
+
+  imageModalIndex =
+    (imageModalIndex - 1 + imageModalImages.length) % imageModalImages.length;
+
+  showImageModalImage();
+}
+
+function showNextImage(){
+  if(!imageModalImages.length){
+    return;
+  }
+
+  imageModalIndex =
+    (imageModalIndex + 1) % imageModalImages.length;
+
+  showImageModalImage();
 }
 
 function closeImageModal(){
   const modal = document.getElementById("imageModal");
+  const image = document.getElementById("imageModalImage");
+
   modal.classList.remove("open");
+  image.src = "";
+
+  imageModalImages = [];
+  imageModalTitle = "";
+  imageModalIndex = 0;
+  imageModalTouchStartX = null;
 }
 
 function setupImageModal(){
   const modal = document.getElementById("imageModal");
   const closeButton = document.getElementById("imageModalClose");
+  const prevButton = document.getElementById("imageModalPrev");
+  const nextButton = document.getElementById("imageModalNext");
 
   closeButton.addEventListener("click", closeImageModal);
+  prevButton.addEventListener("click", showPreviousImage);
+  nextButton.addEventListener("click", showNextImage);
 
   modal.addEventListener("click", function(event){
     if(event.target === modal){
@@ -842,9 +886,56 @@ function setupImageModal(){
   });
 
   document.addEventListener("keydown", function(event){
+    if(!modal.classList.contains("open")){
+      return;
+    }
+
     if(event.key === "Escape"){
       closeImageModal();
     }
+
+    if(event.key === "ArrowLeft"){
+      showPreviousImage();
+    }
+
+    if(event.key === "ArrowRight"){
+      showNextImage();
+    }
+  });
+
+  modal.addEventListener("touchstart", function(event){
+    if(!modal.classList.contains("open")){
+      return;
+    }
+
+    imageModalTouchStartX = event.changedTouches[0].clientX;
+  }, {
+    passive:true
+  });
+
+  modal.addEventListener("touchend", function(event){
+    if(imageModalTouchStartX === null){
+      return;
+    }
+
+    const touchEndX = event.changedTouches[0].clientX;
+    const difference = touchEndX - imageModalTouchStartX;
+
+    imageModalTouchStartX = null;
+
+    if(Math.abs(difference) < 45){
+      return;
+    }
+
+    if(difference > 0){
+      showPreviousImage();
+    }else{
+      showNextImage();
+    }
+  }, {
+    passive:true
+  });
+}
   });
 }
 
