@@ -367,6 +367,44 @@ body{
   line-height:1.5;
 }
 
+.gps-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:end;
+}
+
+.gps-row .action-button{
+  height:40px;
+}
+
+.gps-status{
+  display:none;
+  margin-top:8px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--muted);
+  line-height:1.45;
+  background:rgba(127,127,127,.05);
+}
+
+.gps-status.error{
+  display:block;
+  color:#d77;
+  border-color:#b85c5c;
+}
+
+.gps-status.success{
+  display:block;
+  color:var(--success);
+  border-color:#4f8f5f;
+}
+
+.gps-status.info{
+  display:block;
+}
+
 .edit-modal{
   display:none;
   position:fixed;
@@ -516,6 +554,14 @@ textarea{
   .form-grid{
     grid-template-columns:1fr;
   }
+
+  .gps-row{
+    grid-template-columns:1fr;
+  }
+
+  .gps-row .action-button{
+    width:100%;
+  }
 }
 </style>
 </head>
@@ -630,16 +676,21 @@ textarea{
         </div>
 
         <div class="form-field full">
-          <button
-            class="action-button"
-            type="button"
-            onclick="findGpsForCurrentStop()"
-            id="findGpsButton"
-            title="Finn GPS-koordinater basert på stoppnavn"
-          >Finn GPS</button>
-          <div class="small-help" id="gpsHelpText">
-            Søker etter GPS-koordinater basert på stoppnavn/title og fyller inn Latitude/Longitude. Kontroller treffet før du lagrer.
+          <label for="editGpsQuery">GPS-søk</label>
+          <div class="gps-row">
+            <input id="editGpsQuery" type="text" placeholder="Søk etter sted, adresse eller landemerke">
+            <button
+              class="action-button"
+              type="button"
+              onclick="findGpsForCurrentStop()"
+              id="findGpsButton"
+              title="Finn GPS-koordinater fra søketeksten"
+            >Finn GPS</button>
           </div>
+          <div class="small-help" id="gpsHelpText">
+            Forslaget kan endres før søk. Legg gjerne til by, delstat eller land hvis treffet blir for upresist.
+          </div>
+          <div class="gps-status" id="gpsStatus"></div>
         </div>
 
         <div class="form-field full">
@@ -1036,6 +1087,7 @@ function fillEditForm(stop){
   document.getElementById("editRoads").value = stop.roads || "";
   document.getElementById("editWebLink").value = stop.webLink || "";
   document.getElementById("editDescription").value = stop.description || "";
+  setSuggestedGpsQuery();
 }
 
 function readEditForm(){
@@ -1055,9 +1107,10 @@ function readEditForm(){
 }
 
 
-function buildGpsSearchQuery(){
+function buildSuggestedGpsSearchQueryFromFields(){
   const stopName = document.getElementById("editStopName").value.trim();
   const title = document.getElementById("editTitle").value.trim();
+  const roads = document.getElementById("editRoads").value.trim();
   const description = document.getElementById("editDescription").value.trim();
 
   const primaryName = stopName || title;
@@ -1073,17 +1126,44 @@ function buildGpsSearchQuery(){
 
   return [
     primaryName,
-    extraContext,
-    "USA"
+    roads,
+    extraContext
   ].filter(Boolean).join(", ");
+}
+
+function setGpsStatus(message, type){
+  const box = document.getElementById("gpsStatus");
+
+  if(!box){
+    return;
+  }
+
+  box.className = "gps-status" + (type ? ` ${type}` : "");
+  box.innerHTML = message || "";
+}
+
+function resetGpsStatus(){
+  setGpsStatus("", "");
+}
+
+function setSuggestedGpsQuery(){
+  const input = document.getElementById("editGpsQuery");
+
+  if(!input){
+    return;
+  }
+
+  input.value = buildSuggestedGpsSearchQueryFromFields();
+  resetGpsStatus();
 }
 
 async function findGpsForCurrentStop(){
   const button = document.getElementById("findGpsButton");
-  const query = buildGpsSearchQuery();
+  const queryInput = document.getElementById("editGpsQuery");
+  const query = String(queryInput?.value || "").trim();
 
   if(!query){
-    setStatus("Mangler stoppnavn/title å søke etter.", "error");
+    setGpsStatus("Skriv inn søketekst først.", "error");
     return;
   }
 
@@ -1092,13 +1172,13 @@ async function findGpsForCurrentStop(){
     button.textContent = "Søker...";
   }
 
-  setStatus(`Søker etter GPS-koordinater for <strong>${esc(query)}</strong>...`);
+  setGpsStatus(`Søker etter GPS-koordinater for <strong>${esc(query)}</strong>...`, "info");
 
   try{
     const data = await fetchJson(`${API_BASE}/geocode?q=${encodeURIComponent(query)}`);
 
     if(!data.results || !data.results.length){
-      setStatus(`Fant ingen GPS-treff for <strong>${esc(query)}</strong>.`, "error");
+      setGpsStatus(`Fant ingen GPS-treff for <strong>${esc(query)}</strong>. Prøv å legge til by, delstat eller land.`, "error");
       return;
     }
 
@@ -1107,20 +1187,20 @@ async function findGpsForCurrentStop(){
     const longitude = Number(best.longitude);
 
     if(!Number.isFinite(latitude) || !Number.isFinite(longitude)){
-      setStatus("GPS-treffet manglet gyldige koordinater.", "error");
+      setGpsStatus("GPS-treffet manglet gyldige koordinater.", "error");
       return;
     }
 
     document.getElementById("editLatitude").value = latitude.toFixed(4);
     document.getElementById("editLongitude").value = longitude.toFixed(4);
 
-    setStatus(
-      `Fant GPS-koordinater:<br><strong>${esc(best.name || query)}</strong><br>${latitude.toFixed(4)}, ${longitude.toFixed(4)}<br><br>Kontroller treffet og trykk «Lagre stopp» hvis det stemmer.`,
+    setGpsStatus(
+      `Fant GPS-koordinater:<br><strong>${esc(best.name || query)}</strong><br>${latitude.toFixed(4)}, ${longitude.toFixed(4)}<br><br>Koordinatene er lagt inn i feltene. Kontroller treffet og trykk «Lagre stopp» hvis det stemmer.`,
       "success"
     );
   }catch(error){
     console.error(error);
-    setStatus(`Kunne ikke finne GPS-koordinater.<br><br>${esc(error.message)}`, "error");
+    setGpsStatus(`Kunne ikke finne GPS-koordinater.<br><br>${esc(error.message)}`, "error");
   }finally{
     if(button){
       button.disabled = false;
@@ -1168,6 +1248,7 @@ function openCreateStopModal(insertIndex){
 
 function closeEditModal(){
   document.getElementById("editModal").classList.remove("open");
+  resetGpsStatus();
 }
 
 function editSelectedStop(){
