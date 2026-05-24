@@ -269,10 +269,20 @@ function formatDateRange(from, to){
   return fromText || toText || "";
 }
 
-function normalizeStop(stop, index){
+function validCoordinatePair(latitude, longitude){
+  return (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    Math.abs(latitude) <= 90 &&
+    Math.abs(longitude) <= 180
+  );
+}
+
+function makeExportPoint(stop, index, coordinates, label, positionLabel){
   const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
   const name = stop.stopName || stop.title || `Stopp ${index + 1}`;
   const descriptionParts = [
+    positionLabel ? `Posisjon: ${positionLabel}` : "",
     dateText ? `Dato: ${dateText}` : "",
     stop.stopType ? `Type: ${stop.stopType}` : "",
     stop.transport ? `Transport: ${stop.transport}` : "",
@@ -282,18 +292,50 @@ function normalizeStop(stop, index){
 
   return {
     number:index + 1,
-    name:`${index + 1}. ${name}`,
-    latitude:Number(stop.latitude),
-    longitude:Number(stop.longitude),
+    name:`${label}. ${name}`,
+    latitude:coordinates.latitude,
+    longitude:coordinates.longitude,
     dateFrom:stop.dateFrom || "",
     dateTo:stop.dateTo || "",
     dateRange:dateText,
     roads:stop.roads || "",
     stopType:stop.stopType || "",
     transport:stop.transport || "",
-    description:descriptionParts.join("\n"),
+    description:descriptionParts.join("
+"),
     sortOrder:stop.sortOrder || index + 1
   };
+}
+
+function normalizeStop(stop, index){
+  const number = index + 1;
+  const startLatitude = Number(stop.latitude);
+  const startLongitude = Number(stop.longitude);
+  const stopLatitude = Number(stop.latitudeStop);
+  const stopLongitude = Number(stop.longitudeStop);
+  const hasStart = validCoordinatePair(startLatitude, startLongitude);
+  const hasStop = validCoordinatePair(stopLatitude, stopLongitude);
+
+  if(hasStart && hasStop){
+    return [
+      makeExportPoint(stop, index, { latitude:startLatitude, longitude:startLongitude }, `${number}.1`, "Startposisjon"),
+      makeExportPoint(stop, index, { latitude:stopLatitude, longitude:stopLongitude }, `${number}.2`, "Stopposisjon")
+    ];
+  }
+
+  if(hasStart || hasStop){
+    return [makeExportPoint(
+      stop,
+      index,
+      hasStart
+        ? { latitude:startLatitude, longitude:startLongitude }
+        : { latitude:stopLatitude, longitude:stopLongitude },
+      String(number),
+      hasStart ? "Posisjon" : "Stopposisjon"
+    )];
+  }
+
+  return [];
 }
 
 function getNormalizedStops(){
@@ -301,14 +343,7 @@ function getNormalizedStops(){
     return [];
   }
 
-  return routeData.stops
-    .map(normalizeStop)
-    .filter(stop =>
-      Number.isFinite(stop.latitude) &&
-      Number.isFinite(stop.longitude) &&
-      Math.abs(stop.latitude) <= 90 &&
-      Math.abs(stop.longitude) <= 180
-    );
+  return routeData.stops.flatMap(normalizeStop);
 }
 
 async function loadRoute(){

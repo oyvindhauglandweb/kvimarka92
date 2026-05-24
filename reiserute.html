@@ -1538,8 +1538,15 @@ function getStopCoordinate(stop, names, type){
   return NaN;
 }
 
-function normalizeLatLng(stop){
-  let lat = getStopCoordinate(stop, [
+function normalizeLatLng(stop, position){
+  const isStopPosition = position === "stop";
+
+  let lat = getStopCoordinate(stop, isStopPosition ? [
+    "latitudeStop",
+    "Latitude stop",
+    "latStop",
+    "field_8692025"
+  ] : [
     "latitude",
     "Latitude",
     "lat",
@@ -1547,7 +1554,13 @@ function normalizeLatLng(stop){
     "field_8628028"
   ], "lat");
 
-  let lng = getStopCoordinate(stop, [
+  let lng = getStopCoordinate(stop, isStopPosition ? [
+    "longitudeStop",
+    "Longitude stop",
+    "lngStop",
+    "lonStop",
+    "field_8692026"
+  ] : [
     "longitude",
     "Longitude",
     "lng",
@@ -1578,6 +1591,43 @@ function normalizeLatLng(stop){
   }
 
   return { lat, lng };
+}
+
+function buildRouteMapPoints(stops){
+  const points = [];
+
+  stops.forEach((stop, index) => {
+    const number = index + 1;
+    const startCoordinates = normalizeLatLng(stop, "start");
+    const stopCoordinates = normalizeLatLng(stop, "stop");
+
+    if(startCoordinates && stopCoordinates){
+      points.push({
+        stop,
+        displayNumber:`${number}.1`,
+        positionLabel:"Startposisjon",
+        coordinates:startCoordinates
+      });
+      points.push({
+        stop,
+        displayNumber:`${number}.2`,
+        positionLabel:"Stopposisjon",
+        coordinates:stopCoordinates
+      });
+      return;
+    }
+
+    if(startCoordinates || stopCoordinates){
+      points.push({
+        stop,
+        displayNumber:String(number),
+        positionLabel:startCoordinates ? "Posisjon" : "Stopposisjon",
+        coordinates:startCoordinates || stopCoordinates
+      });
+    }
+  });
+
+  return points;
 }
 
 function openImageModal(stop, startIndex){
@@ -1760,38 +1810,31 @@ function renderMap(stops){
     attribution:"&copy; OpenStreetMap contributors"
   }).addTo(map);
 
-  const validStops = stops
-    .map((stop, index) => {
-      return {
-        ...stop,
-        displayNumber:index + 1,
-        coordinates:normalizeLatLng(stop)
-      };
-    })
-    .filter(stop => stop.coordinates);
-
-  const points = validStops.map(stop => [
-    stop.coordinates.lat,
-    stop.coordinates.lng
+  const routePoints = buildRouteMapPoints(stops);
+  const points = routePoints.map(point => [
+    point.coordinates.lat,
+    point.coordinates.lng
   ]);
 
-  validStops.forEach(stop => {
-    const lat = stop.coordinates.lat;
-    const lng = stop.coordinates.lng;
+  routePoints.forEach(point => {
+    const stop = point.stop;
+    const lat = point.coordinates.lat;
+    const lng = point.coordinates.lng;
     const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
 
     const popupHtml = `
       <div class="route-popup">
         <div class="route-popup-title">
-          ${stop.displayNumber}. ${esc(stop.stopName || stop.title)}
+          ${esc(point.displayNumber)}. ${esc(stop.stopName || stop.title)}
         </div>
 
- <div class="route-popup-meta">
-  ${dateText ? `${esc(dateText)}<br>` : ""}
-  ${stop.stopType ? `Type: ${esc(stop.stopType)}<br>` : ""}
-  ${stop.transport ? `Transport: ${esc(stop.transport)}<br>` : ""}
-  ${stop.roads ? `Veier: ${esc(stop.roads)}<br>` : ""}
-</div>
+        <div class="route-popup-meta">
+          ${point.positionLabel ? `${esc(point.positionLabel)}<br>` : ""}
+          ${dateText ? `${esc(dateText)}<br>` : ""}
+          ${stop.stopType ? `Type: ${esc(stop.stopType)}<br>` : ""}
+          ${stop.transport ? `Transport: ${esc(stop.transport)}<br>` : ""}
+          ${stop.roads ? `Veier: ${esc(stop.roads)}<br>` : ""}
+        </div>
 
         ${stop.description ? `
           <div style="margin-top:8px;">
@@ -1802,21 +1845,19 @@ function renderMap(stops){
     `;
 
     const marker = L.marker([lat, lng], {
-      icon:createNumberIcon(stop.displayNumber)
+      icon:createNumberIcon(point.displayNumber)
     }).addTo(map);
 
     marker.bindPopup(popupHtml);
 
     marker.bindTooltip(
-      `${stop.displayNumber}. ${esc(stop.stopName || stop.title)}`,
+      `${point.displayNumber}. ${esc(stop.stopName || stop.title)}`,
       {
         direction:"top",
         offset:[0,-16],
         opacity:0.95
       }
     );
-
-
   });
 
   if(points.length){
@@ -1832,6 +1873,7 @@ function renderMap(stops){
   }else{
     map.setView([39.5, -98.35], 4);
   }
+
 
   setTimeout(function(){
     map.invalidateSize();

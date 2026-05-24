@@ -698,31 +698,59 @@ textarea{
         </div>
 
         <div class="form-field">
-          <label for="editLatitude">Breddegrad</label>
+          <label for="editLatitude">Breddegrad start</label>
           <input id="editLatitude" type="number" step="0.0001">
         </div>
 
         <div class="form-field">
-          <label for="editLongitude">Lengdegrad</label>
+          <label for="editLongitude">Lengdegrad start</label>
           <input id="editLongitude" type="number" step="0.0001">
         </div>
 
         <div class="form-field full">
-          <label for="editGpsQuery">GPS-søk</label>
+          <label for="editGpsQuery">GPS-søk start</label>
           <div class="gps-row">
-            <input id="editGpsQuery" type="text" placeholder="Søk etter sted, adresse eller landemerke">
+            <input id="editGpsQuery" type="text" placeholder="Søk etter startsted, adresse eller landemerke">
             <button
               class="action-button"
               type="button"
-              onclick="findGpsForCurrentStop()"
+              onclick="findGpsForPosition('start')"
               id="findGpsButton"
-              title="Finn GPS-koordinater fra søketeksten"
-            >Finn GPS</button>
+              title="Finn GPS-koordinater for startposisjon"
+            >Finn GPS start</button>
           </div>
           <div class="small-help" id="gpsHelpText">
             Forslaget kan endres før søk. Legg gjerne til by, delstat eller land hvis treffet blir for upresist.
           </div>
           <div class="gps-status" id="gpsStatus"></div>
+        </div>
+
+        <div class="form-field">
+          <label for="editLatitudeStop">Breddegrad stopp</label>
+          <input id="editLatitudeStop" type="number" step="0.0001">
+        </div>
+
+        <div class="form-field">
+          <label for="editLongitudeStop">Lengdegrad stopp</label>
+          <input id="editLongitudeStop" type="number" step="0.0001">
+        </div>
+
+        <div class="form-field full">
+          <label for="editGpsQueryStop">GPS-søk stopp</label>
+          <div class="gps-row">
+            <input id="editGpsQueryStop" type="text" placeholder="Søk etter stoppsted, adresse eller landemerke">
+            <button
+              class="action-button"
+              type="button"
+              onclick="findGpsForPosition('stop')"
+              id="findGpsStopButton"
+              title="Finn GPS-koordinater for stopposisjon"
+            >Finn GPS stopp</button>
+          </div>
+          <div class="small-help">
+            Valgfritt. Brukes når aktiviteten har en annen stopp-posisjon enn startposisjon.
+          </div>
+          <div class="gps-status" id="gpsStatusStop"></div>
         </div>
 
         <div class="form-field full">
@@ -1263,6 +1291,27 @@ function ensureSelectOption(selectId, value){
   }
 }
 
+function readOptionalNumber(inputId){
+  const value = document.getElementById(inputId).value.trim();
+
+  if(!value){
+    return null;
+  }
+
+  const number = Number(value.replace(",", "."));
+
+  return Number.isFinite(number) ? number : null;
+}
+
+function hasCompletePosition(latitude, longitude){
+  return (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    Math.abs(latitude) <= 90 &&
+    Math.abs(longitude) <= 180
+  );
+}
+
 function fillEditForm(stop){
   titleManuallyEdited = false;
   document.getElementById("editStopName").value = stop.stopName || "";
@@ -1273,8 +1322,10 @@ function fillEditForm(stop){
   ensureSelectOption("editTransport", stop.transport || "");
   document.getElementById("editStopType").value = stop.stopType || "";
   document.getElementById("editTransport").value = stop.transport || "";
-  document.getElementById("editLatitude").value = stop.latitude || "";
-  document.getElementById("editLongitude").value = stop.longitude || "";
+  document.getElementById("editLatitude").value = stop.latitude ?? "";
+  document.getElementById("editLongitude").value = stop.longitude ?? "";
+  document.getElementById("editLatitudeStop").value = stop.latitudeStop ?? "";
+  document.getElementById("editLongitudeStop").value = stop.longitudeStop ?? "";
   document.getElementById("editRoads").value = stop.roads || "";
   document.getElementById("editWebLink").value = stop.webLink || "";
   document.getElementById("editDescription").value = stop.description || "";
@@ -1286,6 +1337,13 @@ function fillEditForm(stop){
 }
 
 function readEditForm(){
+  const startLatitude = readOptionalNumber("editLatitude");
+  const startLongitude = readOptionalNumber("editLongitude");
+  const stopLatitude = readOptionalNumber("editLatitudeStop");
+  const stopLongitude = readOptionalNumber("editLongitudeStop");
+  const hasStart = hasCompletePosition(startLatitude, startLongitude);
+  const hasStop = hasCompletePosition(stopLatitude, stopLongitude);
+
   return {
     stopName:document.getElementById("editStopName").value.trim(),
     title:document.getElementById("editTitle").value.trim(),
@@ -1293,8 +1351,10 @@ function readEditForm(){
     dateTo:document.getElementById("editDateTo").value,
     stopType:document.getElementById("editStopType").value.trim(),
     transport:document.getElementById("editTransport").value.trim(),
-    latitude:Number(document.getElementById("editLatitude").value),
-    longitude:Number(document.getElementById("editLongitude").value),
+    latitude:hasStart ? startLatitude : null,
+    longitude:hasStart ? startLongitude : null,
+    latitudeStop:hasStop ? stopLatitude : null,
+    longitudeStop:hasStop ? stopLongitude : null,
     roads:document.getElementById("editRoads").value.trim(),
     webLink:document.getElementById("editWebLink").value.trim(),
     description:document.getElementById("editDescription").value.trim()
@@ -1326,8 +1386,8 @@ function buildSuggestedGpsSearchQueryFromFields(){
   ].filter(Boolean).join(", ");
 }
 
-function setGpsStatus(message, type){
-  const box = document.getElementById("gpsStatus");
+function setGpsStatus(message, type, boxId){
+  const box = document.getElementById(boxId || "gpsStatus");
 
   if(!box){
     return;
@@ -1338,27 +1398,35 @@ function setGpsStatus(message, type){
 }
 
 function resetGpsStatus(){
-  setGpsStatus("", "");
+  setGpsStatus("", "", "gpsStatus");
+  setGpsStatus("", "", "gpsStatusStop");
 }
 
 function setSuggestedGpsQuery(){
-  const input = document.getElementById("editGpsQuery");
+  const query = buildSuggestedGpsSearchQueryFromFields();
+  const startInput = document.getElementById("editGpsQuery");
+  const stopInput = document.getElementById("editGpsQueryStop");
 
-  if(!input){
-    return;
+  if(startInput){
+    startInput.value = query;
   }
 
-  input.value = buildSuggestedGpsSearchQueryFromFields();
+  if(stopInput){
+    stopInput.value = query;
+  }
+
   resetGpsStatus();
 }
 
-async function findGpsForCurrentStop(){
-  const button = document.getElementById("findGpsButton");
-  const queryInput = document.getElementById("editGpsQuery");
+async function findGpsForPosition(position){
+  const isStop = position === "stop";
+  const button = document.getElementById(isStop ? "findGpsStopButton" : "findGpsButton");
+  const queryInput = document.getElementById(isStop ? "editGpsQueryStop" : "editGpsQuery");
+  const statusId = isStop ? "gpsStatusStop" : "gpsStatus";
   const query = String(queryInput?.value || "").trim();
 
   if(!query){
-    setGpsStatus("Skriv inn søketekst først.", "error");
+    setGpsStatus("Skriv inn søketekst først.", "error", statusId);
     return;
   }
 
@@ -1367,13 +1435,13 @@ async function findGpsForCurrentStop(){
     button.textContent = "Søker...";
   }
 
-  setGpsStatus(`Søker etter GPS-koordinater for <strong>${esc(query)}</strong>...`, "info");
+  setGpsStatus(`Søker etter GPS-koordinater for <strong>${esc(query)}</strong>...`, "info", statusId);
 
   try{
     const data = await fetchJson(`${API_BASE}/geocode?q=${encodeURIComponent(query)}`);
 
     if(!data.results || !data.results.length){
-      setGpsStatus(`Fant ingen GPS-treff for <strong>${esc(query)}</strong>. Prøv å legge til by, delstat eller land.`, "error");
+      setGpsStatus(`Fant ingen GPS-treff for <strong>${esc(query)}</strong>. Prøv å legge til by, delstat eller land.`, "error", statusId);
       return;
     }
 
@@ -1382,26 +1450,31 @@ async function findGpsForCurrentStop(){
     const longitude = Number(best.longitude);
 
     if(!Number.isFinite(latitude) || !Number.isFinite(longitude)){
-      setGpsStatus("GPS-treffet manglet gyldige koordinater.", "error");
+      setGpsStatus("GPS-treffet manglet gyldige koordinater.", "error", statusId);
       return;
     }
 
-    document.getElementById("editLatitude").value = latitude.toFixed(4);
-    document.getElementById("editLongitude").value = longitude.toFixed(4);
+    document.getElementById(isStop ? "editLatitudeStop" : "editLatitude").value = latitude.toFixed(4);
+    document.getElementById(isStop ? "editLongitudeStop" : "editLongitude").value = longitude.toFixed(4);
 
     setGpsStatus(
-      `Fant GPS-koordinater:<br><strong>${esc(best.name || query)}</strong><br>${latitude.toFixed(4)}, ${longitude.toFixed(4)}<br><br>Koordinatene er lagt inn i feltene. Kontroller treffet og trykk «Lagre stopp» hvis det stemmer.`,
-      "success"
+      `Fant GPS-koordinater:<br><strong>${esc(best.name || query)}</strong><br>${latitude.toFixed(4)}, ${longitude.toFixed(4)}<br><br>Koordinatene er lagt inn i ${isStop ? "stoppfeltene" : "startfeltene"}. Kontroller treffet og trykk «Lagre stopp» hvis det stemmer.`,
+      "success",
+      statusId
     );
   }catch(error){
     console.error(error);
-    setGpsStatus(`Kunne ikke finne GPS-koordinater.<br><br>${esc(error.message)}`, "error");
+    setGpsStatus(`Kunne ikke finne GPS-koordinater.<br><br>${esc(error.message)}`, "error", statusId);
   }finally{
     if(button){
       button.disabled = false;
-      button.textContent = "Finn GPS";
+      button.textContent = isStop ? "Finn GPS stopp" : "Finn GPS start";
     }
   }
+}
+
+function findGpsForCurrentStop(){
+  return findGpsForPosition("start");
 }
 
 function configureFirstImageField(mode){
@@ -1473,6 +1546,8 @@ function openCreateStopModal(insertIndex){
     transport:"",
     latitude:"",
     longitude:"",
+    latitudeStop:"",
+    longitudeStop:"",
     roads:"",
     webLink:"",
     description:""
@@ -1534,8 +1609,11 @@ async function saveStopForm(event){
     return;
   }
 
-  if(!Number.isFinite(values.latitude) || !Number.isFinite(values.longitude)){
-    alert("Latitude og longitude må være gyldige tall.");
+  const hasStartPosition = hasCompletePosition(values.latitude, values.longitude);
+  const hasStopPosition = hasCompletePosition(values.latitudeStop, values.longitudeStop);
+
+  if(!hasStartPosition && !hasStopPosition){
+    alert("Minst én komplett GPS-posisjon må fylles ut: enten start eller stopp.");
     return;
   }
 
