@@ -68,6 +68,161 @@ body{
   color:var(--text);
 }
 
+.create-route-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  background:rgba(0,0,0,.72);
+  padding:20px;
+  box-sizing:border-box;
+  overflow:auto;
+}
+
+.create-route-modal.open{
+  display:block;
+}
+
+.create-route-modal-content{
+  max-width:720px;
+  margin:60px auto;
+  padding:18px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--card);
+  color:var(--text);
+  box-sizing:border-box;
+}
+
+.create-route-modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.create-route-modal-title{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.create-route-close{
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  width:42px;
+  height:42px;
+  font-size:24px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.create-route-form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.create-route-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.create-route-field.full{
+  grid-column:1 / -1;
+}
+
+.create-route-field label{
+  font-size:14px;
+  font-weight:bold;
+}
+
+.create-route-field input,
+.create-route-field select,
+.create-route-field textarea{
+  width:100%;
+  min-height:40px;
+  padding:0 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  font-size:15px;
+  font-family:Arial,sans-serif;
+  box-sizing:border-box;
+}
+
+.create-route-field textarea{
+  min-height:120px;
+  padding:10px 12px;
+  resize:vertical;
+}
+
+.create-route-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:16px;
+}
+
+.create-route-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:0 14px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.create-route-button.primary{
+  background:var(--link);
+  color:#fff;
+  border-color:var(--link);
+}
+
+.create-route-status{
+  display:none;
+  margin-top:12px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  line-height:1.45;
+}
+
+.create-route-status.error{
+  display:block;
+  color:#d77;
+  border-color:#b85c5c;
+}
+
+.create-route-status.success{
+  display:block;
+  color:#72c184;
+  border-color:#4f8f5f;
+}
+
+@media(max-width:800px){
+  .create-route-form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .create-route-actions{
+    flex-direction:column;
+  }
+
+  .create-route-button{
+    width:100%;
+  }
+}
+
 /* Path menu */
 
 .path-menu{
@@ -292,11 +447,52 @@ body.dark-mode .path-button:hover{
 
 </div>
 
+
+<div class="create-route-modal" id="createRouteModal">
+  <div class="create-route-modal-content">
+    <div class="create-route-modal-header">
+      <div class="create-route-modal-title">Opprett ny feriedestinasjon</div>
+      <button class="create-route-close" type="button" onclick="closeCreateRouteCaseDialog()">×</button>
+    </div>
+
+    <form id="createRouteCaseForm">
+      <div class="create-route-form-grid">
+        <div class="create-route-field">
+          <label for="newRouteCaseName">Navn</label>
+          <input id="newRouteCaseName" type="text" placeholder="For eksempel London 2003" required>
+        </div>
+
+        <div class="create-route-field">
+          <label for="newRouteAccessLevel">Tilgang</label>
+          <select id="newRouteAccessLevel">
+            <option value="Private">Private</option>
+            <option value="Public">Public</option>
+            <option value="Administrator">Administrator</option>
+          </select>
+        </div>
+
+        <div class="create-route-field full">
+          <label for="newRouteGeneralDescription">Generell beskrivelse</label>
+          <textarea id="newRouteGeneralDescription" placeholder="Skriv en kort generell beskrivelse av reiseruten..."></textarea>
+        </div>
+      </div>
+
+      <div class="create-route-status" id="createRouteStatus"></div>
+
+      <div class="create-route-actions">
+        <button class="create-route-button" type="button" onclick="closeCreateRouteCaseDialog()">Avbryt</button>
+        <button class="create-route-button primary" type="submit" id="createRouteSubmitButton">Opprett reiserute</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
 let currentUser = null;
 let allMenuItems = [];
+let routeCases = [];
 
 const LEVEL_FIELDS = [
   "level1",
@@ -313,6 +509,21 @@ const menuState = {
 };
 
 const MENU_STATE_STORAGE_KEY = "kvimarka92MenuState";
+
+
+const HOLIDAY_ROOT_LABELS = [
+  "feriereiser",
+  "ferier",
+  "ferieturer"
+];
+
+const DEFAULT_ROUTE_CASE_SUBMENU = [
+  {
+    buttonText:"Reiserute",
+    sortOrder:1,
+    url:"reiserute.html?case={case}"
+  }
+];
 
 const ROUTE_MENU_KEYWORDS = [
   "ferie",
@@ -564,6 +775,272 @@ function restoreMenuState(){
   }
 }
 
+
+async function fetchRouteCases(){
+  try{
+    const options = currentUser
+      ? { credentials:"include" }
+      : {};
+
+    const data = await fetchJson(`${API_BASE}/route-cases`, options);
+
+    return Array.isArray(data.cases) ? data.cases : [];
+  }catch(error){
+    console.warn("Could not load route cases.", error);
+    return [];
+  }
+}
+
+function normalizeLabel(value){
+  return String(value || "").trim().toLowerCase();
+}
+
+function isHolidayRootLabel(value){
+  return HOLIDAY_ROOT_LABELS.includes(normalizeLabel(value));
+}
+
+function isHolidayMenuItem(item){
+  return isHolidayRootLabel(item.level1);
+}
+
+function getRouteCaseAccessFlags(routeCase){
+  const accessLevel = String(routeCase.accessLevel || "Private").trim();
+
+  return {
+    public: accessLevel === "Public",
+    private: accessLevel === "Public" || accessLevel === "Private",
+    administrator: true
+  };
+}
+
+function makeRouteCaseUrlFromTemplate(template, routeCase, caseName){
+  const rawUrl = String(template.url || "").trim();
+  const label = String(template.buttonText || "").trim();
+
+  if(label.toLowerCase() === "reiserute"){
+    return `reiserute.html?case=${encodeURIComponent(caseName)}`;
+  }
+
+  if(!rawUrl){
+    return "#";
+  }
+
+  try{
+    const url = new URL(rawUrl, window.location.href);
+
+    if(url.searchParams.has("case")){
+      url.searchParams.set("case", caseName);
+      return url.pathname.replace(/^\//, "") + url.search + url.hash;
+    }
+  }catch(error){
+    // Fall through to text replacement below.
+  }
+
+  return rawUrl
+    .replaceAll("{case}", encodeURIComponent(caseName))
+    .replaceAll("{caseName}", encodeURIComponent(caseName));
+}
+
+function getRouteCaseTemplates(items){
+  const templates = [];
+  const seen = new Set();
+
+  items
+    .filter(item => isHolidayMenuItem(item))
+    .filter(item => String(item.level2 || "").trim())
+    .filter(item => !String(item.level3 || "").trim())
+    .forEach(item => {
+      const label = String(item.buttonText || "").trim();
+
+      if(!label || seen.has(label.toLowerCase())){
+        return;
+      }
+
+      seen.add(label.toLowerCase());
+      templates.push({
+        ...item,
+        sortOrder:getItemSort(item)
+      });
+    });
+
+  if(!templates.length){
+    return DEFAULT_ROUTE_CASE_SUBMENU;
+  }
+
+  return templates.sort((a, b) => getItemSort(a) - getItemSort(b));
+}
+
+function buildDynamicRouteCaseMenu(items, cases){
+  const templates = getRouteCaseTemplates(items);
+
+  const baseItems = items.filter(item => {
+    if(!isHolidayMenuItem(item)){
+      return true;
+    }
+
+    return !String(item.level2 || "").trim();
+  });
+
+  const dynamicItems = [];
+
+  if(currentUser?.role === "Administrator"){
+    dynamicItems.push({
+      id:"route-case-create",
+      buttonText:"+ Ny feriedestinasjon",
+      level1:"Feriereiser",
+      level2:"",
+      level3:"",
+      url:"#create-route-case",
+      public:false,
+      private:false,
+      administrator:true,
+      sortOrder:-100,
+      openInNewTab:false,
+      createRouteCase:true
+    });
+  }
+
+  cases.forEach((routeCase, caseIndex) => {
+    const caseName = String(routeCase.caseName || routeCase.title || "").trim();
+    const caseTitle = String(routeCase.title || routeCase.caseName || "").trim();
+
+    if(!caseName || !caseTitle){
+      return;
+    }
+
+    const accessFlags = getRouteCaseAccessFlags(routeCase);
+    const caseSortOrder = Number(routeCase.sortOrder || ((caseIndex + 1) * 10));
+
+    templates.forEach((template, templateIndex) => {
+      const label = String(template.buttonText || DEFAULT_ROUTE_CASE_SUBMENU[0].buttonText).trim();
+      const templateSort = Number(template.sortOrder || ((templateIndex + 1) * 10));
+
+      dynamicItems.push({
+        ...template,
+        id:`route-case-${routeCase.id || caseName}-${templateIndex}`,
+        buttonText:label,
+        level1:"Feriereiser",
+        level2:caseTitle,
+        level3:"",
+        url:makeRouteCaseUrlFromTemplate(template, routeCase, caseName),
+        public:accessFlags.public,
+        private:accessFlags.private,
+        administrator:accessFlags.administrator,
+        sortOrder:(caseSortOrder * 1000) + templateSort,
+        openInNewTab:false,
+        routeCaseName:caseName
+      });
+    });
+  });
+
+  return [...baseItems, ...dynamicItems];
+}
+
+function setCreateRouteStatus(message, type){
+  const box = document.getElementById("createRouteStatus");
+
+  if(!box){
+    return;
+  }
+
+  box.className = "create-route-status" + (type ? ` ${type}` : "");
+  box.innerHTML = message || "";
+}
+
+function openCreateRouteCaseDialog(){
+  const modal = document.getElementById("createRouteModal");
+  const nameInput = document.getElementById("newRouteCaseName");
+  const descriptionInput = document.getElementById("newRouteGeneralDescription");
+
+  if(!modal){
+    return;
+  }
+
+  setCreateRouteStatus("", "");
+
+  if(nameInput){
+    nameInput.value = "";
+  }
+
+  if(descriptionInput){
+    descriptionInput.value = "";
+  }
+
+  modal.classList.add("open");
+
+  setTimeout(function(){
+    if(nameInput){
+      nameInput.focus();
+    }
+  }, 50);
+}
+
+function closeCreateRouteCaseDialog(){
+  const modal = document.getElementById("createRouteModal");
+
+  if(modal){
+    modal.classList.remove("open");
+  }
+
+  setCreateRouteStatus("", "");
+}
+
+async function createRouteCaseFromMenu(event){
+  event.preventDefault();
+
+  const nameInput = document.getElementById("newRouteCaseName");
+  const accessInput = document.getElementById("newRouteAccessLevel");
+  const descriptionInput = document.getElementById("newRouteGeneralDescription");
+  const button = document.getElementById("createRouteSubmitButton");
+
+  const caseName = String(nameInput?.value || "").trim();
+  const accessLevel = String(accessInput?.value || "Private").trim() || "Private";
+  const generalDescription = String(descriptionInput?.value || "").trim();
+
+  if(!caseName){
+    setCreateRouteStatus("Skriv inn navn på feriedestinasjonen.", "error");
+    return;
+  }
+
+  if(button){
+    button.disabled = true;
+    button.textContent = "Oppretter...";
+  }
+
+  setCreateRouteStatus(`Oppretter <strong>${esc(caseName)}</strong>...`, "");
+
+  try{
+    await fetchJson(`${API_BASE}/route-case-create`, {
+      method:"POST",
+      credentials:"include",
+      headers:{
+        "Content-Type":"text/plain;charset=UTF-8"
+      },
+      body:JSON.stringify({
+        caseName,
+        title:caseName,
+        accessLevel,
+        generalDescription
+      })
+    });
+
+    menuState.selectedLevels = ["Feriereiser", caseName];
+    saveMenuState();
+
+    window.location.href =
+      `reiserute.html?case=${encodeURIComponent(caseName)}&refresh=${Date.now()}`;
+  }catch(error){
+    console.error(error);
+    setCreateRouteStatus(`Kunne ikke opprette feriedestinasjonen.<br><br>${esc(error.message)}`, "error");
+  }finally{
+    if(button){
+      button.disabled = false;
+      button.textContent = "Opprett reiserute";
+    }
+  }
+}
+
+
 function isRouteMenuItem(item){
   const values = [
     item.buttonText,
@@ -718,6 +1195,19 @@ function renderMenuDepth(container, depth){
     if(node.type === "leaf"){
       const item = node.item;
 
+      if(item.createRouteCase){
+        const button = makeButton(item.buttonText, {
+          leaf:true,
+          onClick:function(){
+            saveMenuState();
+            openCreateRouteCaseDialog();
+          }
+        });
+
+        container.appendChild(makeRow(depth, button));
+        return;
+      }
+
       const button = makeButton(item.buttonText, {
         href:getMenuItemUrl(item),
         openInNewTab:item.openInNewTab,
@@ -781,12 +1271,26 @@ async function loadPage(){
     menuData = await fetchJson(`${API_BASE}/menu-public`);
   }
 
-  allMenuItems = menuData.items || [];
+  routeCases = await fetchRouteCases();
+  allMenuItems = buildDynamicRouteCaseMenu(menuData.items || [], routeCases);
 
   restoreMenuState();
   renderPathMenu();
   statusBox.style.display = "none";
 }
+
+
+const createRouteCaseForm = document.getElementById("createRouteCaseForm");
+
+if(createRouteCaseForm){
+  createRouteCaseForm.addEventListener("submit", createRouteCaseFromMenu);
+}
+
+document.addEventListener("keydown", function(event){
+  if(event.key === "Escape"){
+    closeCreateRouteCaseDialog();
+  }
+});
 
 document.addEventListener("click", function(event){
   const widget = document.querySelector(".login-widget");
