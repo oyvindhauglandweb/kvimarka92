@@ -514,6 +514,280 @@ body.dark-mode .route-action-button:hover{
   resize:vertical;
 }
 
+.view-toolbar-card{
+  padding:10px;
+}
+
+.view-toolbar{
+  display:flex;
+  gap:0;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.view-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:0 12px;
+  border:1px solid var(--border);
+  border-radius:0;
+  margin:0 0 0 -1px;
+  background:var(--card);
+  color:var(--text);
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.view-button:first-child{
+  margin-left:0;
+  border-top-left-radius:8px;
+  border-bottom-left-radius:8px;
+}
+
+.view-button:last-child{
+  border-top-right-radius:8px;
+  border-bottom-right-radius:8px;
+}
+
+.view-button:hover{
+  background:#e9eef2;
+}
+
+body.dark-mode .view-button:hover{
+  background:#3a3a3a;
+}
+
+.view-button.active{
+  background:var(--link);
+  color:#fff;
+  border-color:var(--link);
+}
+
+.stop-card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:14px;
+}
+
+.route-stop-card{
+  position:relative;
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(127,127,127,.04);
+}
+
+.route-stop-card-image-button{
+  display:block;
+  width:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+}
+
+.route-stop-card-image,
+.route-stop-card-placeholder{
+  width:100%;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  display:block;
+  background:var(--soft);
+}
+
+.route-stop-card-placeholder{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  font-weight:bold;
+}
+
+.route-stop-card-body{
+  padding:10px;
+}
+
+.route-stop-card-title{
+  font-size:16px;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+.route-stop-card-meta{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.route-stop-card-number{
+  position:absolute;
+  top:8px;
+  left:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:var(--link);
+  color:#fff;
+  font-weight:bold;
+  z-index:2;
+}
+
+.route-card-links{
+  position:absolute;
+  top:8px;
+  right:8px;
+  display:flex;
+  gap:6px;
+  z-index:3;
+}
+
+.route-card-link{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border:2px solid var(--link);
+  border-radius:50%;
+  color:var(--link);
+  background:rgba(0,0,0,.15);
+  text-decoration:none;
+  font-size:15px;
+  font-weight:bold;
+  line-height:1;
+  box-sizing:border-box;
+}
+
+.route-card-link:hover{
+  background:rgba(124,199,232,.18);
+}
+
+.compact-stop-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.compact-stop-row{
+  display:grid;
+  grid-template-columns:44px 1.3fr 1fr 1fr auto;
+  gap:10px;
+  align-items:center;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:10px;
+  background:rgba(127,127,127,.04);
+}
+
+.compact-stop-number{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:var(--link);
+  color:#fff;
+  font-weight:bold;
+}
+
+.compact-stop-title{
+  font-weight:bold;
+}
+
+.compact-stop-meta{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.compact-stop-actions{
+  display:flex;
+  gap:6px;
+  justify-content:flex-end;
+}
+
+.photo-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:14px;
+}
+
+.photo-tile{
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(127,127,127,.04);
+}
+
+.photo-button{
+  display:block;
+  width:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+}
+
+.photo-image{
+  width:100%;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  display:block;
+  background:var(--soft);
+}
+
+.photo-caption{
+  padding:9px;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.35;
+}
+
+.photo-caption strong{
+  display:block;
+  color:var(--text);
+  margin-bottom:3px;
+}
+
+@media(max-width:800px){
+  .view-toolbar{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:6px;
+  }
+
+  .view-button,
+  .view-button:first-child,
+  .view-button:last-child{
+    width:100%;
+    margin:0;
+    border-radius:8px;
+  }
+
+  .compact-stop-row{
+    grid-template-columns:36px 1fr;
+  }
+
+  .compact-stop-row .compact-stop-meta,
+  .compact-stop-actions{
+    grid-column:2;
+  }
+
+  .stop-card-grid{
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  }
+
+  .photo-grid{
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  }
+}
+
 
     .leaflet-container{
       background:var(--soft);
@@ -633,6 +907,23 @@ let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
 let imageModalTouchStartX = null;
+let currentRouteData = null;
+let imageModalReady = false;
+
+const ROUTE_VIEW_STORAGE_KEY = "kvimarka92RouteView";
+const ROUTE_VIEWS = [
+  { key:"map-list", label:"Kart + liste" },
+  { key:"map", label:"Kun kart" },
+  { key:"cards", label:"Kort" },
+  { key:"compact", label:"Kompakt" },
+  { key:"photos", label:"Bilder" }
+];
+
+let currentRouteView = localStorage.getItem(ROUTE_VIEW_STORAGE_KEY) || "map-list";
+
+if(!ROUTE_VIEWS.some(view => view.key === currentRouteView)){
+  currentRouteView = "map-list";
+}
     
     function esc(value){
       return String(value ?? "")
@@ -863,6 +1154,222 @@ function renderStopList(stops){
 }
 
 
+function renderViewToolbar(){
+  return `
+    <div class="card view-toolbar-card">
+      <div class="view-toolbar" aria-label="Velg visning">
+        ${ROUTE_VIEWS.map(view => `
+          <button
+            class="view-button ${currentRouteView === view.key ? "active" : ""}"
+            type="button"
+            onclick="setRouteView('${view.key}')"
+          >${esc(view.label)}</button>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function setRouteView(viewKey){
+  if(!ROUTE_VIEWS.some(view => view.key === viewKey)){
+    return;
+  }
+
+  currentRouteView = viewKey;
+  localStorage.setItem(ROUTE_VIEW_STORAGE_KEY, currentRouteView);
+
+  if(currentRouteData){
+    renderRoute(currentRouteData);
+  }
+}
+
+function renderStopActions(stop, caseName){
+  const webLink = String(stop.webLink || "").trim();
+
+  return `
+    <div class="route-card-links">
+      ${currentUser?.role === "Administrator" ? `
+        <a
+          class="route-card-link"
+          href="stop-order.html?case=${encodeURIComponent(caseName)}&edit=${encodeURIComponent(stop.id)}"
+          title="Rediger stoppested"
+          onclick="event.stopPropagation();"
+        >✎</a>
+
+        <a
+          class="route-card-link"
+          href="image-order.html?case=${encodeURIComponent(caseName)}&stop=${encodeURIComponent(stop.id)}"
+          title="Sorter bilder"
+          onclick="event.stopPropagation();"
+        >⚙</a>
+      ` : ""}
+
+      ${webLink ? `
+        <a
+          class="route-card-link"
+          href="${esc(webLink)}"
+          target="_blank"
+          rel="noopener"
+          title="Åpne webside"
+          onclick="event.stopPropagation();"
+        >i</a>
+      ` : ""}
+    </div>
+  `;
+}
+
+function renderStopCards(stops){
+  const caseName = getCaseFromUrl();
+
+  return `
+    <div class="card">
+      <h2>Stoppesteder</h2>
+      <div class="stop-card-grid">
+        ${stops.map((stop, index) => {
+          const imageUrl = getFileUrl(stop.image);
+          const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
+          const metaParts = [
+            dateText,
+            stop.stopType || "",
+            stop.transport || "",
+            stop.roads ? `Veier: ${stop.roads}` : ""
+          ].filter(Boolean);
+
+          return `
+            <div class="route-stop-card">
+              <div class="route-stop-card-number">${index + 1}</div>
+              ${renderStopActions(stop, caseName)}
+
+              <button
+                class="route-stop-card-image-button image-trigger"
+                type="button"
+                data-stop-index="${index}"
+                title="${imageUrl ? "Vis bilder" : "Ingen bilder"}"
+              >
+                ${imageUrl ? `<img class="route-stop-card-image" src="${esc(imageUrl)}" alt="">` : `<div class="route-stop-card-placeholder">Ingen bilde</div>`}
+              </button>
+
+              <div class="route-stop-card-body">
+                <div class="route-stop-card-title">${esc(stop.stopName || stop.title || `Stopp ${index + 1}`)}</div>
+                <div class="route-stop-card-meta">${esc(metaParts.join(" • "))}</div>
+                ${stop.description ? `<div class="route-stop-card-meta" style="margin-top:6px;">${esc(stop.description)}</div>` : ""}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderCompactStopList(stops){
+  const caseName = getCaseFromUrl();
+
+  return `
+    <div class="card">
+      <h2>Stoppesteder</h2>
+      <div class="compact-stop-list">
+        ${stops.map((stop, index) => {
+          const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
+          const metaParts = [
+            stop.stopType || "",
+            stop.transport || "",
+            stop.roads ? `Veier: ${stop.roads}` : ""
+          ].filter(Boolean);
+
+          return `
+            <div class="compact-stop-row">
+              <div class="compact-stop-number">${index + 1}</div>
+              <div class="compact-stop-title">${esc(stop.stopName || stop.title || `Stopp ${index + 1}`)}</div>
+              <div class="compact-stop-meta">${esc(dateText || "-")}</div>
+              <div class="compact-stop-meta">${esc(metaParts.join(" • ") || "-")}</div>
+              <div class="compact-stop-actions">
+                ${renderStopActions(stop, caseName)}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderPhotoGallery(stops){
+  const photos = [];
+
+  stops.forEach((stop, stopIndex) => {
+    getFileUrls(stop.image).forEach((url, imageIndex) => {
+      photos.push({
+        stop,
+        stopIndex,
+        imageIndex,
+        url
+      });
+    });
+  });
+
+  return `
+    <div class="card">
+      <h2>Bilder</h2>
+      ${photos.length ? `
+        <div class="photo-grid">
+          ${photos.map(photo => `
+            <div class="photo-tile">
+              <button
+                class="photo-button photo-trigger"
+                type="button"
+                data-stop-index="${photo.stopIndex}"
+                data-image-index="${photo.imageIndex}"
+                title="Vis bilde"
+              >
+                <img class="photo-image" src="${esc(photo.url)}" alt="">
+              </button>
+              <div class="photo-caption">
+                <strong>${photo.stopIndex + 1}. ${esc(photo.stop.stopName || photo.stop.title || "Stopp")}</strong>
+                Bilde ${photo.imageIndex + 1}
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      ` : `
+        <div class="loading">Ingen bilder er lagt inn på stoppestedene ennå.</div>
+      `}
+    </div>
+  `;
+}
+
+function setupImageTriggers(stops){
+  document.querySelectorAll(".image-trigger").forEach(button => {
+    button.addEventListener("click", function(event){
+      event.preventDefault();
+      event.stopPropagation();
+
+      const index = Number(button.dataset.stopIndex);
+      const stop = stops[index];
+
+      if(stop){
+        openImageModal(stop, 0);
+      }
+    });
+  });
+
+  document.querySelectorAll(".photo-trigger").forEach(button => {
+    button.addEventListener("click", function(event){
+      event.preventDefault();
+      event.stopPropagation();
+
+      const stopIndex = Number(button.dataset.stopIndex);
+      const imageIndex = Number(button.dataset.imageIndex);
+      const stop = stops[stopIndex];
+
+      if(stop){
+        openImageModal(stop, imageIndex);
+      }
+    });
+  });
+}
+
+
 function renderMissingRouteCase(caseName){
   const content = document.getElementById("content");
 
@@ -1073,7 +1580,7 @@ function normalizeLatLng(stop){
   return { lat, lng };
 }
 
-function openImageModal(stop){
+function openImageModal(stop, startIndex){
   const imageUrls = getFileUrls(stop.image);
 
   if(!imageUrls.length){
@@ -1082,7 +1589,11 @@ function openImageModal(stop){
 
   imageModalImages = imageUrls;
   imageModalTitle = stop.stopName || stop.title || "Bilder";
-  imageModalIndex = 0;
+  imageModalIndex = Number.isFinite(Number(startIndex)) ? Number(startIndex) : 0;
+
+  if(imageModalIndex < 0 || imageModalIndex >= imageModalImages.length){
+    imageModalIndex = 0;
+  }
 
   showImageModalImage();
   document.getElementById("imageModal").classList.add("open");
@@ -1139,6 +1650,12 @@ function closeImageModal(){
 }
 
 function setupImageModal(){
+  if(imageModalReady){
+    return;
+  }
+
+  imageModalReady = true;
+
   const modal = document.getElementById("imageModal");
   const closeButton = document.getElementById("imageModalClose");
   const prevButton = document.getElementById("imageModalPrev");
@@ -1329,11 +1846,13 @@ function renderMap(stops){
 }
 
     function renderRoute(data){
+      currentRouteData = data;
+
       const content = document.getElementById("content");
       const title = data.case?.title || data.case?.caseName || "Reiserute";
       const stops = data.stops || [];
 
-document.title = title + " - Reiserute";
+      document.title = title + " - Reiserute";
       document.getElementById("pageTitle").textContent = title;
       document.getElementById("pageSubtitle").textContent = "Reiserute";
 
@@ -1342,19 +1861,45 @@ document.title = title + " - Reiserute";
         return;
       }
 
+      const showMap = currentRouteView === "map-list" || currentRouteView === "map";
+
+      let stopContent = "";
+
+      if(currentRouteView === "map-list"){
+        stopContent = renderStopList(stops);
+      }else if(currentRouteView === "cards"){
+        stopContent = renderStopCards(stops);
+      }else if(currentRouteView === "compact"){
+        stopContent = renderCompactStopList(stops);
+      }else if(currentRouteView === "photos"){
+        stopContent = renderPhotoGallery(stops);
+      }
+
       content.innerHTML = `
         ${renderGeneralDescription(data)}
         ${renderSummary(data)}
-        <div class="card">
-          <div id="map"></div>
-        </div>
-        ${renderStopList(stops)}
+        ${renderViewToolbar()}
+        ${showMap ? `
+          <div class="card">
+            <div id="map"></div>
+          </div>
+        ` : ""}
+        ${stopContent}
       `;
 
-setupImageModal();
-setupStopImageClicks(stops);
-renderMap(stops);
-scrollToHashStop();
+      setupImageModal();
+
+      if(currentRouteView === "map-list"){
+        setupStopImageClicks(stops);
+      }
+
+      setupImageTriggers(stops);
+
+      if(showMap){
+        renderMap(stops);
+      }
+
+      scrollToHashStop();
     }
 
 let currentUser = null;
