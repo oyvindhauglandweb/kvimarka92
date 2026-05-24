@@ -982,6 +982,26 @@ function getDraftKey(){
   return `kvimarka92.stopDraft.${caseName}.create`;
 }
 
+function readStopDraftForm(){
+  return {
+    stopName:document.getElementById("editStopName").value,
+    title:document.getElementById("editTitle").value,
+    dateFrom:document.getElementById("editDateFrom").value,
+    dateTo:document.getElementById("editDateTo").value,
+    stopType:document.getElementById("editStopType").value,
+    transport:document.getElementById("editTransport").value,
+    latitude:document.getElementById("editLatitude").value,
+    longitude:document.getElementById("editLongitude").value,
+    latitudeStop:document.getElementById("editLatitudeStop").value,
+    longitudeStop:document.getElementById("editLongitudeStop").value,
+    gpsQuery:document.getElementById("editGpsQuery").value,
+    gpsQueryStop:document.getElementById("editGpsQueryStop").value,
+    roads:document.getElementById("editRoads").value,
+    webLink:document.getElementById("editWebLink").value,
+    description:document.getElementById("editDescription").value
+  };
+}
+
 function saveStopDraft(){
   try{
     const modal = document.getElementById("editModal");
@@ -996,7 +1016,7 @@ function saveStopDraft(){
       editingStopId,
       pendingCreateIndex,
       updatedAt:new Date().toISOString(),
-      values:readEditForm()
+      values:readStopDraftForm()
     };
 
     localStorage.setItem(getDraftKey(), JSON.stringify(draft));
@@ -1033,6 +1053,14 @@ function applyStopDraft(draft){
     webLink:draft.values.webLink || "",
     description:draft.values.description || ""
   });
+
+  if(draft.values.gpsQuery !== undefined){
+    document.getElementById("editGpsQuery").value = draft.values.gpsQuery || "";
+  }
+
+  if(draft.values.gpsQueryStop !== undefined){
+    document.getElementById("editGpsQueryStop").value = draft.values.gpsQueryStop || "";
+  }
 }
 
 function setupStopDraftAutosave(){
@@ -1072,7 +1100,6 @@ function restoreDraftIfAvailable(){
   }
 }
 
-clearStopDraft();  
   
 function openImageOrderForStop(stopId){
   const caseName = getCaseFromUrl();
@@ -1687,6 +1714,7 @@ function openEditStopModal(stopId){
   fillEditForm(stop);
   configureFirstImageField("edit");
   document.getElementById("editModal").classList.add("open");
+  restoreDraftIfAvailable();
 }
 
 function openCreateStopModal(insertIndex){
@@ -1713,6 +1741,7 @@ function openCreateStopModal(insertIndex){
     description:""
   });
   document.getElementById("editModal").classList.add("open");
+  restoreDraftIfAvailable();
 }
 
 function closeEditModal(){
@@ -1826,6 +1855,7 @@ async function saveStopForm(event){
       }
 
       setStatus(firstImageFile ? "Stoppet er lagret, og bildet er lagt til." : "Stoppet er lagret.", "success");
+      clearStopDraft();
     }else{
       const insertIndex = pendingCreateIndex === null
         ? currentStops.length
@@ -1867,6 +1897,7 @@ async function saveStopForm(event){
         })
       });
 
+      clearStopDraft();
       pendingCreateIndex = null;
       setStatus("Nytt stopp er opprettet. Laster listen på nytt...", "success");
       closeEditModal();
@@ -2021,6 +2052,8 @@ document.getElementById("editStopName").addEventListener("input", function(){
 document.getElementById("editTitle").addEventListener("input", function(){
   titleManuallyEdited = true;
 });
+
+setupStopDraftAutosave();
 
 
 
