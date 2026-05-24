@@ -771,8 +771,8 @@ let titleManuallyEdited = false;
 let routeStopFieldOptions = {
   stopType:[],
   transport:[]
-let autoEditOpened = false;
 };
+let autoEditOpened = false;
 
 function esc(value){
   return String(value ?? "")
@@ -1784,11 +1784,6 @@ document.getElementById("editTitle").addEventListener("input", function(){
   titleManuallyEdited = true;
 });
 
-document.getElementById("editModal").addEventListener("click", function(event){
-  if(event.target.id === "editModal"){
-    closeEditModal();
-  }
-});
 
 
 loadPage().catch(error => {
