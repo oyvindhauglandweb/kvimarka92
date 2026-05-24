@@ -970,6 +970,110 @@ function updateToolbar(){
   document.getElementById("batchDeleteButton").disabled = !hasSelection;
 }
 
+
+  
+function getDraftKey(){
+  const caseName = getCaseFromUrl() || "unknown-case";
+
+  if(editMode === "edit" && editingStopId){
+    return `kvimarka92.stopDraft.${caseName}.edit.${editingStopId}`;
+  }
+
+  return `kvimarka92.stopDraft.${caseName}.create`;
+}
+
+function saveStopDraft(){
+  try{
+    const modal = document.getElementById("editModal");
+
+    if(!modal || !modal.classList.contains("open")){
+      return;
+    }
+
+    const draft = {
+      caseName:getCaseFromUrl(),
+      editMode,
+      editingStopId,
+      pendingCreateIndex,
+      updatedAt:new Date().toISOString(),
+      values:readEditForm()
+    };
+
+    localStorage.setItem(getDraftKey(), JSON.stringify(draft));
+  }catch(error){
+    console.warn("Could not save stop draft.", error);
+  }
+}
+
+function clearStopDraft(){
+  try{
+    localStorage.removeItem(getDraftKey());
+  }catch(error){
+    console.warn("Could not clear stop draft.", error);
+  }
+}
+
+function applyStopDraft(draft){
+  if(!draft || !draft.values){
+    return;
+  }
+
+  fillEditForm({
+    title:draft.values.title || "",
+    stopName:draft.values.stopName || "",
+    dateFrom:draft.values.dateFrom || "",
+    dateTo:draft.values.dateTo || "",
+    stopType:draft.values.stopType || "",
+    transport:draft.values.transport || "",
+    latitude:draft.values.latitude || "",
+    longitude:draft.values.longitude || "",
+    latitudeStop:draft.values.latitudeStop || "",
+    longitudeStop:draft.values.longitudeStop || "",
+    roads:draft.values.roads || "",
+    webLink:draft.values.webLink || "",
+    description:draft.values.description || ""
+  });
+}
+
+function setupStopDraftAutosave(){
+  const form = document.getElementById("stopForm");
+
+  if(!form){
+    return;
+  }
+
+  form.addEventListener("input", saveStopDraft);
+  form.addEventListener("change", saveStopDraft);
+}
+
+function restoreDraftIfAvailable(){
+  try{
+    const raw = localStorage.getItem(getDraftKey());
+
+    if(!raw){
+      return;
+    }
+
+    const draft = JSON.parse(raw);
+
+    if(!draft || !draft.values){
+      return;
+    }
+
+    const updated = draft.updatedAt
+      ? new Date(draft.updatedAt).toLocaleString("no-NO")
+      : "ukjent tidspunkt";
+
+    if(confirm(`Det finnes et ulagret utkast fra ${updated}.\n\nVil du gjenopprette det?`)){
+      applyStopDraft(draft);
+    }
+  }catch(error){
+    console.warn("Could not restore stop draft.", error);
+  }
+}
+
+clearStopDraft();  
+  
 function openImageOrderForStop(stopId){
   const caseName = getCaseFromUrl();
 
