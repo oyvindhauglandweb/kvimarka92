@@ -633,13 +633,20 @@ function setupLoginWidget(){
       performLogout();
     };
   }else{
-    loginStatus.textContent = "Sign in";
-    loginStatus.href = `${API_BASE}/whoami`;
-    loginStatus.classList.add("is-signin");
-    loginStatus.classList.remove("signed-in");
-    loginStatus.title = "Logg inn";
-    loginStatus.onclick = null;
-    loginMenu.style.display = "none";
+  const returnUrl =
+    window.location.origin +
+    window.location.pathname +
+    window.location.search;
+
+  loginStatus.textContent = "Sign in";
+  loginStatus.href =
+    `${API_BASE}/login?returnUrl=${encodeURIComponent(returnUrl)}`;
+
+  loginStatus.classList.add("is-signin");
+  loginStatus.classList.remove("signed-in");
+  loginStatus.title = "Logg inn";
+  loginStatus.onclick = null;
+  loginMenu.style.display = "none";
   }
 }
 
