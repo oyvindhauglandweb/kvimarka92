@@ -443,6 +443,43 @@ body{
   }
 }
 
+.add-end-image-card{
+  border:1px dashed var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(127,127,127,.04);
+  min-height:238px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.add-end-image-button-area{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:178px;
+  border:0;
+  background:transparent;
+  color:var(--link);
+  font-size:44px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.add-end-image-button-area:hover{
+  background:rgba(124,199,232,.08);
+}
+
+.add-end-image-caption{
+  padding:10px;
+  color:var(--muted);
+  font-size:13px;
+  text-align:center;
+  border-top:1px solid var(--border);
+}
+
 .add-first-card{
   grid-column:1 / -1;
   border:1px dashed var(--border);
@@ -1022,7 +1059,25 @@ function renderImages(){
         `}
       </div>
     `;
-  }).join("");
+  }).join("") + `
+    <div class="add-end-image-card">
+      <button
+        class="add-end-image-button-area"
+        type="button"
+        onclick="chooseImageForInsert(currentImages.length)"
+        title="Legg til bilde til slutt"
+      >＋</button>
+      <div class="add-end-image-caption">Legg til bilde</div>
+      <div class="image-controls">
+        <button type="button" disabled>⇤</button>
+        <button type="button" disabled>←</button>
+        <button type="button" disabled>→</button>
+        <button type="button" disabled>⇥</button>
+        <button type="button" onclick="chooseImageForInsert(currentImages.length)" title="Legg til bilde til slutt">+</button>
+        <button type="button" disabled>🗑</button>
+      </div>
+    </div>
+  `;
 
   document.getElementById("imageCountValue").textContent = String(currentImages.length);
   selectedImageIndices = new Set(getSelectedIndices());

@@ -209,6 +209,43 @@ body{
   gap:14px;
 }
 
+.add-end-stop-card{
+  border:1px dashed var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(127,127,127,.04);
+  min-height:300px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.add-end-stop-button-area{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:220px;
+  border:0;
+  background:transparent;
+  color:var(--link);
+  font-size:44px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.add-end-stop-button-area:hover{
+  background:rgba(124,199,232,.08);
+}
+
+.add-end-stop-caption{
+  padding:10px;
+  color:var(--muted);
+  font-size:13px;
+  text-align:center;
+  border-top:1px solid var(--border);
+}
+
 .add-first-stop-card{
   grid-column:1 / -1;
   border:1px dashed var(--border);
@@ -1017,7 +1054,26 @@ function renderStops(){
         `}
       </div>
     `;
-  }).join("");
+  }).join("") + `
+    <div class="add-end-stop-card">
+      <button
+        class="add-end-stop-button-area"
+        type="button"
+        onclick="openCreateStopModal(currentStops.length)"
+        title="Legg til stopp til slutt"
+      >＋</button>
+      <div class="add-end-stop-caption">Legg til stopp</div>
+      <div class="stop-controls">
+        <button type="button" disabled>⇤</button>
+        <button type="button" disabled>←</button>
+        <button type="button" disabled>→</button>
+        <button type="button" disabled>⇥</button>
+        <button type="button" onclick="openCreateStopModal(currentStops.length)" title="Legg til stopp til slutt">+</button>
+        <button type="button" disabled>✎</button>
+        <button type="button" disabled>🗑</button>
+      </div>
+    </div>
+  `;
 
   document.getElementById("stopCountValue").textContent = String(currentStops.length);
   updateToolbar();
