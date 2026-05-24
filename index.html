@@ -647,15 +647,26 @@ function makeMenuNodes(items, depth){
 
   groupMap.forEach(group => nodes.push(group));
 
-  return nodes
-    .filter(node => node.label)
-    .sort((a, b) => {
-      if(a.sortOrder !== b.sortOrder){
-        return a.sortOrder - b.sortOrder;
-      }
+ return nodes
+  .filter(node => node.label)
+  .sort((a, b) => {
+    const aIsRoute = String(a.label || "").trim().toLowerCase() === "reiserute";
+    const bIsRoute = String(b.label || "").trim().toLowerCase() === "reiserute";
 
-      return a.label.localeCompare(b.label, "no");
-    });
+    if(aIsRoute && !bIsRoute){
+      return -1;
+    }
+
+    if(!aIsRoute && bIsRoute){
+      return 1;
+    }
+
+    if(a.sortOrder !== b.sortOrder){
+      return a.sortOrder - b.sortOrder;
+    }
+
+    return a.label.localeCompare(b.label, "no");
+  });
 }
 
 function itemsMatchingPath(depth){
