@@ -1041,7 +1041,7 @@ body.dark-mode .view-button:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: stop-gallery-cards-v5-gallery-modal-open-fix");
+console.log("reiserute.html version: stop-gallery-cards-v6-return-to-stop-gallery");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1991,12 +1991,9 @@ function openStopImageGallery(stop, stopIndex){
       event.stopPropagation();
 
       const imageIndex = Number(button.dataset.imageIndex || 0);
-      const selectedStop = stopGalleryStop;
 
-      closeStopImageGallery();
-
-      if(selectedStop){
-        openImageModal(selectedStop, imageIndex);
+      if(stopGalleryStop){
+        openImageModal(stopGalleryStop, imageIndex);
       }
     });
   });
