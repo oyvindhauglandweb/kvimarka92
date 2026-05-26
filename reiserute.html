@@ -882,6 +882,17 @@ body.dark-mode .view-button:hover{
     </div>
   </div>
 
+<div class="stop-gallery-modal" id="stopImageGalleryModal" onclick="handleStopImageGalleryBackdropClick(event)">
+  <div class="stop-gallery-content">
+    <div class="stop-gallery-header">
+      <div class="stop-gallery-title" id="stopImageGalleryTitle">Bilder</div>
+      <button class="stop-gallery-close" type="button" onclick="closeStopImageGallery()">×</button>
+    </div>
+
+    <div class="stop-gallery-grid" id="stopImageGalleryGrid"></div>
+  </div>
+</div>
+
 <div class="image-modal" id="imageModal">
   <button class="image-modal-close" id="imageModalClose" type="button">×</button>
 
@@ -909,6 +920,8 @@ let imageModalIndex = 0;
 let imageModalTouchStartX = null;
 let currentRouteData = null;
 let imageModalReady = false;
+let stopGalleryStop = null;
+let stopGalleryStopIndex = 0;
 
 const ROUTE_VIEW_STORAGE_KEY = "kvimarka92RouteView";
 const ROUTE_VIEWS = [
@@ -1348,7 +1361,7 @@ function setupImageTriggers(stops){
       const stop = stops[index];
 
       if(stop){
-        openImageModal(stop, 0);
+        openStopImageGallery(stop, index);
       }
     });
   });
@@ -1739,6 +1752,14 @@ function setupImageModal(){
     }
   });
 
+  document.addEventListener("keydown", function(event){
+    const galleryModal = document.getElementById("stopImageGalleryModal");
+
+    if(event.key === "Escape" && galleryModal && galleryModal.classList.contains("open")){
+      closeStopImageGallery();
+    }
+  });
+
   modal.addEventListener("touchstart", function(event){
     if(!modal.classList.contains("open")){
       return;
@@ -1794,8 +1815,8 @@ function setupStopImageClicks(stops){
     row.title = "Klikk for å vise bilder";
 
     row.addEventListener("click", function(event){
-    event.preventDefault();
-    openStopImageGallery(stop, index);
+      event.preventDefault();
+      openStopImageGallery(stop, index);
     });
   });
 }
@@ -1807,10 +1828,17 @@ function openStopImageGallery(stop, stopIndex){
     return;
   }
 
+  stopGalleryStop = stop;
+  stopGalleryStopIndex = stopIndex;
+
   const title = stop.stopName || stop.title || `Stopp ${stopIndex + 1}`;
   const modal = document.getElementById("stopImageGalleryModal");
   const heading = document.getElementById("stopImageGalleryTitle");
   const grid = document.getElementById("stopImageGalleryGrid");
+
+  if(!modal || !heading || !grid){
+    return;
+  }
 
   heading.textContent = `${stopIndex + 1}. ${title}`;
 
@@ -1818,26 +1846,52 @@ function openStopImageGallery(stop, stopIndex){
     <button
       class="stop-gallery-card"
       type="button"
-      onclick="openImageModalAtIndex(${esc(JSON.stringify(imageUrls))}, '${esc(title)}', ${imageIndex})"
+      data-image-index="${imageIndex}"
+      title="Vis bilde"
     >
       <img src="${esc(url)}" alt="">
       <div class="stop-gallery-caption">
-        <strong>${esc(stopIndex + 1)}. ${esc(title)}</strong>
+        <strong>${stopIndex + 1}. ${esc(title)}</strong>
         <span>Bilde ${imageIndex + 1}</span>
       </div>
     </button>
   `).join("");
 
+  grid.querySelectorAll(".stop-gallery-card").forEach(button => {
+    button.addEventListener("click", function(event){
+      event.preventDefault();
+      event.stopPropagation();
+
+      const imageIndex = Number(button.dataset.imageIndex || 0);
+
+      closeStopImageGallery();
+      openImageModal(stopGalleryStop, imageIndex);
+    });
+  });
+
   modal.classList.add("open");
 }
 
-function openImageModalAtIndex(imageUrls, title, startIndex){
-  imageModalImages = imageUrls;
-  imageModalTitle = title || "Bilder";
-  imageModalIndex = Number(startIndex) || 0;
+function closeStopImageGallery(){
+  const modal = document.getElementById("stopImageGalleryModal");
+  const grid = document.getElementById("stopImageGalleryGrid");
 
-  showImageModalImage();
-  document.getElementById("imageModal").classList.add("open");
+  if(modal){
+    modal.classList.remove("open");
+  }
+
+  if(grid){
+    grid.innerHTML = "";
+  }
+
+  stopGalleryStop = null;
+  stopGalleryStopIndex = 0;
+}
+
+function handleStopImageGalleryBackdropClick(event){
+  if(event.target && event.target.id === "stopImageGalleryModal"){
+    closeStopImageGallery();
+  }
 }
     
 function renderMap(stops){
