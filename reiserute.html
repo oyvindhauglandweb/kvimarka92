@@ -1794,10 +1794,50 @@ function setupStopImageClicks(stops){
     row.title = "Klikk for å vise bilder";
 
     row.addEventListener("click", function(event){
-      event.preventDefault();
-      openImageModal(stop);
+    event.preventDefault();
+    openStopImageGallery(stop, index);
     });
   });
+}
+
+function openStopImageGallery(stop, stopIndex){
+  const imageUrls = getFileUrls(stop.image);
+
+  if(!imageUrls.length){
+    return;
+  }
+
+  const title = stop.stopName || stop.title || `Stopp ${stopIndex + 1}`;
+  const modal = document.getElementById("stopImageGalleryModal");
+  const heading = document.getElementById("stopImageGalleryTitle");
+  const grid = document.getElementById("stopImageGalleryGrid");
+
+  heading.textContent = `${stopIndex + 1}. ${title}`;
+
+  grid.innerHTML = imageUrls.map((url, imageIndex) => `
+    <button
+      class="stop-gallery-card"
+      type="button"
+      onclick="openImageModalAtIndex(${esc(JSON.stringify(imageUrls))}, '${esc(title)}', ${imageIndex})"
+    >
+      <img src="${esc(url)}" alt="">
+      <div class="stop-gallery-caption">
+        <strong>${esc(stopIndex + 1)}. ${esc(title)}</strong>
+        <span>Bilde ${imageIndex + 1}</span>
+      </div>
+    </button>
+  `).join("");
+
+  modal.classList.add("open");
+}
+
+function openImageModalAtIndex(imageUrls, title, startIndex){
+  imageModalImages = imageUrls;
+  imageModalTitle = title || "Bilder";
+  imageModalIndex = Number(startIndex) || 0;
+
+  showImageModalImage();
+  document.getElementById("imageModal").classList.add("open");
 }
     
 function renderMap(stops){
