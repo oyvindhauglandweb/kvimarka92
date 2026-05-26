@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: stop-gallery-cards-v4-mobile-gallery-2026-05-26 -->
+  <!-- version: stop-gallery-cards-v5-gallery-modal-open-fix-2026-05-26 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1010,7 +1010,7 @@ body.dark-mode .view-button:hover{
   </div>
 
 <div class="stop-gallery-modal" id="stopImageGalleryModal" onclick="handleStopImageGalleryBackdropClick(event)">
-  <div class="stop-gallery-content">
+  <div class="stop-gallery-content" onclick="event.stopPropagation();">
     <div class="stop-gallery-header">
       <div class="stop-gallery-title" id="stopImageGalleryTitle">Bilder</div>
       <button class="stop-gallery-close" type="button" onclick="closeStopImageGallery()">×</button>
@@ -1041,7 +1041,7 @@ body.dark-mode .view-button:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: stop-gallery-cards-v4-mobile-gallery");
+console.log("reiserute.html version: stop-gallery-cards-v5-gallery-modal-open-fix");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1991,9 +1991,13 @@ function openStopImageGallery(stop, stopIndex){
       event.stopPropagation();
 
       const imageIndex = Number(button.dataset.imageIndex || 0);
+      const selectedStop = stopGalleryStop;
 
       closeStopImageGallery();
-      openImageModal(stopGalleryStop, imageIndex);
+
+      if(selectedStop){
+        openImageModal(selectedStop, imageIndex);
+      }
     });
   });
 
