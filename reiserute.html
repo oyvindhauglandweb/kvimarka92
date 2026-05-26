@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: stop-gallery-cards-v2-2026-05-26 -->
+  <!-- version: stop-gallery-cards-v4-mobile-gallery-2026-05-26 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -789,6 +789,132 @@ body.dark-mode .view-button:hover{
   }
 }
 
+.stop-gallery-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9998;
+  background:rgba(0,0,0,.86);
+  padding:20px;
+  box-sizing:border-box;
+  overflow:auto;
+}
+
+.stop-gallery-modal.open{
+  display:block;
+}
+
+.stop-gallery-content{
+  max-width:1100px;
+  margin:30px auto;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+  box-sizing:border-box;
+}
+
+.stop-gallery-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.stop-gallery-title{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.stop-gallery-close{
+  flex:0 0 auto;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  width:42px;
+  height:42px;
+  font-size:24px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.stop-gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:14px;
+}
+
+.stop-gallery-card{
+  display:block;
+  width:100%;
+  padding:0;
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(127,127,127,.04);
+  color:var(--text);
+  text-align:left;
+  cursor:pointer;
+  box-sizing:border-box;
+}
+
+.stop-gallery-card:hover{
+  background:rgba(124,199,232,.10);
+}
+
+.stop-gallery-card img{
+  width:100%;
+  max-width:100%;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  display:block;
+  background:var(--soft);
+}
+
+.stop-gallery-caption{
+  padding:9px;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.35;
+}
+
+.stop-gallery-caption strong{
+  display:block;
+  color:var(--text);
+  margin-bottom:3px;
+}
+
+@media(max-width:800px){
+  .stop-gallery-modal{
+    padding:10px;
+  }
+
+  .stop-gallery-content{
+    width:100%;
+    max-width:none;
+    margin:10px auto;
+    padding:12px;
+    border-radius:12px;
+  }
+
+  .stop-gallery-title{
+    font-size:18px;
+  }
+
+  .stop-gallery-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+
+  .stop-gallery-card img{
+    height:auto;
+    max-height:32vh;
+  }
+}
+
+
 
     .leaflet-container{
       background:var(--soft);
@@ -915,7 +1041,7 @@ body.dark-mode .view-button:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: stop-gallery-cards-v2");
+console.log("reiserute.html version: stop-gallery-cards-v4-mobile-gallery");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
