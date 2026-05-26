@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
+  <!-- version: stop-gallery-cards-v2-2026-05-26 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -914,6 +915,7 @@ body.dark-mode .view-button:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+console.log("reiserute.html version: stop-gallery-cards-v2");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1376,7 +1378,7 @@ function setupImageTriggers(stops){
       const stop = stops[stopIndex];
 
       if(stop){
-        openImageModal(stop, imageIndex);
+        openStopImageGallery(stop, stopIndex);
       }
     });
   });
