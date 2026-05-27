@@ -1094,18 +1094,58 @@ function scrollToHashStop(){
   }, 300);
 }
     
-function getFileUrls(fileField){
-  if(!Array.isArray(fileField) || !fileField.length){
+function getImageDisplayUrl(image){
+  if(!image){
+    return "";
+  }
+
+  if(typeof image === "string"){
+    return image;
+  }
+
+  return (
+    image.webUrl ||
+    image.mediumUrl ||
+    image.largeUrl ||
+    image.url ||
+    image.download_url ||
+    image.thumbnails?.large?.url ||
+    image.thumbnails?.large ||
+    image.thumbnails?.small?.url ||
+    image.thumbnails?.small ||
+    image.thumbUrl ||
+    image.thumbnailUrl ||
+    ""
+  );
+}
+
+function getStopImages(stop){
+  if(!stop){
     return [];
   }
 
-  return fileField
-    .map(file => file?.url || file?.visible_name || "")
+  if(Array.isArray(stop.images)){
+    return stop.images;
+  }
+
+  return [
+    ...(Array.isArray(stop.image) ? stop.image : []),
+    ...(Array.isArray(stop.imageMetadata) ? stop.imageMetadata : [])
+  ];
+}
+
+function getFileUrls(images){
+  if(!Array.isArray(images) || !images.length){
+    return [];
+  }
+
+  return images
+    .map(image => getImageDisplayUrl(image))
     .filter(Boolean);
 }
 
-function getFileUrl(fileField){
-  return getFileUrls(fileField)[0] || "";
+function getFileUrl(images){
+  return getFileUrls(images)[0] || "";
 }
 
     function getCaseFromUrl(){
@@ -1235,7 +1275,7 @@ function renderStopList(stops){
       <h2>Stoppesteder</h2>
       <div class="stop-list">
         ${stops.map((stop, index) => {
-          const imageUrl = getFileUrl(stop.image);
+          const imageUrl = getFileUrl(getStopImages(stop));
           const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
           const webLink = String(stop.webLink || "").trim();
           const isAdmin = currentUser?.role === "Administrator";
@@ -1367,7 +1407,7 @@ function renderStopCards(stops){
       <h2>Stoppesteder</h2>
       <div class="stop-card-grid">
         ${stops.map((stop, index) => {
-          const imageUrl = getFileUrl(stop.image);
+          const imageUrl = getFileUrl(getStopImages(stop));
           const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
           const metaParts = [
             dateText,
@@ -1439,7 +1479,7 @@ function renderPhotoGallery(stops){
   const photos = [];
 
   stops.forEach((stop, stopIndex) => {
-    getFileUrls(stop.image).forEach((url, imageIndex) => {
+    getFileUrls(getStopImages(stop)).forEach((url, imageIndex) => {
       photos.push({
         stop,
         stopIndex,
@@ -1772,7 +1812,7 @@ function buildRouteMapPoints(stops){
 }
 
 function openImageModal(stop, startIndex){
-  const imageUrls = getFileUrls(stop.image);
+  const imageUrls = getFileUrls(getStopImages(stop));
 
   if(!imageUrls.length){
     return;
@@ -1933,7 +1973,7 @@ function setupStopImageClicks(stops){
       return;
     }
 
-    const imageUrls = getFileUrls(stop.image);
+    const imageUrls = getFileUrls(getStopImages(stop));
 
     if(!imageUrls.length){
       return;
@@ -1950,7 +1990,7 @@ function setupStopImageClicks(stops){
 }
 
 function openStopImageGallery(stop, stopIndex){
-  const imageUrls = getFileUrls(stop.image);
+  const imageUrls = getFileUrls(getStopImages(stop));
 
   if(!imageUrls.length){
     return;

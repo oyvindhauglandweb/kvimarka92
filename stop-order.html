@@ -927,14 +927,34 @@ function getImageUrl(imageField){
   }
 
   return (
+    image.webUrl ||
+    image.mediumUrl ||
+    image.largeUrl ||
     image.url ||
     image.download_url ||
     image.thumbnails?.large?.url ||
     image.thumbnails?.large ||
     image.thumbnails?.small?.url ||
     image.thumbnails?.small ||
+    image.thumbUrl ||
+    image.thumbnailUrl ||
     ""
   );
+}
+
+function getStopImages(stop){
+  if(!stop){
+    return [];
+  }
+
+  if(Array.isArray(stop.images)){
+    return [...stop.images];
+  }
+
+  return [
+    ...(Array.isArray(stop.image) ? stop.image : []),
+    ...(Array.isArray(stop.imageMetadata) ? stop.imageMetadata : [])
+  ];
 }
 
 function updateRouteLink(){
@@ -1138,7 +1158,7 @@ function renderStops(){
 
   list.innerHTML = currentStops.map((stop, index) => {
     const selected = selectedStopIds.has(String(stop.id));
-    const imageUrl = getImageUrl(stop.image);
+    const imageUrl = getImageUrl(getStopImages(stop));
     const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
     const metaParts = [
       dateText,
@@ -1824,8 +1844,8 @@ async function saveStopForm(event){
       const index = currentStops.findIndex(stop => Number(stop.id) === Number(editingStopId));
       const firstImageInput = document.getElementById("editFirstImage");
       const firstImageFile = firstImageInput?.files?.[0] || null;
-      let updatedImageList = index >= 0 && Array.isArray(currentStops[index].image)
-        ? [...currentStops[index].image]
+      let updatedImageList = index >= 0
+        ? getStopImages(currentStops[index])
         : [];
 
       if(firstImageFile){

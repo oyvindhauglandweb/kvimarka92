@@ -731,14 +731,34 @@ function getImageUrl(image){
   }
 
   return (
+    image.webUrl ||
+    image.mediumUrl ||
+    image.largeUrl ||
     image.url ||
     image.download_url ||
     image.thumbnails?.large?.url ||
     image.thumbnails?.large ||
     image.thumbnails?.small?.url ||
     image.thumbnails?.small ||
+    image.thumbUrl ||
+    image.thumbnailUrl ||
     ""
   );
+}
+
+function getStopImages(stop){
+  if(!stop){
+    return [];
+  }
+
+  if(Array.isArray(stop.images)){
+    return [...stop.images];
+  }
+
+  return [
+    ...(Array.isArray(stop.image) ? stop.image : []),
+    ...(Array.isArray(stop.imageMetadata) ? stop.imageMetadata : [])
+  ];
 }
 
 function isGeneratedFileName(name){
@@ -787,6 +807,9 @@ function getImageName(image, index){
   }
 
   const possibleNames = [
+    image.name,
+    image.fileName,
+    image.originalName,
     image.visible_name,
     image.original_name,
     image.originalName,
@@ -1319,9 +1342,7 @@ async function reloadFromServer(){
       return;
     }
 
-    currentImages = Array.isArray(currentStop.image)
-      ? [...currentStop.image]
-      : [];
+    currentImages = getStopImages(currentStop);
     selectedImageIndices.clear();
 
     document.getElementById("stopValue").textContent = currentStop.stopName || currentStop.title || String(stopId);
