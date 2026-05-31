@@ -62,33 +62,42 @@
 .top-buttons{
   display:flex;
   justify-content:center;
-  gap:6px;
-  margin:10px 0 0;
+  align-items:center;
+  gap:10px;
+  margin:14px 0 0;
 }
 
 .top-button{
-  display:flex;
+  display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-width:28px;
-  height:24px;
-  padding:0 7px;
+  width:44px;
+  height:44px;
+  padding:0;
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:6px;
+  border-radius:8px;
   color:var(--text);
   text-decoration:none;
-  font-size:13px;
+  font-size:24px;
   font-weight:bold;
+  line-height:1;
   box-sizing:border-box;
+  cursor:pointer;
 }
 
     .top-button:hover{
       background:#e9eef2;
     }
 
+    body.dark-mode .top-button{
+      background:#202020;
+      border-color:#555;
+      color:#fff;
+    }
+
     body.dark-mode .top-button:hover{
-      background:#3a3a3a;
+      background:#333;
     }
 
     .card{
