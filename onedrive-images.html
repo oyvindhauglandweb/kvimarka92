@@ -388,10 +388,16 @@
         thumbImage.addEventListener("load", () => {
           thumbImage.classList.remove("is-loading");
         });
-        thumbImage.addEventListener("error", () => {
-          thumbImage.classList.remove("is-loading");
-          thumbImage.alt = `Kunne ikke laste ${item.name || "bilde"}`;
-        });
+thumbImage.addEventListener("error", () => {
+  if(!thumbImage.dataset.fallbackTried){
+    thumbImage.dataset.fallbackTried = "true";
+    thumbImage.src = imageUrl(item, "full");
+    return;
+  }
+
+  thumbImage.classList.remove("is-loading");
+  thumbImage.alt = `Kunne ikke laste ${item.name || "bilde"}`;
+});
 
         card.querySelector(".image-preview-button").addEventListener("click", () => {
           openImageModal(item);
