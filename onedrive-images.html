@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OneDrive-bilder admin</title>
+
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --text:#172033;
+      --muted:#667085;
+      --border:#d9e2ef;
+      --danger:#c62828;
+      --danger-bg:#fff1f1;
+      --primary:#2563eb;
+      --shadow:0 10px 25px rgba(15,23,42,.08);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    header{
+      padding:20px;
+      background:#fff;
+      border-bottom:1px solid var(--border);
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+
+    h1{
+      margin:0;
+      font-size:22px;
+    }
+
+    .subtitle{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    main{
+      padding:20px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+
+    .status{
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .button{
+      border:0;
+      border-radius:10px;
+      padding:10px 14px;
+      cursor:pointer;
+      background:var(--primary);
+      color:#fff;
+      font-weight:600;
+    }
+
+    .button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+      gap:16px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .preview{
+      height:150px;
+      background:linear-gradient(135deg,#eef2ff,#f8fafc);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      font-size:44px;
+    }
+
+    .content{
+      padding:14px;
+    }
+
+    .name{
+      font-weight:700;
+      word-break:break-word;
+      margin-bottom:8px;
+    }
+
+    .meta{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+      margin-bottom:12px;
+    }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .open-link{
+      color:var(--primary);
+      text-decoration:none;
+      font-size:13px;
+      font-weight:600;
+    }
+
+    .delete-button{
+      border:1px solid #ffc9c9;
+      background:var(--danger-bg);
+      color:var(--danger);
+      border-radius:10px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .delete-button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .error{
+      background:#fff1f1;
+      color:#991b1b;
+      border:1px solid #fecaca;
+      padding:12px 14px;
+      border-radius:12px;
+      margin-bottom:16px;
+      display:none;
+    }
+
+    .empty{
+      background:#fff;
+      border:1px dashed var(--border);
+      padding:30px;
+      text-align:center;
+      color:var(--muted);
+      border-radius:16px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>OneDrive-bilder admin</h1>
+    <div class="subtitle" id="subtitle">Laster...</div>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <div class="status" id="status">Starter...</div>
+      <button class="button" id="reloadButton" type="button">Last på nytt</button>
+    </div>
+
+    <div class="error" id="errorBox"></div>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <script>
+    const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+
+    const params = new URLSearchParams(window.location.search);
+    const caseName = params.get("case") || "";
+
+    const subtitle = document.getElementById("subtitle");
+    const statusEl = document.getElementById("status");
+    const errorBox = document.getElementById("errorBox");
+    const grid = document.getElementById("grid");
+    const reloadButton = document.getElementById("reloadButton");
+
+    let currentItems = [];
+
+    function showError(message){
+      errorBox.textContent = message;
+      errorBox.style.display = "block";
+    }
+
+    function clearError(){
+      errorBox.textContent = "";
+      errorBox.style.display = "none";
+    }
+
+    function formatBytes(bytes){
+      const value = Number(bytes || 0);
+
+      if(!value){
+        return "0 B";
+      }
+
+      const units = ["B", "KB", "MB", "GB"];
+      let size = value;
+      let unitIndex = 0;
+
+      while(size >= 1024 && unitIndex < units.length - 1){
+        size = size / 1024;
+        unitIndex += 1;
+      }
+
+      return `${size.toFixed(size >= 10 ? 1 : 2)} ${units[unitIndex]}`;
+    }
+
+    function imageSizeText(item){
+      if(item.width && item.height){
+        return `${item.width} × ${item.height}px`;
+      }
+
+      return "Ukjent bildestørrelse";
+    }
+
+    function render(){
+      grid.innerHTML = "";
+
+      if(!currentItems.length){
+        grid.innerHTML = `
+          <div class="empty">
+            Ingen bilder funnet for denne reisen.
+          </div>
+        `;
+        return;
+      }
+
+      currentItems.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.dataset.id = item.id;
+
+        card.innerHTML = `
+          <div class="preview">🖼️</div>
+          <div class="content">
+            <div class="name"></div>
+            <div class="meta"></div>
+            <div class="actions">
+              <a class="open-link" target="_blank" rel="noopener">Åpne i OneDrive</a>
+              <button class="delete-button" type="button" title="Slett bilde">🗑️ Slett</button>
+            </div>
+          </div>
+        `;
+
+        card.querySelector(".name").textContent = item.name || "(uten navn)";
+        card.querySelector(".meta").innerHTML = `
+          ${imageSizeText(item)}<br>
+          ${formatBytes(item.size)}<br>
+          ${item.mimeType || ""}
+        `;
+
+        const link = card.querySelector(".open-link");
+        link.href = item.webUrl || "#";
+
+        const deleteButton = card.querySelector(".delete-button");
+        deleteButton.addEventListener("click", () => deleteImage(item, card, deleteButton));
+
+        grid.appendChild(card);
+      });
+    }
+
+    async function loadImages(){
+      clearError();
+
+      if(!caseName){
+        subtitle.textContent = "Mangler case i URL.";
+        statusEl.textContent = "Bruk for eksempel: onedrive-images.html?case=Liverpool%201996";
+        return;
+      }
+
+      reloadButton.disabled = true;
+      statusEl.textContent = "Laster bilder...";
+      subtitle.textContent = `Reise: ${caseName}`;
+
+      try{
+        const url = `${API_BASE}/onedrive/route-files?case=${encodeURIComponent(caseName)}`;
+
+        const response = await fetch(url, {
+          method: "GET",
+          credentials: "include"
+        });
+
+        const data = await response.json();
+
+        if(!response.ok || !data.success){
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
+
+        currentItems = Array.isArray(data.items) ? data.items : [];
+
+        subtitle.textContent = `${data.routeCase?.title || caseName} – ${data.effectivePath || data.folderPath || ""}`;
+        statusEl.textContent = `${currentItems.length} bilder funnet${data.autoEnteredSubfolder ? " – undermappe åpnet automatisk" : ""}`;
+
+        render();
+      }catch(error){
+        showError(error.message);
+        statusEl.textContent = "Kunne ikke laste bilder.";
+      }finally{
+        reloadButton.disabled = false;
+      }
+    }
+
+    async function deleteImage(item, card, button){
+      const confirmed = window.confirm(
+        `Slett bildet fra OneDrive-arkivet?\n\n${item.name}\n\nBildet flyttes til OneDrive-papirkurven.`
+      );
+
+      if(!confirmed){
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Sletter...";
+
+      try{
+        const response = await fetch(`${API_BASE}/onedrive/delete-item`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            id: item.id
+          })
+        });
+
+        const data = await response.json();
+
+        if(!response.ok || !data.success){
+          throw new Error(data.error || data.detail || `HTTP ${response.status}`);
+        }
+
+        currentItems = currentItems.filter(existing => existing.id !== item.id);
+        card.remove();
+        statusEl.textContent = `${currentItems.length} bilder igjen. Slettet: ${item.name}`;
+
+        if(!currentItems.length){
+          render();
+        }
+      }catch(error){
+        showError(`Kunne ikke slette ${item.name}: ${error.message}`);
+        button.disabled = false;
+        button.textContent = "🗑️ Slett";
+      }
+    }
+
+    reloadButton.addEventListener("click", loadImages);
+    loadImages();
+  </script>
+</body>
+</html>
