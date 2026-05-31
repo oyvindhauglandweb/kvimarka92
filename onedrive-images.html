@@ -15,10 +15,30 @@
       --danger:#c62828;
       --danger-bg:#fff1f1;
       --primary:#2563eb;
+      --soft:#eef2ff;
+      --header:#ffffff;
       --shadow:0 10px 25px rgba(15,23,42,.08);
+      --modal-bg:rgba(15,23,42,.82);
     }
 
-    *{ box-sizing:border-box; }
+    body.dark-mode{
+      --bg:#151515;
+      --card:#242424;
+      --text:#eeeeee;
+      --muted:#bbbbbb;
+      --border:#555555;
+      --danger:#ff8a8a;
+      --danger-bg:rgba(198,40,40,.14);
+      --primary:#7cc7e8;
+      --soft:#333333;
+      --header:#202020;
+      --shadow:0 10px 25px rgba(0,0,0,.35);
+      --modal-bg:rgba(0,0,0,.88);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
 
     body{
       margin:0;
@@ -29,19 +49,61 @@
 
     header{
       padding:20px;
-      background:#fff;
+      background:var(--header);
       border-bottom:1px solid var(--border);
       position:sticky;
       top:0;
       z-index:10;
     }
 
-    h1{ margin:0; font-size:22px; }
+    .header-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+    }
+
+    h1{
+      margin:0;
+      font-size:22px;
+    }
 
     .subtitle{
       margin-top:6px;
       color:var(--muted);
       font-size:14px;
+    }
+
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+
+    .theme-toggle,
+    .close-page-button{
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:var(--card);
+      color:var(--text);
+      min-height:34px;
+      padding:0 12px;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .close-page-button{
+      width:36px;
+      padding:0;
+      font-size:20px;
+      line-height:1;
+    }
+
+    .theme-toggle:hover,
+    .close-page-button:hover{
+      background:var(--soft);
     }
 
     main{
@@ -59,7 +121,10 @@
       margin-bottom:18px;
     }
 
-    .status{ font-size:14px; color:var(--muted); }
+    .status{
+      font-size:14px;
+      color:var(--muted);
+    }
 
     .button{
       border:0;
@@ -71,7 +136,14 @@
       font-weight:600;
     }
 
-    .button:disabled{ opacity:.55; cursor:not-allowed; }
+    body.dark-mode .button{
+      color:#10202a;
+    }
+
+    .button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
 
     .grid{
       display:grid;
@@ -89,7 +161,7 @@
 
     .preview{
       height:150px;
-      background:linear-gradient(135deg,#eef2ff,#f8fafc);
+      background:linear-gradient(135deg,var(--soft),var(--card));
       display:flex;
       align-items:center;
       justify-content:center;
@@ -109,9 +181,13 @@
       display:block;
     }
 
-    .thumb-image.is-loading{ opacity:.25; }
+    .thumb-image.is-loading{
+      opacity:.25;
+    }
 
-    .content{ padding:14px; }
+    .content{
+      padding:14px;
+    }
 
     .name{
       font-weight:700;
@@ -150,7 +226,14 @@
       font-weight:700;
     }
 
-    .delete-button:disabled{ opacity:.55; cursor:not-allowed; }
+    body.dark-mode .delete-button{
+      border-color:rgba(255,138,138,.5);
+    }
+
+    .delete-button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
 
     .error{
       background:#fff1f1;
@@ -163,8 +246,14 @@
       white-space:pre-wrap;
     }
 
+    body.dark-mode .error{
+      background:rgba(198,40,40,.14);
+      color:#ffb4b4;
+      border-color:rgba(255,138,138,.45);
+    }
+
     .empty{
-      background:#fff;
+      background:var(--card);
       border:1px dashed var(--border);
       padding:30px;
       text-align:center;
@@ -179,12 +268,14 @@
       display:none;
     }
 
-    .modal.open{ display:block; }
+    .modal.open{
+      display:block;
+    }
 
     .modal-backdrop{
       position:absolute;
       inset:0;
-      background:rgba(15,23,42,.82);
+      background:var(--modal-bg);
     }
 
     .modal-content{
@@ -229,13 +320,44 @@
       cursor:pointer;
       z-index:2;
     }
+
+    @media(max-width:700px){
+      header{
+        padding:14px;
+      }
+
+      .header-row{
+        flex-direction:column;
+      }
+
+      .header-actions{
+        align-self:flex-start;
+      }
+
+      main{
+        padding:14px;
+      }
+
+      .grid{
+        grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+      }
+    }
   </style>
 </head>
 
 <body>
   <header>
-    <h1>OneDrive-bilder admin</h1>
-    <div class="subtitle" id="subtitle">Laster...</div>
+    <div class="header-row">
+      <div>
+        <h1>OneDrive-bilder admin</h1>
+        <div class="subtitle" id="subtitle">Laster...</div>
+      </div>
+
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggleButton" type="button">🌙 Mørk</button>
+        <button class="close-page-button" id="closePageButton" type="button" title="Lukk og gå tilbake">×</button>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -259,6 +381,7 @@
 
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+    const THEME_STORAGE_KEY = "kvimarka92Theme";
 
     const params = new URLSearchParams(window.location.search);
     const caseName = params.get("case") || "";
@@ -268,6 +391,8 @@
     const errorBox = document.getElementById("errorBox");
     const grid = document.getElementById("grid");
     const reloadButton = document.getElementById("reloadButton");
+    const themeToggleButton = document.getElementById("themeToggleButton");
+    const closePageButton = document.getElementById("closePageButton");
 
     const imageModal = document.getElementById("imageModal");
     const modalImage = document.getElementById("modalImage");
@@ -276,6 +401,87 @@
     const modalCloseButton = document.getElementById("modalCloseButton");
 
     let currentItems = [];
+
+    function getLegacyThemeValue(){
+      const possibleKeys = [
+        "theme",
+        "colorMode",
+        "appearance",
+        "kvimarka92ColorMode",
+        "kvimarka92DarkMode"
+      ];
+
+      for(const key of possibleKeys){
+        const value = localStorage.getItem(key);
+
+        if(value !== null && value !== undefined && value !== ""){
+          return String(value).toLowerCase();
+        }
+      }
+
+      return "";
+    }
+
+    function getInitialTheme(){
+      const saved = String(localStorage.getItem(THEME_STORAGE_KEY) || "").toLowerCase();
+
+      if(saved === "dark" || saved === "light"){
+        return saved;
+      }
+
+      const legacy = getLegacyThemeValue();
+
+      if(["dark", "dark-mode", "mørk", "true", "1", "yes"].includes(legacy)){
+        return "dark";
+      }
+
+      if(["light", "light-mode", "lys", "false", "0", "no"].includes(legacy)){
+        return "light";
+      }
+
+      if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches){
+        return "dark";
+      }
+
+      return "light";
+    }
+
+    function applyTheme(theme){
+      const normalizedTheme = theme === "dark" ? "dark" : "light";
+
+      document.body.classList.toggle("dark-mode", normalizedTheme === "dark");
+      themeToggleButton.textContent = normalizedTheme === "dark" ? "☀️ Lys" : "🌙 Mørk";
+      themeToggleButton.title = normalizedTheme === "dark" ? "Bytt til lys visning" : "Bytt til mørk visning";
+
+      localStorage.setItem(THEME_STORAGE_KEY, normalizedTheme);
+    }
+
+    function toggleTheme(){
+      const nextTheme = document.body.classList.contains("dark-mode") ? "light" : "dark";
+      applyTheme(nextTheme);
+    }
+
+    themeToggleButton.addEventListener("click", toggleTheme);
+    applyTheme(getInitialTheme());
+
+    function closePage(){
+      if(window.history.length > 1){
+        window.history.back();
+        return;
+      }
+
+      if(document.referrer){
+        window.location.href = document.referrer;
+        return;
+      }
+
+      const fallbackCase = caseName || "";
+      window.location.href = fallbackCase
+        ? `reiserute.html?case=${encodeURIComponent(fallbackCase)}`
+        : "index.html?restoreMenu=1";
+    }
+
+    closePageButton.addEventListener("click", closePage);
 
     function showError(message){
       errorBox.textContent = message;
@@ -324,22 +530,22 @@
       return url;
     }
 
-function openImageModal(item){
-  modalTitle.textContent = item.name || "";
-  modalImage.src = imageUrl(item, "full");
-  modalImage.alt = item.name || "Forstørret bilde";
-  modalImage.dataset.downloadFallbackTried = "";
+    function openImageModal(item){
+      modalTitle.textContent = item.name || "";
+      modalImage.src = imageUrl(item, "full");
+      modalImage.alt = item.name || "Forstørret bilde";
+      modalImage.dataset.downloadFallbackTried = "";
 
-  modalImage.onerror = () => {
-    if(!modalImage.dataset.downloadFallbackTried && item.downloadUrl){
-      modalImage.dataset.downloadFallbackTried = "true";
-      modalImage.src = item.downloadUrl;
+      modalImage.onerror = () => {
+        if(!modalImage.dataset.downloadFallbackTried && item.downloadUrl){
+          modalImage.dataset.downloadFallbackTried = "true";
+          modalImage.src = item.downloadUrl;
+        }
+      };
+
+      imageModal.classList.add("open");
+      imageModal.setAttribute("aria-hidden", "false");
     }
-  };
-
-  imageModal.classList.add("open");
-  imageModal.setAttribute("aria-hidden", "false");
-}
 
     function closeImageModal(){
       imageModal.classList.remove("open");
@@ -398,22 +604,22 @@ function openImageModal(item){
         thumbImage.addEventListener("load", () => {
           thumbImage.classList.remove("is-loading");
         });
-thumbImage.addEventListener("error", () => {
-  if(!thumbImage.dataset.fullFallbackTried){
-    thumbImage.dataset.fullFallbackTried = "true";
-    thumbImage.src = imageUrl(item, "full");
-    return;
-  }
+        thumbImage.addEventListener("error", () => {
+          if(!thumbImage.dataset.fullFallbackTried){
+            thumbImage.dataset.fullFallbackTried = "true";
+            thumbImage.src = imageUrl(item, "full");
+            return;
+          }
 
-  if(!thumbImage.dataset.downloadFallbackTried && item.downloadUrl){
-    thumbImage.dataset.downloadFallbackTried = "true";
-    thumbImage.src = item.downloadUrl;
-    return;
-  }
+          if(!thumbImage.dataset.downloadFallbackTried && item.downloadUrl){
+            thumbImage.dataset.downloadFallbackTried = "true";
+            thumbImage.src = item.downloadUrl;
+            return;
+          }
 
-  thumbImage.classList.remove("is-loading");
-  thumbImage.alt = `Kunne ikke laste ${item.name || "bilde"}`;
-});
+          thumbImage.classList.remove("is-loading");
+          thumbImage.alt = `Kunne ikke laste ${item.name || "bilde"}`;
+        });
 
         card.querySelector(".image-preview-button").addEventListener("click", () => {
           openImageModal(item);
