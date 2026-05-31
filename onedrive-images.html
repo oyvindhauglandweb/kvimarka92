@@ -342,16 +342,13 @@
       button.textContent = "Sletter...";
 
       try{
-        const response = await fetch(`${API_BASE}/onedrive/delete-item`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            id: item.id
-          })
-        });
+const response = await fetch(`${API_BASE}/onedrive/delete-item`, {
+  method: "POST",
+  credentials: "include",
+  body: JSON.stringify({
+    id: item.id
+  })
+});
 
         const data = await response.json();
 
