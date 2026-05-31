@@ -98,15 +98,27 @@
       overflow:hidden;
     }
 
-    .preview{
-      height:150px;
-      background:linear-gradient(135deg,#eef2ff,#f8fafc);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:var(--muted);
-      font-size:44px;
-    }
+.preview{
+  height:150px;
+  background:linear-gradient(135deg,#eef2ff,#f8fafc);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  font-size:44px;
+  width:100%;
+  border:0;
+  padding:0;
+  cursor:pointer;
+  overflow:hidden;
+}
+
+.thumb-image{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
 
     .content{
       padding:14px;
@@ -172,6 +184,67 @@
       color:var(--muted);
       border-radius:16px;
     }
+
+  .modal{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:none;
+}
+
+.modal.open{
+  display:block;
+}
+
+.modal-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(15,23,42,.82);
+}
+
+.modal-content{
+  position:absolute;
+  inset:24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+
+.modal-title{
+  color:#fff;
+  font-weight:700;
+  text-align:center;
+  max-width:90vw;
+  word-break:break-word;
+}
+
+.modal-image{
+  max-width:96vw;
+  max-height:82vh;
+  object-fit:contain;
+  background:#111827;
+  border-radius:12px;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+
+.modal-close{
+  position:absolute;
+  top:0;
+  right:0;
+  width:44px;
+  height:44px;
+  border:0;
+  border-radius:50%;
+  background:#fff;
+  color:#111827;
+  font-size:30px;
+  line-height:1;
+  cursor:pointer;
+  z-index:2;
+}  
+    
   </style>
 </head>
 
@@ -203,6 +276,37 @@
     const grid = document.getElementById("grid");
     const reloadButton = document.getElementById("reloadButton");
 
+    const imageModal = document.getElementById("imageModal");
+const modalImage = document.getElementById("modalImage");
+const modalTitle = document.getElementById("modalTitle");
+const modalBackdrop = document.getElementById("modalBackdrop");
+const modalCloseButton = document.getElementById("modalCloseButton");
+
+function openImageModal(item){
+  modalTitle.textContent = item.name || "";
+  modalImage.src = `${API_BASE}/onedrive/image?id=${encodeURIComponent(item.id)}&mode=full`;
+  modalImage.alt = item.name || "Forstørret bilde";
+  imageModal.classList.add("open");
+  imageModal.setAttribute("aria-hidden", "false");
+}
+
+function closeImageModal(){
+  imageModal.classList.remove("open");
+  imageModal.setAttribute("aria-hidden", "true");
+  modalImage.src = "";
+  modalImage.alt = "";
+  modalTitle.textContent = "";
+}
+
+modalBackdrop.addEventListener("click", closeImageModal);
+modalCloseButton.addEventListener("click", closeImageModal);
+
+document.addEventListener("keydown", event => {
+  if(event.key === "Escape" && imageModal.classList.contains("open")){
+    closeImageModal();
+  }
+});
+    
     let currentItems = [];
 
     function showError(message){
@@ -259,8 +363,10 @@
         card.className = "card";
         card.dataset.id = item.id;
 
-        card.innerHTML = `
-          <div class="preview">🖼️</div>
+card.innerHTML = `
+  <button class="preview image-preview-button" type="button" title="Forstørr bilde">
+    <img class="thumb-image" alt="">
+  </button>
           <div class="content">
             <div class="name"></div>
             <div class="meta"></div>
@@ -272,6 +378,13 @@
         `;
 
         card.querySelector(".name").textContent = item.name || "(uten navn)";
+        const thumbImage = card.querySelector(".thumb-image");
+        thumbImage.src = `${API_BASE}/onedrive/image?id=${encodeURIComponent(item.id)}&mode=thumb&size=medium`;
+        thumbImage.alt = item.name || "OneDrive-bilde";
+
+        card.querySelector(".image-preview-button").addEventListener("click", () => {
+          openImageModal(item);
+        });
         card.querySelector(".meta").innerHTML = `
           ${imageSizeText(item)}<br>
           ${formatBytes(item.size)}<br>
@@ -373,5 +486,16 @@ const response = await fetch(`${API_BASE}/onedrive/delete-item`, {
     reloadButton.addEventListener("click", loadImages);
     loadImages();
   </script>
+
+<div class="modal" id="imageModal" aria-hidden="true">
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <div class="modal-content" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalCloseButton" type="button">×</button>
+    <div class="modal-title" id="modalTitle"></div>
+    <img class="modal-image" id="modalImage" alt="">
+  </div>
+</div>
+
+  
 </body>
 </html>
