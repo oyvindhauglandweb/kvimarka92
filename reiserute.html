@@ -840,6 +840,36 @@ body.dark-mode .view-button:hover{
   cursor:pointer;
 }
 
+.stop-gallery-admin-link{
+  flex:0 0 auto;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:0 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  text-decoration:none;
+  font-size:13px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.stop-gallery-admin-link.visible{
+  display:inline-flex;
+}
+
+.stop-gallery-admin-link:hover{
+  background:#e9eef2;
+}
+
+body.dark-mode .stop-gallery-admin-link:hover{
+  background:#3a3a3a;
+}
+
+
 .stop-gallery-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
@@ -1013,6 +1043,17 @@ body.dark-mode .view-button:hover{
   <div class="stop-gallery-content" onclick="event.stopPropagation();">
     <div class="stop-gallery-header">
       <div class="stop-gallery-title" id="stopImageGalleryTitle">Bilder</div>
+
+      <a
+        class="stop-gallery-admin-link"
+        id="stopImageGalleryAdminLink"
+        href="#"
+        target="_blank"
+        rel="noopener"
+        title="Administrer OneDrive-bilder"
+        onclick="event.stopPropagation();"
+      >🗑️ Administrer bilder</a>
+
       <button class="stop-gallery-close" type="button" onclick="closeStopImageGallery()">×</button>
     </div>
 
@@ -2038,6 +2079,7 @@ function openStopImageGallery(stop, stopIndex){
     });
   });
 
+  updateStopGalleryAdminLink();
   modal.classList.add("open");
 }
 
@@ -2061,6 +2103,27 @@ function handleStopImageGalleryBackdropClick(event){
   if(event.target && event.target.id === "stopImageGalleryModal"){
     closeStopImageGallery();
   }
+}
+
+function updateStopGalleryAdminLink(){
+  const link = document.getElementById("stopImageGalleryAdminLink");
+
+  if(!link){
+    return;
+  }
+
+  const isAdmin = currentUser?.role === "Administrator";
+  const caseName = currentRouteData?.case?.caseName || getCaseFromUrl();
+  const oneDriveFolderPath = String(currentRouteData?.case?.oneDriveFolderPath || "").trim();
+
+  if(!isAdmin || !caseName || !oneDriveFolderPath){
+    link.classList.remove("visible");
+    link.href = "#";
+    return;
+  }
+
+  link.href = `onedrive-images.html?case=${encodeURIComponent(caseName)}`;
+  link.classList.add("visible");
 }
     
 function renderMap(stops){
