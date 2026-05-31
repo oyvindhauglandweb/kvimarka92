@@ -77,33 +77,41 @@
     .header-actions{
       display:flex;
       align-items:center;
-      gap:8px;
+      gap:10px;
       flex:0 0 auto;
     }
 
-    .theme-toggle,
-    .close-page-button{
+    .icon-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:44px;
+      height:44px;
+      padding:0;
       border:1px solid var(--border);
-      border-radius:10px;
+      border-radius:8px;
       background:var(--card);
       color:var(--text);
-      min-height:34px;
-      padding:0 12px;
-      font-size:13px;
-      font-weight:700;
+      text-decoration:none;
+      font-size:24px;
+      font-weight:bold;
+      line-height:1;
+      box-sizing:border-box;
       cursor:pointer;
     }
 
-    .close-page-button{
-      width:36px;
-      padding:0;
-      font-size:20px;
-      line-height:1;
+    .icon-button:hover{
+      background:var(--soft);
     }
 
-    .theme-toggle:hover,
-    .close-page-button:hover{
-      background:var(--soft);
+    body.dark-mode .icon-button{
+      background:#202020;
+      border-color:#555;
+      color:#fff;
+    }
+
+    body.dark-mode .icon-button:hover{
+      background:#333;
     }
 
     main{
@@ -354,8 +362,8 @@
       </div>
 
       <div class="header-actions">
-        <button class="theme-toggle" id="themeToggleButton" type="button">🌙 Mørk</button>
-        <button class="close-page-button" id="closePageButton" type="button" title="Lukk og gå tilbake">×</button>
+        <button class="icon-button" id="closePageButton" type="button" title="Lukk og gå tilbake">×</button>
+        <button class="icon-button" id="themeToggleButton" type="button" title="Bytt visning">☾</button>
       </div>
     </div>
   </header>
@@ -450,7 +458,7 @@
       const normalizedTheme = theme === "dark" ? "dark" : "light";
 
       document.body.classList.toggle("dark-mode", normalizedTheme === "dark");
-      themeToggleButton.textContent = normalizedTheme === "dark" ? "☀️ Lys" : "🌙 Mørk";
+      themeToggleButton.textContent = normalizedTheme === "dark" ? "☀" : "☾";
       themeToggleButton.title = normalizedTheme === "dark" ? "Bytt til lys visning" : "Bytt til mørk visning";
 
       localStorage.setItem(THEME_STORAGE_KEY, normalizedTheme);
