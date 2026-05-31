@@ -324,13 +324,22 @@
       return url;
     }
 
-    function openImageModal(item){
-      modalTitle.textContent = item.name || "";
-      modalImage.src = imageUrl(item, "full");
-      modalImage.alt = item.name || "Forstørret bilde";
-      imageModal.classList.add("open");
-      imageModal.setAttribute("aria-hidden", "false");
+function openImageModal(item){
+  modalTitle.textContent = item.name || "";
+  modalImage.src = imageUrl(item, "full");
+  modalImage.alt = item.name || "Forstørret bilde";
+  modalImage.dataset.downloadFallbackTried = "";
+
+  modalImage.onerror = () => {
+    if(!modalImage.dataset.downloadFallbackTried && item.downloadUrl){
+      modalImage.dataset.downloadFallbackTried = "true";
+      modalImage.src = item.downloadUrl;
     }
+  };
+
+  imageModal.classList.add("open");
+  imageModal.setAttribute("aria-hidden", "false");
+}
 
     function closeImageModal(){
       imageModal.classList.remove("open");
@@ -389,9 +398,15 @@
           thumbImage.classList.remove("is-loading");
         });
 thumbImage.addEventListener("error", () => {
-  if(!thumbImage.dataset.fallbackTried){
-    thumbImage.dataset.fallbackTried = "true";
+  if(!thumbImage.dataset.fullFallbackTried){
+    thumbImage.dataset.fullFallbackTried = "true";
     thumbImage.src = imageUrl(item, "full");
+    return;
+  }
+
+  if(!thumbImage.dataset.downloadFallbackTried && item.downloadUrl){
+    thumbImage.dataset.downloadFallbackTried = "true";
+    thumbImage.src = item.downloadUrl;
     return;
   }
 
