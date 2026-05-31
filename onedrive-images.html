@@ -344,6 +344,7 @@ function openImageModal(item){
     function closeImageModal(){
       imageModal.classList.remove("open");
       imageModal.setAttribute("aria-hidden", "true");
+      modalImage.onerror = null;
       modalImage.src = "";
       modalImage.alt = "";
       modalTitle.textContent = "";
