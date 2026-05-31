@@ -18,9 +18,7 @@
       --shadow:0 10px 25px rgba(15,23,42,.08);
     }
 
-    *{
-      box-sizing:border-box;
-    }
+    *{ box-sizing:border-box; }
 
     body{
       margin:0;
@@ -38,10 +36,7 @@
       z-index:10;
     }
 
-    h1{
-      margin:0;
-      font-size:22px;
-    }
+    h1{ margin:0; font-size:22px; }
 
     .subtitle{
       margin-top:6px;
@@ -64,10 +59,7 @@
       margin-bottom:18px;
     }
 
-    .status{
-      font-size:14px;
-      color:var(--muted);
-    }
+    .status{ font-size:14px; color:var(--muted); }
 
     .button{
       border:0;
@@ -79,10 +71,7 @@
       font-weight:600;
     }
 
-    .button:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
+    .button:disabled{ opacity:.55; cursor:not-allowed; }
 
     .grid{
       display:grid;
@@ -98,31 +87,31 @@
       overflow:hidden;
     }
 
-.preview{
-  height:150px;
-  background:linear-gradient(135deg,#eef2ff,#f8fafc);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:var(--muted);
-  font-size:44px;
-  width:100%;
-  border:0;
-  padding:0;
-  cursor:pointer;
-  overflow:hidden;
-}
-
-.thumb-image{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-
-    .content{
-      padding:14px;
+    .preview{
+      height:150px;
+      background:linear-gradient(135deg,#eef2ff,#f8fafc);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      font-size:44px;
+      width:100%;
+      border:0;
+      padding:0;
+      cursor:pointer;
+      overflow:hidden;
     }
+
+    .thumb-image{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .thumb-image.is-loading{ opacity:.25; }
+
+    .content{ padding:14px; }
 
     .name{
       font-weight:700;
@@ -161,10 +150,7 @@
       font-weight:700;
     }
 
-    .delete-button:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
+    .delete-button:disabled{ opacity:.55; cursor:not-allowed; }
 
     .error{
       background:#fff1f1;
@@ -174,6 +160,7 @@
       border-radius:12px;
       margin-bottom:16px;
       display:none;
+      white-space:pre-wrap;
     }
 
     .empty{
@@ -185,66 +172,63 @@
       border-radius:16px;
     }
 
-  .modal{
-  position:fixed;
-  inset:0;
-  z-index:1000;
-  display:none;
-}
+    .modal{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      display:none;
+    }
 
-.modal.open{
-  display:block;
-}
+    .modal.open{ display:block; }
 
-.modal-backdrop{
-  position:absolute;
-  inset:0;
-  background:rgba(15,23,42,.82);
-}
+    .modal-backdrop{
+      position:absolute;
+      inset:0;
+      background:rgba(15,23,42,.82);
+    }
 
-.modal-content{
-  position:absolute;
-  inset:24px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-}
+    .modal-content{
+      position:absolute;
+      inset:24px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+    }
 
-.modal-title{
-  color:#fff;
-  font-weight:700;
-  text-align:center;
-  max-width:90vw;
-  word-break:break-word;
-}
+    .modal-title{
+      color:#fff;
+      font-weight:700;
+      text-align:center;
+      max-width:90vw;
+      word-break:break-word;
+    }
 
-.modal-image{
-  max-width:96vw;
-  max-height:82vh;
-  object-fit:contain;
-  background:#111827;
-  border-radius:12px;
-  box-shadow:0 20px 60px rgba(0,0,0,.45);
-}
+    .modal-image{
+      max-width:96vw;
+      max-height:82vh;
+      object-fit:contain;
+      background:#111827;
+      border-radius:12px;
+      box-shadow:0 20px 60px rgba(0,0,0,.45);
+    }
 
-.modal-close{
-  position:absolute;
-  top:0;
-  right:0;
-  width:44px;
-  height:44px;
-  border:0;
-  border-radius:50%;
-  background:#fff;
-  color:#111827;
-  font-size:30px;
-  line-height:1;
-  cursor:pointer;
-  z-index:2;
-}  
-    
+    .modal-close{
+      position:absolute;
+      top:0;
+      right:0;
+      width:44px;
+      height:44px;
+      border:0;
+      border-radius:50%;
+      background:#fff;
+      color:#111827;
+      font-size:30px;
+      line-height:1;
+      cursor:pointer;
+      z-index:2;
+    }
   </style>
 </head>
 
@@ -264,6 +248,15 @@
     <div class="grid" id="grid"></div>
   </main>
 
+  <div class="modal" id="imageModal" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalCloseButton" type="button">×</button>
+      <div class="modal-title" id="modalTitle"></div>
+      <img class="modal-image" id="modalImage" alt="">
+    </div>
+  </div>
+
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
@@ -277,36 +270,11 @@
     const reloadButton = document.getElementById("reloadButton");
 
     const imageModal = document.getElementById("imageModal");
-const modalImage = document.getElementById("modalImage");
-const modalTitle = document.getElementById("modalTitle");
-const modalBackdrop = document.getElementById("modalBackdrop");
-const modalCloseButton = document.getElementById("modalCloseButton");
+    const modalImage = document.getElementById("modalImage");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalCloseButton = document.getElementById("modalCloseButton");
 
-function openImageModal(item){
-  modalTitle.textContent = item.name || "";
-  modalImage.src = `${API_BASE}/onedrive/image?id=${encodeURIComponent(item.id)}&mode=full`;
-  modalImage.alt = item.name || "Forstørret bilde";
-  imageModal.classList.add("open");
-  imageModal.setAttribute("aria-hidden", "false");
-}
-
-function closeImageModal(){
-  imageModal.classList.remove("open");
-  imageModal.setAttribute("aria-hidden", "true");
-  modalImage.src = "";
-  modalImage.alt = "";
-  modalTitle.textContent = "";
-}
-
-modalBackdrop.addEventListener("click", closeImageModal);
-modalCloseButton.addEventListener("click", closeImageModal);
-
-document.addEventListener("keydown", event => {
-  if(event.key === "Escape" && imageModal.classList.contains("open")){
-    closeImageModal();
-  }
-});
-    
     let currentItems = [];
 
     function showError(message){
@@ -346,6 +314,41 @@ document.addEventListener("keydown", event => {
       return "Ukjent bildestørrelse";
     }
 
+    function imageUrl(item, mode, size){
+      const url = `${API_BASE}/onedrive/image?id=${encodeURIComponent(item.id)}&mode=${encodeURIComponent(mode)}`;
+
+      if(size){
+        return `${url}&size=${encodeURIComponent(size)}`;
+      }
+
+      return url;
+    }
+
+    function openImageModal(item){
+      modalTitle.textContent = item.name || "";
+      modalImage.src = imageUrl(item, "full");
+      modalImage.alt = item.name || "Forstørret bilde";
+      imageModal.classList.add("open");
+      imageModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeImageModal(){
+      imageModal.classList.remove("open");
+      imageModal.setAttribute("aria-hidden", "true");
+      modalImage.src = "";
+      modalImage.alt = "";
+      modalTitle.textContent = "";
+    }
+
+    modalBackdrop.addEventListener("click", closeImageModal);
+    modalCloseButton.addEventListener("click", closeImageModal);
+
+    document.addEventListener("keydown", event => {
+      if(event.key === "Escape" && imageModal.classList.contains("open")){
+        closeImageModal();
+      }
+    });
+
     function render(){
       grid.innerHTML = "";
 
@@ -363,10 +366,10 @@ document.addEventListener("keydown", event => {
         card.className = "card";
         card.dataset.id = item.id;
 
-card.innerHTML = `
-  <button class="preview image-preview-button" type="button" title="Forstørr bilde">
-    <img class="thumb-image" alt="">
-  </button>
+        card.innerHTML = `
+          <button class="preview image-preview-button" type="button" title="Forstørr bilde">
+            <img class="thumb-image is-loading" alt="">
+          </button>
           <div class="content">
             <div class="name"></div>
             <div class="meta"></div>
@@ -378,13 +381,22 @@ card.innerHTML = `
         `;
 
         card.querySelector(".name").textContent = item.name || "(uten navn)";
+
         const thumbImage = card.querySelector(".thumb-image");
-        thumbImage.src = `${API_BASE}/onedrive/image?id=${encodeURIComponent(item.id)}&mode=thumb&size=medium`;
+        thumbImage.src = imageUrl(item, "thumb", "medium");
         thumbImage.alt = item.name || "OneDrive-bilde";
+        thumbImage.addEventListener("load", () => {
+          thumbImage.classList.remove("is-loading");
+        });
+        thumbImage.addEventListener("error", () => {
+          thumbImage.classList.remove("is-loading");
+          thumbImage.alt = `Kunne ikke laste ${item.name || "bilde"}`;
+        });
 
         card.querySelector(".image-preview-button").addEventListener("click", () => {
           openImageModal(item);
         });
+
         card.querySelector(".meta").innerHTML = `
           ${imageSizeText(item)}<br>
           ${formatBytes(item.size)}<br>
@@ -425,7 +437,7 @@ card.innerHTML = `
         const data = await response.json();
 
         if(!response.ok || !data.success){
-          throw new Error(data.error || `HTTP ${response.status}`);
+          throw new Error(data.error || data.detail || `HTTP ${response.status}`);
         }
 
         currentItems = Array.isArray(data.items) ? data.items : [];
@@ -455,13 +467,13 @@ card.innerHTML = `
       button.textContent = "Sletter...";
 
       try{
-const response = await fetch(`${API_BASE}/onedrive/delete-item`, {
-  method: "POST",
-  credentials: "include",
-  body: JSON.stringify({
-    id: item.id
-  })
-});
+        const response = await fetch(`${API_BASE}/onedrive/delete-item`, {
+          method: "POST",
+          credentials: "include",
+          body: JSON.stringify({
+            id: item.id
+          })
+        });
 
         const data = await response.json();
 
@@ -486,16 +498,5 @@ const response = await fetch(`${API_BASE}/onedrive/delete-item`, {
     reloadButton.addEventListener("click", loadImages);
     loadImages();
   </script>
-
-<div class="modal" id="imageModal" aria-hidden="true">
-  <div class="modal-backdrop" id="modalBackdrop"></div>
-  <div class="modal-content" role="dialog" aria-modal="true">
-    <button class="modal-close" id="modalCloseButton" type="button">×</button>
-    <div class="modal-title" id="modalTitle"></div>
-    <img class="modal-image" id="modalImage" alt="">
-  </div>
-</div>
-
-  
 </body>
 </html>
