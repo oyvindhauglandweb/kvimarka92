@@ -1435,7 +1435,16 @@ function getFileUrl(images){
 
       if(!res.ok){
         const text = await res.text();
-        const error = new Error(text || "Request failed");
+        let message = text || "Request failed";
+
+        try{
+          const parsed = JSON.parse(text);
+          message = parsed.detail || parsed.error || parsed.message || message;
+        }catch(parseError){
+          // Keep original response text when it is not JSON.
+        }
+
+        const error = new Error(message);
         error.status = res.status;
         error.responseText = text;
         return Promise.reject(error);
@@ -1530,6 +1539,35 @@ function updateRouteSyncStatusUi(){
   }
 }
 
+function wait(ms){
+  return new Promise(resolve => window.setTimeout(resolve, ms));
+}
+
+function isWorkerSubrequestLimitError(error){
+  const text = `${error?.message || ""} ${error?.responseText || ""}`;
+  return text.includes("Too many subrequests") || text.includes("Worker invocation");
+}
+
+async function runOneDriveSyncBatch(caseName, stopLimit){
+  return await fetchJson(`${API_BASE}/onedrive/sync-route-from-onedrive`, {
+    method:"POST",
+    headers:{
+      "Content-Type":"text/plain;charset=UTF-8"
+    },
+    body:JSON.stringify({
+      path:"/Bilder/WEB/Feriereiser",
+      caseName,
+      stopLimit
+    })
+  });
+}
+
+function addSyncCounts(total, data){
+  total.createdStopCount += Number(data.createdStopCount || 0);
+  total.imageUpdatedStopCount += Number(data.imageUpdatedStopCount || 0);
+  total.imageTotal += Number(data.imageTotal || 0);
+}
+
 async function refreshRouteImageMetadata(event){
   if(event){
     event.preventDefault();
@@ -1548,32 +1586,55 @@ async function refreshRouteImageMetadata(event){
     button.disabled = true;
   }
 
-  setRouteSyncState("running", "Oppdaterer OneDrive…", "Henter stoppesteder og bilder.");
-  setImageRefreshStatus("Oppdaterer OneDrive… Henter stoppesteder og bilder.", "running");
+  const existingStopCount = Math.max(1, Number(currentRouteData?.stops?.length || 0));
+  const maxRounds = Math.min(Math.max(existingStopCount + 3, 6), 14);
+  const total = {
+    createdStopCount:0,
+    imageUpdatedStopCount:0,
+    imageTotal:0
+  };
+
+  setRouteSyncState("running", "Oppdaterer OneDrive…", "Kjører i små batcher for å unngå Cloudflare-grensen.");
+  setImageRefreshStatus("Oppdaterer OneDrive… Kjører i små batcher for å unngå Cloudflare-grensen.", "running");
 
   if(currentRouteData){
     renderRoute(currentRouteData);
   }
 
   try{
-    const data = await fetchJson(`${API_BASE}/onedrive/sync-route-from-onedrive`, {
-      method:"POST",
-      headers:{
-        "Content-Type":"text/plain;charset=UTF-8"
-      },
-      body:JSON.stringify({
-        path:"/Bilder/WEB/Feriereiser",
-        caseName,
-        stopLimit:10
-      })
-    });
+    for(let round = 1; round <= maxRounds; round += 1){
+      const progressText = `Runde ${round}/${maxRounds}. Behandler maks 1 stoppested per kall.`;
+      setRouteSyncState("running", "Oppdaterer OneDrive…", progressText);
+      setImageRefreshStatus(`Oppdaterer OneDrive… ${progressText}`, "running");
 
-    if(!data.success){
-      throw new Error(data.error || "Oppdatering feilet.");
+      const data = await runOneDriveSyncBatch(caseName, 1);
+
+      if(!data.success){
+        throw new Error(data.error || data.detail || "Oppdatering feilet.");
+      }
+
+      addSyncCounts(total, data);
+
+      const changedThisRound =
+        Number(data.createdStopCount || 0) +
+        Number(data.imageUpdatedStopCount || 0) +
+        Number(data.imageTotal || 0);
+
+      setRouteSyncState(
+        "running",
+        "Oppdaterer OneDrive…",
+        `Runde ${round}/${maxRounds} ferdig. ${total.createdStopCount} nye stopp, ${total.imageUpdatedStopCount} stopp oppdatert, ${total.imageTotal} bilder funnet.`
+      );
+
+      if(changedThisRound === 0 && round >= existingStopCount){
+        break;
+      }
+
+      await wait(250);
     }
 
-    const successMessage = `OneDrive-oppdatering ferdig.`;
-    const successDetails = `${data.createdStopCount || 0} nye stopp, ${data.imageUpdatedStopCount || 0} stopp oppdatert med ${data.imageTotal || 0} bilder.`;
+    const successMessage = "OneDrive-oppdatering ferdig.";
+    const successDetails = `${total.createdStopCount} nye stopp, ${total.imageUpdatedStopCount} stopp oppdatert med ${total.imageTotal} bilder.`;
 
     setRouteSyncState("success", successMessage, successDetails);
     setImageRefreshStatus(`${successMessage} ${successDetails}`, "success");
@@ -1588,8 +1649,15 @@ async function refreshRouteImageMetadata(event){
     }, 6500);
   }catch(error){
     console.error(error);
-    setRouteSyncState("error", "Kunne ikke oppdatere OneDrive.", error.message);
-    setImageRefreshStatus(`Kunne ikke synkronisere stopp/bilder: ${error.message}`, "error");
+
+    let message = error.message || "Ukjent feil.";
+
+    if(isWorkerSubrequestLimitError(error)){
+      message = "Cloudflare stoppet kallet fordi én Worker-kjøring gjorde for mange OneDrive-kall. Denne HTML-en kjører nå med stopLimit:1, men backend må trolig også begrense antall OneDrive-subrequests per stopp hvis feilen fortsatt kommer.";
+    }
+
+    setRouteSyncState("error", "Kunne ikke oppdatere OneDrive.", message);
+    setImageRefreshStatus(`Kunne ikke synkronisere stopp/bilder: ${message}`, "error");
   }finally{
     if(button){
       button.disabled = false;
