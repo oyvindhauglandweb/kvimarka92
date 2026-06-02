@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: onedrive-route-sync-proxy-images-v3-2026-06-03 -->
+  <!-- version: onedrive-route-sync-stop-admin-v4-2026-06-03 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1242,7 +1242,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: onedrive-route-sync-proxy-images-v3-2026-06-03");
+console.log("reiserute.html version: onedrive-route-sync-stop-admin-v4-2026-06-03");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1409,6 +1409,50 @@ function getImageName(image){
   }
 
   return image.name || image.fileName || image.title || "";
+}
+
+function getImageParentFolderId(image){
+  if(!image || typeof image === "string"){
+    return "";
+  }
+
+  return String(
+    image.parentId ||
+    image.parentReference?.id ||
+    image.folderId ||
+    image.oneDriveParentId ||
+    ""
+  ).trim();
+}
+
+function getStopOneDriveFolderId(stop){
+  if(!stop){
+    return "";
+  }
+
+  const directId = String(
+    stop.oneDriveItemId ||
+    stop.oneDriveFolderId ||
+    stop.folderId ||
+    stop.sourceFolderId ||
+    ""
+  ).trim();
+
+  if(directId){
+    return directId;
+  }
+
+  const images = getStopImages(stop);
+
+  for(const image of images){
+    const folderId = getImageParentFolderId(image);
+
+    if(folderId){
+      return folderId;
+    }
+  }
+
+  return "";
 }
 
 function getStopImages(stop){
@@ -2579,13 +2623,34 @@ function updateStopGalleryAdminLink(){
   const caseName = currentRouteData?.case?.caseName || getCaseFromUrl();
   const oneDriveFolderPath = String(currentRouteData?.case?.oneDriveFolderPath || "").trim();
 
-  if(!isAdmin || !caseName || !oneDriveFolderPath){
+  if(!isAdmin || !caseName || !oneDriveFolderPath || !stopGalleryStop){
     link.classList.remove("visible");
     link.href = "#";
     return;
   }
 
-  link.href = `onedrive-images.html?case=${encodeURIComponent(caseName)}`;
+  const params = new URLSearchParams();
+  const stopTitle = stopGalleryStop.stopName || stopGalleryStop.title || `Stopp ${stopGalleryStopIndex + 1}`;
+  const folderId = getStopOneDriveFolderId(stopGalleryStop);
+
+  params.set("case", caseName);
+
+  if(stopGalleryStop.id){
+    params.set("stop", String(stopGalleryStop.id));
+  }
+
+  if(folderId){
+    params.set("folderId", folderId);
+  }
+
+  if(stopTitle){
+    params.set("stopName", stopTitle);
+  }
+
+  // Admin-siden skal åpnes på selve stoppestedets OneDrive-mappe.
+  // Uten folderId/stop faller den tilbake til rutemappen, som ofte bare har
+  // undermapper og derfor viser "0 bilder funnet".
+  link.href = `onedrive-images.html?${params.toString()}`;
   link.classList.add("visible");
 }
     
