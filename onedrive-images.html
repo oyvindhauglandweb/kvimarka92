@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>OneDrive-bilder admin</title>
+  <!-- version: stop-folder-params-v1-2026-06-03 -->
 
   <style>
     :root{
@@ -410,6 +411,16 @@
 
     const params = new URLSearchParams(window.location.search);
     const caseName = params.get("case") || "";
+    const stopId = params.get("stop") || params.get("stopId") || "";
+    const folderId = params.get("folderId") || params.get("itemId") || "";
+    const stopName = params.get("stopName") || "";
+
+    console.log("onedrive-images.html version: stop-folder-params-v1-2026-06-03", {
+      caseName,
+      stopId,
+      folderId,
+      stopName
+    });
 
     const subtitle = document.getElementById("subtitle");
     const statusEl = document.getElementById("status");
@@ -501,9 +512,11 @@
       }
 
       const fallbackCase = caseName || "";
-      window.location.href = fallbackCase
+      const fallbackUrl = fallbackCase
         ? `reiserute.html?case=${encodeURIComponent(fallbackCase)}`
         : "index.html?restoreMenu=1";
+
+      window.location.href = fallbackUrl;
     }
 
     closePageButton.addEventListener("click", closePage);
@@ -596,7 +609,7 @@
       if(!currentItems.length){
         grid.innerHTML = `
           <div class="empty">
-            Ingen bilder funnet for denne reisen.
+            Ingen bilder funnet for denne reisen${stopName ? ` / ${stopName}` : ""}.
           </div>
         `;
         return;
@@ -677,10 +690,27 @@
 
       reloadButton.disabled = true;
       statusEl.textContent = "Laster bilder...";
-      subtitle.textContent = `Reise: ${caseName}`;
+      subtitle.textContent = stopName
+        ? `Reise: ${caseName} – stoppested: ${stopName}`
+        : `Reise: ${caseName}`;
 
       try{
-        const url = `${API_BASE}/onedrive/route-files?case=${encodeURIComponent(caseName)}`;
+        const query = new URLSearchParams();
+        query.set("case", caseName);
+
+        if(stopId){
+          query.set("stop", stopId);
+        }
+
+        if(folderId){
+          query.set("folderId", folderId);
+        }
+
+        if(stopName){
+          query.set("stopName", stopName);
+        }
+
+        const url = `${API_BASE}/onedrive/route-files?${query.toString()}`;
 
         const response = await fetch(url, {
           method: "GET",
@@ -695,8 +725,18 @@
 
         currentItems = Array.isArray(data.items) ? data.items : [];
 
-        subtitle.textContent = `${data.routeCase?.title || caseName} – ${data.effectivePath || data.folderPath || ""}`;
-        statusEl.textContent = `${currentItems.length} bilder funnet${data.autoEnteredSubfolder ? " – undermappe åpnet automatisk" : ""}`;
+        const effectiveName = data.stopName || stopName || "";
+        const effectivePath = data.effectivePath || data.folderPath || "";
+
+        subtitle.textContent = effectiveName
+          ? `${data.routeCase?.title || caseName} – ${effectiveName}`
+          : `${data.routeCase?.title || caseName} – ${effectivePath}`;
+
+        const sourceText = data.stopFolderId
+          ? " – stoppestedets mappe"
+          : (data.listedChildFolders ? " – bilder fra undermapper" : (data.autoEnteredSubfolder ? " – undermappe åpnet automatisk" : ""));
+
+        statusEl.textContent = `${currentItems.length} bilder funnet${sourceText}`;
 
         render();
       }catch(error){
