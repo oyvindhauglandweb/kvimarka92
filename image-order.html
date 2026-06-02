@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sorter bilder - Kvimarka 92</title>
+<!-- version: image-order-onedrive-proxy-buttons-v2-2026-06-03 -->
 <style>
 :root{
   --bg:#f2f2f2;
@@ -66,14 +67,32 @@ body{
   margin:10px 0 0;
 }
 
-.top-button,
+.top-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  padding:0;
+  background:var(--button);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:24px;
+  font-weight:bold;
+  line-height:1;
+  box-sizing:border-box;
+  cursor:pointer;
+}
+
 .action-button{
   display:flex;
   align-items:center;
   justify-content:center;
-  min-width:30px;
-  height:26px;
-  padding:0 8px;
+  min-width:90px;
+  height:36px;
+  padding:0 12px;
   background:var(--button);
   border:1px solid var(--border);
   border-radius:6px;
@@ -83,12 +102,6 @@ body{
   font-weight:bold;
   box-sizing:border-box;
   cursor:pointer;
-}
-
-.action-button{
-  height:36px;
-  min-width:90px;
-  padding:0 12px;
 }
 
 .top-button:hover,
@@ -623,6 +636,7 @@ body{
 
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+console.log("image-order.html version: image-order-onedrive-proxy-buttons-v2-2026-06-03");
 
 let currentUser = null;
 let routeData = null;
@@ -721,7 +735,35 @@ async function fetchCurrentUser(){
   }
 }
 
-function getImageUrl(image){
+function parseImageMetadataValue(value){
+  if(!value){
+    return [];
+  }
+
+  if(Array.isArray(value)){
+    return value;
+  }
+
+  if(typeof value === "string"){
+    const text = value.trim();
+
+    if(!text){
+      return [];
+    }
+
+    try{
+      const parsed = JSON.parse(text);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(error){
+      console.warn("Could not parse imageMetadata JSON.", error);
+      return [];
+    }
+  }
+
+  return [];
+}
+
+function getImageUrl(image, options = {}){
   if(!image){
     return "";
   }
@@ -730,11 +772,26 @@ function getImageUrl(image){
     return image;
   }
 
+  const oneDriveItemId = image.oneDriveItemId || image.id || image.itemId || "";
+  const mode = options.mode || "thumb";
+  const size = options.size || "medium";
+
+  if(oneDriveItemId && (image.kind === "onedrive" || image.source === "onedrive" || image.oneDriveItemId)){
+    let url = `${API_BASE}/onedrive/image?id=${encodeURIComponent(oneDriveItemId)}&mode=${encodeURIComponent(mode)}`;
+
+    if(mode === "thumb" && size){
+      url += `&size=${encodeURIComponent(size)}`;
+    }
+
+    return url;
+  }
+
   return (
-    image.webUrl ||
     image.mediumUrl ||
     image.largeUrl ||
     image.url ||
+    image.downloadUrl ||
+    image["@microsoft.graph.downloadUrl"] ||
     image.download_url ||
     image.thumbnails?.large?.url ||
     image.thumbnails?.large ||
@@ -742,6 +799,24 @@ function getImageUrl(image){
     image.thumbnails?.small ||
     image.thumbUrl ||
     image.thumbnailUrl ||
+    image.webUrl ||
+    ""
+  );
+}
+
+function getImageFallbackUrl(image){
+  if(!image || typeof image === "string"){
+    return "";
+  }
+
+  return (
+    image.downloadUrl ||
+    image["@microsoft.graph.downloadUrl"] ||
+    image.download_url ||
+    image.mediumUrl ||
+    image.largeUrl ||
+    image.url ||
+    image.webUrl ||
     ""
   );
 }
@@ -751,13 +826,13 @@ function getStopImages(stop){
     return [];
   }
 
-  if(Array.isArray(stop.images)){
+  if(Array.isArray(stop.images) && stop.images.length){
     return [...stop.images];
   }
 
   return [
     ...(Array.isArray(stop.image) ? stop.image : []),
-    ...(Array.isArray(stop.imageMetadata) ? stop.imageMetadata : [])
+    ...parseImageMetadataValue(stop.imageMetadata)
   ];
 }
 
@@ -1023,6 +1098,20 @@ function deleteSelectedImages(){
   setStatus("Merkede bilder er fjernet lokalt. Trykk «Lagre bilderekkefølge» for å lagre endringen.", "success");
 }
 
+function handleImageLoadError(imageElement){
+  if(!imageElement){
+    return;
+  }
+
+  if(!imageElement.dataset.fallbackTried && imageElement.dataset.fallbackSrc){
+    imageElement.dataset.fallbackTried = "true";
+    imageElement.src = imageElement.dataset.fallbackSrc;
+    return;
+  }
+
+  imageElement.alt = imageElement.alt || "Kunne ikke laste bilde";
+}
+
 function renderImages(){
   const list = document.getElementById("imageList");
 
@@ -1058,7 +1147,7 @@ function renderImages(){
       >
         <div class="image-number">${index + 1}</div>
         <button class="image-open-button" type="button" onclick="openImageViewer(${index})" title="Åpne bilde">
-          <img src="${esc(imageUrl)}" alt="${esc(imageName)}">
+          <img src="${esc(imageUrl)}" data-fallback-src="${esc(getImageFallbackUrl(image))}" onerror="handleImageLoadError(this)" alt="${esc(imageName)}">
         </button>
         <div class="image-caption">${esc(imageName)}</div>
         ${selectionMode ? `
@@ -1119,9 +1208,11 @@ function updateImageViewer(){
   viewerIndex = Math.max(0, Math.min(viewerIndex, currentImages.length - 1));
 
   const image = currentImages[viewerIndex];
-  const imageUrl = getImageUrl(image);
+  const imageUrl = getImageUrl(image, { mode:"full" });
   const imageName = getImageName(image, viewerIndex);
 
+  imageElement.dataset.fallbackSrc = getImageFallbackUrl(image);
+  imageElement.dataset.fallbackTried = "";
   imageElement.src = imageUrl;
   imageElement.alt = imageName;
   caption.textContent = `${viewerIndex + 1} / ${currentImages.length} - ${imageName}`;
@@ -1430,6 +1521,11 @@ document.addEventListener("keydown", function(event){
   if(event.key === "ArrowRight"){
     showNextImage();
   }
+});
+
+
+document.getElementById("imageViewerImage").addEventListener("error", function(){
+  handleImageLoadError(this);
 });
 
 document.getElementById("imageViewer").addEventListener("touchstart", function(event){
