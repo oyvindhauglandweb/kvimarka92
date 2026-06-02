@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: stop-gallery-cards-v6-no-image-click-close-2026-05-27 -->
+  <!-- version: onedrive-image-metadata-v1-2026-06-02 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1096,7 +1096,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: stop-gallery-cards-v6-return-to-stop-gallery");
+console.log("reiserute.html version: onedrive-image-metadata-v1-2026-06-02");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1149,6 +1149,34 @@ function scrollToHashStop(){
   }, 300);
 }
     
+function parseImageMetadataValue(value){
+  if(!value){
+    return [];
+  }
+
+  if(Array.isArray(value)){
+    return value;
+  }
+
+  if(typeof value === "string"){
+    const text = value.trim();
+
+    if(!text){
+      return [];
+    }
+
+    try{
+      const parsed = JSON.parse(text);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(error){
+      console.warn("Could not parse imageMetadata JSON.", error);
+      return [];
+    }
+  }
+
+  return [];
+}
+
 function getImageDisplayUrl(image){
   if(!image){
     return "";
@@ -1158,20 +1186,37 @@ function getImageDisplayUrl(image){
     return image;
   }
 
+  // For OneDrive metadata:
+  // webUrl is a OneDrive viewer page and usually does NOT work as <img src>.
+  // downloadUrl / @microsoft.graph.downloadUrl is the direct temporary image URL.
   return (
-    image.webUrl ||
+    image.downloadUrl ||
+    image["@microsoft.graph.downloadUrl"] ||
+    image.download_url ||
     image.mediumUrl ||
     image.largeUrl ||
     image.url ||
-    image.download_url ||
     image.thumbnails?.large?.url ||
     image.thumbnails?.large ||
     image.thumbnails?.small?.url ||
     image.thumbnails?.small ||
     image.thumbUrl ||
     image.thumbnailUrl ||
+    image.webUrl ||
     ""
   );
+}
+
+function getImageName(image){
+  if(!image){
+    return "";
+  }
+
+  if(typeof image === "string"){
+    return "";
+  }
+
+  return image.name || image.fileName || image.title || "";
 }
 
 function getStopImages(stop){
@@ -1179,13 +1224,13 @@ function getStopImages(stop){
     return [];
   }
 
-  if(Array.isArray(stop.images)){
+  if(Array.isArray(stop.images) && stop.images.length){
     return stop.images;
   }
 
   return [
     ...(Array.isArray(stop.image) ? stop.image : []),
-    ...(Array.isArray(stop.imageMetadata) ? stop.imageMetadata : [])
+    ...parseImageMetadataValue(stop.imageMetadata)
   ];
 }
 
@@ -1534,12 +1579,21 @@ function renderPhotoGallery(stops){
   const photos = [];
 
   stops.forEach((stop, stopIndex) => {
-    getFileUrls(getStopImages(stop)).forEach((url, imageIndex) => {
+    const images = getStopImages(stop);
+
+    images.forEach((image, imageIndex) => {
+      const url = getImageDisplayUrl(image);
+
+      if(!url){
+        return;
+      }
+
       photos.push({
         stop,
         stopIndex,
         imageIndex,
-        url
+        url,
+        name:getImageName(image)
       });
     });
   });
@@ -1562,7 +1616,7 @@ function renderPhotoGallery(stops){
               </button>
               <div class="photo-caption">
                 <strong>${photo.stopIndex + 1}. ${esc(photo.stop.stopName || photo.stop.title || "Stopp")}</strong>
-                Bilde ${photo.imageIndex + 1}
+                ${photo.name ? esc(photo.name) : `Bilde ${photo.imageIndex + 1}`}
               </div>
             </div>
           `).join("")}
@@ -2045,9 +2099,17 @@ function setupStopImageClicks(stops){
 }
 
 function openStopImageGallery(stop, stopIndex){
-  const imageUrls = getFileUrls(getStopImages(stop));
+  const images = getStopImages(stop);
+  const imageItems = images
+    .map((image, imageIndex) => ({
+      image,
+      imageIndex,
+      url:getImageDisplayUrl(image),
+      name:getImageName(image)
+    }))
+    .filter(item => item.url);
 
-  if(!imageUrls.length){
+  if(!imageItems.length){
     return;
   }
 
@@ -2065,17 +2127,17 @@ function openStopImageGallery(stop, stopIndex){
 
   heading.textContent = `${stopIndex + 1}. ${title}`;
 
-  grid.innerHTML = imageUrls.map((url, imageIndex) => `
+  grid.innerHTML = imageItems.map(item => `
     <button
       class="stop-gallery-card"
       type="button"
-      data-image-index="${imageIndex}"
+      data-image-index="${item.imageIndex}"
       title="Vis bilde"
     >
-      <img src="${esc(url)}" alt="">
+      <img src="${esc(item.url)}" alt="">
       <div class="stop-gallery-caption">
         <strong>${stopIndex + 1}. ${esc(title)}</strong>
-        <span>Bilde ${imageIndex + 1}</span>
+        <span>${item.name ? esc(item.name) : `Bilde ${item.imageIndex + 1}`}</span>
       </div>
     </button>
   `).join("");
