@@ -336,7 +336,7 @@
           </div>
           <div>
             <label for="limitInput">Stopp per kall</label>
-            <input id="limitInput" type="number" min="1" max="25" value="10">
+            <input id="limitInput" type="number" min="1" max="250" value="150">
           </div>
         </div>
 
@@ -424,7 +424,7 @@ function getPath(){
 
 function getStopLimit(){
   const n = Number(el("limitInput").value || 10);
-  return Math.max(1, Math.min(25, Number.isFinite(n) ? n : 10));
+  return Math.max(1, Math.min(250, Number.isFinite(n) ? n : 10));
 }
 
 function log(message, data){
