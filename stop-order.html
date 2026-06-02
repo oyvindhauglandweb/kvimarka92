@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rediger stopp - Kvimarka 92</title>
+<!-- version: stop-order-onedrive-image-proxy-v1-2026-06-03 -->
 <style>
 :root{
   --bg:#f2f2f2;
@@ -822,6 +823,7 @@ textarea{
 
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+console.log("stop-order.html version: stop-order-onedrive-image-proxy-v1-2026-06-03");
 
 let currentUser = null;
 let routeData = null;
@@ -911,6 +913,54 @@ function formatDateRange(from, to){
   return fromText || toText || "";
 }
 
+function parseImageMetadataValue(value){
+  if(!value){
+    return [];
+  }
+
+  if(Array.isArray(value)){
+    return value;
+  }
+
+  if(typeof value === "string"){
+    const text = value.trim();
+
+    if(!text){
+      return [];
+    }
+
+    try{
+      const parsed = JSON.parse(text);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(error){
+      console.warn("Could not parse imageMetadata JSON.", error);
+      return [];
+    }
+  }
+
+  return [];
+}
+
+function getOneDriveImageProxyUrl(image, mode, size){
+  if(!image || typeof image !== "object"){
+    return "";
+  }
+
+  const oneDriveItemId = image.oneDriveItemId || (image.source === "onedrive" || image.kind === "onedrive" ? image.id : "");
+
+  if(!oneDriveItemId){
+    return "";
+  }
+
+  let url = `${API_BASE}/onedrive/image?id=${encodeURIComponent(oneDriveItemId)}&mode=${encodeURIComponent(mode || "thumb")}`;
+
+  if(size){
+    url += `&size=${encodeURIComponent(size)}`;
+  }
+
+  return url;
+}
+
 function getImageUrl(imageField){
   if(!Array.isArray(imageField) || !imageField.length){
     return "";
@@ -926,18 +976,26 @@ function getImageUrl(imageField){
     return image;
   }
 
+  const oneDriveProxyUrl = getOneDriveImageProxyUrl(image, "thumb", "medium");
+
+  if(oneDriveProxyUrl){
+    return oneDriveProxyUrl;
+  }
+
   return (
-    image.webUrl ||
+    image.downloadUrl ||
+    image["@microsoft.graph.downloadUrl"] ||
+    image.download_url ||
     image.mediumUrl ||
     image.largeUrl ||
     image.url ||
-    image.download_url ||
     image.thumbnails?.large?.url ||
     image.thumbnails?.large ||
     image.thumbnails?.small?.url ||
     image.thumbnails?.small ||
     image.thumbUrl ||
     image.thumbnailUrl ||
+    image.webUrl ||
     ""
   );
 }
@@ -947,13 +1005,13 @@ function getStopImages(stop){
     return [];
   }
 
-  if(Array.isArray(stop.images)){
+  if(Array.isArray(stop.images) && stop.images.length){
     return [...stop.images];
   }
 
   return [
     ...(Array.isArray(stop.image) ? stop.image : []),
-    ...(Array.isArray(stop.imageMetadata) ? stop.imageMetadata : [])
+    ...parseImageMetadataValue(stop.imageMetadata)
   ];
 }
 
