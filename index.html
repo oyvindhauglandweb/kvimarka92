@@ -1167,6 +1167,55 @@ function itemsMatchingPath(depth){
   return items;
 }
 
+function openLeafMenuItem(item){
+  if(item.createRouteCase){
+    saveMenuState();
+    openCreateRouteCaseDialog();
+    return true;
+  }
+
+  const url = getMenuItemUrl(item);
+
+  if(!url){
+    return false;
+  }
+
+  saveMenuState();
+
+  if(item.openInNewTab){
+    window.open(url, "_blank", "noopener");
+  }else{
+    window.location.href = url;
+  }
+
+  return true;
+}
+
+function autoAdvanceSingleChoice(fromDepth){
+  let nextDepth = fromDepth + 1;
+
+  while(nextDepth <= LEVEL_FIELDS.length + 1){
+    const items = itemsMatchingPath(nextDepth);
+    const nodes = makeMenuNodes(items, nextDepth);
+
+    if(nodes.length !== 1){
+      return false;
+    }
+
+    const onlyNode = nodes[0];
+
+    if(onlyNode.type === "leaf"){
+      return openLeafMenuItem(onlyNode.item);
+    }
+
+    menuState.selectedLevels[nextDepth - 1] = onlyNode.label;
+    saveMenuState();
+    nextDepth += 1;
+  }
+
+  return false;
+}
+
 function renderAreaButtons(container){
   const areas = getAvailableAreas();
 
@@ -1206,8 +1255,7 @@ function renderMenuDepth(container, depth){
         const button = makeButton(item.buttonText, {
           leaf:true,
           onClick:function(){
-            saveMenuState();
-            openCreateRouteCaseDialog();
+            openLeafMenuItem(item);
           }
         });
 
@@ -1235,12 +1283,19 @@ function renderMenuDepth(container, depth){
       onClick: function(){
         if(currentValue === node.label){
           resetLevelsFrom(depth);
-        }else{
-          resetLevelsFrom(depth);
-          menuState.selectedLevels[depth - 1] = node.label;
+          saveMenuState();
+          renderPathMenu();
+          return;
         }
 
+        resetLevelsFrom(depth);
+        menuState.selectedLevels[depth - 1] = node.label;
         saveMenuState();
+
+        if(autoAdvanceSingleChoice(depth)){
+          return;
+        }
+
         renderPathMenu();
       }
     });
