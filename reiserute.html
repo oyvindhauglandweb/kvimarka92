@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: onedrive-image-metadata-refresh-button-v1-2026-06-02 -->
+  <!-- version: onedrive-route-sync-images-button-v1-2026-06-02 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1152,7 +1152,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: onedrive-image-metadata-refresh-button-v1-2026-06-02");
+console.log("reiserute.html version: onedrive-route-sync-images-button-v1-2026-06-02");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1406,10 +1406,10 @@ async function refreshRouteImageMetadata(event){
     button.disabled = true;
   }
 
-  setImageRefreshStatus("Oppdaterer bildemetadata fra OneDrive...", "");
+  setImageRefreshStatus("Synkroniserer stopp og bilder fra OneDrive...", "");
 
   try{
-    const data = await fetchJson(`${API_BASE}/onedrive/refresh-route-images`, {
+    const data = await fetchJson(`${API_BASE}/onedrive/sync-route-from-onedrive`, {
       method:"POST",
       headers:{
         "Content-Type":"text/plain;charset=UTF-8"
@@ -1426,14 +1426,14 @@ async function refreshRouteImageMetadata(event){
     }
 
     setImageRefreshStatus(
-      `Bildemetadata oppdatert: ${data.updatedStopCount || 0} stopp, ${data.imageTotal || 0} bilder.`,
+      `Synkronisering ferdig: ${data.createdStopCount || 0} nye stopp, ${data.imageUpdatedStopCount || 0} stopp oppdatert med ${data.imageTotal || 0} bilder.`,
       "success"
     );
 
     await loadRoute();
   }catch(error){
     console.error(error);
-    setImageRefreshStatus(`Kunne ikke oppdatere bildemetadata: ${error.message}`, "error");
+    setImageRefreshStatus(`Kunne ikke synkronisere stopp/bilder: ${error.message}`, "error");
   }finally{
     if(button){
       button.disabled = false;
@@ -1481,7 +1481,7 @@ function renderSummary(data){
     <button
       class="summary-image-refresh-button"
       type="button"
-      title="Oppdater bildemetadata fra OneDrive"
+      title="Synkroniser stopp og bilder fra OneDrive"
       onclick="refreshRouteImageMetadata(event)"
     >🖼</button>
   ` : ""}
