@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="no" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OneDrive import admin</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg:#111;
+      --panel:#1f1f1f;
+      --panel2:#262626;
+      --text:#f5f5f5;
+      --muted:#b8c0cc;
+      --border:#464646;
+      --accent:#8bd3f7;
+      --accentText:#061018;
+      --danger:#ffb4b4;
+      --ok:#8ff0b4;
+      --warn:#ffd27a;
+      --shadow:0 18px 50px rgba(0,0,0,.35);
+    }
+
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --panel2:#f2f5f9;
+      --text:#07111f;
+      --muted:#52627a;
+      --border:#d7dfeb;
+      --accent:#2563eb;
+      --accentText:#ffffff;
+      --danger:#b42318;
+      --ok:#067647;
+      --warn:#b54708;
+      --shadow:0 18px 50px rgba(15,23,42,.12);
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    header {
+      border-bottom:1px solid var(--border);
+      background:var(--panel);
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+
+    .topbar {
+      max-width:1180px;
+      margin:0 auto;
+      padding:18px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+
+    h1 {
+      font-size:24px;
+      line-height:1.1;
+      margin:0;
+    }
+
+    .subtitle {
+      margin-top:6px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .toolbar {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    button, input {
+      font:inherit;
+    }
+
+    button {
+      min-height:42px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:var(--panel2);
+      color:var(--text);
+      padding:9px 14px;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    button:hover { border-color:var(--accent); }
+
+    button.primary {
+      background:var(--accent);
+      color:var(--accentText);
+      border-color:transparent;
+    }
+
+    button.danger {
+      color:var(--danger);
+    }
+
+    button:disabled {
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    main {
+      max-width:1180px;
+      margin:0 auto;
+      padding:22px 20px 60px;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+    }
+
+    @media (max-width: 850px) {
+      .grid { grid-template-columns:1fr; }
+      .topbar { align-items:flex-start; flex-direction:column; }
+      .toolbar { justify-content:flex-start; }
+    }
+
+    .card {
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .card h2 {
+      margin:0 0 12px;
+      font-size:18px;
+    }
+
+    label {
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:6px;
+    }
+
+    input {
+      width:100%;
+      min-height:42px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:var(--panel2);
+      color:var(--text);
+      padding:9px 12px;
+    }
+
+    .formrow {
+      display:grid;
+      grid-template-columns: 1fr 120px;
+      gap:12px;
+      align-items:end;
+      margin-bottom:14px;
+    }
+
+    @media (max-width: 650px) {
+      .formrow { grid-template-columns:1fr; }
+    }
+
+    .progressBox {
+      margin:14px 0;
+    }
+
+    .progressHead {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:700;
+      margin-bottom:8px;
+    }
+
+    .bar {
+      height:18px;
+      background:var(--panel2);
+      border:1px solid var(--border);
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .fill {
+      height:100%;
+      width:0%;
+      background:var(--accent);
+      transition:width .2s ease;
+    }
+
+    .metrics {
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+      margin-top:14px;
+    }
+
+    @media (max-width: 850px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .metric {
+      background:var(--panel2);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .metric .label {
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:5px;
+    }
+
+    .metric .value {
+      font-weight:800;
+      font-size:20px;
+    }
+
+    .status {
+      padding:12px;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      border-radius:12px;
+      color:var(--muted);
+      margin-bottom:14px;
+      white-space:pre-wrap;
+    }
+
+    .status.ok { color:var(--ok); }
+    .status.warn { color:var(--warn); }
+    .status.error { color:var(--danger); }
+
+    table {
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+
+    th, td {
+      border-bottom:1px solid var(--border);
+      text-align:left;
+      padding:8px 6px;
+      vertical-align:top;
+    }
+
+    th {
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .tableWrap {
+      max-height:360px;
+      overflow:auto;
+      border:1px solid var(--border);
+      border-radius:12px;
+    }
+
+    .log {
+      height:320px;
+      overflow:auto;
+      background:#050505;
+      color:#d6f5d6;
+      border-radius:12px;
+      border:1px solid var(--border);
+      padding:12px;
+      font:12px ui-monospace, SFMono-Regular, Consolas, monospace;
+      white-space:pre-wrap;
+    }
+
+    html[data-theme="light"] .log {
+      background:#0b1020;
+      color:#d7fbe8;
+    }
+
+    .muted { color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>OneDrive import admin</h1>
+        <div class="subtitle">Planlegg, importer, verifiser og reparer Route Cases / Stops fra OneDrive.</div>
+      </div>
+      <div class="toolbar">
+        <button id="backBtn" title="Tilbake">←</button>
+        <button id="themeBtn" title="Lys/mørk">☾</button>
+        <button id="verifyBtn">Verifiser</button>
+        <button id="fullImportBtn" class="primary">Start full import</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>Import</h2>
+
+        <div class="formrow">
+          <div>
+            <label for="pathInput">OneDrive importmappe</label>
+            <input id="pathInput" value="/Bilder/WEB/Feriereiser">
+          </div>
+          <div>
+            <label for="limitInput">Stopp per kall</label>
+            <input id="limitInput" type="number" min="1" max="25" value="10">
+          </div>
+        </div>
+
+        <div id="statusBox" class="status">Klar.</div>
+
+        <div class="progressBox">
+          <div class="progressHead">
+            <span>Cases</span>
+            <span id="caseProgressText">0 / 0</span>
+          </div>
+          <div class="bar"><div id="caseFill" class="fill"></div></div>
+        </div>
+
+        <div class="progressBox">
+          <div class="progressHead">
+            <span>Stops</span>
+            <span id="stopProgressText">0 / 0</span>
+          </div>
+          <div class="bar"><div id="stopFill" class="fill"></div></div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric"><div class="label">Nåværende case</div><div id="currentCase" class="value">–</div></div>
+          <div class="metric"><div class="label">Opprettet cases</div><div id="createdCases" class="value">0</div></div>
+          <div class="metric"><div class="label">Opprettet stops</div><div id="createdStops" class="value">0</div></div>
+          <div class="metric"><div class="label">Mangler stops</div><div id="missingStops" class="value">–</div></div>
+        </div>
+
+        <div class="toolbar" style="margin-top:14px;justify-content:flex-start">
+          <button id="planBtn">Hent plan</button>
+          <button id="startBtn">Start jobb</button>
+          <button id="runBtn">Kjør ett steg</button>
+          <button id="autoBtn">Auto-kjør</button>
+          <button id="stopBtn" class="danger" disabled>Stopp auto</button>
+          <button id="repairBtn">Reparer mangler</button>
+          <button id="resetBtn" class="danger">Reset jobb</button>
+        </div>
+
+        <p class="muted">Full import gjør: plan → start → run-loop → verify → repair-loop → verify. Den stopper ikke som “ferdig” før verify viser 0 manglende stopp.</p>
+      </section>
+
+      <section class="card">
+        <h2>Logg</h2>
+        <div id="log" class="log"></div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:16px">
+      <h2>Verifisering per case</h2>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Case</th>
+              <th>Forventet</th>
+              <th>Aktive</th>
+              <th>Matchet</th>
+              <th>Mangler</th>
+            </tr>
+          </thead>
+          <tbody id="verifyBody">
+            <tr><td colspan="5" class="muted">Ingen verifisering kjørt.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+<script>
+const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+let autoRunning = false;
+let lastPlan = null;
+let lastStatus = null;
+
+const el = id => document.getElementById(id);
+
+function getPath(){
+  return el("pathInput").value.trim() || "/Bilder/WEB/Feriereiser";
+}
+
+function getStopLimit(){
+  const n = Number(el("limitInput").value || 10);
+  return Math.max(1, Math.min(25, Number.isFinite(n) ? n : 10));
+}
+
+function log(message, data){
+  const time = new Date().toLocaleTimeString();
+  const line = `[${time}] ${message}`;
+  el("log").textContent += line + (data ? "\n" + JSON.stringify(data, null, 2) : "") + "\n\n";
+  el("log").scrollTop = el("log").scrollHeight;
+}
+
+function setStatus(message, type){
+  el("statusBox").className = "status" + (type ? " " + type : "");
+  el("statusBox").textContent = message;
+}
+
+function pct(done, total){
+  if(!total) return 0;
+  return Math.max(0, Math.min(100, (Number(done || 0) / Number(total || 1)) * 100));
+}
+
+function updateProgress(data){
+  if(!data) return;
+
+  const caseDone = Number(data.caseIndex ?? 0);
+  const caseTotal = Number(data.caseTotal ?? lastPlan?.caseTotal ?? 0);
+  const stopDone = Number(data.globalStopDone ?? 0);
+  const stopTotal = Number(data.stopTotal ?? lastPlan?.stopTotal ?? 0);
+
+  el("caseProgressText").textContent = `${caseDone} / ${caseTotal}`;
+  el("stopProgressText").textContent = `${stopDone} / ${stopTotal}`;
+  el("caseFill").style.width = pct(caseDone, caseTotal) + "%";
+  el("stopFill").style.width = pct(stopDone, stopTotal) + "%";
+
+  el("currentCase").textContent = data.currentCaseName || "–";
+  el("createdCases").textContent = Number(data.createdCaseCount ?? 0);
+  el("createdStops").textContent = Number(data.createdStopCount ?? 0);
+}
+
+async function api(path, options = {}){
+  const res = await fetch(API_BASE + path, {
+    credentials:"include",
+    ...options
+  });
+
+  const text = await res.text();
+  let data;
+
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch(error) {
+    data = { raw:text };
+  }
+
+  if(!res.ok){
+    const err = new Error(data.error || `HTTP ${res.status}`);
+    err.data = data;
+    throw err;
+  }
+
+  return data;
+}
+
+async function planImport(){
+  setStatus("Henter plan...", "");
+  const data = await api("/onedrive/import-job-plan", {
+    method:"POST",
+    body:JSON.stringify({ path:getPath() })
+  });
+
+  lastPlan = data;
+  updateProgress({
+    caseIndex:0,
+    globalStopDone:0,
+    caseTotal:data.caseTotal,
+    stopTotal:data.stopTotal
+  });
+
+  log(`Plan klar: ${data.caseTotal} cases / ${data.stopTotal} stops`, data);
+  setStatus(`Plan klar: ${data.caseTotal} cases / ${data.stopTotal} stops`, "ok");
+  return data;
+}
+
+async function startJob(){
+  setStatus("Starter importjobb...", "");
+  const data = await api("/onedrive/import-job-start", {
+    method:"POST",
+    body:JSON.stringify({
+      path:getPath(),
+      stopLimit:getStopLimit()
+    })
+  });
+
+  lastStatus = data;
+  updateProgress(data);
+  log("Importjobb startet", data);
+  setStatus("Importjobb startet.", "ok");
+  return data;
+}
+
+async function runStep(){
+  const data = await api("/onedrive/import-job-run", {
+    method:"POST",
+    body:JSON.stringify({
+      stopLimit:getStopLimit()
+    })
+  });
+
+  lastStatus = data;
+  updateProgress(data);
+
+  const msg = `${data.status}: ${data.currentCaseName || "ferdig"} | stops ${data.globalStopDone}/${data.stopTotal}`;
+  log(msg, {
+    status:data.status,
+    currentCaseName:data.currentCaseName,
+    caseIndex:data.caseIndex,
+    caseTotal:data.caseTotal,
+    stopIndex:data.stopIndex,
+    globalStopDone:data.globalStopDone,
+    stopTotal:data.stopTotal,
+    createdCaseCount:data.createdCaseCount,
+    createdStopCount:data.createdStopCount,
+    nextRunNeeded:data.nextRunNeeded
+  });
+
+  setStatus(msg, data.status === "completed" ? "ok" : "");
+  return data;
+}
+
+async function verify(){
+  setStatus("Verifiserer import...", "");
+  const data = await api(`/onedrive/import-job-verify?path=${encodeURIComponent(getPath())}`, {
+    method:"GET"
+  });
+
+  const tbody = el("verifyBody");
+  tbody.innerHTML = "";
+
+  data.cases.forEach(c => {
+    const tr = document.createElement("tr");
+    const missing = Number(c.missingStops || 0);
+    tr.innerHTML = `
+      <td>${escapeHtml(c.caseName)}</td>
+      <td>${c.expectedStops}</td>
+      <td>${c.activeStops}</td>
+      <td>${c.matchedStops}</td>
+      <td style="font-weight:800;color:${missing ? "var(--danger)" : "var(--ok)"}">${missing}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  el("missingStops").textContent = Number(data.missingStopTotal || 0);
+  log(`Verify: mangler ${data.missingStopTotal} stops`, data);
+  setStatus(data.complete ? "Verifisering OK: 0 manglende stopp." : `Verifisering: ${data.missingStopTotal} manglende stopp.`, data.complete ? "ok" : "warn");
+  return data;
+}
+
+async function repairOnce(){
+  const data = await api("/onedrive/import-job-repair", {
+    method:"POST",
+    body:JSON.stringify({
+      path:getPath(),
+      limit:getStopLimit()
+    })
+  });
+
+  log(`Repair: opprettet ${data.createdStopCount} stops`, data);
+  return data;
+}
+
+async function repairUntilComplete(){
+  setStatus("Reparerer manglende stopp...", "warn");
+
+  for(let i = 0; i < 100; i++){
+    const verifyData = await verify();
+
+    if(Number(verifyData.missingStopTotal || 0) === 0){
+      setStatus("Repair ferdig: 0 manglende stopp.", "ok");
+      return verifyData;
+    }
+
+    const repairData = await repairOnce();
+
+    if(Number(repairData.createdStopCount || 0) === 0){
+      const after = await verify();
+      if(Number(after.missingStopTotal || 0) > 0){
+        throw new Error(`Repair stoppet uten å opprette flere stopp. Mangler fortsatt ${after.missingStopTotal}.`);
+      }
+      return after;
+    }
+
+    await sleep(800);
+  }
+
+  throw new Error("Repair-loop stoppet etter 100 runder.");
+}
+
+async function autoRun(){
+  autoRunning = true;
+  el("autoBtn").disabled = true;
+  el("stopBtn").disabled = false;
+
+  try {
+    setStatus("Auto-kjører import...", "");
+    let data = null;
+
+    while(autoRunning){
+      data = await runStep();
+
+      if(data.status === "completed" || data.nextRunNeeded === false){
+        break;
+      }
+
+      await sleep(800);
+    }
+
+    if(!autoRunning){
+      setStatus("Auto-kjøring stoppet av bruker.", "warn");
+      return;
+    }
+
+    const verifyData = await verify();
+
+    if(Number(verifyData.missingStopTotal || 0) > 0){
+      await repairUntilComplete();
+    }
+
+    setStatus("Full import ferdig og verifisert.", "ok");
+    log("FULL IMPORT FERDIG OG VERIFISERT");
+  } catch(error) {
+    console.error(error);
+    log("FEIL", error.data || { message:error.message });
+    setStatus(error.message || "Feil under import.", "error");
+  } finally {
+    autoRunning = false;
+    el("autoBtn").disabled = false;
+    el("stopBtn").disabled = true;
+  }
+}
+
+async function fullImport(){
+  try {
+    await planImport();
+    await startJob();
+    await autoRun();
+  } catch(error) {
+    console.error(error);
+    log("FEIL", error.data || { message:error.message });
+    setStatus(error.message || "Feil under full import.", "error");
+  }
+}
+
+async function resetJob(){
+  if(!confirm("Reset importjobben i KV? Dette sletter bare jobbstatus, ikke Baserow-data.")){
+    return;
+  }
+
+  const data = await api("/onedrive/import-job-reset", {
+    method:"POST",
+    body:JSON.stringify({})
+  });
+
+  log("Jobb reset", data);
+  setStatus("Importjobb reset.", "warn");
+}
+
+function stopAuto(){
+  autoRunning = false;
+}
+
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function initTheme(){
+  const saved = localStorage.getItem("onedrive-import-theme");
+  if(saved){
+    document.documentElement.dataset.theme = saved;
+  }
+
+  el("themeBtn").textContent = document.documentElement.dataset.theme === "light" ? "☀" : "☾";
+}
+
+function toggleTheme(){
+  const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem("onedrive-import-theme", next);
+  el("themeBtn").textContent = next === "light" ? "☀" : "☾";
+}
+
+el("backBtn").addEventListener("click", () => history.length > 1 ? history.back() : location.href = "/");
+el("themeBtn").addEventListener("click", toggleTheme);
+el("planBtn").addEventListener("click", () => planImport().catch(handleTopError));
+el("startBtn").addEventListener("click", () => startJob().catch(handleTopError));
+el("runBtn").addEventListener("click", () => runStep().catch(handleTopError));
+el("autoBtn").addEventListener("click", autoRun);
+el("stopBtn").addEventListener("click", stopAuto);
+el("verifyBtn").addEventListener("click", () => verify().catch(handleTopError));
+el("repairBtn").addEventListener("click", () => repairUntilComplete().catch(handleTopError));
+el("resetBtn").addEventListener("click", () => resetJob().catch(handleTopError));
+el("fullImportBtn").addEventListener("click", fullImport);
+
+function handleTopError(error){
+  console.error(error);
+  log("FEIL", error.data || { message:error.message });
+  setStatus(error.message || "Feil.", "error");
+}
+
+initTheme();
+</script>
+</body>
+</html>
