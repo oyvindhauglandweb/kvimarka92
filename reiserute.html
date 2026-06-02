@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: onedrive-image-metadata-v1-2026-06-02 -->
+  <!-- version: onedrive-image-metadata-refresh-button-v1-2026-06-02 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -193,6 +193,62 @@
 .summary-stop-edit-link:hover{
   background:rgba(124,199,232,.12);
 }
+.summary-image-refresh-button{
+  position:absolute;
+  top:12px;
+  right:92px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border:2px solid var(--link);
+  border-radius:50%;
+  color:var(--link);
+  background:transparent;
+  text-decoration:none;
+  font-size:16px;
+  font-weight:bold;
+  line-height:1;
+  box-sizing:border-box;
+  cursor:pointer;
+}
+
+.summary-image-refresh-button:hover{
+  background:rgba(124,199,232,.12);
+}
+
+.summary-image-refresh-button[disabled]{
+  opacity:.55;
+  cursor:wait;
+}
+
+.summary-image-refresh-status{
+  display:none;
+  grid-column:1 / -1;
+  margin-top:-8px;
+  margin-bottom:10px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--muted);
+  background:rgba(127,127,127,.05);
+}
+
+.summary-image-refresh-status.visible{
+  display:block;
+}
+
+.summary-image-refresh-status.success{
+  color:#72c184;
+  border-color:#4f8f5f;
+}
+
+.summary-image-refresh-status.error{
+  color:#d77;
+  border-color:#b85c5c;
+}
+
     
     .stop-list{
       display:flex;
@@ -1030,7 +1086,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
       }
 
       .summary-item{
-        padding-right:96px;
+        padding-right:136px;
       }
     }
   </style>
@@ -1096,7 +1152,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: onedrive-image-metadata-v1-2026-06-02");
+console.log("reiserute.html version: onedrive-image-metadata-refresh-button-v1-2026-06-02");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1320,6 +1376,71 @@ function getFileUrl(images){
     }
 
 
+
+function setImageRefreshStatus(message, type){
+  const box = document.getElementById("imageRefreshStatus");
+
+  if(!box){
+    return;
+  }
+
+  box.className = "summary-image-refresh-status visible" + (type ? ` ${type}` : "");
+  box.textContent = message || "";
+}
+
+async function refreshRouteImageMetadata(event){
+  if(event){
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  const caseName = currentRouteData?.case?.caseName || currentRouteData?.case?.title || getCaseFromUrl();
+  const button = event?.currentTarget || document.querySelector(".summary-image-refresh-button");
+
+  if(!caseName){
+    setImageRefreshStatus("Mangler case-navn.", "error");
+    return;
+  }
+
+  if(button){
+    button.disabled = true;
+  }
+
+  setImageRefreshStatus("Oppdaterer bildemetadata fra OneDrive...", "");
+
+  try{
+    const data = await fetchJson(`${API_BASE}/onedrive/refresh-route-images`, {
+      method:"POST",
+      headers:{
+        "Content-Type":"text/plain;charset=UTF-8"
+      },
+      body:JSON.stringify({
+        path:"/Bilder/WEB/Feriereiser",
+        caseName,
+        stopLimit:10
+      })
+    });
+
+    if(!data.success){
+      throw new Error(data.error || "Oppdatering feilet.");
+    }
+
+    setImageRefreshStatus(
+      `Bildemetadata oppdatert: ${data.updatedStopCount || 0} stopp, ${data.imageTotal || 0} bilder.`,
+      "success"
+    );
+
+    await loadRoute();
+  }catch(error){
+    console.error(error);
+    setImageRefreshStatus(`Kunne ikke oppdatere bildemetadata: ${error.message}`, "error");
+  }finally{
+    if(button){
+      button.disabled = false;
+    }
+  }
+}
+
 function renderGeneralDescription(data){
   const description = String(data.case?.generalDescription || "").trim();
 
@@ -1331,6 +1452,8 @@ function renderGeneralDescription(data){
     <div class="general-description-card">
       <div class="general-description-title">Generell beskrivelse</div>
       <div class="general-description-text">${esc(description)}</div>
+
+      <div class="summary-image-refresh-status" id="imageRefreshStatus"></div>
     </div>
   `;
 }
@@ -1354,6 +1477,13 @@ function renderSummary(data){
       href="stop-order.html?case=${encodeURIComponent(data.case?.caseName || data.case?.title || "")}"
       title="Rediger stoppesteder"
     >✎</a>
+
+    <button
+      class="summary-image-refresh-button"
+      type="button"
+      title="Oppdater bildemetadata fra OneDrive"
+      onclick="refreshRouteImageMetadata(event)"
+    >🖼</button>
   ` : ""}
 
   <a
