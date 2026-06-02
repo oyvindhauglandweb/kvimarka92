@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: onedrive-route-sync-progress-refresh-v2-2026-06-02 -->
+  <!-- version: onedrive-route-sync-proxy-images-v3-2026-06-03 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1242,7 +1242,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: onedrive-route-sync-progress-refresh-v2-2026-06-02");
+console.log("reiserute.html version: onedrive-route-sync-proxy-images-v3-2026-06-03");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1351,7 +1351,21 @@ function parseImageMetadataValue(value){
   return [];
 }
 
-function getImageDisplayUrl(image){
+function getOneDriveImageProxyUrl(image, options){
+  const itemId = String(image?.oneDriveItemId || image?.id || "").trim();
+
+  if(!itemId){
+    return "";
+  }
+
+  const mode = options?.mode === "full" ? "full" : "thumb";
+  const size = ["small", "medium", "large"].includes(options?.size) ? options.size : "large";
+  const cacheKey = encodeURIComponent(String(image.lastModifiedDateTime || image.name || itemId));
+
+  return `${API_BASE}/onedrive/image?id=${encodeURIComponent(itemId)}&mode=${encodeURIComponent(mode)}&size=${encodeURIComponent(size)}&v=${cacheKey}`;
+}
+
+function getImageDisplayUrl(image, options){
   if(!image){
     return "";
   }
@@ -1360,9 +1374,14 @@ function getImageDisplayUrl(image){
     return image;
   }
 
-  // For OneDrive metadata:
-  // webUrl is a OneDrive viewer page and usually does NOT work as <img src>.
-  // downloadUrl / @microsoft.graph.downloadUrl is the direct temporary image URL.
+  // OneDrive downloadUrl is temporary and may expire. Use the Worker image proxy
+  // when a OneDrive item id is available, then fall back to stored direct URLs.
+  const oneDriveProxyUrl = getOneDriveImageProxyUrl(image, options);
+
+  if(oneDriveProxyUrl){
+    return oneDriveProxyUrl;
+  }
+
   return (
     image.downloadUrl ||
     image["@microsoft.graph.downloadUrl"] ||
@@ -1376,7 +1395,6 @@ function getImageDisplayUrl(image){
     image.thumbnails?.small ||
     image.thumbUrl ||
     image.thumbnailUrl ||
-    image.webUrl ||
     ""
   );
 }
@@ -1408,18 +1426,18 @@ function getStopImages(stop){
   ];
 }
 
-function getFileUrls(images){
+function getFileUrls(images, options){
   if(!Array.isArray(images) || !images.length){
     return [];
   }
 
   return images
-    .map(image => getImageDisplayUrl(image))
+    .map(image => getImageDisplayUrl(image, options))
     .filter(Boolean);
 }
 
-function getFileUrl(images){
-  return getFileUrls(images)[0] || "";
+function getFileUrl(images, options){
+  return getFileUrls(images, options)[0] || "";
 }
 
     function getCaseFromUrl(){
@@ -2290,7 +2308,7 @@ function buildRouteMapPoints(stops){
 }
 
 function openImageModal(stop, startIndex){
-  const imageUrls = getFileUrls(getStopImages(stop));
+  const imageUrls = getFileUrls(getStopImages(stop), { mode:"full" });
 
   if(!imageUrls.length){
     return;
@@ -2451,7 +2469,7 @@ function setupStopImageClicks(stops){
       return;
     }
 
-    const imageUrls = getFileUrls(getStopImages(stop));
+    const imageUrls = getFileUrls(getStopImages(stop), { mode:"full" });
 
     if(!imageUrls.length){
       return;
