@@ -679,7 +679,7 @@ textarea{
 
   <div class="card" id="stopsCard" style="display:none;">
     <div class="small-help">
-      Bruk knappene under hvert stopp eller batch-knappene oppe til høyre. «Slett» deaktiverer stoppet, slik at det kan gjenopprettes i Baserow senere.
+      Bruk knappene under hvert stopp eller batch-knappene oppe til høyre. «Slett» arkiverer stoppet med OLD - foran navnet, slik at det kan gjenopprettes i Baserow senere.
     </div>
 
     <div id="stopList" class="stop-list" style="margin-top:14px;"></div>
@@ -2007,7 +2007,7 @@ async function deactivateOneStop(stopId){
 
 ${stopName}
 
-Stoppet slettes ikke permanent, men settes til Inactive.`)){
+Stoppet slettes ikke permanent, men arkiveres med OLD - foran navnet.`)){
     return;
   }
 
@@ -2022,7 +2022,7 @@ async function deactivateSelectedStops(){
     return;
   }
 
-  if(!confirm(`Deaktivere ${stopIds.length} stopp?\n\nStoppene slettes ikke permanent, men settes til Inactive.`)){
+  if(!confirm(`Deaktivere ${stopIds.length} stopp?\n\nStoppene slettes ikke permanent, men arkiveres med OLD - foran navnet.`)){
     return;
   }
 
@@ -2044,7 +2044,7 @@ async function deactivateSelectedStops(){
     selectionMode = false;
     hasUnsavedChanges = true;
     renderStops();
-    setStatus("Stoppene er deaktivert. Lagre stopprekkefølgen etterpå hvis du vil normalisere sorteringen.", "success");
+    setStatus("Stoppene er arkivert. Lagre stopprekkefølgen etterpå hvis du vil normalisere sorteringen.", "success");
   }catch(error){
     console.error(error);
     setStatus(`Kunne ikke deaktivere stopp.<br><br>${esc(error.message)}`, "error");
