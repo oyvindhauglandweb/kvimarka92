@@ -288,6 +288,23 @@
       color:#d7fbe8;
     }
 
+
+    .checkrow {
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.35;
+      margin:12px 0 4px;
+    }
+
+    .checkrow input {
+      width:auto;
+      min-height:auto;
+      margin-top:3px;
+    }
+
     .muted { color:var(--muted); }
   </style>
 </head>
@@ -296,7 +313,7 @@
     <div class="topbar">
       <div>
         <h1>OneDrive import admin</h1>
-        <div class="subtitle">Planlegg, importer, verifiser og reparer Route Cases / Stops fra OneDrive.</div>
+        <div class="subtitle">Planlegg, importer og verifiser Route Cases / Stops fra OneDrive. Repair er sikkerhetsnett, ikke normalflyt.</div>
       </div>
       <div class="toolbar">
         <button id="backBtn" title="Tilbake">←</button>
@@ -358,7 +375,12 @@
           <button id="resetBtn" class="danger">Reset jobb</button>
         </div>
 
-        <p class="muted">Full import gjør: plan → start → run-loop → verify → repair-loop → verify. Den stopper ikke som “ferdig” før verify viser 0 manglende stopp.</p>
+        <label class="checkrow">
+          <input id="autoRepairInput" type="checkbox">
+          <span>Auto-reparer mangler etter import. Av som standard: da stopper full import med varsel hvis verify finner mangler.</span>
+        </label>
+
+        <p class="muted">Full import gjør: plan → start → run-loop → verify. Repair kjøres bare automatisk hvis valget over er aktivert.</p>
       </section>
 
       <section class="card">
@@ -523,6 +545,11 @@ async function runStep(){
     stopTotal:data.stopTotal,
     createdCaseCount:data.createdCaseCount,
     createdStopCount:data.createdStopCount,
+    skippedStopCount:data.skippedStopCount,
+    updatedStopCount:data.updatedStopCount,
+    needsRepair:data.needsRepair,
+    error:data.error,
+    lastRun:data.lastRun,
     nextRunNeeded:data.nextRunNeeded
   });
 
@@ -610,6 +637,12 @@ async function autoRun(){
     while(autoRunning){
       data = await runStep();
 
+      if(data.needsRepair || data.status === "needs_repair"){
+        setStatus(data.error || "Importen stoppet: en case mangler stopp etter import.", "error");
+        log("IMPORT STOPPET FØR REPAIR", data);
+        return;
+      }
+
       if(data.status === "completed" || data.nextRunNeeded === false){
         break;
       }
@@ -625,11 +658,21 @@ async function autoRun(){
     const verifyData = await verify();
 
     if(Number(verifyData.missingStopTotal || 0) > 0){
-      await repairUntilComplete();
+      if(el("autoRepairInput").checked){
+        log(`Auto-repair aktivert: ${verifyData.missingStopTotal} manglende stopp repareres.`);
+        await repairUntilComplete();
+        setStatus("Full import ferdig, reparert og verifisert.", "ok");
+        log("FULL IMPORT FERDIG, REPARERT OG VERIFISERT");
+        return;
+      }
+
+      setStatus(`Import fullført, men verify fant ${verifyData.missingStopTotal} manglende stopp. Repair er ikke kjørt automatisk.`, "error");
+      log("IMPORT FULLFØRT MED MANGLER - REPAIR IKKE KJØRT", verifyData);
+      return;
     }
 
-    setStatus("Full import ferdig og verifisert.", "ok");
-    log("FULL IMPORT FERDIG OG VERIFISERT");
+    setStatus("Full import ferdig og verifisert uten repair.", "ok");
+    log("FULL IMPORT FERDIG OG VERIFISERT UTEN REPAIR");
   } catch(error) {
     console.error(error);
     log("FEIL", error.data || { message:error.message });
