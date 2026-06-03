@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: onedrive-route-sync-stop-admin-v4-2026-06-03 -->
+  <!-- version: onedrive-route-image-resolve-fallback-v6-2026-06-03 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1247,7 +1247,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: onedrive-route-sync-stop-admin-v4-2026-06-03");
+console.log("reiserute.html version: onedrive-route-image-resolve-fallback-v6-2026-06-03");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1365,9 +1365,30 @@ function getOneDriveImageProxyUrl(image, options){
 
   const mode = options?.mode === "full" ? "full" : "thumb";
   const size = ["small", "medium", "large"].includes(options?.size) ? options.size : "large";
-  const cacheKey = encodeURIComponent(String(image.lastModifiedDateTime || image.name || itemId));
+  const cacheKey = String(image.lastModifiedDateTime || image.name || itemId);
+  const params = new URLSearchParams();
 
-  return `${API_BASE}/onedrive/image?id=${encodeURIComponent(itemId)}&mode=${encodeURIComponent(mode)}&size=${encodeURIComponent(size)}&v=${cacheKey}`;
+  params.set("id", itemId);
+  params.set("mode", mode);
+  params.set("size", size);
+  params.set("v", `resolve-v2-${cacheKey}`);
+
+  // Some older cards can have stale OneDrive item ids after files/folders have
+  // been moved or re-synced. Send enough metadata for the Worker to recover by
+  // looking up the file again in the original parent folder.
+  if(image.name || image.fileName || image.title){
+    params.set("name", image.name || image.fileName || image.title);
+  }
+
+  if(image.parentId || image.parentReference?.id || image.folderId || image.oneDriveParentId){
+    params.set("parentId", image.parentId || image.parentReference?.id || image.folderId || image.oneDriveParentId);
+  }
+
+  if(image.parentPath || image.parentReference?.path){
+    params.set("parentPath", image.parentPath || image.parentReference?.path);
+  }
+
+  return `${API_BASE}/onedrive/image?${params.toString()}`;
 }
 
 function getImageFallbackUrls(image, options){
