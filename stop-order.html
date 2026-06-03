@@ -319,6 +319,11 @@ body{
   display:block;
 }
 
+.stop-thumb.stop-image-load-failed{
+  object-fit:contain;
+  opacity:.6;
+}
+
 .stop-thumb-placeholder{
   width:100%;
   aspect-ratio:4/3;
@@ -948,24 +953,89 @@ function parseImageMetadataValue(value){
   return [];
 }
 
-function getOneDriveImageProxyUrl(image, mode, size){
+function getOneDriveImageProxyUrl(image, options){
   if(!image || typeof image !== "object"){
     return "";
   }
 
-  const oneDriveItemId = image.oneDriveItemId || (image.source === "onedrive" || image.kind === "onedrive" ? image.id : "");
+  const itemId = String(image.oneDriveItemId || image.id || "").trim();
 
-  if(!oneDriveItemId){
+  if(!itemId){
     return "";
   }
 
-  let url = `${API_BASE}/onedrive/image?id=${encodeURIComponent(oneDriveItemId)}&mode=${encodeURIComponent(mode || "thumb")}`;
+  const mode = options?.mode === "full" ? "full" : "thumb";
+  const size = ["small", "medium", "large"].includes(options?.size) ? options.size : "medium";
+  const cacheKey = String(image.lastModifiedDateTime || image.name || itemId);
+  const params = new URLSearchParams();
 
-  if(size){
-    url += `&size=${encodeURIComponent(size)}`;
+  params.set("id", itemId);
+  params.set("mode", mode);
+  params.set("size", size);
+  params.set("v", `stop-order-resolve-v1-${cacheKey}`);
+
+  // Helps the Worker recover if OneDrive has changed an item id after files
+  // were moved or re-synced.
+  if(image.name || image.fileName || image.title){
+    params.set("name", image.name || image.fileName || image.title);
   }
 
-  return url;
+  if(image.parentId || image.parentReference?.id || image.folderId || image.oneDriveParentId){
+    params.set("parentId", image.parentId || image.parentReference?.id || image.folderId || image.oneDriveParentId);
+  }
+
+  if(image.parentPath || image.parentReference?.path){
+    params.set("parentPath", image.parentPath || image.parentReference?.path);
+  }
+
+  return `${API_BASE}/onedrive/image?${params.toString()}`;
+}
+
+function getImageFallbackUrls(image, options){
+  const urls = [];
+
+  function add(url){
+    const text = String(url || "").trim();
+
+    if(text && !urls.includes(text)){
+      urls.push(text);
+    }
+  }
+
+  if(!image){
+    return urls;
+  }
+
+  if(typeof image === "string"){
+    add(image);
+    return urls;
+  }
+
+  add(getOneDriveImageProxyUrl(image, {
+    mode:"thumb",
+    size:options?.size || "medium"
+  }));
+
+  add(getOneDriveImageProxyUrl(image, {
+    mode:"full",
+    size:options?.size || "large"
+  }));
+
+  add(image.downloadUrl);
+  add(image["@microsoft.graph.downloadUrl"]);
+  add(image.download_url);
+  add(image.mediumUrl);
+  add(image.largeUrl);
+  add(image.url);
+  add(image.thumbnails?.large?.url);
+  add(image.thumbnails?.large);
+  add(image.thumbnails?.small?.url);
+  add(image.thumbnails?.small);
+  add(image.thumbUrl);
+  add(image.thumbnailUrl);
+  add(image.webUrl);
+
+  return urls;
 }
 
 function getImageUrl(imageField){
@@ -973,38 +1043,66 @@ function getImageUrl(imageField){
     return "";
   }
 
-  const image = imageField[0];
+  return getImageFallbackUrls(imageField[0], {
+    size:"medium"
+  })[0] || "";
+}
 
-  if(!image){
-    return "";
+function renderStopThumbnailImage(image, altText){
+  const urls = getImageFallbackUrls(image, {
+    size:"medium"
+  });
+
+  if(!urls.length){
+    return `<div class="stop-thumb-placeholder">Ingen bilde</div>`;
   }
 
-  if(typeof image === "string"){
-    return image;
+  return `<img class="stop-thumb" src="${esc(urls[0])}" data-fallback-srcs="${esc(urls.slice(1).join("\n"))}" data-stop-image-retries="0" loading="lazy" decoding="async" onerror="handleStopImageError(this)" alt="${esc(altText || "")}">`;
+}
+
+function appendStopImageRetryParam(url, retryNumber){
+  const separator = String(url || "").includes("?") ? "&" : "?";
+  return `${url}${separator}imgRetry=${Date.now()}-${retryNumber}`;
+}
+
+function handleStopImageError(imageElement){
+  if(!imageElement){
+    return;
   }
 
-  const oneDriveProxyUrl = getOneDriveImageProxyUrl(image, "thumb", "medium");
+  const currentRetryCount = Number(imageElement.dataset.stopImageRetries || 0);
 
-  if(oneDriveProxyUrl){
-    return oneDriveProxyUrl;
+  // OneDrive/Graph can occasionally fail while many thumbnails are loading.
+  // Retry the same source before moving to the next fallback.
+  if(currentRetryCount < 2){
+    const retryUrl = imageElement.currentSrc || imageElement.src || "";
+
+    if(retryUrl){
+      imageElement.dataset.stopImageRetries = String(currentRetryCount + 1);
+      setTimeout(function(){
+        imageElement.src = appendStopImageRetryParam(retryUrl, currentRetryCount + 1);
+      }, currentRetryCount === 0 ? 700 : 1700);
+      return;
+    }
   }
 
-  return (
-    image.downloadUrl ||
-    image["@microsoft.graph.downloadUrl"] ||
-    image.download_url ||
-    image.mediumUrl ||
-    image.largeUrl ||
-    image.url ||
-    image.thumbnails?.large?.url ||
-    image.thumbnails?.large ||
-    image.thumbnails?.small?.url ||
-    image.thumbnails?.small ||
-    image.thumbUrl ||
-    image.thumbnailUrl ||
-    image.webUrl ||
-    ""
-  );
+  const fallbackText = imageElement.dataset.fallbackSrcs || "";
+  const fallbacks = fallbackText
+    .split("\n")
+    .map(value => value.trim())
+    .filter(Boolean);
+
+  if(fallbacks.length){
+    const nextUrl = fallbacks.shift();
+    imageElement.dataset.fallbackSrcs = fallbacks.join("\n");
+    imageElement.dataset.stopImageRetries = "0";
+    imageElement.src = nextUrl;
+    return;
+  }
+
+  imageElement.onerror = null;
+  imageElement.classList.add("stop-image-load-failed");
+  imageElement.title = "Kunne ikke laste bildet. Prøv å synkronisere OneDrive-bilder på nytt.";
 }
 
 function getStopImages(stop){
@@ -1223,7 +1321,8 @@ function renderStops(){
 
   list.innerHTML = currentStops.map((stop, index) => {
     const selected = selectedStopIds.has(String(stop.id));
-    const imageUrl = getImageUrl(getStopImages(stop));
+    const stopImages = getStopImages(stop);
+    const firstImage = stopImages[0] || null;
     const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
     const metaParts = [
       dateText,
@@ -1241,7 +1340,7 @@ function renderStops(){
           onclick="openImageOrderForStop('${esc(stop.id)}')"
           title="Rediger bilder for dette stoppet"
         >
-          ${imageUrl ? `<img class="stop-thumb" src="${esc(imageUrl)}" alt="">` : `<div class="stop-thumb-placeholder">Ingen bilde</div>`}
+          ${renderStopThumbnailImage(firstImage, stop.stopName || stop.title || `Stopp ${index + 1}`)}
         </button>
         <div class="stop-info">
           <div class="stop-title">${esc(stop.stopName || stop.title || `Stopp ${index + 1}`)}</div>
