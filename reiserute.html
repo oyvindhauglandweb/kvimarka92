@@ -762,6 +762,11 @@ body.dark-mode .view-button:hover{
   font-weight:bold;
 }
 
+.route-image-load-failed{
+  opacity:.45;
+  filter:grayscale(1);
+}
+
 .route-stop-card-body{
   padding:10px;
 }
@@ -1365,38 +1370,93 @@ function getOneDriveImageProxyUrl(image, options){
   return `${API_BASE}/onedrive/image?id=${encodeURIComponent(itemId)}&mode=${encodeURIComponent(mode)}&size=${encodeURIComponent(size)}&v=${cacheKey}`;
 }
 
-function getImageDisplayUrl(image, options){
+function getImageFallbackUrls(image, options){
+  const urls = [];
+
+  function add(url){
+    const text = String(url || "").trim();
+
+    if(text && !urls.includes(text)){
+      urls.push(text);
+    }
+  }
+
   if(!image){
-    return "";
+    return urls;
   }
 
   if(typeof image === "string"){
-    return image;
+    add(image);
+    return urls;
   }
 
-  // OneDrive downloadUrl is temporary and may expire. Use the Worker image proxy
-  // when a OneDrive item id is available, then fall back to stored direct URLs.
-  const oneDriveProxyUrl = getOneDriveImageProxyUrl(image, options);
+  // OneDrive downloadUrl is temporary and may expire. Try the Worker proxy first,
+  // then try full-size proxy, and only then fall back to stored direct URLs.
+  const oneDriveThumbUrl = getOneDriveImageProxyUrl(image, {
+    mode:"thumb",
+    size:options?.size || "large"
+  });
+  const oneDriveFullUrl = getOneDriveImageProxyUrl(image, {
+    mode:"full",
+    size:options?.size || "large"
+  });
 
-  if(oneDriveProxyUrl){
-    return oneDriveProxyUrl;
+  add(oneDriveThumbUrl);
+  add(oneDriveFullUrl);
+  add(image.downloadUrl);
+  add(image["@microsoft.graph.downloadUrl"]);
+  add(image.download_url);
+  add(image.mediumUrl);
+  add(image.largeUrl);
+  add(image.url);
+  add(image.thumbnails?.large?.url);
+  add(image.thumbnails?.large);
+  add(image.thumbnails?.small?.url);
+  add(image.thumbnails?.small);
+  add(image.thumbUrl);
+  add(image.thumbnailUrl);
+
+  return urls;
+}
+
+function getImageDisplayUrl(image, options){
+  return getImageFallbackUrls(image, options)[0] || "";
+}
+
+function renderManagedImage(image, className, options, altText){
+  const urls = getImageFallbackUrls(image, options || {});
+
+  if(!urls.length){
+    return "";
   }
 
-  return (
-    image.downloadUrl ||
-    image["@microsoft.graph.downloadUrl"] ||
-    image.download_url ||
-    image.mediumUrl ||
-    image.largeUrl ||
-    image.url ||
-    image.thumbnails?.large?.url ||
-    image.thumbnails?.large ||
-    image.thumbnails?.small?.url ||
-    image.thumbnails?.small ||
-    image.thumbUrl ||
-    image.thumbnailUrl ||
-    ""
-  );
+  const primaryUrl = urls[0];
+  const fallbackUrls = urls.slice(1).join("\n");
+
+  return `<img class="${esc(className)}" src="${esc(primaryUrl)}" data-fallback-srcs="${esc(fallbackUrls)}" onerror="handleRouteImageError(this)" alt="${esc(altText || "")}">`;
+}
+
+function handleRouteImageError(imageElement){
+  if(!imageElement){
+    return;
+  }
+
+  const fallbackText = imageElement.dataset.fallbackSrcs || "";
+  const fallbacks = fallbackText
+    .split("\n")
+    .map(value => value.trim())
+    .filter(Boolean);
+
+  if(fallbacks.length){
+    const nextUrl = fallbacks.shift();
+    imageElement.dataset.fallbackSrcs = fallbacks.join("\n");
+    imageElement.src = nextUrl;
+    return;
+  }
+
+  imageElement.onerror = null;
+  imageElement.classList.add("route-image-load-failed");
+  imageElement.title = "Kunne ikke laste bildet. Prøv å synkronisere OneDrive-bilder på nytt.";
 }
 
 function getImageName(image){
@@ -1791,7 +1851,9 @@ function renderStopList(stops){
       <h2>Stoppesteder</h2>
       <div class="stop-list">
         ${stops.map((stop, index) => {
-          const imageUrl = getFileUrl(getStopImages(stop));
+          const stopImages = getStopImages(stop);
+          const firstImage = stopImages[0] || null;
+          const imageUrl = getImageDisplayUrl(firstImage);
           const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
           const webLink = String(stop.webLink || "").trim();
           const isAdmin = currentUser?.role === "Administrator";
@@ -1840,7 +1902,7 @@ function renderStopList(stops){
                 <div class="stop-meta">${esc(metaParts.join(" • "))}</div>
 
                 ${stop.description ? `<div class="stop-description">${esc(stop.description)}</div>` : ""}
-                ${imageUrl ? `<img class="stop-image" src="${esc(imageUrl)}" alt="">` : `<div class="stop-image-placeholder${getMissingImageClass()}">${esc(getMissingImageText())}</div>`}
+                ${imageUrl ? renderManagedImage(firstImage, "stop-image", { size:"large" }, stop.stopName || stop.title || "") : `<div class="stop-image-placeholder${getMissingImageClass()}">${esc(getMissingImageText())}</div>`}
               </div>
             </div>
           `;
@@ -1938,7 +2000,9 @@ function renderStopCards(stops){
       <h2>Stoppesteder</h2>
       <div class="stop-card-grid">
         ${stops.map((stop, index) => {
-          const imageUrl = getFileUrl(getStopImages(stop));
+          const stopImages = getStopImages(stop);
+          const firstImage = stopImages[0] || null;
+          const imageUrl = getImageDisplayUrl(firstImage);
           const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
           const metaParts = [
             dateText,
@@ -1958,7 +2022,7 @@ function renderStopCards(stops){
                 data-stop-index="${index}"
                 title="${imageUrl ? "Vis bilder" : "Ingen bilder"}"
               >
-                ${imageUrl ? `<img class="route-stop-card-image" src="${esc(imageUrl)}" alt="">` : `<div class="route-stop-card-placeholder${getMissingImageClass()}">${esc(getMissingImageText())}</div>`}
+                ${imageUrl ? renderManagedImage(firstImage, "route-stop-card-image", { size:"large" }, stop.stopName || stop.title || "") : `<div class="route-stop-card-placeholder${getMissingImageClass()}">${esc(getMissingImageText())}</div>`}
               </button>
 
               <div class="route-stop-card-body">
@@ -2024,6 +2088,7 @@ function renderPhotoGallery(stops){
         stopIndex,
         imageIndex,
         url,
+        image,
         name:getImageName(image)
       });
     });
@@ -2043,7 +2108,7 @@ function renderPhotoGallery(stops){
                 data-image-index="${photo.imageIndex}"
                 title="Vis bilde"
               >
-                <img class="photo-image" src="${esc(photo.url)}" alt="">
+                ${renderManagedImage(photo.image, "photo-image", { size:"large" }, photo.name || "")}
               </button>
               <div class="photo-caption">
                 <strong>${photo.stopIndex + 1}. ${esc(photo.stop.stopName || photo.stop.title || "Stopp")}</strong>
@@ -2565,7 +2630,7 @@ function openStopImageGallery(stop, stopIndex){
       data-image-index="${item.imageIndex}"
       title="Vis bilde"
     >
-      <img src="${esc(item.url)}" alt="">
+      ${renderManagedImage(item.image, "", { size:"large" }, item.name || "")}
       <div class="stop-gallery-caption">
         <strong>${stopIndex + 1}. ${esc(title)}</strong>
         <span>${item.name ? esc(item.name) : `Bilde ${item.imageIndex + 1}`}</span>
