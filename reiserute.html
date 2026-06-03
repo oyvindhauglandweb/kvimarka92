@@ -1454,12 +1454,33 @@ function renderManagedImage(image, className, options, altText){
   const primaryUrl = urls[0];
   const fallbackUrls = urls.slice(1).join("\n");
 
-  return `<img class="${esc(className)}" src="${esc(primaryUrl)}" data-fallback-srcs="${esc(fallbackUrls)}" onerror="handleRouteImageError(this)" alt="${esc(altText || "")}">`;
+  return `<img class="${esc(className)}" src="${esc(primaryUrl)}" data-fallback-srcs="${esc(fallbackUrls)}" data-route-image-retries="0" loading="lazy" decoding="async" onerror="handleRouteImageError(this)" alt="${esc(altText || "")}">`;
+}
+
+function appendRouteImageRetryParam(url, retryNumber){
+  const separator = String(url || "").includes("?") ? "&" : "?";
+  return `${url}${separator}imgRetry=${Date.now()}-${retryNumber}`;
 }
 
 function handleRouteImageError(imageElement){
   if(!imageElement){
     return;
+  }
+
+  const currentRetryCount = Number(imageElement.dataset.routeImageRetries || 0);
+
+  // Loading many OneDrive images at once can occasionally produce transient
+  // Graph/Worker errors. Retry the same URL briefly before moving to fallbacks.
+  if(currentRetryCount < 2){
+    const retryUrl = imageElement.currentSrc || imageElement.src || "";
+
+    if(retryUrl){
+      imageElement.dataset.routeImageRetries = String(currentRetryCount + 1);
+      setTimeout(function(){
+        imageElement.src = appendRouteImageRetryParam(retryUrl, currentRetryCount + 1);
+      }, currentRetryCount === 0 ? 700 : 1700);
+      return;
+    }
   }
 
   const fallbackText = imageElement.dataset.fallbackSrcs || "";
@@ -1471,6 +1492,7 @@ function handleRouteImageError(imageElement){
   if(fallbacks.length){
     const nextUrl = fallbacks.shift();
     imageElement.dataset.fallbackSrcs = fallbacks.join("\n");
+    imageElement.dataset.routeImageRetries = "0";
     imageElement.src = nextUrl;
     return;
   }
