@@ -1730,9 +1730,13 @@ async function refreshRouteImageMetadata(event){
   }
 
   const existingStopCount = Math.max(1, Number(currentRouteData?.stops?.length || 0));
-  const maxRounds = Math.min(Math.max(existingStopCount + 3, 6), 14);
+  const maxRounds = Math.min(Math.max(existingStopCount + 12, 12), 140);
   const total = {
     createdStopCount:0,
+    imageUpdatedStopCount:0,
+    imageTotal:0
+  };
+  const lastCumulative = {
     imageUpdatedStopCount:0,
     imageTotal:0
   };
@@ -1746,7 +1750,7 @@ async function refreshRouteImageMetadata(event){
 
   try{
     for(let round = 1; round <= maxRounds; round += 1){
-      const progressText = `Runde ${round}/${maxRounds}. Behandler maks 1 stoppested per kall.`;
+      const progressText = `Runde ${round}/${maxRounds}. Behandler neste OneDrive-batch.`;
       setRouteSyncState("running", "Oppdaterer OneDrive…", progressText);
       setImageRefreshStatus(`Oppdaterer OneDrive… ${progressText}`, "running");
 
@@ -1756,20 +1760,40 @@ async function refreshRouteImageMetadata(event){
         throw new Error(data.error || data.detail || "Oppdatering feilet.");
       }
 
-      addSyncCounts(total, data);
+      total.createdStopCount += Number(data.createdStopCount || 0);
+
+      const cumulativeUpdatedStops = Number(data.imageUpdatedStopCount || 0);
+      const cumulativeImageTotal = Number(data.imageTotal || 0);
+      const updatedStopDelta = Math.max(0, cumulativeUpdatedStops - lastCumulative.imageUpdatedStopCount);
+      const imageTotalDelta = Math.max(0, cumulativeImageTotal - lastCumulative.imageTotal);
+
+      lastCumulative.imageUpdatedStopCount = Math.max(lastCumulative.imageUpdatedStopCount, cumulativeUpdatedStops);
+      lastCumulative.imageTotal = Math.max(lastCumulative.imageTotal, cumulativeImageTotal);
+
+      total.imageUpdatedStopCount += updatedStopDelta;
+      total.imageTotal += imageTotalDelta;
+
+      const imageRefresh = data.imageRefresh || {};
+      const nextRunNeeded = imageRefresh.nextRunNeeded !== false && imageRefresh.status !== "completed";
+      const stopIndex = Number(imageRefresh.stopIndex || 0);
+      const stopTotal = Number(imageRefresh.stopTotal || 0);
 
       const changedThisRound =
         Number(data.createdStopCount || 0) +
-        Number(data.imageUpdatedStopCount || 0) +
-        Number(data.imageTotal || 0);
+        updatedStopDelta +
+        imageTotalDelta;
 
       setRouteSyncState(
         "running",
         "Oppdaterer OneDrive…",
-        `Runde ${round}/${maxRounds} ferdig. ${total.createdStopCount} nye stopp, ${total.imageUpdatedStopCount} stopp oppdatert, ${total.imageTotal} bilder funnet.`
+        `Runde ${round}/${maxRounds} ferdig. ${total.createdStopCount} nye stopp, ${total.imageUpdatedStopCount} stopp oppdatert, ${total.imageTotal} bilder funnet${stopTotal ? ` (${Math.min(stopIndex, stopTotal)}/${stopTotal} stopp sjekket)` : ""}.`
       );
 
-      if(changedThisRound === 0 && round >= existingStopCount){
+      if(!nextRunNeeded){
+        break;
+      }
+
+      if(changedThisRound === 0 && round > existingStopCount + 5){
         break;
       }
 
