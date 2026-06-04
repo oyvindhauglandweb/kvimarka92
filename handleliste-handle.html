@@ -27,7 +27,7 @@
   #shoppingList .item-name{font-size:12.5px !important;}
 }
 
-</style></head><body class="dark-mode"><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-bestille.html">Bestille</a><a class="action-button" href="handleliste-rediger.html">✎ Rediger</a><a class="action-button" href="handleliste-varetyper.html">↕ Varetyper</a><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">⌖ E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div><script>
+</style></head><body class="dark-mode"><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-bestille.html">Bestille</a><a class="action-button" href="handleliste-rediger.html">✎ Rediger</a><a class="action-button" href="handleliste-varetyper.html">↕ Varetyper</a><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">⌖ E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><button class="action-button" type="button" onclick="testGpsLocation()" title="Test GPS før avslutning">GPS test</button></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 let SHOPPING_OWNERS=["Felles"];
 let ownerContacts=[];
@@ -82,7 +82,7 @@ function sendShoppingListEmail(){const ordered=getOrderedItems();if(!ordered.len
 function getShoppingLocation(){
   return new Promise(resolve=>{
     if(!navigator.geolocation){
-      resolve({status:"error"});
+      resolve({status:"error", message:"Nettleseren støtter ikke GPS/geolocation."});
       return;
     }
 
@@ -96,17 +96,48 @@ function getShoppingLocation(){
         });
       },
       error=>{
+        const code=error && error.code;
+        const message=error && error.message ? error.message : "Ukjent GPS-feil";
         resolve({
-          status:error && error.code === 1 ? "denied" : "error"
+          status:code === 1 ? "denied" : "error",
+          code,
+          message
         });
       },
       {
         enableHighAccuracy:true,
-        timeout:10000,
-        maximumAge:60000
+        timeout:15000,
+        maximumAge:0
       }
     );
   });
+}
+
+function formatGpsLocation(location){
+  if(!location){
+    return "Ingen GPS-respons.";
+  }
+
+  if(location.status === "ok"){
+    const lat=Number(location.latitude).toFixed(6);
+    const lon=Number(location.longitude).toFixed(6);
+    const acc=location.accuracy !== null && location.accuracy !== undefined
+      ? `${Math.round(Number(location.accuracy))} m`
+      : "ukjent";
+    return `GPS OK: ${lat}, ${lon}. Nøyaktighet: ${acc}.`;
+  }
+
+  if(location.status === "denied"){
+    return `GPS avslått av bruker/nettleser${location.message ? `: ${esc(location.message)}` : "."}`;
+  }
+
+  return `GPS-feil${location.message ? `: ${esc(location.message)}` : "."}`;
+}
+
+async function testGpsLocation(){
+  setStatus("Tester GPS-posisjon...");
+  const location=await getShoppingLocation();
+  setStatus(formatGpsLocation(location), location.status === "ok" ? "success" : "error");
 }
 
 function shoppingSessionStatusText(session){
@@ -146,6 +177,7 @@ async function finishShopping(){
   if(confirm("Vil du registrere hvilken butikk du handlet i? Posisjonen hentes én gang nå.")){
     setStatus("Henter GPS-posisjon...");
     location=await getShoppingLocation();
+    setStatus(formatGpsLocation(location), location.status === "ok" ? "success" : "error");
   }
 
   const button=document.getElementById("finishButton");
