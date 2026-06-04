@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hjelp - Kvimarka 92</title>
-<!-- version: kvimarka-help-v1-2026-06-04 -->
+<!-- version: kvimarka-help-v2-toc-2026-06-04 -->
 
 <style>
 :root{
@@ -110,6 +110,52 @@ body{
   line-height:1.5;
 }
 
+
+.toc-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:18px;
+}
+
+.toc-title{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.toc-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:8px;
+}
+
+.toc-link{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:36px;
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:rgba(127,127,127,.04);
+  color:var(--text);
+  text-decoration:none;
+  font-weight:bold;
+  line-height:1.25;
+}
+
+.toc-link:hover{
+  background:var(--button-hover);
+}
+
+.toc-number{
+  flex:0 0 auto;
+  color:var(--link);
+  font-size:13px;
+}
+
 .help-list{
   display:flex;
   flex-direction:column;
@@ -198,6 +244,14 @@ a{
   .paragraph-text{
     font-size:15px;
   }
+
+  .toc-card{
+    padding:14px;
+  }
+
+  .toc-list{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
@@ -216,6 +270,11 @@ a{
 
   <div class="info-card" id="caseInfo">Laster hjelpeside...</div>
 
+  <div class="toc-card" id="tocCard" style="display:none;">
+    <div class="toc-title">Innhold</div>
+    <div class="toc-list" id="tocList"></div>
+  </div>
+
   <div class="help-list" id="helpList">
     <div class="loading">Laster hjelpeinnhold...</div>
   </div>
@@ -223,7 +282,7 @@ a{
 
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("help.html version: kvimarka-help-v1-2026-06-04");
+console.log("help.html version: kvimarka-help-v2-toc-2026-06-04");
 
 function esc(value){
   return String(value ?? "")
@@ -291,10 +350,17 @@ async function fetchJson(url, options){
   return data;
 }
 
+
+function makeHelpAnchor(index){
+  return `hjelp-${index + 1}`;
+}
+
 function renderHelp(data, caseName){
   const pageTitle = document.getElementById("pageTitle");
   const pageSubtitle = document.getElementById("pageSubtitle");
   const caseInfo = document.getElementById("caseInfo");
+  const tocCard = document.getElementById("tocCard");
+  const tocList = document.getElementById("tocList");
   const helpList = document.getElementById("helpList");
 
   const helpCase = data.case || {};
@@ -310,8 +376,27 @@ function renderHelp(data, caseName){
     : "Ingen aktive hjelpeavsnitt er lagt inn ennå.";
 
   if(!paragraphs.length){
+    if(tocCard){
+      tocCard.style.display = "none";
+    }
+
     helpList.innerHTML = `<div class="loading">Ingen aktive hjelpeavsnitt funnet.</div>`;
     return;
+  }
+
+  if(tocCard && tocList){
+    tocCard.style.display = "block";
+    tocList.innerHTML = paragraphs.map((item, index) => {
+      const number = Number(item.sortOrder || 0) || index + 1;
+      const titleText = item.title || item.heading || `Punkt ${index + 1}`;
+
+      return `
+        <a class="toc-link" href="#${makeHelpAnchor(index)}">
+          <span class="toc-number">${esc(number)}</span>
+          <span>${esc(titleText)}</span>
+        </a>
+      `;
+    }).join("");
   }
 
   helpList.innerHTML = paragraphs.map((item, index) => {
@@ -323,7 +408,7 @@ function renderHelp(data, caseName){
       : "";
 
     return `
-      <article class="help-card">
+      <article class="help-card" id="${makeHelpAnchor(index)}">
         <div class="paragraph-number">${esc(number)}</div>
         <div class="paragraph-title">${esc(titleText)}</div>
         ${headingText ? `<div class="paragraph-heading">${esc(headingText)}</div>` : ""}
@@ -338,6 +423,11 @@ async function loadHelp(){
   const caseName = getHelpCaseFromUrl();
   const helpList = document.getElementById("helpList");
   const caseInfo = document.getElementById("caseInfo");
+  const tocCard = document.getElementById("tocCard");
+
+  if(tocCard){
+    tocCard.style.display = "none";
+  }
 
   caseInfo.textContent = `Laster ${caseName}...`;
   helpList.innerHTML = `<div class="loading">Laster hjelpeinnhold...</div>`;
