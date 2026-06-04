@@ -174,11 +174,11 @@ async function finishShopping(){
 
   let location={status:"none"};
 
-  if(confirm("Vil du registrere hvilken butikk du handlet i? Posisjonen hentes én gang nå.")){
-    setStatus("Henter GPS-posisjon...");
-    location=await getShoppingLocation();
-    setStatus(formatGpsLocation(location), location.status === "ok" ? "success" : "error");
-  }
+  // Hent GPS automatisk ved avslutning. Feil/avslag stopper ikke handelen,
+  // men resultatet sendes alltid til Worker slik at Shopping sessions kan logge status.
+  setStatus("Henter GPS-posisjon før handelen avsluttes...");
+  location=await getShoppingLocation();
+  setStatus(formatGpsLocation(location), location.status === "ok" ? "success" : "error");
 
   const button=document.getElementById("finishButton");
   button.disabled=true;
