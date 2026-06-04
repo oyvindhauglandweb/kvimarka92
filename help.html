@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Hjelp - Kvimarka 92</title>
+<!-- version: kvimarka-help-v1-2026-06-04 -->
 
 <style>
 :root{
@@ -13,7 +13,11 @@
   --text:#333333;
   --muted:#667;
   --border:#cccccc;
+  --soft:#eaeaea;
   --link:#1f789d;
+  --button:#ffffff;
+  --button-hover:#e9eef2;
+  --success:#72c184;
 }
 
 body.dark-mode{
@@ -22,7 +26,14 @@ body.dark-mode{
   --text:#eeeeee;
   --muted:#bbbbbb;
   --border:#555555;
+  --soft:#333333;
   --link:#7cc7e8;
+  --button:#242424;
+  --button-hover:#3a3a3a;
+}
+
+*{
+  box-sizing:border-box;
 }
 
 body{
@@ -34,18 +45,19 @@ body{
 }
 
 .container{
-  max-width:900px;
+  max-width:1000px;
   margin:auto;
 }
 
 .header{
   text-align:center;
-  margin-bottom:34px;
+  margin-bottom:24px;
 }
 
 .site-title{
   margin:0;
   font-size:30px;
+  font-weight:bold;
 }
 
 .subtitle{
@@ -57,84 +69,108 @@ body{
 .top-buttons{
   display:flex;
   justify-content:center;
+  align-items:center;
   gap:10px;
-  margin:18px 0 0;
+  margin:14px 0 0;
 }
 
 .top-button{
-  display:flex;
+  display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-width:46px;
-  height:42px;
-  padding:0 14px;
-  background:var(--card);
+  width:44px;
+  height:44px;
+  padding:0;
+  background:var(--button);
   border:1px solid var(--border);
   border-radius:8px;
   color:var(--text);
   text-decoration:none;
-  font-size:18px;
+  font-size:24px;
   font-weight:bold;
-  box-sizing:border-box;
+  line-height:1;
+  cursor:pointer;
 }
 
 .top-button:hover{
-  background:#e9eef2;
+  background:var(--button-hover);
 }
 
-body.dark-mode .top-button:hover{
-  background:#3a3a3a;
-}
-
-.card{
+.help-card,
+.info-card{
   background:var(--card);
   border:1px solid var(--border);
   border-radius:12px;
-  padding:22px;
+  padding:18px;
   margin-bottom:18px;
 }
 
-h1{
-  margin:0 0 8px;
-  font-size:28px;
+.info-card{
+  color:var(--muted);
+  line-height:1.5;
 }
 
-h2{
-  margin:0 0 12px;
-  font-size:22px;
+.help-list{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
-p{
-  line-height:1.55;
-  margin:0 0 12px;
+.help-card{
+  margin-bottom:0;
 }
 
-.help-body{
+.paragraph-number{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:6px;
+}
+
+.paragraph-title{
+  font-size:23px;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+.paragraph-heading{
+  color:var(--muted);
+  font-size:15px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.paragraph-text{
+  font-size:16px;
+  line-height:1.45;
   white-space:pre-wrap;
-  line-height:1.55;
 }
 
-.help-image{
+.paragraph-image{
   display:block;
   max-width:100%;
-  height:auto;
-  margin-top:14px;
-  border-radius:10px;
+  max-height:560px;
+  object-fit:contain;
+  margin:18px auto 0;
+  background:var(--soft);
   border:1px solid var(--border);
+  border-radius:10px;
 }
 
 .loading{
-  color:var(--muted);
   text-align:center;
+  color:var(--muted);
+  font-size:17px;
   padding:24px;
 }
 
 .error-box{
-  border:1px solid #b54;
-  border-radius:8px;
-  padding:14px;
-  background:rgba(180,80,80,.12);
-  color:var(--text);
+  border:1px solid #b85c5c;
+  color:#ff8a8a;
+  background:rgba(198,40,40,.14);
+  border-radius:12px;
+  padding:16px;
+  line-height:1.5;
 }
 
 a{
@@ -143,42 +179,51 @@ a{
 
 @media(max-width:800px){
   body{
-    padding:14px;
+    padding:12px;
   }
 
   .site-title{
     font-size:26px;
   }
 
-  .card{
-    padding:18px;
+  .help-card,
+  .info-card{
+    padding:14px;
+  }
+
+  .paragraph-title{
+    font-size:20px;
+  }
+
+  .paragraph-text{
+    font-size:15px;
   }
 }
 </style>
 </head>
 
 <body class="dark-mode">
-
 <div class="container">
-
   <div class="header">
     <h1 class="site-title" id="pageTitle">Hjelp</h1>
     <div class="subtitle" id="pageSubtitle">Kvimarka 92</div>
 
     <div class="top-buttons">
-      <a class="top-button" href="javascript:history.back()" title="Tilbake">←</a>
+      <a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a>
       <a class="top-button" href="index.html" title="Hovedside">⌂</a>
     </div>
   </div>
 
-  <div id="content">
-    <div class="loading">Laster innhold...</div>
-  </div>
+  <div class="info-card" id="caseInfo">Laster hjelpeside...</div>
 
+  <div class="help-list" id="helpList">
+    <div class="loading">Laster hjelpeinnhold...</div>
+  </div>
 </div>
 
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+console.log("help.html version: kvimarka-help-v1-2026-06-04");
 
 function esc(value){
   return String(value ?? "")
@@ -189,104 +234,133 @@ function esc(value){
     .replaceAll("'", "&#039;");
 }
 
-function getFileUrl(fileField){
-  if(!Array.isArray(fileField) || !fileField.length){
+function getHelpCaseFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("case") || "Brukermanual";
+}
+
+function getFileUrl(value){
+  if(!value){
     return "";
   }
 
-  const firstFile = fileField[0];
-
-  return firstFile?.url ||
-         firstFile?.visible_name ||
-         "";
-}
-
-async function fetchJson(url){
-  const res = await fetch(url);
-
-  if(!res.ok){
-    const text = await res.text();
-    throw new Error(text || "Request failed");
+  if(typeof value === "string"){
+    return value;
   }
 
-  return await res.json();
+  if(Array.isArray(value)){
+    const first = value[0];
+    return getFileUrl(first);
+  }
+
+  if(typeof value === "object"){
+    return (
+      value.url ||
+      value.downloadUrl ||
+      value.download_url ||
+      value.thumbnails?.large?.url ||
+      value.thumbnails?.card_cover?.url ||
+      value.thumbnails?.small?.url ||
+      value.thumbnails?.tiny?.url ||
+      ""
+    );
+  }
+
+  return "";
 }
 
-function getCaseFromUrl(){
-  const params = new URLSearchParams(window.location.search);
-  return params.get("case") || "";
+async function fetchJson(url, options){
+  const res = await fetch(url, {
+    credentials:"include",
+    ...(options || {})
+  });
+
+  const text = await res.text();
+  let data = null;
+
+  try{
+    data = text ? JSON.parse(text) : null;
+  }catch(error){
+    data = null;
+  }
+
+  if(!res.ok){
+    throw new Error(data?.error || text || `HTTP ${res.status}`);
+  }
+
+  return data;
 }
 
-function renderHelp(data){
-  const content = document.getElementById("content");
+function renderHelp(data, caseName){
   const pageTitle = document.getElementById("pageTitle");
   const pageSubtitle = document.getElementById("pageSubtitle");
+  const caseInfo = document.getElementById("caseInfo");
+  const helpList = document.getElementById("helpList");
 
-  const caseName = data?.case?.name || "Hjelp";
-  const paragraphs = data?.paragraphs || [];
+  const helpCase = data.case || {};
+  const paragraphs = Array.isArray(data.paragraphs) ? data.paragraphs : [];
+  const title = helpCase.name || caseName || "Hjelp";
 
-  document.title = caseName + " - Kvimarka 92";
-  pageTitle.textContent = caseName;
-  pageSubtitle.textContent = "Kvimarka 92";
+  document.title = `${title} - Hjelp`;
+  pageTitle.textContent = title;
+  pageSubtitle.textContent = "Hjelp";
+
+  caseInfo.innerHTML = paragraphs.length
+    ? `Hjelpesiden inneholder <strong>${esc(paragraphs.length)}</strong> avsnitt.`
+    : "Ingen aktive hjelpeavsnitt er lagt inn ennå.";
 
   if(!paragraphs.length){
-    content.innerHTML =
-      `<div class="card">Det finnes ikke aktivt innhold for denne siden.</div>`;
+    helpList.innerHTML = `<div class="loading">Ingen aktive hjelpeavsnitt funnet.</div>`;
     return;
   }
 
-  content.innerHTML = "";
+  helpList.innerHTML = paragraphs.map((item, index) => {
+    const imageUrl = getFileUrl(item.image);
+    const number = Number(item.sortOrder || 0) || index + 1;
+    const titleText = item.title || item.heading || `Punkt ${index + 1}`;
+    const headingText = item.title && item.heading && item.heading !== item.title
+      ? item.heading
+      : "";
 
-  paragraphs.forEach(paragraph => {
-    const card = document.createElement("div");
-    card.className = "card";
-
-    const heading = paragraph.heading || paragraph.title || "";
-    const body = paragraph.body || "";
-    const imageUrl = getFileUrl(paragraph.image);
-
-    let html = "";
-
-    if(heading){
-      html += `<h2>${esc(heading)}</h2>`;
-    }
-
-    if(body){
-      html += `<div class="help-body">${esc(body)}</div>`;
-    }
-
-    if(imageUrl){
-      html += `<img class="help-image" src="${esc(imageUrl)}" alt="">`;
-    }
-
-    card.innerHTML = html;
-    content.appendChild(card);
-  });
+    return `
+      <article class="help-card">
+        <div class="paragraph-number">${esc(number)}</div>
+        <div class="paragraph-title">${esc(titleText)}</div>
+        ${headingText ? `<div class="paragraph-heading">${esc(headingText)}</div>` : ""}
+        ${item.body ? `<div class="paragraph-text">${esc(item.body)}</div>` : ""}
+        ${imageUrl ? `<img class="paragraph-image" src="${esc(imageUrl)}" alt="${esc(titleText)}" loading="lazy" decoding="async">` : ""}
+      </article>
+    `;
+  }).join("");
 }
 
 async function loadHelp(){
-  const caseName = getCaseFromUrl();
+  const caseName = getHelpCaseFromUrl();
+  const helpList = document.getElementById("helpList");
+  const caseInfo = document.getElementById("caseInfo");
 
-  if(!caseName){
-    throw new Error("Mangler help case i URL-en.");
+  caseInfo.textContent = `Laster ${caseName}...`;
+  helpList.innerHTML = `<div class="loading">Laster hjelpeinnhold...</div>`;
+
+  try{
+    const data = await fetchJson(`${API_BASE}/help?case=${encodeURIComponent(caseName)}`);
+    renderHelp(data, caseName);
+  }catch(error){
+    console.error(error);
+
+    document.getElementById("pageTitle").textContent = "Hjelp";
+    document.getElementById("pageSubtitle").textContent = caseName;
+    caseInfo.innerHTML = `<span style="color:#ff8a8a;">Kunne ikke laste hjelpesiden.</span>`;
+    helpList.innerHTML = `
+      <div class="error-box">
+        Fant ikke en aktiv hjelpesak for <strong>${esc(caseName)}</strong>.<br><br>
+        ${esc(error.message)}
+      </div>
+    `;
   }
-
-  const data = await fetchJson(
-    `${API_BASE}/help?case=${encodeURIComponent(caseName)}`
-  );
-
-  renderHelp(data);
 }
 
-loadHelp().catch(error => {
-  console.error(error);
-
-  document.getElementById("content").innerHTML =
-    `<div class="error-box">
-      Kunne ikke laste hjelpesiden.<br><br>${esc(error.message)}
-    </div>`;
-});
+loadHelp();
 </script>
-
 </body>
 </html>
