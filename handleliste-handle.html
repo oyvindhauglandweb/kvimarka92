@@ -27,7 +27,7 @@
   #shoppingList .item-name{font-size:12.5px !important;}
 }
 
-</style></head><body class="dark-mode"><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-bestille.html">Bestille</a><a class="action-button" href="handleliste-rediger.html">✎ Rediger</a><a class="action-button" href="handleliste-varetyper.html">↕ Varetyper</a><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">⌖ E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><button class="action-button" type="button" onclick="testGpsLocation()" title="Test GPS før avslutning">GPS test</button></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div><script>
+</style></head><body class="dark-mode"><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-bestille.html">Bestille</a><a class="action-button" href="handleliste-rediger.html">✎ Rediger</a><a class="action-button" href="handleliste-varetyper.html">↕ Varetyper</a><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">⌖ E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><button class="action-button" type="button" onclick="testGpsLocation()" title="Test GPS før avslutning">GPS test</button><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 let SHOPPING_OWNERS=["Felles"];
 let ownerContacts=[];
@@ -53,7 +53,7 @@ function groupOrderedItems(list){const map={};list.forEach(item=>{const key=item
 function render(){const root=document.getElementById("shoppingList");const ordered=getOrderedItems();const finishButton=document.getElementById("finishButton");const toggleAllButton=document.getElementById("toggleAllButton");if(finishButton)finishButton.disabled=!ordered.length;if(toggleAllButton){const allBought=ordered.length>0&&ordered.every(item=>boughtIds.has(item.id));toggleAllButton.disabled=!ordered.length;toggleAllButton.textContent=allBought?"Avmerk alle":"Merk alle";toggleAllButton.title=allBought?"Fjern avkrysning på alle varer":"Merk alle varer som handlet";}if(!ordered.length){root.innerHTML='<div class="empty">Ingen varer er bestilt handlet.</div>';return;}root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{const isBought=boughtIds.has(item.id);const badges=`${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${item.id}, this.checked)" title="Handlet"><div class="item-name">${esc(item.name)}</div><div class="badge-stack">${badges}</div></div>`;}).join("")}</div></div>`).join("");}
 function toggleBought(id,checked){if(checked)boughtIds.add(id);else boughtIds.delete(id);render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(item.id));ordered.forEach(item=>{if(allBought)boughtIds.delete(item.id);else boughtIds.add(item.id);});render();}
-async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];boughtIds.clear();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];boughtIds.clear();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
@@ -138,6 +138,121 @@ async function testGpsLocation(){
   setStatus("Tester GPS-posisjon...");
   const location=await getShoppingLocation();
   setStatus(formatGpsLocation(location), location.status === "ok" ? "success" : "error");
+}
+
+function isLikelyMobileDevice(){
+  return (
+    /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "") ||
+    (navigator.maxTouchPoints && navigator.maxTouchPoints > 1) ||
+    (window.matchMedia && window.matchMedia("(max-width: 800px)").matches)
+  );
+}
+
+function setStoreMatchStatus(message, type){
+  const card=document.getElementById("storeMatchCard");
+  const status=document.getElementById("storeMatchStatus");
+
+  if(!card || !status){
+    return;
+  }
+
+  if(!message){
+    card.style.display="none";
+    status.innerHTML="";
+    status.className="status";
+    return;
+  }
+
+  card.style.display="block";
+  status.className="status" + (type ? ` ${type}` : "");
+  status.innerHTML=message;
+}
+
+function formatStoreMatchResult(data){
+  const matchStatus=String(data?.storeMatchStatus || "");
+  const storeName=String(data?.storeName || data?.store?.name || "").trim();
+  const storeChain=String(data?.storeChain || data?.store?.chain || "").trim();
+  const distance=data?.storeDistance;
+  const location=data?.location || {};
+  const accuracy=location.accuracy !== null && location.accuracy !== undefined
+    ? `${Math.round(Number(location.accuracy))} m`
+    : "ukjent";
+
+  if(storeName){
+    const label=[storeChain,storeName].filter(Boolean).join(" ").trim();
+    const distanceText=distance !== null && distance !== undefined ? ` · ${Math.round(Number(distance))} m unna` : "";
+    const prefix=matchStatus === "Uncertain" ? "Mulig butikk" : "Du ser ut til å være hos";
+    const suffix=matchStatus === "Uncertain" ? " · usikkert treff" : "";
+    return `${prefix}: <strong>${esc(label)}</strong>${distanceText}${suffix}<br>GPS-nøyaktighet: ${esc(accuracy)}`;
+  }
+
+  if(matchStatus === "No match"){
+    const lat=location.latitude !== null && location.latitude !== undefined ? Number(location.latitude).toFixed(4) : "?";
+    const lon=location.longitude !== null && location.longitude !== undefined ? Number(location.longitude).toFixed(4) : "?";
+    return `Fant ingen kjent butikk her.<br>GPS: ${esc(lat)}, ${esc(lon)} · nøyaktighet: ${esc(accuracy)}`;
+  }
+
+  if(matchStatus === "Location denied"){
+    return "GPS-tilgang er avslått. Butikk kan ikke foreslås automatisk.";
+  }
+
+  if(matchStatus === "Location error"){
+    return "Kunne ikke hente GPS-posisjon. Butikk kan ikke foreslås automatisk.";
+  }
+
+  return "Butikk kunne ikke foreslås automatisk.";
+}
+
+let storeMatchRunning=false;
+async function checkCurrentStore(silent){
+  if(storeMatchRunning){
+    return;
+  }
+
+  storeMatchRunning=true;
+
+  try{
+    if(!silent){
+      setStoreMatchStatus("Sjekker hvilken butikk du er i...");
+    }
+
+    const location=await getShoppingLocation();
+
+    if(location.status !== "ok"){
+      setStoreMatchStatus(formatGpsLocation(location), "error");
+      return;
+    }
+
+    const data=await fetchJson(`${API_BASE}/shopping/store-match`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({
+        location,
+        latitude:location.latitude,
+        longitude:location.longitude,
+        accuracy:location.accuracy,
+        locationStatus:location.status
+      })
+    });
+
+    const matched=!!(data.storeName || data.store?.name);
+    const uncertain=String(data.storeMatchStatus || "") === "Uncertain";
+    setStoreMatchStatus(formatStoreMatchResult(data), matched && !uncertain ? "success" : "");
+  }catch(error){
+    setStoreMatchStatus(`Kunne ikke sjekke butikk.<br><br>${esc(error.message)}`, "error");
+  }finally{
+    storeMatchRunning=false;
+  }
+}
+
+function autoCheckStoreOnMobile(){
+  if(!isLikelyMobileDevice()){
+    return;
+  }
+
+  window.setTimeout(() => {
+    checkCurrentStore(true);
+  }, 800);
 }
 
 function shoppingSessionStatusText(session){
