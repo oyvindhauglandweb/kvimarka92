@@ -78,5 +78,96 @@ function sendShoppingListSms(){
   window.location.href=`sms:?&body=${encodeURIComponent(buildShoppingListText())}`;
 }
 function sendShoppingListEmail(){const ordered=getOrderedItems();if(!ordered.length){alert("Ingen varer er bestilt handlet.");return;}const lines=["Handleliste",""];groupOrderedItems(ordered).forEach(group=>{lines.push(group.type);group.items.forEach(item=>lines.push(`${boughtIds.has(item.id)?"[x]":"[ ]"} ${normalizeOwner(item.owner)!=="Felles"?`(${normalizeOwner(item.owner)}) `:""}${item.name}`));lines.push("");});window.location.href=`mailto:?subject=${encodeURIComponent("Handleliste")}&body=${encodeURIComponent(lines.join("\n"))}`;}
-async function finishShopping(){if(!boughtIds.size){alert("Kryss av minst én vare som handlet først.");return;}if(!confirm(`Avslutte handel og lagre ${boughtIds.size} handlet vare${boughtIds.size===1?"":"r"}?`))return;const button=document.getElementById("finishButton");button.disabled=true;setStatus("Avslutter handel...");try{const data=await fetchJson(`${API_BASE}/shopping/finish`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({boughtIds:[...boughtIds]})});await loadItems();setStatus(`Handelen er avsluttet. ${data.boughtCount} varer ble lagret som handlet.`,"success");}catch(error){setStatus(`Kunne ikke avslutte handelen.<br><br>${esc(error.message)}`,"error");}finally{button.disabled=false;render();}}
+function getShoppingLocation(){
+  return new Promise(resolve=>{
+    if(!navigator.geolocation){
+      resolve({status:"error"});
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      position=>{
+        resolve({
+          status:"ok",
+          latitude:position.coords.latitude,
+          longitude:position.coords.longitude,
+          accuracy:position.coords.accuracy
+        });
+      },
+      error=>{
+        resolve({
+          status:error && error.code === 1 ? "denied" : "error"
+        });
+      },
+      {
+        enableHighAccuracy:true,
+        timeout:10000,
+        maximumAge:60000
+      }
+    );
+  });
+}
+
+function shoppingSessionStatusText(session){
+  if(!session){
+    return "";
+  }
+
+  const status=String(session.storeMatchStatus||"");
+  const store=[session.storeChain,session.storeName].filter(Boolean).join(" ").trim();
+
+  if(store){
+    const distance=session.storeDistance!==null&&session.storeDistance!==undefined?`, ca. ${session.storeDistance} m` : "";
+    const unsure=status==="Uncertain" ? " usikkert" : "";
+    return ` Butikk${unsure}: ${store}${distance}.`;
+  }
+
+  if(status==="No match")return " Ingen butikk ble matchet.";
+  if(status==="No location")return " Handelen ble lagret uten posisjon.";
+  if(status==="Location denied")return " Handelen ble lagret uten posisjon fordi tilgang ble avslått.";
+  if(status==="Location error")return " Handelen ble lagret uten butikkmatch på grunn av GPS-feil.";
+
+  return "";
+}
+
+async function finishShopping(){
+  if(!boughtIds.size){
+    alert("Kryss av minst én vare som handlet først.");
+    return;
+  }
+
+  if(!confirm(`Avslutte handel og lagre ${boughtIds.size} handlet vare${boughtIds.size===1?"":"r"}?`)){
+    return;
+  }
+
+  let location={status:"none"};
+
+  if(confirm("Vil du registrere hvilken butikk du handlet i? Posisjonen hentes én gang nå.")){
+    setStatus("Henter GPS-posisjon...");
+    location=await getShoppingLocation();
+  }
+
+  const button=document.getElementById("finishButton");
+  button.disabled=true;
+  setStatus("Avslutter handel...");
+
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/finish`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({
+        boughtIds:[...boughtIds],
+        location
+      })
+    });
+
+    await loadItems();
+    setStatus(`Handelen er avsluttet. ${data.boughtCount} varer ble lagret som handlet.${shoppingSessionStatusText(data.session)}`,"success");
+  }catch(error){
+    setStatus(`Kunne ikke avslutte handelen.<br><br>${esc(error.message)}`,"error");
+  }finally{
+    button.disabled=false;
+    render();
+  }
+}
 loadItems();</script></body></html>
