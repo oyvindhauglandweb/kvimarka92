@@ -162,6 +162,25 @@ function shoppingSessionStatusText(session){
   return "";
 }
 
+function formatLocationDebug(data, clientLocation){
+  const debug=data?.locationDebug || {};
+  const parts=[];
+  parts.push(`<br><br><strong>GPS-diagnose:</strong>`);
+  parts.push(`<br>Mobil/nettleser: ${esc(formatGpsLocation(clientLocation))}`);
+  parts.push(`<br>Worker mottok: lat=${esc(debug.latitude ?? "tom")}, lon=${esc(debug.longitude ?? "tom")}, accuracy=${esc(debug.gpsAccuracy ?? "tom")}, status=${esc(debug.status ?? "tom")}`);
+  parts.push(`<br>Session opprettet: ${debug.sessionCreated ? "ja" : "nei"}`);
+
+  if(debug.sessionPatchResult){
+    parts.push(`<br>Session patch: ${esc(JSON.stringify(debug.sessionPatchResult))}`);
+  }
+
+  if(debug.sessionError){
+    parts.push(`<br>Session-feil: ${esc(debug.sessionError)}`);
+  }
+
+  return parts.join("");
+}
+
 async function finishShopping(){
   if(!boughtIds.size){
     alert("Kryss av minst én vare som handlet først.");
@@ -172,19 +191,26 @@ async function finishShopping(){
     return;
   }
 
-  let location={status:"none"};
-
-  // Hent GPS automatisk ved avslutning. Feil/avslag stopper ikke handelen,
-  // men resultatet sendes alltid til Worker slik at Shopping sessions kan logge status.
-  setStatus("Henter GPS-posisjon før handelen avsluttes...");
-  location=await getShoppingLocation();
-  setStatus(formatGpsLocation(location), location.status === "ok" ? "success" : "error");
-
   const button=document.getElementById("finishButton");
   button.disabled=true;
-  setStatus("Avslutter handel...");
+
+  let location={status:"none"};
 
   try{
+    setStatus("Henter GPS-posisjon før handelen avsluttes...");
+    location=await getShoppingLocation();
+
+    if(location.status !== "ok"){
+      const continueWithoutGps=confirm(`${formatGpsLocation(location).replace(/<[^>]+>/g, "")}\n\nFortsette og avslutte handelen uten GPS?`);
+
+      if(!continueWithoutGps){
+        setStatus(formatGpsLocation(location), "error");
+        return;
+      }
+    }
+
+    setStatus(`${formatGpsLocation(location)}<br>Sender avslutning til Worker...`, location.status === "ok" ? "success" : "error");
+
     const data=await fetchJson(`${API_BASE}/shopping/finish`,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
@@ -199,9 +225,9 @@ async function finishShopping(){
     });
 
     await loadItems();
-    setStatus(`Handelen er avsluttet. ${data.boughtCount} varer ble lagret som handlet.${shoppingSessionStatusText(data.session)}`,"success");
+    setStatus(`Handelen er avsluttet. ${data.boughtCount} varer ble lagret som handlet.${shoppingSessionStatusText(data.session)}${formatLocationDebug(data, location)}`,"success");
   }catch(error){
-    setStatus(`Kunne ikke avslutte handelen.<br><br>${esc(error.message)}`,"error");
+    setStatus(`Kunne ikke avslutte handelen.<br><br>${esc(error.message)}<br><br>${esc(formatGpsLocation(location))}`,"error");
   }finally{
     button.disabled=false;
     render();
