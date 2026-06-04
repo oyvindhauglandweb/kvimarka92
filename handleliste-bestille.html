@@ -39,7 +39,7 @@
 <div class="modal" id="newItemModal" onclick="handleModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title">Legg til ny vare</div><button class="modal-close" type="button" onclick="closeNewItemModal()">×</button></div><form id="newItemForm"><div class="form-field"><label for="newItemName">Varenavn</label><input id="newItemName" type="text" autocomplete="off" required></div><div class="form-field"><label for="newItemOwner">Vareliste</label><select id="newItemOwner"></select></div><div class="form-field"><label for="newItemType">Varetype</label><select id="newItemType"></select></div><div class="form-field checkbox-row"><input id="newItemStandard" type="checkbox"><label for="newItemStandard">Standard vare</label></div><div class="form-field checkbox-row"><input id="newItemShouldBuy" type="checkbox" checked><label for="newItemShouldBuy">Skal handles nå</label></div><div class="toolbar"><button class="action-button" type="button" onclick="closeNewItemModal()">Avbryt</button><button class="action-button primary" type="submit" id="saveNewItemButton">Lagre vare</button></div></form></div></div>
 <script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
-let SHOPPING_OWNERS=["Felles","Øyvind","Navn 2","Navn 3","Navn 4"];
+let SHOPPING_OWNERS=["Felles"];
 const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
 function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
