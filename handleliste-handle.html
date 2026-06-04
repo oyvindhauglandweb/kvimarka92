@@ -190,7 +190,11 @@ async function finishShopping(){
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
       body:JSON.stringify({
         boughtIds:[...boughtIds],
-        location
+        location,
+        latitude:location?.latitude,
+        longitude:location?.longitude,
+        accuracy:location?.accuracy,
+        locationStatus:location?.status
       })
     });
 
