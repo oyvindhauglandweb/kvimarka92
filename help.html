@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hjelp - Kvimarka 92</title>
-<!-- version: kvimarka-help-v3-clean-toc-2026-06-04 -->
+<!-- version: kvimarka-help-v4-back-to-toc-2026-06-04 -->
 
 <style>
 :root{
@@ -146,10 +146,36 @@ body{
 
 .help-card{
   margin-bottom:0;
+  position:relative;
+  scroll-margin-top:18px;
 }
 
+.help-card-top-link{
+  position:absolute;
+  top:14px;
+  right:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--button);
+  color:var(--text);
+  text-decoration:none;
+  font-size:18px;
+  font-weight:bold;
+  line-height:1;
+  box-sizing:border-box;
+}
+
+.help-card-top-link:hover{
+  background:var(--button-hover);
+}
 
 .paragraph-title{
+  padding-right:44px;
   font-size:23px;
   font-weight:bold;
   margin-bottom:10px;
@@ -244,7 +270,7 @@ a{
   </div>
 
 
-  <div class="toc-card" id="tocCard" style="display:none;">
+  <div class="toc-card" id="tocCard" style="display:none;" tabindex="-1">
     <div class="toc-title">Innhold</div>
     <div class="toc-list" id="tocList"></div>
   </div>
@@ -256,7 +282,7 @@ a{
 
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("help.html version: kvimarka-help-v3-clean-toc-2026-06-04");
+console.log("help.html version: kvimarka-help-v4-back-to-toc-2026-06-04");
 
 function esc(value){
   return String(value ?? "")
@@ -375,6 +401,7 @@ function renderHelp(data, caseName){
 
     return `
       <article class="help-card" id="${makeHelpAnchor(index)}">
+        <a class="help-card-top-link" href="#tocCard" title="Til innhold" aria-label="Til innhold">↑</a>
         <div class="paragraph-title">${esc(titleText)}</div>
         ${headingText ? `<div class="paragraph-heading">${esc(headingText)}</div>` : ""}
         ${item.body ? `<div class="paragraph-text">${esc(item.body)}</div>` : ""}
