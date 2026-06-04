@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hjelp - Kvimarka 92</title>
-<!-- version: kvimarka-help-v2-toc-2026-06-04 -->
+<!-- version: kvimarka-help-v3-clean-toc-2026-06-04 -->
 
 <style>
 :root{
@@ -97,19 +97,6 @@ body{
 }
 
 .help-card,
-.info-card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:18px;
-  margin-bottom:18px;
-}
-
-.info-card{
-  color:var(--muted);
-  line-height:1.5;
-}
-
 
 .toc-card{
   background:var(--card);
@@ -150,11 +137,6 @@ body{
   background:var(--button-hover);
 }
 
-.toc-number{
-  flex:0 0 auto;
-  color:var(--link);
-  font-size:13px;
-}
 
 .help-list{
   display:flex;
@@ -166,12 +148,6 @@ body{
   margin-bottom:0;
 }
 
-.paragraph-number{
-  color:var(--muted);
-  font-size:13px;
-  font-weight:bold;
-  margin-bottom:6px;
-}
 
 .paragraph-title{
   font-size:23px;
@@ -232,8 +208,7 @@ a{
     font-size:26px;
   }
 
-  .help-card,
-  .info-card{
+  .help-card{
     padding:14px;
   }
 
@@ -268,7 +243,6 @@ a{
     </div>
   </div>
 
-  <div class="info-card" id="caseInfo">Laster hjelpeside...</div>
 
   <div class="toc-card" id="tocCard" style="display:none;">
     <div class="toc-title">Innhold</div>
@@ -282,7 +256,7 @@ a{
 
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("help.html version: kvimarka-help-v2-toc-2026-06-04");
+console.log("help.html version: kvimarka-help-v3-clean-toc-2026-06-04");
 
 function esc(value){
   return String(value ?? "")
@@ -358,7 +332,6 @@ function makeHelpAnchor(index){
 function renderHelp(data, caseName){
   const pageTitle = document.getElementById("pageTitle");
   const pageSubtitle = document.getElementById("pageSubtitle");
-  const caseInfo = document.getElementById("caseInfo");
   const tocCard = document.getElementById("tocCard");
   const tocList = document.getElementById("tocList");
   const helpList = document.getElementById("helpList");
@@ -370,10 +343,6 @@ function renderHelp(data, caseName){
   document.title = `${title} - Hjelp`;
   pageTitle.textContent = title;
   pageSubtitle.textContent = "Hjelp";
-
-  caseInfo.innerHTML = paragraphs.length
-    ? `Hjelpesiden inneholder <strong>${esc(paragraphs.length)}</strong> avsnitt.`
-    : "Ingen aktive hjelpeavsnitt er lagt inn ennå.";
 
   if(!paragraphs.length){
     if(tocCard){
@@ -387,12 +356,10 @@ function renderHelp(data, caseName){
   if(tocCard && tocList){
     tocCard.style.display = "block";
     tocList.innerHTML = paragraphs.map((item, index) => {
-      const number = Number(item.sortOrder || 0) || index + 1;
-      const titleText = item.title || item.heading || `Punkt ${index + 1}`;
+      const titleText = item.title || item.heading || `Avsnitt ${index + 1}`;
 
       return `
         <a class="toc-link" href="#${makeHelpAnchor(index)}">
-          <span class="toc-number">${esc(number)}</span>
           <span>${esc(titleText)}</span>
         </a>
       `;
@@ -401,15 +368,13 @@ function renderHelp(data, caseName){
 
   helpList.innerHTML = paragraphs.map((item, index) => {
     const imageUrl = getFileUrl(item.image);
-    const number = Number(item.sortOrder || 0) || index + 1;
-    const titleText = item.title || item.heading || `Punkt ${index + 1}`;
+    const titleText = item.title || item.heading || `Avsnitt ${index + 1}`;
     const headingText = item.title && item.heading && item.heading !== item.title
       ? item.heading
       : "";
 
     return `
       <article class="help-card" id="${makeHelpAnchor(index)}">
-        <div class="paragraph-number">${esc(number)}</div>
         <div class="paragraph-title">${esc(titleText)}</div>
         ${headingText ? `<div class="paragraph-heading">${esc(headingText)}</div>` : ""}
         ${item.body ? `<div class="paragraph-text">${esc(item.body)}</div>` : ""}
@@ -422,14 +387,12 @@ function renderHelp(data, caseName){
 async function loadHelp(){
   const caseName = getHelpCaseFromUrl();
   const helpList = document.getElementById("helpList");
-  const caseInfo = document.getElementById("caseInfo");
   const tocCard = document.getElementById("tocCard");
 
   if(tocCard){
     tocCard.style.display = "none";
   }
 
-  caseInfo.textContent = `Laster ${caseName}...`;
   helpList.innerHTML = `<div class="loading">Laster hjelpeinnhold...</div>`;
 
   try{
@@ -440,7 +403,6 @@ async function loadHelp(){
 
     document.getElementById("pageTitle").textContent = "Hjelp";
     document.getElementById("pageSubtitle").textContent = caseName;
-    caseInfo.innerHTML = `<span style="color:#ff8a8a;">Kunne ikke laste hjelpesiden.</span>`;
     helpList.innerHTML = `
       <div class="error-box">
         Fant ikke en aktiv hjelpesak for <strong>${esc(caseName)}</strong>.<br><br>
