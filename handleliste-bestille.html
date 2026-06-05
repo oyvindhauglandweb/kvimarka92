@@ -81,6 +81,7 @@ loadItems();
 <script>
 (function(){
   const APP_PAGE_RE = /^handleliste-[a-z0-9-]+\.html$/i;
+  const HOME_TARGET = 'index.html?restoreMenu=1';
 
   function currentPage(){
     return location.pathname.split('/').pop() || 'handleliste-bestille.html';
@@ -90,7 +91,7 @@ loadItems();
     return APP_PAGE_RE.test(String(page || ''));
   }
 
-  function normalizeTarget(value){
+  function safeAppTarget(value){
     if(!value) return '';
     try{
       const url = new URL(value, location.href);
@@ -105,58 +106,65 @@ loadItems();
     }
   }
 
-  function addFromToUrl(rawHref){
+  function currentTargetForBack(){
+    const url = new URL(location.href);
+    const page = currentPage();
+    const params = new URLSearchParams(url.search);
+    const legacyFrom = params.get('from');
+    const existingBack = params.get('back');
+
+    params.delete('from');
+
+    if(!existingBack && legacyFrom){
+      const safeLegacy = safeAppTarget(legacyFrom);
+      if(safeLegacy) params.set('back', safeLegacy);
+    }
+
+    const query = params.toString();
+    return page + (query ? '?' + query : '') + url.hash;
+  }
+
+  function getBackTarget(){
+    const params = new URLSearchParams(location.search);
+    return safeAppTarget(params.get('back')) || safeAppTarget(params.get('from')) || HOME_TARGET;
+  }
+
+  function addBackToUrl(rawHref){
     if(!rawHref) return rawHref;
     if(/^#|^(mailto|sms|tel|javascript):/i.test(rawHref)) return rawHref;
+
     try{
       const url = new URL(rawHref, location.href);
       if(url.origin !== location.origin) return rawHref;
       const page = url.pathname.split('/').pop();
       const here = currentPage();
-      if(isAppPage(page) && page !== here && !url.searchParams.has('from')){
-        url.searchParams.set('from', here);
+
+      if(isAppPage(page) && page !== here){
+        url.searchParams.delete('from');
+        if(!url.searchParams.has('back')){
+          url.searchParams.set('back', currentTargetForBack());
+        }
         return page + url.search + url.hash;
       }
     }catch(e){}
+
     return rawHref;
   }
 
   function appBack(event){
     event.preventDefault();
-    const params = new URLSearchParams(location.search);
-    const fromParam = normalizeTarget(params.get('from'));
-    if(fromParam){
-      location.href = fromParam;
-      return;
-    }
-
-    const refTarget = normalizeTarget(document.referrer || '');
-    if(refTarget && refTarget.split('?')[0] !== currentPage()){
-      location.href = refTarget;
-      return;
-    }
-
-    const fallback = normalizeTarget(this.getAttribute('data-fallback') || this.getAttribute('href') || '');
-    if(fallback){
-      location.href = fallback;
-      return;
-    }
-
-    location.href = 'index.html?restoreMenu=1';
+    location.href = getBackTarget();
   }
 
   function initAppNavigation(){
     document.querySelectorAll('a[href]').forEach(function(anchor){
       const href = anchor.getAttribute('href');
-      const nextHref = addFromToUrl(href);
+      const nextHref = addBackToUrl(href);
       if(nextHref !== href) anchor.setAttribute('href', nextHref);
     });
 
     document.querySelectorAll('.top-buttons .top-button').forEach(function(button){
       if((button.textContent || '').trim() === '←'){
-        if(!button.getAttribute('data-fallback')){
-          button.setAttribute('data-fallback', button.getAttribute('href') || '');
-        }
         button.addEventListener('click', appBack);
       }
     });
