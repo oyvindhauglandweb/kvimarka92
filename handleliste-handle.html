@@ -360,7 +360,7 @@ async function finishShopping(){
     });
 
     await loadItems();
-    setStatus(`Handelen er avsluttet. ${data.boughtCount} varer ble lagret som handlet.${shoppingSessionStatusText(data.session)}${formatLocationDebug(data, location)}`,"success");
+    setStatus(`Handelen er avsluttet. ${data.boughtCount} varer ble lagret som handlet.${shoppingSessionStatusText(data.session)}`,"success");
   }catch(error){
     setStatus(`Kunne ikke avslutte handelen.<br><br>${esc(error.message)}<br><br>${esc(formatGpsLocation(location))}`,"error");
   }finally{
