@@ -368,4 +368,97 @@ async function finishShopping(){
     render();
   }
 }
-loadItems();</script></body></html>
+loadItems();</script>
+<script>
+(function(){
+  const APP_PAGE_RE = /^handleliste-[a-z0-9-]+\.html$/i;
+
+  function currentPage(){
+    return location.pathname.split('/').pop() || 'handleliste-bestille.html';
+  }
+
+  function isAppPage(page){
+    return APP_PAGE_RE.test(String(page || ''));
+  }
+
+  function normalizeTarget(value){
+    if(!value) return '';
+    try{
+      const url = new URL(value, location.href);
+      if(url.origin !== location.origin) return '';
+      const page = url.pathname.split('/').pop();
+      if(!isAppPage(page)) return '';
+      return page + url.search + url.hash;
+    }catch(e){
+      const clean = String(value).trim();
+      const page = clean.split('?')[0].split('#')[0];
+      return isAppPage(page) ? clean : '';
+    }
+  }
+
+  function addFromToUrl(rawHref){
+    if(!rawHref) return rawHref;
+    if(/^#|^(mailto|sms|tel|javascript):/i.test(rawHref)) return rawHref;
+    try{
+      const url = new URL(rawHref, location.href);
+      if(url.origin !== location.origin) return rawHref;
+      const page = url.pathname.split('/').pop();
+      const here = currentPage();
+      if(isAppPage(page) && page !== here && !url.searchParams.has('from')){
+        url.searchParams.set('from', here);
+        return page + url.search + url.hash;
+      }
+    }catch(e){}
+    return rawHref;
+  }
+
+  function appBack(event){
+    event.preventDefault();
+    const params = new URLSearchParams(location.search);
+    const fromParam = normalizeTarget(params.get('from'));
+    if(fromParam){
+      location.href = fromParam;
+      return;
+    }
+
+    const refTarget = normalizeTarget(document.referrer || '');
+    if(refTarget && refTarget.split('?')[0] !== currentPage()){
+      location.href = refTarget;
+      return;
+    }
+
+    const fallback = normalizeTarget(this.getAttribute('data-fallback') || this.getAttribute('href') || '');
+    if(fallback){
+      location.href = fallback;
+      return;
+    }
+
+    location.href = 'index.html?restoreMenu=1';
+  }
+
+  function initAppNavigation(){
+    document.querySelectorAll('a[href]').forEach(function(anchor){
+      const href = anchor.getAttribute('href');
+      const nextHref = addFromToUrl(href);
+      if(nextHref !== href) anchor.setAttribute('href', nextHref);
+    });
+
+    document.querySelectorAll('.top-buttons .top-button').forEach(function(button){
+      if((button.textContent || '').trim() === '←'){
+        if(!button.getAttribute('data-fallback')){
+          button.setAttribute('data-fallback', button.getAttribute('href') || '');
+        }
+        button.addEventListener('click', appBack);
+      }
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initAppNavigation);
+  }else{
+    initAppNavigation();
+  }
+})();
+</script>
+
+</body></html>
