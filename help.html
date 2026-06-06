@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hjelp - Kvimarka 92</title>
-<!-- version: kvimarka-help-v4-back-to-toc-2026-06-04 -->
+<!-- version: kvimarka-help-v5-image-zoom-context-back-2026-06-05 -->
 
 <style>
 :root{
@@ -205,6 +205,104 @@ body{
   border-radius:10px;
 }
 
+
+.image-zoom-button{
+  display:block;
+  width:100%;
+  margin:18px auto 0;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:zoom-in;
+}
+
+.image-zoom-button:focus-visible{
+  outline:2px solid var(--link);
+  outline-offset:4px;
+  border-radius:12px;
+}
+
+.image-zoom-hint{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:13px;
+  text-align:center;
+}
+
+.image-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:rgba(0,0,0,.92);
+  padding:14px;
+}
+
+.image-modal.open{
+  display:flex;
+  flex-direction:column;
+}
+
+.image-modal-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+  color:#eeeeee;
+}
+
+.image-modal-title{
+  font-size:16px;
+  font-weight:bold;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.image-modal-close{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  border:1px solid #666;
+  border-radius:8px;
+  background:#242424;
+  color:#eeeeee;
+  font-size:28px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.image-modal-stage{
+  flex:1;
+  min-height:0;
+  overflow:auto;
+  border:1px solid #555;
+  border-radius:12px;
+  background:#111;
+  text-align:center;
+  -webkit-overflow-scrolling:touch;
+}
+
+.image-modal-stage img{
+  display:block;
+  width:auto;
+  height:auto;
+  max-width:none;
+  max-height:none;
+  margin:0 auto;
+  background:#222;
+}
+
+.image-modal-help{
+  color:#bbbbbb;
+  font-size:13px;
+  padding:8px 2px 0;
+  text-align:center;
+}
+
 .loading{
   text-align:center;
   color:var(--muted);
@@ -264,7 +362,7 @@ a{
     <div class="subtitle" id="pageSubtitle">Kvimarka 92</div>
 
     <div class="top-buttons">
-      <a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a>
+      <a class="top-button" href="index.html?restoreMenu=1" title="Tilbake" onclick="return goBackFromHelp(event)">←</a>
       <a class="top-button" href="index.html" title="Hovedside">⌂</a>
     </div>
   </div>
@@ -280,9 +378,20 @@ a{
   </div>
 </div>
 
+<div class="image-modal" id="imageModal" aria-hidden="true">
+  <div class="image-modal-toolbar">
+    <div class="image-modal-title" id="imageModalTitle">Bilde</div>
+    <button type="button" class="image-modal-close" onclick="closeImageModal()" aria-label="Lukk forstørret bilde">×</button>
+  </div>
+  <div class="image-modal-stage" id="imageModalStage">
+    <img id="imageModalImage" src="" alt="">
+  </div>
+  <div class="image-modal-help">Dra for å panorere. Bruk nettleserens zoom hvis du vil forstørre mer.</div>
+</div>
+
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("help.html version: kvimarka-help-v4-back-to-toc-2026-06-04");
+console.log("help.html version: kvimarka-help-v5-image-zoom-context-back-2026-06-05");
 
 function esc(value){
   return String(value ?? "")
@@ -297,6 +406,109 @@ function getHelpCaseFromUrl(){
   const params = new URLSearchParams(window.location.search);
   return params.get("case") || "Brukermanual";
 }
+
+function safeSameOriginTarget(value){
+  if(!value){
+    return "";
+  }
+
+  try{
+    const url = new URL(value, location.href);
+    if(url.origin !== location.origin){
+      return "";
+    }
+
+    const page = url.pathname.split("/").pop() || "index.html";
+    if(!/^([a-z0-9-]+\.html|index\.html)$/i.test(page)){
+      return "";
+    }
+
+    return page + url.search + url.hash;
+  }catch(error){
+    return "";
+  }
+}
+
+function getHelpBackTarget(){
+  const params = new URLSearchParams(location.search);
+  const explicitBack = safeSameOriginTarget(params.get("back") || params.get("from"));
+  if(explicitBack){
+    return explicitBack;
+  }
+
+  const referrerBack = safeSameOriginTarget(document.referrer);
+  if(referrerBack && referrerBack !== (location.pathname.split("/").pop() + location.search + location.hash)){
+    return referrerBack;
+  }
+
+  return "index.html?restoreMenu=1";
+}
+
+function goBackFromHelp(event){
+  if(event){
+    event.preventDefault();
+  }
+
+  location.href = getHelpBackTarget();
+  return false;
+}
+
+function openImageModal(src, alt){
+  const modal = document.getElementById("imageModal");
+  const image = document.getElementById("imageModalImage");
+  const title = document.getElementById("imageModalTitle");
+  const stage = document.getElementById("imageModalStage");
+
+  if(!modal || !image){
+    return;
+  }
+
+  image.src = src;
+  image.alt = alt || "Forstørret bilde";
+  if(title){
+    title.textContent = alt || "Bilde";
+  }
+
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  setTimeout(function(){
+    if(stage){
+      stage.scrollLeft = Math.max(0, (image.scrollWidth - stage.clientWidth) / 2);
+      stage.scrollTop = 0;
+    }
+  }, 80);
+}
+
+function closeImageModal(){
+  const modal = document.getElementById("imageModal");
+  const image = document.getElementById("imageModalImage");
+
+  if(!modal){
+    return;
+  }
+
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+  if(image){
+    image.src = "";
+  }
+}
+
+document.addEventListener("keydown", function(event){
+  if(event.key === "Escape"){
+    closeImageModal();
+  }
+});
+
+document.addEventListener("click", function(event){
+  const modal = document.getElementById("imageModal");
+  if(event.target === modal){
+    closeImageModal();
+  }
+});
 
 function getFileUrl(value){
   if(!value){
@@ -405,7 +617,12 @@ function renderHelp(data, caseName){
         <div class="paragraph-title">${esc(titleText)}</div>
         ${headingText ? `<div class="paragraph-heading">${esc(headingText)}</div>` : ""}
         ${item.body ? `<div class="paragraph-text">${esc(item.body)}</div>` : ""}
-        ${imageUrl ? `<img class="paragraph-image" src="${esc(imageUrl)}" alt="${esc(titleText)}" loading="lazy" decoding="async">` : ""}
+        ${imageUrl ? `
+          <button type="button" class="image-zoom-button" onclick="openImageModal('${esc(String(imageUrl)).replaceAll('\\', '\\\\').replaceAll("'", "\\'")}', '${esc(String(titleText)).replaceAll('\\', '\\\\').replaceAll("'", "\\'")}')" title="Klikk for å forstørre bildet">
+            <img class="paragraph-image" src="${esc(imageUrl)}" alt="${esc(titleText)}" loading="lazy" decoding="async">
+          </button>
+          <div class="image-zoom-hint">Klikk på bildet for å forstørre</div>
+        ` : ""}
       </article>
     `;
   }).join("");
