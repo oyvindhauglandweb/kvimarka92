@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hjelp - Kvimarka 92</title>
-<!-- version: kvimarka-help-v6-image-zoom-controls-2026-06-06 -->
+<!-- version: kvimarka-help-v7-image-zoom-drag-pan-2026-06-06 -->
 
 <style>
 :root{
@@ -284,6 +284,12 @@ body{
   background:#111;
   text-align:center;
   -webkit-overflow-scrolling:touch;
+  cursor:grab;
+  user-select:none;
+}
+
+.image-modal-stage.dragging{
+  cursor:grabbing;
 }
 
 .image-modal-stage img{
@@ -392,12 +398,12 @@ a{
   <div class="image-modal-stage" id="imageModalStage">
     <img id="imageModalImage" src="" alt="">
   </div>
-  <div class="image-modal-help">Bruk +/− for å endre forstørrelse. Dra/rull for å panorere. Dobbeltklikk på bildet for å zoome inn.</div>
+  <div class="image-modal-help">Bruk +/− for å endre forstørrelse. Hold museknappen inne og dra for å flytte bildet. Dobbeltklikk på bildet for å zoome inn.</div>
 </div>
 
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("help.html version: kvimarka-help-v6-image-zoom-controls-2026-06-06");
+console.log("help.html version: kvimarka-help-v7-image-zoom-drag-pan-2026-06-06");
 
 function esc(value){
   return String(value ?? "")
@@ -561,6 +567,11 @@ function closeImageModal(){
     image.style.width = "";
   }
   imageModalZoom = 1;
+  imageModalDragState = null;
+  const stage = document.getElementById("imageModalStage");
+  if(stage){
+    stage.classList.remove("dragging");
+  }
 }
 
 const imageModalStageElement = document.getElementById("imageModalStage");
@@ -572,6 +583,73 @@ if(imageModalStageElement){
     event.preventDefault();
     zoomImageModal(event.deltaY < 0 ? 0.25 : -0.25);
   }, {passive:false});
+}
+
+let imageModalDragState = null;
+
+if(imageModalStageElement){
+  imageModalStageElement.addEventListener("pointerdown", function(event){
+    if(event.button !== undefined && event.button !== 0){
+      return;
+    }
+
+    const image = document.getElementById("imageModalImage");
+    if(!image || !image.src){
+      return;
+    }
+
+    imageModalDragState = {
+      pointerId:event.pointerId,
+      startX:event.clientX,
+      startY:event.clientY,
+      scrollLeft:imageModalStageElement.scrollLeft,
+      scrollTop:imageModalStageElement.scrollTop
+    };
+
+    imageModalStageElement.classList.add("dragging");
+    imageModalStageElement.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+
+  imageModalStageElement.addEventListener("pointermove", function(event){
+    if(!imageModalDragState || imageModalDragState.pointerId !== event.pointerId){
+      return;
+    }
+
+    const dx = event.clientX - imageModalDragState.startX;
+    const dy = event.clientY - imageModalDragState.startY;
+
+    imageModalStageElement.scrollLeft = imageModalDragState.scrollLeft - dx;
+    imageModalStageElement.scrollTop = imageModalDragState.scrollTop - dy;
+    event.preventDefault();
+  });
+
+  function endImageModalDrag(event){
+    if(!imageModalDragState){
+      return;
+    }
+
+    if(event && event.pointerId !== imageModalDragState.pointerId){
+      return;
+    }
+
+    try{
+      if(event && imageModalStageElement.hasPointerCapture(event.pointerId)){
+        imageModalStageElement.releasePointerCapture(event.pointerId);
+      }
+    }catch(error){}
+
+    imageModalDragState = null;
+    imageModalStageElement.classList.remove("dragging");
+  }
+
+  imageModalStageElement.addEventListener("pointerup", endImageModalDrag);
+  imageModalStageElement.addEventListener("pointercancel", endImageModalDrag);
+  imageModalStageElement.addEventListener("pointerleave", function(event){
+    if(imageModalDragState){
+      endImageModalDrag(event);
+    }
+  });
 }
 
 const imageModalImageElement = document.getElementById("imageModalImage");
