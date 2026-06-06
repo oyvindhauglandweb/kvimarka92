@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hjelp - Kvimarka 92</title>
-<!-- version: kvimarka-help-v5-image-zoom-context-back-2026-06-05 -->
+<!-- version: kvimarka-help-v6-image-zoom-controls-2026-06-06 -->
 
 <style>
 :root{
@@ -381,17 +381,23 @@ a{
 <div class="image-modal" id="imageModal" aria-hidden="true">
   <div class="image-modal-toolbar">
     <div class="image-modal-title" id="imageModalTitle">Bilde</div>
+    <div class="image-modal-controls" aria-label="Zoom-kontroller">
+      <button type="button" class="image-modal-zoom-button" onclick="zoomImageModal(-0.25)" title="Zoom ut" aria-label="Zoom ut">−</button>
+      <button type="button" class="image-modal-zoom-button" onclick="resetImageModalZoom()" title="Tilpass bildet" aria-label="Tilpass bildet">100%</button>
+      <button type="button" class="image-modal-zoom-button" onclick="zoomImageModal(0.25)" title="Zoom inn" aria-label="Zoom inn">+</button>
+      <div class="image-modal-zoom-label" id="imageModalZoomLabel">100%</div>
+    </div>
     <button type="button" class="image-modal-close" onclick="closeImageModal()" aria-label="Lukk forstørret bilde">×</button>
   </div>
   <div class="image-modal-stage" id="imageModalStage">
     <img id="imageModalImage" src="" alt="">
   </div>
-  <div class="image-modal-help">Dra for å panorere. Bruk nettleserens zoom hvis du vil forstørre mer.</div>
+  <div class="image-modal-help">Bruk +/− for å endre forstørrelse. Dra/rull for å panorere. Dobbeltklikk på bildet for å zoome inn.</div>
 </div>
 
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("help.html version: kvimarka-help-v5-image-zoom-context-back-2026-06-05");
+console.log("help.html version: kvimarka-help-v6-image-zoom-controls-2026-06-06");
 
 function esc(value){
   return String(value ?? "")
@@ -453,6 +459,61 @@ function goBackFromHelp(event){
   return false;
 }
 
+let imageModalZoom = 1;
+const IMAGE_MODAL_MIN_ZOOM = 0.25;
+const IMAGE_MODAL_MAX_ZOOM = 5;
+
+function clampImageModalZoom(value){
+  return Math.max(IMAGE_MODAL_MIN_ZOOM, Math.min(IMAGE_MODAL_MAX_ZOOM, value));
+}
+
+function updateImageModalZoom(keepCenter){
+  const image = document.getElementById("imageModalImage");
+  const stage = document.getElementById("imageModalStage");
+  const label = document.getElementById("imageModalZoomLabel");
+
+  if(!image){
+    return;
+  }
+
+  const oldCenterX = stage ? stage.scrollLeft + stage.clientWidth / 2 : 0;
+  const oldCenterY = stage ? stage.scrollTop + stage.clientHeight / 2 : 0;
+  const oldWidth = image.scrollWidth || image.clientWidth || 1;
+  const oldHeight = image.scrollHeight || image.clientHeight || 1;
+  const relX = oldWidth ? oldCenterX / oldWidth : 0.5;
+  const relY = oldHeight ? oldCenterY / oldHeight : 0.1;
+
+  image.style.width = (imageModalZoom * 100) + "%";
+  image.style.maxWidth = "none";
+  image.style.height = "auto";
+
+  if(label){
+    label.textContent = Math.round(imageModalZoom * 100) + "%";
+  }
+
+  if(stage && keepCenter){
+    requestAnimationFrame(function(){
+      stage.scrollLeft = Math.max(0, image.scrollWidth * relX - stage.clientWidth / 2);
+      stage.scrollTop = Math.max(0, image.scrollHeight * relY - stage.clientHeight / 2);
+    });
+  }
+}
+
+function zoomImageModal(delta){
+  imageModalZoom = clampImageModalZoom(imageModalZoom + delta);
+  updateImageModalZoom(true);
+}
+
+function resetImageModalZoom(){
+  imageModalZoom = 1;
+  updateImageModalZoom(false);
+  const stage = document.getElementById("imageModalStage");
+  if(stage){
+    stage.scrollLeft = 0;
+    stage.scrollTop = 0;
+  }
+}
+
 function openImageModal(src, alt){
   const modal = document.getElementById("imageModal");
   const image = document.getElementById("imageModalImage");
@@ -468,6 +529,9 @@ function openImageModal(src, alt){
   if(title){
     title.textContent = alt || "Bilde";
   }
+
+  imageModalZoom = 1;
+  updateImageModalZoom(false);
 
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
@@ -494,7 +558,27 @@ function closeImageModal(){
   document.body.style.overflow = "";
   if(image){
     image.src = "";
+    image.style.width = "";
   }
+  imageModalZoom = 1;
+}
+
+const imageModalStageElement = document.getElementById("imageModalStage");
+if(imageModalStageElement){
+  imageModalStageElement.addEventListener("wheel", function(event){
+    if(!event.ctrlKey && !event.metaKey){
+      return;
+    }
+    event.preventDefault();
+    zoomImageModal(event.deltaY < 0 ? 0.25 : -0.25);
+  }, {passive:false});
+}
+
+const imageModalImageElement = document.getElementById("imageModalImage");
+if(imageModalImageElement){
+  imageModalImageElement.addEventListener("dblclick", function(){
+    zoomImageModal(0.5);
+  });
 }
 
 document.addEventListener("keydown", function(event){
