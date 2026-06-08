@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handleliste - Varsling</title>
+<style>
+:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;--warning:#d9b15f;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}body.soft-design{--card:#202020;--button:#242424;--button-hover:#303030;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.option-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.option-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 12px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.danger{color:#ff8b8b;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.status.warning{color:var(--warning);}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}label{font-weight:bold;font-size:14px;}input,select,textarea{width:100%;min-height:40px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:15px;}textarea{min-height:78px;padding-top:10px;resize:vertical;}.computed{background:rgba(127,127,127,.07);border:1px solid var(--border);border-radius:10px;padding:12px;line-height:1.4;}.computed-value{font-size:20px;font-weight:bold;color:var(--link);margin-top:4px;}.minutes-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;}.option-button{min-height:42px;}.option-button.active{background:var(--link);border-color:var(--link);color:#fff;}.recipient-list{display:flex;flex-direction:column;gap:6px;}.recipient-row{display:grid;grid-template-columns:1fr 82px 82px;gap:8px;align-items:center;background:rgba(127,127,127,.05);border:1px solid var(--border);border-radius:10px;padding:10px;}.recipient-name{font-weight:bold;}.recipient-meta{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.25;}.check-cell{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:bold;color:var(--muted);}.check-cell input{width:22px;height:22px;min-height:22px;accent-color:var(--link);}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}.active-plan{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;}.plan-title{font-weight:bold;font-size:18px;margin-bottom:4px;}.plan-meta{color:var(--muted);font-size:14px;line-height:1.45;}.small{font-size:12px;color:var(--muted);line-height:1.35;}body.soft-design .card,body.soft-design .computed,body.soft-design .recipient-row,body.soft-design input,body.soft-design select,body.soft-design textarea,body.soft-design .top-button,body.soft-design .action-button,body.soft-design .option-button{border:0;background:rgba(255,255,255,.055);}body.soft-design .card{background:rgba(255,255,255,.038);}body.soft-design .recipient-row{background:rgba(0,0,0,.18);}body.soft-design .option-button.active,body.soft-design .primary{background:var(--link);color:#fff;}@media(max-width:700px){body{padding:6px;}.header{margin-bottom:12px;}.site-title{font-size:28px;}.card{padding:8px;margin-bottom:8px;border-radius:10px;}.grid{grid-template-columns:1fr;gap:0;}.toolbar,.toolbar-left,.toolbar-right{align-items:stretch;width:100%;}.action-button,.option-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.minutes-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}.recipient-row{grid-template-columns:1fr 62px 62px;padding:8px;gap:6px;}.check-cell{font-size:11px;}.computed-value{font-size:17px;}.active-plan{grid-template-columns:1fr;}.active-plan .action-button{width:100%;}}
+</style>
+<script>
+(function(){
+  const savedTheme=localStorage.getItem("brochureTheme")||"dark";
+  if(savedTheme==="dark") document.documentElement.classList.add("dark-mode");
+})();
+</script>
+</head>
+<body>
+<script>
+(function(){
+  const savedTheme=localStorage.getItem("brochureTheme")||"dark";
+  document.body.classList.toggle("dark-mode",savedTheme==="dark");
+  const savedDesign=localStorage.getItem("shoppingDesign")||"soft";
+  document.body.classList.toggle("soft-design",savedDesign!=="classic");
+})();
+function toggleShoppingDesign(){
+  const isSoft=!document.body.classList.contains("soft-design");
+  document.body.classList.toggle("soft-design",isSoft);
+  localStorage.setItem("shoppingDesign",isSoft?"soft":"classic");
+}
+</script>
+<div class="container">
+  <div class="header">
+    <h1 class="site-title">Handleliste</h1>
+    <div class="subtitle">Varsling</div>
+    <div class="top-buttons">
+      <a class="top-button" href="handleliste-bestille.html" title="Tilbake">←</a>
+      <a class="top-button" href="handleliste-handle.html" title="Handle">☑</a>
+      <a class="top-button" href="index.html" title="Hovedside">⌂</a>
+      <a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a>
+      <button type="button" class="top-button" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar space">
+      <div class="toolbar-left">
+        <a class="action-button" href="handleliste-bestille.html">Bestille</a>
+        <a class="action-button" href="handleliste-handle.html">Handle</a>
+      </div>
+      <div class="toolbar-right">
+        <button class="action-button primary" type="button" onclick="saveNotification()" id="saveButton">Lagre varsling</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card status" id="status">Laster varslingsoppsett...</div>
+  <div id="activePlanCard"></div>
+
+  <form id="notificationForm" class="card" onsubmit="event.preventDefault(); saveNotification();">
+    <div class="grid">
+      <div>
+        <div class="form-field">
+          <label for="shoppingTime">Tidspunkt for neste handling</label>
+          <input type="datetime-local" id="shoppingTime" required onchange="updateNotifyAtDisplay()" oninput="updateNotifyAtDisplay()">
+        </div>
+      </div>
+      <div>
+        <div class="form-field">
+          <label>Melding sendes</label>
+          <div class="computed">
+            <div class="small">Beregnes fra tidspunkt og varslingsvalg.</div>
+            <div class="computed-value" id="notifyAtDisplay">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label>Varsle før handling</label>
+      <div class="minutes-row" id="minutesButtons"></div>
+    </div>
+
+    <div class="form-field">
+      <label for="notes">Notat</label>
+      <textarea id="notes" placeholder="Valgfritt notat, f.eks. hvem som skal handle eller hva som er viktig."></textarea>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="toolbar space" style="margin-bottom:10px;">
+      <div><strong>Mottakere</strong><div class="small">Velg hvem som skal få e-post og/eller SMS.</div></div>
+      <div class="toolbar-right">
+        <button class="action-button" type="button" onclick="selectAllEmail(true)">Alle e-post</button>
+        <button class="action-button" type="button" onclick="selectAllSms(true)">Alle SMS</button>
+      </div>
+    </div>
+    <div class="recipient-list" id="recipientList"><div class="empty">Laster brukere...</div></div>
+  </div>
+</div>
+<script>
+const API_BASE="https://api-kvimarka92.carstereogarage.com";
+const MINUTES_OPTIONS=["15 minutter","30 minutter","45 minutter","1 time","3 timer"];
+let users=[];
+let activeNotification=null;
+let activeRecipients=[];
+let selectedMinutes="15 minutter";
+
+function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error(data?.error||data?.detail||`HTTP ${res.status}`);}return data;}
+function setStatus(message,type){const el=document.getElementById("status");el.className="card status"+(type?` ${type}`:"");el.innerHTML=message||"";}
+function minutesToNumber(value){const text=String(value||"").toLowerCase();if(text.includes("15"))return 15;if(text.includes("30"))return 30;if(text.includes("45"))return 45;if(text.includes("1 time"))return 60;if(text.includes("3 timer"))return 180;return 15;}
+function pad(value){return String(value).padStart(2,"0");}
+function toDatetimeLocal(date){return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;}
+function parseDatetimeLocal(value){if(!value)return null;const date=new Date(value);return Number.isNaN(date.getTime())?null:date;}
+function formatLocalDateTime(date){if(!date||Number.isNaN(date.getTime()))return "-";return date.toLocaleString("no-NO",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}
+function getShoppingTimeDate(){return parseDatetimeLocal(document.getElementById("shoppingTime").value);}
+function getNotifyAtDate(){const shoppingTime=getShoppingTimeDate();if(!shoppingTime)return null;return new Date(shoppingTime.getTime()-minutesToNumber(selectedMinutes)*60000);}
+function updateNotifyAtDisplay(){const notifyAt=getNotifyAtDate();document.getElementById("notifyAtDisplay").textContent=formatLocalDateTime(notifyAt);}
+function setMinutes(value){selectedMinutes=value;renderMinutes();updateNotifyAtDisplay();}
+function renderMinutes(){document.getElementById("minutesButtons").innerHTML=MINUTES_OPTIONS.map(option=>`<button type="button" class="option-button ${option===selectedMinutes?"active":""}" onclick="setMinutes('${esc(option)}')">${esc(option)}</button>`).join("");}
+function setDefaultShoppingTime(){const input=document.getElementById("shoppingTime");if(input.value)return;const now=new Date();now.setMinutes(now.getMinutes()+90);now.setMinutes(Math.ceil(now.getMinutes()/15)*15,0,0);input.value=toDatetimeLocal(now);}
+function getRecipientDefaults(user){const existing=activeRecipients.find(item=>item.userIds&&item.userIds.includes(Number(user.id)));return {sendEmail:existing?!!existing.sendEmail:true,sendSms:existing?!!existing.sendSms:false};}
+function renderRecipients(){const el=document.getElementById("recipientList");if(!users.length){el.innerHTML='<div class="empty">Ingen godkjente brukere funnet.</div>';return;}el.innerHTML=users.map(user=>{const defaults=getRecipientDefaults(user);const phone=user.phone?esc(user.phone):"Mangler telefonnummer";return `<div class="recipient-row" data-user-id="${user.id}"><div><div class="recipient-name">${esc(user.name)}</div><div class="recipient-meta">${esc(user.email)}<br>${phone}</div></div><label class="check-cell"><input type="checkbox" class="recipient-email" ${defaults.sendEmail?"checked":""}>E-post</label><label class="check-cell"><input type="checkbox" class="recipient-sms" ${defaults.sendSms?"checked":""}>SMS</label></div>`;}).join("");}
+function renderActivePlan(){const el=document.getElementById("activePlanCard");if(!activeNotification){el.innerHTML="";return;}const shoppingTime=new Date(activeNotification.shoppingTime);const notifyAt=new Date(activeNotification.notifyAt);const recipientText=activeRecipients.length?`${activeRecipients.length} mottaker${activeRecipients.length===1?"":"e"}`:"Ingen mottakere";el.innerHTML=`<div class="card active-plan"><div><div class="plan-title">Aktiv varsling</div><div class="plan-meta">Neste handling: <strong>${esc(formatLocalDateTime(shoppingTime))}</strong><br>Melding sendes: <strong>${esc(formatLocalDateTime(notifyAt))}</strong><br>Varsling: ${esc(activeNotification.notifyMinutesBefore)} før · ${esc(recipientText)}</div></div><button class="action-button danger" type="button" onclick="cancelNotification()">Avbryt varsling</button></div>`;}
+function selectAllEmail(value){document.querySelectorAll(".recipient-email").forEach(input=>input.checked=value);}
+function selectAllSms(value){document.querySelectorAll(".recipient-sms").forEach(input=>input.checked=value);}
+function collectRecipients(){return Array.from(document.querySelectorAll(".recipient-row")).map(row=>({userId:Number(row.dataset.userId),sendEmail:row.querySelector(".recipient-email").checked,sendSms:row.querySelector(".recipient-sms").checked}));}
+function applyActiveNotificationToForm(){if(!activeNotification)return;const shoppingTime=new Date(activeNotification.shoppingTime);if(!Number.isNaN(shoppingTime.getTime())){document.getElementById("shoppingTime").value=toDatetimeLocal(shoppingTime);}selectedMinutes=activeNotification.notifyMinutesBefore||selectedMinutes;document.getElementById("notes").value=activeNotification.notes||"";}
+async function loadSetup(){setStatus("Laster varslingsoppsett...");try{const data=await fetchJson(`${API_BASE}/shopping/notification-setup`);users=Array.isArray(data.users)?data.users:[];activeNotification=data.activeNotification||null;activeRecipients=Array.isArray(data.activeRecipients)?data.activeRecipients:[];applyActiveNotificationToForm();setDefaultShoppingTime();renderMinutes();renderRecipients();renderActivePlan();updateNotifyAtDisplay();setStatus("Klar. Velg tidspunkt, varslingstid og mottakere.","success");}catch(error){setStatus(`Kunne ikke laste varsling.<br><br>${esc(error.message)}`,"error");renderMinutes();setDefaultShoppingTime();updateNotifyAtDisplay();}}
+async function saveNotification(){const button=document.getElementById("saveButton");button.disabled=true;try{const shoppingTime=getShoppingTimeDate();const notifyAt=getNotifyAtDate();if(!shoppingTime||!notifyAt){throw new Error("Velg tidspunkt for neste handling.");}const body={shoppingTime:shoppingTime.toISOString(),notifyMinutesBefore:selectedMinutes,notifyAt:notifyAt.toISOString(),notes:document.getElementById("notes").value.trim(),recipients:collectRecipients()};const data=await fetchJson(`${API_BASE}/shopping/notification-save`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(body)});activeNotification=data.notification||null;activeRecipients=Array.isArray(data.recipients)?data.recipients:[];renderActivePlan();setStatus("Varsling er lagret.","success");}catch(error){setStatus(`Kunne ikke lagre varsling.<br><br>${esc(error.message)}`,"error");}finally{button.disabled=false;}}
+async function cancelNotification(){if(!activeNotification||!activeNotification.id)return;if(!confirm("Avbryte aktiv varsling?"))return;try{await fetchJson(`${API_BASE}/shopping/notification-cancel`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id:activeNotification.id})});activeNotification=null;activeRecipients=[];renderActivePlan();renderRecipients();setStatus("Varsling er avbrutt.","success");}catch(error){setStatus(`Kunne ikke avbryte varsling.<br><br>${esc(error.message)}`,"error");}}
+function safeAppTarget(value){const text=String(value||"").trim();if(!text)return"";if(/^https?:/i.test(text))return"";if(text.startsWith("//"))return"";if(text.includes(".."))return"";return text;}
+(function setupBackLinks(){const params=new URLSearchParams(location.search);const from=safeAppTarget(params.get("from"));if(from){const back=document.querySelector('.top-buttons .top-button[title="Tilbake"]');if(back)back.href=from;}})();
+loadSetup();
+</script>
+</body>
+</html>
