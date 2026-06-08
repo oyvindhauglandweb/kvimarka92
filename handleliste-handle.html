@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: design-toggle-soft-default-2026-06-08 | previous: shopping-list-handle-toolbar-cleanup-v30-2026-06-05 --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-persist-size-additem-v31-2026-06-08 | previous: design-toggle-soft-default-2026-06-08 --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -78,6 +78,34 @@ html:not(.classic-design-root) .empty{
   background:rgba(0,0,0,.12) !important;
 }
 .design-toggle-button{font-size:21px;}
+
+/* Handlevisning: 3 trinn for tekst og avkrysningsbokser. small = tidligere kompakt visning. */
+html.handle-size-small{--handle-row-height:30px;--handle-grid-check:21px;--handle-check-size:17px;--handle-name-size:13px;--handle-group-size:14px;}
+html.handle-size-medium{--handle-row-height:38px;--handle-grid-check:31px;--handle-check-size:25px;--handle-name-size:17px;--handle-group-size:16px;}
+html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handle-check-size:33px;--handle-name-size:21px;--handle-group-size:18px;}
+#shoppingList .item-row{
+  height:var(--handle-row-height) !important;
+  grid-template-columns:var(--handle-grid-check) minmax(0,1fr) auto !important;
+}
+#shoppingList .item-check{
+  width:var(--handle-check-size) !important;
+  height:var(--handle-check-size) !important;
+}
+#shoppingList .item-name{
+  font-size:var(--handle-name-size) !important;
+}
+#shoppingList .group-title{
+  font-size:var(--handle-group-size) !important;
+}
+.handle-size-toggle-button{font-size:18px;}
+.add-item-modal-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px;}
+body.dark-mode .modal{background:rgba(0,0,0,.82);}
+@media(max-width:700px){
+  html.handle-size-small{--handle-row-height:29px;--handle-grid-check:20px;--handle-check-size:16px;--handle-name-size:12.5px;--handle-group-size:13px;}
+  html.handle-size-medium{--handle-row-height:38px;--handle-grid-check:31px;--handle-check-size:25px;--handle-name-size:17px;--handle-group-size:16px;}
+  html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handle-check-size:33px;--handle-name-size:21px;--handle-group-size:18px;}
+}
+
 </style></head><body class="dark-mode"><script>
 (function(){
   try{
@@ -104,7 +132,75 @@ window.toggleShoppingDesign = function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
-</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div><script>
+(function(){
+  try{
+    const allowed=["small","medium","large"];
+    const saved=localStorage.getItem("shoppingHandleSize")||"small";
+    const size=allowed.includes(saved)?saved:"small";
+    document.documentElement.classList.remove("handle-size-small","handle-size-medium","handle-size-large");
+    document.documentElement.classList.add("handle-size-"+size);
+  }catch(e){
+    document.documentElement.classList.add("handle-size-small");
+  }
+})();
+window.applyHandleSizeState=function(){
+  try{
+    const allowed=["small","medium","large"];
+    const saved=localStorage.getItem("shoppingHandleSize")||"small";
+    const size=allowed.includes(saved)?saved:"small";
+    document.documentElement.classList.remove("handle-size-small","handle-size-medium","handle-size-large");
+    document.documentElement.classList.add("handle-size-"+size);
+    const btn=document.getElementById("handleSizeToggle");
+    if(btn){
+      const label=size==="small"?"A":(size==="medium"?"A+":"A++");
+      btn.textContent=label;
+      btn.title="Endre tekststørrelse og avkrysningsbokser: "+(size==="small"?"liten":(size==="medium"?"medium":"stor"));
+      btn.setAttribute("aria-label",btn.title);
+    }
+  }catch(e){}
+};
+window.toggleHandleSize=function(){
+  try{
+    const allowed=["small","medium","large"];
+    const current=localStorage.getItem("shoppingHandleSize")||"small";
+    const index=allowed.indexOf(current);
+    const next=allowed[(index<0?0:index+1)%allowed.length];
+    localStorage.setItem("shoppingHandleSize",next);
+    window.applyHandleSizeState();
+  }catch(e){}
+};
+document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button handle-size-toggle-button" id="handleSizeToggle" onclick="toggleHandleSize()" title="Endre tekststørrelse og avkrysningsbokser" aria-label="Endre tekststørrelse og avkrysningsbokser">A</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div>
+<div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Legg til vare</div>
+      <button class="modal-close" type="button" onclick="closeAddItemModal()" aria-label="Lukk">×</button>
+    </div>
+    <form id="addItemForm" onsubmit="event.preventDefault(); createShoppingItemFromHandle();">
+      <div class="form-field">
+        <label for="addItemName">Varenavn</label>
+        <input id="addItemName" type="text" autocomplete="off" required>
+      </div>
+      <div class="form-field">
+        <label for="addItemType">Varetype</label>
+        <select id="addItemType"></select>
+      </div>
+      <div class="form-field">
+        <label for="addItemOwner">Vareliste/eier</label>
+        <select id="addItemOwner"></select>
+      </div>
+      <div class="checkbox-row">
+        <input id="addItemShouldBuy" type="checkbox" checked>
+        <label for="addItemShouldBuy">Legg direkte i handlelisten</label>
+      </div>
+      <div class="add-item-modal-actions">
+        <button class="action-button" type="button" onclick="closeAddItemModal()">Avbryt</button>
+        <button class="action-button primary" id="addItemSaveButton" type="submit">Legg til vare</button>
+      </div>
+    </form>
+  </div>
+</div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 let SHOPPING_OWNERS=["Felles"];
 let ownerContacts=[];
@@ -131,13 +227,103 @@ function recipeBadge(item){
 }
 
 
-let items=[];let boughtIds=new Set();let typeOrder=[];let currentStoreChain="Standard";
+const BOUGHT_STORAGE_KEY="kvimarka92ShoppingBoughtIds";
+let items=[];let boughtIds=new Set();let typeOrder=[];let typeOptions=[];let currentStoreChain="Standard";
+function getBoughtStorageKey(){return BOUGHT_STORAGE_KEY;}
+function loadRememberedBoughtIds(){
+  try{
+    const values=JSON.parse(localStorage.getItem(getBoughtStorageKey())||"[]");
+    return new Set((Array.isArray(values)?values:[]).map(id=>Number(id)).filter(id=>Number.isInteger(id)&&id>0));
+  }catch(error){
+    return new Set();
+  }
+}
+function saveRememberedBoughtIds(){
+  try{
+    localStorage.setItem(getBoughtStorageKey(),JSON.stringify([...boughtIds]));
+  }catch(error){}
+}
+function clearRememberedBoughtIds(){
+  boughtIds.clear();
+  try{localStorage.removeItem(getBoughtStorageKey());}catch(error){}
+}
+function reconcileBoughtIdsWithItems(){
+  const validIds=new Set(getOrderedItems().map(item=>Number(item.id)));
+  boughtIds=new Set([...boughtIds].map(id=>Number(id)).filter(id=>validIds.has(id)));
+  saveRememberedBoughtIds();
+}
 function getOrderedItems(){return items.filter(item=>item.shouldBuy);}
 function groupOrderedItems(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});const seen=new Set();return [...typeOrder,...Object.keys(map)].filter(type=>{const key=String(type).toLowerCase();if(seen.has(key)||!map[type])return false;seen.add(key);return true;}).map(type=>({type,items:map[type]}));}
-function render(){const root=document.getElementById("shoppingList");const ordered=getOrderedItems();const finishButton=document.getElementById("finishButton");const toggleAllButton=document.getElementById("toggleAllButton");if(finishButton)finishButton.disabled=!ordered.length;if(toggleAllButton){const allBought=ordered.length>0&&ordered.every(item=>boughtIds.has(item.id));toggleAllButton.disabled=!ordered.length;toggleAllButton.textContent=allBought?"Avmerk alle":"Merk alle";toggleAllButton.title=allBought?"Fjern avkrysning på alle varer":"Merk alle varer som handlet";}if(!ordered.length){root.innerHTML='<div class="empty">Ingen varer er bestilt handlet.</div>';return;}root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{const isBought=boughtIds.has(item.id);const badges=`${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${item.id}, this.checked)" title="Handlet"><div class="item-name">${esc(item.name)}</div><div class="badge-stack">${badges}</div></div>`;}).join("")}</div></div>`).join("");}
-function toggleBought(id,checked){if(checked)boughtIds.add(id);else boughtIds.delete(id);render();}
-function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(item.id));ordered.forEach(item=>{if(allBought)boughtIds.delete(item.id);else boughtIds.add(item.id);});render();}
-async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];boughtIds.clear();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+function uniqueShoppingTypesForForm(values){
+  const seen=new Set();
+  const result=[];
+  (Array.isArray(values)?values:[]).forEach(value=>{
+    const text=String(value||"").trim()||"Annet";
+    const key=text.toLowerCase();
+    if(!seen.has(key)){
+      seen.add(key);
+      result.push(text);
+    }
+  });
+  return result.length?result:["Annet"];
+}
+function fillAddItemSelects(){
+  const typeSelect=document.getElementById("addItemType");
+  const ownerSelect=document.getElementById("addItemOwner");
+  if(typeSelect){
+    const options=uniqueShoppingTypesForForm([...(typeOptions||[]),...DEFAULT_TYPES,...typeOrder,...items.map(item=>item.type)]);
+    typeSelect.innerHTML=options.map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");
+  }
+  if(ownerSelect){
+    ownerSelect.innerHTML=SHOPPING_OWNERS.map(owner=>`<option value="${esc(owner)}">${esc(owner)}</option>`).join("");
+    ownerSelect.value=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");
+  }
+}
+function openAddItemModal(){
+  fillAddItemSelects();
+  const modal=document.getElementById("addItemModal");
+  const name=document.getElementById("addItemName");
+  const shouldBuy=document.getElementById("addItemShouldBuy");
+  if(shouldBuy)shouldBuy.checked=true;
+  if(modal)modal.classList.add("open");
+  window.setTimeout(()=>{if(name){name.focus();name.select();}},50);
+}
+function closeAddItemModal(){
+  const modal=document.getElementById("addItemModal");
+  if(modal)modal.classList.remove("open");
+}
+async function createShoppingItemFromHandle(){
+  const button=document.getElementById("addItemSaveButton");
+  const name=String(document.getElementById("addItemName")?.value||"").trim();
+  const type=String(document.getElementById("addItemType")?.value||"Annet").trim()||"Annet";
+  const owner=normalizeOwner(document.getElementById("addItemOwner")?.value||"Felles");
+  const shouldBuy=!!document.getElementById("addItemShouldBuy")?.checked;
+  if(!name){
+    alert("Skriv inn varenavn.");
+    return;
+  }
+  if(button)button.disabled=true;
+  try{
+    await fetchJson(`${API_BASE}/shopping/item-create`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({name,type,owner,shouldBuy,standardItem:false})
+    });
+    document.getElementById("addItemName").value="";
+    closeAddItemModal();
+    await loadItems();
+    setStatus(`Varen "${esc(name)}" er lagt til handlelisten.`,"success");
+  }catch(error){
+    setStatus(`Kunne ikke legge til vare.<br><br>${esc(error.message)}`,"error");
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+
+function render(){const root=document.getElementById("shoppingList");const ordered=getOrderedItems();const finishButton=document.getElementById("finishButton");const toggleAllButton=document.getElementById("toggleAllButton");if(finishButton)finishButton.disabled=!ordered.length;if(toggleAllButton){const allBought=ordered.length>0&&ordered.every(item=>boughtIds.has(Number(item.id)));toggleAllButton.disabled=!ordered.length;toggleAllButton.textContent=allBought?"Avmerk alle":"Merk alle";toggleAllButton.title=allBought?"Fjern avkrysning på alle varer":"Merk alle varer som handlet";}if(!ordered.length){root.innerHTML='<div class="empty">Ingen varer er bestilt handlet.</div>';return;}root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{const isBought=boughtIds.has(Number(item.id));const badges=`${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name">${esc(item.name)}</div><div class="badge-stack">${badges}</div></div>`;}).join("")}</div></div>`).join("");}
+function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked)boughtIds.add(numericId);else boughtIds.delete(numericId);saveRememberedBoughtIds();render();}
+function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();render();}
+async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
@@ -147,7 +333,7 @@ function buildShoppingListText(){
     group.items.forEach(item=>{
       const ownerText=normalizeOwner(item.owner)!=="Felles"?`(${normalizeOwner(item.owner)}) `:"";
       const recipeText=String(item.source||"").trim().toLowerCase()==="oppskrift"&&item.recipeName?` [${item.recipeName}]`:"";
-      lines.push(`${boughtIds.has(item.id)?"[x]":"[ ]"} ${ownerText}${item.name}${recipeText}`);
+      lines.push(`${boughtIds.has(Number(item.id))?"[x]":"[ ]"} ${ownerText}${item.name}${recipeText}`);
     });
     lines.push("");
   });
@@ -162,7 +348,7 @@ function sendShoppingListSms(){
   }
   window.location.href=`sms:?&body=${encodeURIComponent(buildShoppingListText())}`;
 }
-function sendShoppingListEmail(){const ordered=getOrderedItems();if(!ordered.length){alert("Ingen varer er bestilt handlet.");return;}const lines=["Handleliste",""];groupOrderedItems(ordered).forEach(group=>{lines.push(group.type);group.items.forEach(item=>lines.push(`${boughtIds.has(item.id)?"[x]":"[ ]"} ${normalizeOwner(item.owner)!=="Felles"?`(${normalizeOwner(item.owner)}) `:""}${item.name}`));lines.push("");});window.location.href=`mailto:?subject=${encodeURIComponent("Handleliste")}&body=${encodeURIComponent(lines.join("\n"))}`;}
+function sendShoppingListEmail(){const ordered=getOrderedItems();if(!ordered.length){alert("Ingen varer er bestilt handlet.");return;}const lines=["Handleliste",""];groupOrderedItems(ordered).forEach(group=>{lines.push(group.type);group.items.forEach(item=>lines.push(`${boughtIds.has(Number(item.id))?"[x]":"[ ]"} ${normalizeOwner(item.owner)!=="Felles"?`(${normalizeOwner(item.owner)}) `:""}${item.name}`));lines.push("");});window.location.href=`mailto:?subject=${encodeURIComponent("Handleliste")}&body=${encodeURIComponent(lines.join("\n"))}`;}
 function getShoppingLocation(){
   return new Promise(resolve=>{
     if(!navigator.geolocation){
@@ -433,6 +619,7 @@ async function finishShopping(){
       })
     });
 
+    clearRememberedBoughtIds();
     await loadItems();
     setStatus(`Handelen er avsluttet. ${data.boughtCount} varer ble lagret som handlet.${shoppingSessionStatusText(data.session)}`,"success");
   }catch(error){
@@ -442,6 +629,11 @@ async function finishShopping(){
     render();
   }
 }
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"){
+    closeAddItemModal();
+  }
+});
 loadItems();</script>
 <script>
 (function(){
