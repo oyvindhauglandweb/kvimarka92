@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Bestille</title><!-- version: shopping-list-order-owner-status-v22-2026-06-05 --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Bestille</title><!-- version: design-toggle-soft-default-2026-06-08 | previous: shopping-list-order-owner-status-v22-2026-06-05 --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.group{margin-bottom:10px;}.group-title{font-size:15px;font-weight:bold;margin:0 0 4px;color:var(--muted);}.item-list{display:flex;flex-direction:column;gap:3px;}.item-row{display:grid;grid-template-columns:26px 1fr auto;gap:6px;align-items:center;border:1px solid var(--border);border-radius:7px;padding:4px 6px;background:rgba(127,127,127,.04);min-height:32px;}.item-check{width:19px;height:19px;accent-color:var(--link);}.item-name{font-weight:bold;font-size:14px;line-height:1.1;}.item-meta{color:var(--muted);font-size:11px;margin-top:1px;line-height:1.15;}.badge{display:inline-flex;align-items:center;min-height:18px;padding:0 6px;border-radius:999px;background:rgba(124,199,232,.16);color:var(--link);font-size:10px;font-weight:bold;white-space:nowrap;}.badge-stack{display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap;}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}.modal{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.82);padding:18px;overflow:auto;}.modal.open{display:block;}.modal-content{max-width:560px;margin:50px auto;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;}.modal-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;}.modal-title{font-size:22px;font-weight:bold;}.modal-close{width:42px;height:42px;border:1px solid var(--border);border-radius:8px;background:var(--button);color:var(--text);font-size:24px;font-weight:bold;cursor:pointer;}.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}label{font-weight:bold;font-size:14px;}input,select{width:100%;min-height:40px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:15px;}.checkbox-row{display:flex;align-items:center;gap:10px;}.checkbox-row input{width:22px;height:22px;min-height:auto;}@media(max-width:700px){body{padding:6px;}.header{margin-bottom:12px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}.summary-item{padding:6px;}.summary-label{font-size:10px;}.summary-value{font-size:15px;}.toolbar,.toolbar-left,.toolbar-right{align-items:stretch;width:100%;}.action-button,.owner-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.group{margin-bottom:8px;}.group-title{font-size:13px;margin-bottom:3px;}.item-list{gap:2px;}.item-row{grid-template-columns:24px 1fr auto;padding:3px 5px;min-height:30px;gap:5px;border-radius:6px;}.item-check{width:18px;height:18px;}.item-name{font-size:13px;}.item-meta{font-size:10px;}.badge{min-height:16px;font-size:9px;padding:0 5px;}.modal-content{margin:30px auto;padding:14px;}}
 
 /* v11: force Bestille rows to the same compact visual height as Handle */
@@ -31,7 +31,81 @@
   #itemList .item-check{width:16px !important;height:16px !important;min-width:16px !important;}
   #itemList .item-name{font-size:13px !important;}
 }
- .top-button.handle-top-button{font-size:20px;} .toolbar-separator{display:inline-block;width:12px;flex:0 0 12px;} @media(max-width:700px){.toolbar-separator{width:100%;flex:0 0 100%;height:0;}}</style></head><body class="dark-mode"><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Bestille</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button handle-top-button" href="handleliste-handle.html" title="Handle">🛒</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a></div></div>
+ .top-button.handle-top-button{font-size:20px;} .toolbar-separator{display:inline-block;width:12px;flex:0 0 12px;} @media(max-width:700px){.toolbar-separator{width:100%;flex:0 0 100%;height:0;}}
+/* Designvelger: mykt design er standard. Klassisk design aktiveres med html.classic-design-root. */
+html:not(.classic-design-root) .card,
+html:not(.classic-design-root) .summary-item,
+html:not(.classic-design-root) .recipe-card,
+html:not(.classic-design-root) .history-group,
+html:not(.classic-design-root) .modal-content{
+  border:0 !important;
+  background:rgba(255,255,255,.038) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .status.card,
+html:not(.classic-design-root) .card .status{
+  border:0 !important;
+}
+html:not(.classic-design-root) .item-row,
+html:not(.classic-design-root) .history-row,
+html:not(.classic-design-root) .recipe-row,
+html:not(.classic-design-root) .ingredient-row,
+html:not(.classic-design-root) .edit-row,
+html:not(.classic-design-root) .type-row{
+  border:0 !important;
+  background:rgba(0,0,0,.18) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .top-button,
+html:not(.classic-design-root) .action-button,
+html:not(.classic-design-root) .owner-button,
+html:not(.classic-design-root) .chain-button,
+html:not(.classic-design-root) .type-button,
+html:not(.classic-design-root) .small-button,
+html:not(.classic-design-root) .delete-button,
+html:not(.classic-design-root) .standard-button{
+  border:0 !important;
+  background:rgba(255,255,255,.055) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .owner-button.active,
+html:not(.classic-design-root) .chain-button.active,
+html:not(.classic-design-root) .primary{
+  background:var(--link) !important;
+  color:#fff !important;
+}
+html:not(.classic-design-root) .empty{
+  border:0 !important;
+  background:rgba(0,0,0,.12) !important;
+}
+.design-toggle-button{font-size:21px;}
+</style></head><body class="dark-mode"><script>
+(function(){
+  try{
+    const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
+    document.documentElement.classList.toggle("classic-design-root", savedDesign === "classic");
+  }catch(e){}
+})();
+window.applyShoppingDesignState = function(){
+  try{
+    const isClassic = document.documentElement.classList.contains("classic-design-root");
+    const btn = document.getElementById("shoppingDesignToggle");
+    if(btn){
+      btn.textContent = isClassic ? "◩" : "◫";
+      btn.title = isClassic ? "Bytt til mykt design" : "Bytt til klassisk design";
+      btn.setAttribute("aria-label", btn.title);
+    }
+  }catch(e){}
+};
+window.toggleShoppingDesign = function(){
+  try{
+    const isClassic = document.documentElement.classList.toggle("classic-design-root");
+    localStorage.setItem("shoppingDesign", isClassic ? "classic" : "soft");
+    window.applyShoppingDesignState();
+  }catch(e){}
+};
+document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Bestille</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button handle-top-button" href="handleliste-handle.html" title="Handle">🛒</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div>
 <div class="card"><div class="summary"><div class="summary-item"><div class="summary-label">Alle varer</div><div class="summary-value" id="totalValue">-</div></div><div class="summary-item"><div class="summary-label">Skal handles</div><div class="summary-value" id="orderValue">-</div></div><div class="summary-item"><div class="summary-label">Standard</div><div class="summary-value" id="standardValue">-</div></div></div></div>
 <div class="card"><div class="toolbar"><div class="toolbar-left" id="ownerButtons"></div><div class="toolbar-right"><a class="owner-button" href="handleliste-oppskrifter.html">Oppskrifter</a></div></div></div>
 <div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openNewItemModal()">+ Legg til ny vare</button><a class="action-button" href="handleliste-rediger.html">✎ Rediger</a><a class="action-button" href="handleliste-varetyper.html">↕ Varetyper</a></div><div class="toolbar-right"><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button></div></div></div>

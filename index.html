@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Kvimarka 92</title>
+<!-- version: design-toggle-index-2026-06-08 -->
 
 <style>
 :root{
@@ -416,10 +417,105 @@ body.dark-mode .path-button:hover{
   .menu-row.depth-7{ margin-left:168px; }
 
 }
+/* Designvelger: mykt design er standard. Klassisk design aktiveres med html.classic-design-root. */
+html:not(.classic-design-root) .path-button,
+html:not(.classic-design-root) .create-route-button,
+html:not(.classic-design-root) .create-route-close,
+html:not(.classic-design-root) .design-toggle-button{
+  border:0 !important;
+  background:rgba(255,255,255,.055) !important;
+  box-shadow:none !important;
+}
+
+html:not(.classic-design-root) .path-button.active{
+  background:rgba(124,199,232,.13) !important;
+  color:#7cc7e8 !important;
+}
+
+html:not(.classic-design-root) .path-button:hover,
+html:not(.classic-design-root) .create-route-button:hover,
+html:not(.classic-design-root) .create-route-close:hover,
+html:not(.classic-design-root) .design-toggle-button:hover{
+  background:rgba(255,255,255,.085) !important;
+}
+
+html:not(.classic-design-root) .create-route-modal-content,
+html:not(.classic-design-root) .create-route-status,
+html:not(.classic-design-root) .error-box,
+html:not(.classic-design-root) .login-menu{
+  border:0 !important;
+  background:rgba(255,255,255,.04) !important;
+  box-shadow:none !important;
+}
+
+html:not(.classic-design-root) .create-route-field input,
+html:not(.classic-design-root) .create-route-field select,
+html:not(.classic-design-root) .create-route-field textarea{
+  border:0 !important;
+  background:rgba(0,0,0,.18) !important;
+}
+
+.design-toggle-button{
+  position:absolute;
+  top:20px;
+  right:max(68px, calc((100vw - 1200px) / 2 + 48px));
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:38px;
+  height:38px;
+  padding:0;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--text);
+  font-size:20px;
+  font-weight:bold;
+  line-height:1;
+  cursor:pointer;
+}
+
+@media(max-width:800px){
+  .design-toggle-button{
+    top:10px;
+    right:56px;
+  }
+}
+
 </style>
 </head>
 
 <body class="dark-mode">
+<script>
+(function(){
+  try{
+    const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
+    document.documentElement.classList.toggle("classic-design-root", savedDesign === "classic");
+  }catch(e){}
+})();
+window.applyShoppingDesignState = function(){
+  try{
+    const isClassic = document.documentElement.classList.contains("classic-design-root");
+    const btn = document.getElementById("shoppingDesignToggle");
+    if(btn){
+      btn.textContent = isClassic ? "◩" : "◫";
+      btn.title = isClassic ? "Bytt til mykt design" : "Bytt til klassisk design";
+      btn.setAttribute("aria-label", btn.title);
+    }
+  }catch(e){}
+};
+window.toggleShoppingDesign = function(){
+  try{
+    const isClassic = document.documentElement.classList.toggle("classic-design-root");
+    localStorage.setItem("shoppingDesign", isClassic ? "classic" : "soft");
+    window.applyShoppingDesignState();
+  }catch(e){}
+};
+document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
+</script>
+
+<button type="button" class="design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button>
 
 <div class="login-widget">
   <a id="loginStatus"

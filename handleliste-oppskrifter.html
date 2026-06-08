@@ -1,5 +1,79 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Oppskrifter</title><!-- version: shopping-recipes-order-v1-2026-06-04 --><style>
-:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.action-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.recipe-list{display:flex;flex-direction:column;gap:6px;}.recipe-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:rgba(127,127,127,.04);}.recipe-title{font-size:16px;font-weight:bold;line-height:1.15;}.recipe-description{color:var(--muted);font-size:12px;margin-top:2px;}.recipe-items{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.25;}.badge{display:inline-flex;align-items:center;min-height:18px;padding:0 6px;border-radius:999px;background:rgba(124,199,232,.16);color:var(--link);font-size:10px;font-weight:bold;white-space:nowrap;}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}@media(max-width:700px){body{padding:6px;}.header{margin-bottom:12px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.toolbar{align-items:stretch;width:100%;}.action-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.recipe-row{padding:6px 7px;gap:6px;}.recipe-title{font-size:14px;}.recipe-description,.recipe-items{font-size:11px;}}/* shopping-toolbar-cleanup-2026-06-05 */ .top-button.bestille-top-button{font-size:20px;} .top-button.handle-top-button{font-size:20px;} .toolbar-separator{display:inline-block;width:12px;flex:0 0 12px;} @media(max-width:700px){.toolbar-separator{width:100%;flex:0 0 100%;height:0;}}</style></head><body class="dark-mode"><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Oppskrifter</div><div class="top-buttons"><a class="top-button" href="handleliste-bestille.html" title="Tilbake til Bestille">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a></div></div>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Oppskrifter</title><!-- version: design-toggle-soft-default-2026-06-08 | previous: shopping-recipes-order-v1-2026-06-04 --><style>
+:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.action-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.recipe-list{display:flex;flex-direction:column;gap:6px;}.recipe-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:rgba(127,127,127,.04);}.recipe-title{font-size:16px;font-weight:bold;line-height:1.15;}.recipe-description{color:var(--muted);font-size:12px;margin-top:2px;}.recipe-items{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.25;}.badge{display:inline-flex;align-items:center;min-height:18px;padding:0 6px;border-radius:999px;background:rgba(124,199,232,.16);color:var(--link);font-size:10px;font-weight:bold;white-space:nowrap;}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}@media(max-width:700px){body{padding:6px;}.header{margin-bottom:12px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.toolbar{align-items:stretch;width:100%;}.action-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.recipe-row{padding:6px 7px;gap:6px;}.recipe-title{font-size:14px;}.recipe-description,.recipe-items{font-size:11px;}}/* shopping-toolbar-cleanup-2026-06-05 */ .top-button.bestille-top-button{font-size:20px;} .top-button.handle-top-button{font-size:20px;} .toolbar-separator{display:inline-block;width:12px;flex:0 0 12px;} @media(max-width:700px){.toolbar-separator{width:100%;flex:0 0 100%;height:0;}}
+/* Designvelger: mykt design er standard. Klassisk design aktiveres med html.classic-design-root. */
+html:not(.classic-design-root) .card,
+html:not(.classic-design-root) .summary-item,
+html:not(.classic-design-root) .recipe-card,
+html:not(.classic-design-root) .history-group,
+html:not(.classic-design-root) .modal-content{
+  border:0 !important;
+  background:rgba(255,255,255,.038) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .status.card,
+html:not(.classic-design-root) .card .status{
+  border:0 !important;
+}
+html:not(.classic-design-root) .item-row,
+html:not(.classic-design-root) .history-row,
+html:not(.classic-design-root) .recipe-row,
+html:not(.classic-design-root) .ingredient-row,
+html:not(.classic-design-root) .edit-row,
+html:not(.classic-design-root) .type-row{
+  border:0 !important;
+  background:rgba(0,0,0,.18) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .top-button,
+html:not(.classic-design-root) .action-button,
+html:not(.classic-design-root) .owner-button,
+html:not(.classic-design-root) .chain-button,
+html:not(.classic-design-root) .type-button,
+html:not(.classic-design-root) .small-button,
+html:not(.classic-design-root) .delete-button,
+html:not(.classic-design-root) .standard-button{
+  border:0 !important;
+  background:rgba(255,255,255,.055) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .owner-button.active,
+html:not(.classic-design-root) .chain-button.active,
+html:not(.classic-design-root) .primary{
+  background:var(--link) !important;
+  color:#fff !important;
+}
+html:not(.classic-design-root) .empty{
+  border:0 !important;
+  background:rgba(0,0,0,.12) !important;
+}
+.design-toggle-button{font-size:21px;}
+</style></head><body class="dark-mode"><script>
+(function(){
+  try{
+    const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
+    document.documentElement.classList.toggle("classic-design-root", savedDesign === "classic");
+  }catch(e){}
+})();
+window.applyShoppingDesignState = function(){
+  try{
+    const isClassic = document.documentElement.classList.contains("classic-design-root");
+    const btn = document.getElementById("shoppingDesignToggle");
+    if(btn){
+      btn.textContent = isClassic ? "◩" : "◫";
+      btn.title = isClassic ? "Bytt til mykt design" : "Bytt til klassisk design";
+      btn.setAttribute("aria-label", btn.title);
+    }
+  }catch(e){}
+};
+window.toggleShoppingDesign = function(){
+  try{
+    const isClassic = document.documentElement.classList.toggle("classic-design-root");
+    localStorage.setItem("shoppingDesign", isClassic ? "classic" : "soft");
+    window.applyShoppingDesignState();
+  }catch(e){}
+};
+document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Oppskrifter</div><div class="top-buttons"><a class="top-button" href="handleliste-bestille.html" title="Tilbake til Bestille">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div>
 <div class="card"><div class="toolbar"><a class="action-button" href="handleliste-oppskrifter-rediger.html">✎ Rediger oppskrifter</a></div></div>
 <div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="recipeList"></div></div></div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
