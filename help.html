@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hjelp - Kvimarka 92</title>
-<!-- version: kvimarka-help-v7-image-zoom-drag-pan-2026-06-06 -->
+<!-- version: kvimarka-help-v8-soft-design-toggle-2026-06-08 | previous: kvimarka-help-v7-image-zoom-drag-pan-2026-06-06 -->
 
 <style>
 :root{
@@ -329,6 +329,27 @@ a{
   color:var(--link);
 }
 
+
+/* Designvelger: mykt design er standard. Klassisk design aktiveres med html.classic-design-root. */
+html:not(.classic-design-root) .top-button,
+html:not(.classic-design-root) .toc-link,
+html:not(.classic-design-root) .back-to-top,
+html:not(.classic-design-root) .image-modal-controls button{
+  border:0 !important;
+  background:rgba(255,255,255,.055) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .help-card,
+html:not(.classic-design-root) .toc-card{
+  border:0 !important;
+  background:rgba(255,255,255,.035) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .paragraph-image{
+  border:0 !important;
+}
+.design-toggle-button{font-size:21px;}
+
 @media(max-width:800px){
   body{
     padding:12px;
@@ -359,6 +380,30 @@ a{
   }
 }
 </style>
+
+<script>
+(function applyShoppingDesignEarly(){
+  try{
+    const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
+    document.documentElement.classList.toggle("classic-design-root", savedDesign === "classic");
+  }catch(error){}
+})();
+function updateShoppingDesignButton(){
+  const btn = document.getElementById("shoppingDesignToggle");
+  if(!btn) return;
+  const isClassic = document.documentElement.classList.contains("classic-design-root");
+  btn.textContent = isClassic ? "▣" : "◫";
+  btn.title = isClassic ? "Bytt til mykt design" : "Bytt til klassisk design";
+  btn.setAttribute("aria-label", btn.title);
+}
+function toggleShoppingDesign(){
+  const isClassic = document.documentElement.classList.toggle("classic-design-root");
+  try{ localStorage.setItem("shoppingDesign", isClassic ? "classic" : "soft"); }catch(error){}
+  updateShoppingDesignButton();
+}
+document.addEventListener("DOMContentLoaded", updateShoppingDesignButton);
+</script>
+
 </head>
 
 <body class="dark-mode">
@@ -370,6 +415,7 @@ a{
     <div class="top-buttons">
       <a class="top-button" href="index.html?restoreMenu=1" title="Tilbake" onclick="return goBackFromHelp(event)">←</a>
       <a class="top-button" href="index.html" title="Hovedside">⌂</a>
+      <button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button>
     </div>
   </div>
 
