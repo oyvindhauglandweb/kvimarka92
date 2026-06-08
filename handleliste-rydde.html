@@ -56,7 +56,42 @@ html:not(.classic-design-root) .empty{
 .cleanup-badges{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:4px;}
 html:not(.classic-design-root) .cleanup-row{border:0;background:rgba(0,0,0,.18);}
 @media(max-width:700px){.cleanup-row{padding:5px;min-height:32px;}.cleanup-title{font-size:13px;}.cleanup-meta{font-size:10px;}}
-</style></head><body><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rydde i varer</div><div class="top-buttons"><a class="top-button" href="handleliste-rediger.html" title="Tilbake">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="cleanupList"></div></div></div><script>
+
+/* cleanup page refinements */
+.status-card{background:rgba(0,0,0,.055);}
+body.dark-mode .status-card{background:rgba(255,255,255,.038);}
+html:not(.classic-design-root) .status-card{background:rgba(0,0,0,.055) !important;}
+html:not(.classic-design-root) body.dark-mode .status-card{background:rgba(255,255,255,.038) !important;}
+.cleanup-row{grid-template-columns:1fr auto auto;}
+.cleanup-badges{justify-content:flex-end;margin-top:0;}
+@media(max-width:700px){.cleanup-row{grid-template-columns:1fr auto auto;}.cleanup-badges{max-width:92px;justify-content:flex-end;}}
+</style></head><body class="dark-mode"><script>
+(function(){
+  try{
+    const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
+    document.documentElement.classList.toggle("classic-design-root", savedDesign === "classic");
+  }catch(e){}
+})();
+window.applyShoppingDesignState = function(){
+  try{
+    const isClassic = document.documentElement.classList.contains("classic-design-root");
+    const btn = document.getElementById("shoppingDesignToggle");
+    if(btn){
+      btn.textContent = isClassic ? "◩" : "◫";
+      btn.title = isClassic ? "Bytt til mykt design" : "Bytt til klassisk design";
+      btn.setAttribute("aria-label", btn.title);
+    }
+  }catch(e){}
+};
+window.toggleShoppingDesign = function(){
+  try{
+    const isClassic = document.documentElement.classList.toggle("classic-design-root");
+    localStorage.setItem("shoppingDesign", isClassic ? "classic" : "soft");
+    window.applyShoppingDesignState();
+  }catch(e){}
+};
+document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rydde i varer</div><div class="top-buttons"><a class="top-button" href="handleliste-rediger.html" title="Tilbake">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a></div></div></div><div class="card status-card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="cleanupList"></div></div></div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 let SHOPPING_OWNERS=["Felles"];
 let items=[];
@@ -73,9 +108,9 @@ function canDeleteItem(item){if(isSupervisorOrAdministrator())return true;const 
 function lastBoughtTimestamp(item){const raw=String(item?.lastBoughtAt||"").trim();if(!raw)return -8640000000000000;const t=Date.parse(raw);return Number.isFinite(t)?t:-8640000000000000;}
 function formatLastBought(value){const raw=String(value||"").trim();if(!raw)return "Aldri handlet";const date=new Date(raw);if(Number.isNaN(date.getTime()))return raw;return new Intl.DateTimeFormat("no-NO",{dateStyle:"medium",timeStyle:"short"}).format(date);}
 function sourceBadge(item){const source=String(item.source||"").trim();if(item.recipeName)return `<span class="badge">${esc(item.recipeName)}</span>`;if(source&&source!=="Normal")return `<span class="badge">${esc(source)}</span>`;return "";}
-function badgesForItem(item){const badges=[];if(item.standardItem)badges.push('<span class="badge">Standard</span>');const owner=normalizeOwner(item.owner);if(owner&&owner!=="Felles")badges.push(`<span class="badge">${esc(owner)}</span>`);const source=sourceBadge(item);if(source)badges.push(source);return badges.length?`<div class="cleanup-badges">${badges.join("")}</div>`:"";}
+function badgesForItem(item){const badges=[];if(item.standardItem)badges.push('<span class="badge">Standard</span>');const owner=normalizeOwner(item.owner);if(owner&&owner!=="Felles")badges.push(`<span class="badge">${esc(owner)}</span>`);const source=sourceBadge(item);if(source)badges.push(source);return badges.join("");}
 function sortForCleanup(a,b){const ta=lastBoughtTimestamp(a);const tb=lastBoughtTimestamp(b);if(ta!==tb)return ta-tb;return String(a.name||"").localeCompare(String(b.name||""),"no",{sensitivity:"base"});}
-function render(){const root=document.getElementById("cleanupList");const sorted=[...items].sort(sortForCleanup);if(!sorted.length){root.innerHTML='<div class="empty">Ingen varer.</div>';return;}root.innerHTML=sorted.map(item=>{const canDelete=canDeleteItem(item);const deleteTitle=canDelete?"Slett vare fra systemet":"Du kan bare slette egne varer. Fellesvarer slettes av supervisor/administrator.";return `<div class="cleanup-row"><div><div class="cleanup-title">${esc(item.name)}</div><div class="cleanup-meta">${esc(item.type||"Annet")} • ${esc(normalizeOwner(item.owner))} • Sist handlet: <strong>${esc(formatLastBought(item.lastBoughtAt))}</strong></div>${badgesForItem(item)}</div><button class="delete-button" type="button" onclick="deleteItem(${item.id})" title="${esc(deleteTitle)}" ${canDelete?"":"disabled"}>🗑</button></div>`;}).join("");}
+function render(){const root=document.getElementById("cleanupList");const sorted=[...items].sort(sortForCleanup);if(!sorted.length){root.innerHTML='<div class="empty">Ingen varer.</div>';return;}root.innerHTML=sorted.map(item=>{const canDelete=canDeleteItem(item);const deleteTitle=canDelete?"Slett vare fra systemet":"Du kan bare slette egne varer. Fellesvarer slettes av supervisor/administrator.";return `<div class="cleanup-row"><div><div class="cleanup-title">${esc(item.name)}</div><div class="cleanup-meta">${esc(item.type||"Annet")} • ${esc(normalizeOwner(item.owner))} • Sist handlet: <strong>${esc(formatLastBought(item.lastBoughtAt))}</strong></div></div><div class="cleanup-badges">${badgesForItem(item)}</div><button class="delete-button" type="button" onclick="deleteItem(${item.id})" title="${esc(deleteTitle)}" ${canDelete?"":"disabled"}>🗑</button></div>`;}).join("");}
 async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];render();setStatus(`Klar. Viser ${items.length} varer sortert etter sist handlet, eldste øverst. Varer som aldri er handlet vises først.`,"success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
 async function deleteItem(id){const item=items.find(item=>Number(item.id)===Number(id));if(!item)return;if(!canDeleteItem(item)){setStatus("Du kan bare slette egne varer. Fellesvarer kan bare slettes av supervisor eller administrator.","error");return;}if(!confirm(`Slette varen fra systemet?\n\n${item.name}\n\nHistorikk beholdes.`))return;try{await fetchJson(`${API_BASE}/shopping/item-delete`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id})});await loadItems();setStatus("Varen er slettet.","success");}catch(error){setStatus(`Kunne ikke slette varen.<br><br>${esc(error.message)}`,"error");}}
 loadItems();
