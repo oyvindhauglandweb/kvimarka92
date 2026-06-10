@@ -884,6 +884,170 @@ body:not(.dark-mode) #shoppingTimePanel .custom-datetime-actions .action-button.
   }
 }
 
+
+/* FINAL 5: desktop som ønsket: dato på egen rad, time/minutt/knapper på rad 2.
+   Dato er tekstfelt dd.mm.åååå for å unngå mobilens store native date-visning. */
+#shoppingTimePanel.custom-datetime-panel{
+  width:calc(200% + 12px) !important;
+  min-width:0 !important;
+  max-width:none !important;
+  padding:14px 18px 16px 18px !important;
+  border:0 !important;
+  border-radius:12px !important;
+  background:var(--active-button) !important;
+  color:var(--active-button-text) !important;
+  overflow:hidden !important;
+  box-shadow:none !important;
+}
+#shoppingTimePanel .custom-datetime-grid{
+  display:grid !important;
+  grid-template-columns:170px 170px minmax(190px,1fr) !important;
+  grid-template-areas:
+    "date date date"
+    "hour minute actions" !important;
+  gap:14px 18px !important;
+  align-items:end !important;
+  justify-content:start !important;
+  width:100% !important;
+}
+#shoppingTimePanel .custom-datetime-grid > div:nth-child(1){
+  grid-area:date !important;
+  width:250px !important;
+  max-width:250px !important;
+}
+#shoppingTimePanel .custom-datetime-grid > div:nth-child(2){
+  grid-area:hour !important;
+  width:170px !important;
+  max-width:170px !important;
+}
+#shoppingTimePanel .custom-datetime-grid > div:nth-child(3){
+  grid-area:minute !important;
+  width:170px !important;
+  max-width:170px !important;
+}
+#shoppingTimePanel .custom-datetime-actions{
+  grid-area:actions !important;
+  margin:0 !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  align-items:end !important;
+  gap:10px !important;
+  min-width:190px !important;
+}
+#shoppingTimePanel .custom-date-input{
+  width:250px !important;
+  max-width:250px !important;
+  height:50px !important;
+  min-height:50px !important;
+  padding:0 14px !important;
+  box-sizing:border-box !important;
+  background:#4a4a4a !important;
+  color:#fff !important;
+  border:1px solid #686868 !important;
+  border-radius:10px !important;
+  font-size:18px !important;
+}
+#shoppingTimePanel .custom-time-field{
+  display:grid !important;
+  grid-template-columns:44px 58px 44px !important;
+  gap:8px !important;
+  width:170px !important;
+  min-width:170px !important;
+  max-width:170px !important;
+  justify-content:start !important;
+  align-items:center !important;
+}
+#shoppingTimePanel .custom-time-button{
+  width:44px !important;
+  min-width:44px !important;
+  max-width:44px !important;
+  height:50px !important;
+  min-height:50px !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+  background:#303030 !important;
+  color:#fff !important;
+  border:1px solid #707070 !important;
+  border-radius:9px !important;
+  font-size:22px !important;
+  font-weight:bold !important;
+}
+#shoppingTimePanel .custom-time-input{
+  width:58px !important;
+  min-width:58px !important;
+  max-width:58px !important;
+  height:50px !important;
+  min-height:50px !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+  background:#555 !important;
+  color:#fff !important;
+  border:1px solid #707070 !important;
+  border-radius:9px !important;
+  text-align:center !important;
+  font-size:23px !important;
+  font-weight:bold !important;
+}
+#shoppingTimePanel .custom-datetime-actions .action-button{
+  flex:0 0 auto !important;
+  min-width:88px !important;
+  height:50px !important;
+  min-height:50px !important;
+  background:#303030 !important;
+  color:#fff !important;
+  border:1px solid #707070 !important;
+  border-radius:9px !important;
+}
+#shoppingTimePanel .custom-datetime-actions .action-button.primary{
+  background:#777 !important;
+  color:#fff !important;
+  border-color:#909090 !important;
+}
+body:not(.dark-mode) #shoppingTimePanel .custom-date-input,
+body:not(.dark-mode) #shoppingTimePanel .custom-time-button,
+body:not(.dark-mode) #shoppingTimePanel .custom-datetime-actions .action-button{
+  background:#d0d0d0 !important;
+  color:#222 !important;
+  border-color:#b8b8b8 !important;
+}
+body:not(.dark-mode) #shoppingTimePanel .custom-time-input,
+body:not(.dark-mode) #shoppingTimePanel .custom-datetime-actions .action-button.primary{
+  background:#b8c0c7 !important;
+  color:#222 !important;
+  border-color:#aab2b9 !important;
+}
+@media(max-width:900px){
+  #shoppingTimePanel.custom-datetime-panel{
+    width:100% !important;
+    padding:14px 12px 16px 12px !important;
+  }
+  #shoppingTimePanel .custom-datetime-grid{
+    grid-template-columns:1fr !important;
+    grid-template-areas:
+      "date"
+      "hour"
+      "minute"
+      "actions" !important;
+    gap:16px !important;
+  }
+  #shoppingTimePanel .custom-datetime-grid > div:nth-child(1),
+  #shoppingTimePanel .custom-datetime-grid > div:nth-child(2),
+  #shoppingTimePanel .custom-datetime-grid > div:nth-child(3){
+    width:auto !important;
+    max-width:none !important;
+  }
+  #shoppingTimePanel .custom-date-input{
+    width:100% !important;
+    max-width:none !important;
+    font-size:18px !important;
+    text-align:center !important;
+  }
+  #shoppingTimePanel .custom-datetime-actions{
+    justify-content:flex-end !important;
+    min-width:0 !important;
+  }
+}
+
 </style>
 <script>
 (function(){
@@ -999,7 +1163,7 @@ function toggleShoppingDesign(){
                   <div class="custom-datetime-grid">
                     <div>
                       <label for="shoppingDateInput">Dato</label>
-                      <input class="custom-date-input" type="date" id="shoppingDateInput">
+                      <input class="custom-date-input" type="text" inputmode="numeric" id="shoppingDateInput" placeholder="dd.mm.åååå" maxlength="10">
                     </div>
                     <div>
                       <label for="shoppingHourInput">Time</label>
@@ -1017,10 +1181,10 @@ function toggleShoppingDesign(){
                         <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('minute',5)">+</button>
                       </div>
                     </div>
-                  </div>
-                  <div class="custom-datetime-actions">
-                    <button class="action-button" type="button" onclick="closeShoppingTimePicker()">Avbryt</button>
-                    <button class="action-button primary" type="button" onclick="applyShoppingTimePicker()">Velg</button>
+                    <div class="custom-datetime-actions">
+                      <button class="action-button" type="button" onclick="closeShoppingTimePicker()">Avbryt</button>
+                      <button class="action-button primary" type="button" onclick="applyShoppingTimePicker()">Velg</button>
+                    </div>
                   </div>
                 </div>
         </div>
@@ -1118,6 +1282,27 @@ function stepShoppingTimePart(part,delta){
   number=(number+delta+max+1)%(max+1);
   input.value=pad(number);
 }
+function formatPickerDate(date){
+  if(!date||Number.isNaN(date.getTime()))return "";
+  return `${pad(date.getDate())}.${pad(date.getMonth()+1)}.${date.getFullYear()}`;
+}
+function parsePickerDateValue(value){
+  const text=String(value||"").trim();
+  let m=text.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if(m){
+    return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+  }
+  m=text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m){
+    return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  }
+  m=text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(m){
+    return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+  }
+  return "";
+}
+
 function syncShoppingTimePickerFromHidden(){
   const hidden=document.getElementById("shoppingTime");
   const dateInput=document.getElementById("shoppingDateInput");
@@ -1129,7 +1314,7 @@ function syncShoppingTimePickerFromHidden(){
     date.setMinutes(date.getMinutes()+90);
     date.setMinutes(Math.ceil(date.getMinutes()/15)*15,0,0);
   }
-  if(dateInput)dateInput.value=`${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
+  if(dateInput)dateInput.value=formatPickerDate(date);
   if(hourInput)hourInput.value=pad(date.getHours());
   if(minuteInput)minuteInput.value=pad(date.getMinutes());
   if(hidden&&!hidden.value)hidden.value=toDatetimeLocal(date);
@@ -1149,7 +1334,7 @@ function applyShoppingTimePicker(){
   const dateInput=document.getElementById("shoppingDateInput");
   const hourInput=document.getElementById("shoppingHourInput");
   const minuteInput=document.getElementById("shoppingMinuteInput");
-  const dateValue=dateInput?String(dateInput.value||"").trim():"";
+  const dateValue=parsePickerDateValue(dateInput?dateInput.value:"");
   const hourValue=hourInput?normalizeTimePart(hourInput.value,0,23):"00";
   const minuteValue=minuteInput?normalizeTimePart(minuteInput.value,0,59):"00";
   if(!dateValue){
@@ -1162,6 +1347,16 @@ function applyShoppingTimePicker(){
 }
 
 document.addEventListener("DOMContentLoaded",function(){
+  const dateInput=document.getElementById("shoppingDateInput");
+  if(dateInput){
+    dateInput.addEventListener("blur",function(){
+      const parsed=parsePickerDateValue(dateInput.value);
+      if(parsed){
+        const parts=parsed.split("-");
+        dateInput.value=`${parts[2]}.${parts[1]}.${parts[0]}`;
+      }
+    });
+  }
   const hourInput=document.getElementById("shoppingHourInput");
   const minuteInput=document.getElementById("shoppingMinuteInput");
   if(hourInput){
