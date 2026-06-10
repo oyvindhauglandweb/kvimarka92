@@ -680,12 +680,8 @@ async function checkCurrentStore(silent){
     const matched=!!(data.storeName || (data.store&&data.store.name));
     const uncertain=String(data.storeMatchStatus || "") === "Uncertain";
 
-    if(Array.isArray(data.typeOrder) && data.typeOrder.length){
-      typeOrder=data.typeOrder;
-      currentStoreChain=data.typeOrderChain || data.storeChain || (data.store&&data.store.chain) || "Standard";
-      render();
-    }
-
+    // Handlelisten skal alltid sorteres etter standardlisten for varetyper.
+    // Butikkmatch brukes kun som informasjon/status, ikke til å overstyre rekkefølgen.
     setStoreMatchStatus(formatStoreMatchResult(data), matched && !uncertain ? "success" : "");
   }catch(error){
     setStoreMatchStatus(`Kunne ikke sjekke butikk.<br><br>${esc(error.message)}`, "error");
