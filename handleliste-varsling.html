@@ -13,24 +13,25 @@
   display:none;
   margin-top:8px;
   padding:12px;
-  border:1px solid var(--border);
+  border:0;
   border-radius:10px;
-  background:var(--card);
-  box-shadow:0 10px 24px rgba(0,0,0,.18);
+  background:var(--active-button);
+  color:var(--active-button-text);
+  box-shadow:none;
 }
 .custom-datetime-panel.open{
   display:block;
 }
 .custom-datetime-grid{
   display:grid;
-  grid-template-columns:1fr 132px 132px;
+  grid-template-columns:minmax(190px,1fr) 132px 132px;
   gap:10px;
   align-items:end;
 }
 .custom-datetime-panel label{
   display:block;
   margin:0 0 5px;
-  color:var(--muted);
+  color:var(--active-button-text);
   font-size:12px;
   font-weight:bold;
 }
@@ -38,8 +39,8 @@
   min-height:40px;
   border:1px solid var(--border);
   border-radius:8px;
-  background:var(--button);
-  color:var(--text);
+  background:rgba(0,0,0,.18);
+  color:var(--active-button-text);
   font-size:16px;
   color-scheme:dark;
 }
@@ -64,8 +65,8 @@ body:not(.dark-mode) .custom-datetime-panel input{
   padding:0;
   border:1px solid var(--border);
   border-radius:8px;
-  background:var(--button);
-  color:var(--text);
+  background:rgba(0,0,0,.18);
+  color:var(--active-button-text);
   font-size:20px;
   font-weight:bold;
   line-height:1;
@@ -82,9 +83,9 @@ body:not(.dark-mode) .custom-datetime-panel input{
   text-align:center;
   font-weight:bold;
   font-size:20px !important;
-  background:var(--active-button) !important;
+  background:rgba(255,255,255,.18) !important;
   color:var(--active-button-text) !important;
-  border-color:var(--active-button) !important;
+  border-color:rgba(255,255,255,.22) !important;
   appearance:textfield;
   -moz-appearance:textfield;
 }
@@ -114,6 +115,38 @@ body:not(.dark-mode) .custom-datetime-panel input{
   .custom-time-input{
     width:64px !important;
     min-width:64px !important;
+  }
+}
+
+
+/* Varsling: samlet 24-timers velger uten egen ramme. */
+.custom-datetime-panel{
+  width:100%;
+  border:0 !important;
+  background:var(--active-button) !important;
+  color:var(--active-button-text) !important;
+  box-shadow:none !important;
+}
+.custom-datetime-grid{
+  grid-template-columns:minmax(190px,1fr) 132px 132px !important;
+}
+.custom-datetime-panel label{
+  color:var(--active-button-text) !important;
+}
+.custom-datetime-panel input,
+.custom-time-button{
+  background:rgba(0,0,0,.18) !important;
+  color:var(--active-button-text) !important;
+  border-color:rgba(255,255,255,.18) !important;
+}
+.custom-time-input{
+  background:rgba(255,255,255,.18) !important;
+  color:var(--active-button-text) !important;
+  border-color:rgba(255,255,255,.22) !important;
+}
+@media(max-width:700px){
+  .custom-datetime-grid{
+    grid-template-columns:1fr !important;
   }
 }
 
