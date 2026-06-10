@@ -23,8 +23,8 @@
 }
 .custom-datetime-grid{
   display:grid;
-  grid-template-columns:1.3fr .8fr .8fr;
-  gap:8px;
+  grid-template-columns:1fr 132px 132px;
+  gap:10px;
   align-items:end;
 }
 .custom-datetime-panel label{
@@ -35,9 +35,7 @@
   font-weight:bold;
 }
 .custom-datetime-panel input{
-  width:100%;
   min-height:40px;
-  padding:8px 10px;
   border:1px solid var(--border);
   border-radius:8px;
   background:var(--button);
@@ -48,29 +46,45 @@
 body:not(.dark-mode) .custom-datetime-panel input{
   color-scheme:light;
 }
+.custom-date-input{
+  width:100%;
+  padding:8px 10px;
+}
 .custom-time-field{
   display:grid;
-  grid-template-columns:38px minmax(0,1fr) 38px;
+  grid-template-columns:36px 48px 36px;
   gap:6px;
   align-items:center;
 }
 .custom-time-button{
+  width:36px;
+  min-width:36px;
+  height:40px;
   min-height:40px;
+  padding:0;
   border:1px solid var(--border);
   border-radius:8px;
   background:var(--button);
   color:var(--text);
   font-size:20px;
   font-weight:bold;
+  line-height:1;
   cursor:pointer;
 }
 .custom-time-button:hover{
   background:var(--button-hover);
 }
 .custom-time-input{
+  width:48px !important;
+  min-width:48px !important;
+  height:40px;
+  padding:0 !important;
   text-align:center;
   font-weight:bold;
   font-size:20px !important;
+  background:var(--active-button) !important;
+  color:var(--active-button-text) !important;
+  border-color:var(--active-button) !important;
   appearance:textfield;
   -moz-appearance:textfield;
 }
@@ -83,11 +97,23 @@ body:not(.dark-mode) .custom-datetime-panel input{
   display:flex;
   gap:8px;
   justify-content:flex-end;
-  margin-top:10px;
+  margin-top:12px;
 }
 @media(max-width:700px){
   .custom-datetime-grid{
     grid-template-columns:1fr;
+  }
+  .custom-time-field{
+    grid-template-columns:42px 64px 42px;
+    justify-content:start;
+  }
+  .custom-time-button{
+    width:42px;
+    min-width:42px;
+  }
+  .custom-time-input{
+    width:64px !important;
+    min-width:64px !important;
   }
 }
 
@@ -260,13 +286,13 @@ function toggleShoppingDesign(){
                   <div class="custom-datetime-grid">
                     <div>
                       <label for="shoppingDateInput">Dato</label>
-                      <input type="date" id="shoppingDateInput">
+                      <input class="custom-date-input" type="date" id="shoppingDateInput">
                     </div>
                     <div>
                       <label for="shoppingHourInput">Time</label>
                       <div class="custom-time-field">
                         <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('hour',-1)">−</button>
-                        <input class="custom-time-input" type="text" inputmode="numeric" id="shoppingHourInput" maxlength="2" value="00">
+                        <input class="custom-time-input" type="text" inputmode="numeric" id="shoppingHourInput" maxlength="2" value="00" onblur="setShoppingTimePart('hour',this.value)">
                         <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('hour',1)">+</button>
                       </div>
                     </div>
@@ -274,7 +300,7 @@ function toggleShoppingDesign(){
                       <label for="shoppingMinuteInput">Minutt</label>
                       <div class="custom-time-field">
                         <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('minute',-1)">−</button>
-                        <input class="custom-time-input" type="text" inputmode="numeric" id="shoppingMinuteInput" maxlength="2" value="00">
+                        <input class="custom-time-input" type="text" inputmode="numeric" id="shoppingMinuteInput" maxlength="2" value="00" onblur="setShoppingTimePart('minute',this.value)">
                         <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('minute',1)">+</button>
                       </div>
                     </div>
