@@ -69,7 +69,15 @@ body:not(.dark-mode).soft-design .type-button.active{
   color:var(--active-button-text) !important;
 }
 
-</style></head><body class="dark-mode"><script>
+</style><script>
+if(!String.prototype.replaceAll){
+  String.prototype.replaceAll=function(search,replacement){
+    return String(this).split(search).join(replacement);
+  };
+}
+</script>
+
+</head><body class="dark-mode"><script>
 (function(){
   try{
     const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
@@ -130,7 +138,7 @@ const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
 let shoppingItems=[];
 let selectedOwner="Felles";
 function esc(value){return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");}
-async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error((data&&data.error)||(data&&data.detail)||`HTTP ${res.status}`);}return data;}
+async function fetchJson(url,options){const res=await fetch(url,Object.assign({credentials:"include"},options||{}));const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error((data&&data.error)||(data&&data.detail)||`HTTP ${res.status}`);}return data;}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
 function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
 function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}selectedOwner=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||selectedOwner||"Felles");if(!SHOPPING_OWNERS.includes(selectedOwner)){selectedOwner=SHOPPING_OWNERS[0]||"Felles";}localStorage.setItem(OWNER_STORAGE_KEY,selectedOwner);}

@@ -404,6 +404,14 @@ function toggleShoppingDesign(){
 document.addEventListener("DOMContentLoaded", updateShoppingDesignButton);
 </script>
 
+<script>
+if(!String.prototype.replaceAll){
+  String.prototype.replaceAll=function(search,replacement){
+    return String(this).split(search).join(replacement);
+  };
+}
+</script>
+
 </head>
 
 <body class="dark-mode">
@@ -452,12 +460,7 @@ const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 console.log("help.html version: kvimarka-help-v7-image-zoom-drag-pan-2026-06-06");
 
 function esc(value){
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");
 }
 
 function getHelpCaseFromUrl(){
@@ -737,10 +740,10 @@ function getFileUrl(value){
       value.url ||
       value.downloadUrl ||
       value.download_url ||
-      value.thumbnails?.large?.url ||
-      value.thumbnails?.card_cover?.url ||
-      value.thumbnails?.small?.url ||
-      value.thumbnails?.tiny?.url ||
+      (value.thumbnails&&value.thumbnails.large&&value.thumbnails.large.url) ||
+      (value.thumbnails&&value.thumbnails.card_cover&&value.thumbnails.card_cover.url) ||
+      (value.thumbnails&&value.thumbnails.small&&value.thumbnails.small.url) ||
+      (value.thumbnails&&value.thumbnails.tiny&&value.thumbnails.tiny.url) ||
       ""
     );
   }
@@ -751,7 +754,7 @@ function getFileUrl(value){
 async function fetchJson(url, options){
   const res = await fetch(url, {
     credentials:"include",
-    ...(options || {})
+    options:options || {}
   });
 
   const text = await res.text();
@@ -764,7 +767,7 @@ async function fetchJson(url, options){
   }
 
   if(!res.ok){
-    throw new Error(data?.error || text || `HTTP ${res.status}`);
+    throw new Error((data&&data.error) || text || `HTTP ${res.status}`);
   }
 
   return data;
@@ -826,7 +829,7 @@ function renderHelp(data, caseName){
         ${headingText ? `<div class="paragraph-heading">${esc(headingText)}</div>` : ""}
         ${item.body ? `<div class="paragraph-text">${esc(item.body)}</div>` : ""}
         ${imageUrl ? `
-          <button type="button" class="image-zoom-button" onclick="openImageModal('${esc(String(imageUrl)).replaceAll('\\', '\\\\').replaceAll("'", "\\'")}', '${esc(String(titleText)).replaceAll('\\', '\\\\').replaceAll("'", "\\'")}')" title="Klikk for å forstørre bildet">
+          <button type="button" class="image-zoom-button" onclick="openImageModal('${esc(String(imageUrl)).split('\\').join('\\\\').split("'").join("\\'")}', '${esc(String(titleText)).split('\\').join('\\\\').split("'").join("\\'")}')" title="Klikk for å forstørre bildet">
             <img class="paragraph-image" src="${esc(imageUrl)}" alt="${esc(titleText)}" loading="lazy" decoding="async">
           </button>
           <div class="image-zoom-hint">Klikk på bildet for å forstørre</div>

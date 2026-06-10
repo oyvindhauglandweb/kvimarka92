@@ -484,6 +484,14 @@ html:not(.classic-design-root) .create-route-field textarea{
 }
 
 </style>
+<script>
+if(!String.prototype.replaceAll){
+  String.prototype.replaceAll=function(search,replacement){
+    return String(this).split(search).join(replacement);
+  };
+}
+</script>
+
 </head>
 
 <body class="dark-mode">
@@ -635,12 +643,7 @@ const ROUTE_MENU_KEYWORDS = [
 ];
 
 function esc(value){
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");
 }
 
 function getInitials(nameOrEmail){
@@ -939,9 +942,7 @@ function makeRouteCaseUrlFromTemplate(template, routeCase, caseName){
     // Fall through to text replacement below.
   }
 
-  return rawUrl
-    .replaceAll("{case}", encodeURIComponent(caseName))
-    .replaceAll("{caseName}", encodeURIComponent(caseName));
+  return String(rawUrl).split("{case}").join(encodeURIComponent(caseName)).split("{caseName}").join(encodeURIComponent(caseName));
 }
 
 function getRouteCaseTemplates(items){
@@ -960,10 +961,9 @@ function getRouteCaseTemplates(items){
       }
 
       seen.add(label.toLowerCase());
-      templates.push({
-        ...item,
+      templates.push(Object.assign({}, item, {
         sortOrder:getItemSort(item)
-      });
+      }));
     });
 
   if(!templates.length){
@@ -986,7 +986,7 @@ function buildDynamicRouteCaseMenu(items, cases){
 
   const dynamicItems = [];
 
-  if(currentUser?.role === "Administrator"){
+  if(currentUser&&currentUser.role === "Administrator"){
     dynamicItems.push({
       id:"route-case-create",
       buttonText:"+ Ny feriedestinasjon",
@@ -1018,8 +1018,7 @@ function buildDynamicRouteCaseMenu(items, cases){
       const label = String(template.buttonText || DEFAULT_ROUTE_CASE_SUBMENU[0].buttonText).trim();
       const templateSort = Number(template.sortOrder || ((templateIndex + 1) * 10));
 
-      dynamicItems.push({
-        ...template,
+      dynamicItems.push(Object.assign({}, template, {
         id:`route-case-${routeCase.id || caseName}-${templateIndex}`,
         buttonText:label,
         level1:"Feriereiser",
@@ -1032,11 +1031,11 @@ function buildDynamicRouteCaseMenu(items, cases){
         sortOrder:(caseSortOrder * 1000) + templateSort,
         openInNewTab:false,
         routeCaseName:caseName
-      });
+      }));
     });
   });
 
-  return [...baseItems, ...dynamicItems];
+  return baseItems.concat(dynamicItems);
 }
 
 function setCreateRouteStatus(message, type){
@@ -1096,9 +1095,9 @@ async function createRouteCaseFromMenu(event){
   const descriptionInput = document.getElementById("newRouteGeneralDescription");
   const button = document.getElementById("createRouteSubmitButton");
 
-  const caseName = String(nameInput?.value || "").trim();
-  const accessLevel = String(accessInput?.value || "Private").trim() || "Private";
-  const generalDescription = String(descriptionInput?.value || "").trim();
+  const caseName = String((nameInput&&nameInput.value) || "").trim();
+  const accessLevel = String((accessInput&&accessInput.value) || "Private").trim() || "Private";
+  const generalDescription = String((descriptionInput&&descriptionInput.value) || "").trim();
 
   if(!caseName){
     setCreateRouteStatus("Skriv inn navn på feriedestinasjonen.", "error");
