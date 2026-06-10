@@ -398,6 +398,53 @@ function recipeBadge(item){
 
 const BOUGHT_STORAGE_KEY="kvimarka92ShoppingBoughtIds";
 let items=[];let boughtIds=new Set();let typeOrder=[];let typeOptions=[];let currentStoreChain="Standard";
+const STORE_CHAIN_STORAGE_KEY="kvimarka92ShoppingStoreChain";
+const STORE_CHAIN_MAX_AGE_MS=6*60*60*1000;
+function saveActiveStoreChain(chain){
+  const value=String(chain||"").trim();
+  if(!value){return;}
+  try{
+    localStorage.setItem(STORE_CHAIN_STORAGE_KEY,JSON.stringify({chain:value,ts:Date.now()}));
+  }catch(error){}
+}
+function clearActiveStoreChain(){
+  try{localStorage.removeItem(STORE_CHAIN_STORAGE_KEY);}catch(error){}
+}
+function loadActiveStoreChain(){
+  try{
+    const raw=localStorage.getItem(STORE_CHAIN_STORAGE_KEY);
+    if(!raw){return "";}
+    const data=JSON.parse(raw);
+    const chain=String((data&&data.chain)||"").trim();
+    const ts=Number((data&&data.ts)||0);
+    if(!chain){return "";}
+    if(ts&&Date.now()-ts>STORE_CHAIN_MAX_AGE_MS){
+      clearActiveStoreChain();
+      return "";
+    }
+    return chain;
+  }catch(error){
+    return "";
+  }
+}
+async function loadTypeOrderForChain(chain,fallbackData){
+  const requestedChain=String(chain||"Standard").trim()||"Standard";
+  try{
+    const orderData=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(requestedChain)}`);
+    if(Array.isArray(orderData.typeOrder)&&orderData.typeOrder.length){
+      currentStoreChain=orderData.chain||requestedChain;
+      return orderData.typeOrder;
+    }
+  }catch(error){
+    console.warn("Kunne ikke hente varetyperekkefølge for "+requestedChain,error);
+  }
+  if(fallbackData&&Array.isArray(fallbackData.typeOrder)&&fallbackData.typeOrder.length){
+    currentStoreChain=String(fallbackData.typeOrderChain||fallbackData.storeChain||requestedChain||"Standard").trim()||"Standard";
+    return fallbackData.typeOrder;
+  }
+  currentStoreChain="Standard";
+  return DEFAULT_TYPES.slice();
+}
 function getBoughtStorageKey(){return BOUGHT_STORAGE_KEY;}
 function loadRememberedBoughtIds(){
   try{
@@ -422,7 +469,7 @@ function reconcileBoughtIdsWithItems(){
   saveRememberedBoughtIds();
 }
 function getOrderedItems(){return items.filter(item=>item.shouldBuy);}function compareShoppingItemName(a,b){return String((a&&a.name)||(a&&a.itemName)||"").localeCompare(String((b&&b.name)||(b&&b.itemName)||""),"no",{numeric:true,sensitivity:"base"});}
-function groupOrderedItems(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});Object.keys(map).forEach(type=>map[type].sort(compareShoppingItemName));const seen=new Set();return typeOrder.concat(Object.keys(map)).filter(type=>{const key=String(type).toLowerCase();if(seen.has(key)||!map[type])return false;seen.add(key);return true;}).map(type=>({type,items:map[type]}));}
+function groupOrderedItems(list){const map={};const typeNameByKey={};list.forEach(function(item){const key=String(item.type||"Annet").trim()||"Annet";const norm=key.toLowerCase();if(!typeNameByKey[norm])typeNameByKey[norm]=key;(map[norm]=map[norm]||[]).push(item);});Object.keys(map).forEach(function(key){map[key].sort(compareShoppingItemName);});const seen=new Set();return typeOrder.concat(DEFAULT_TYPES,Object.keys(typeNameByKey)).map(function(type){const norm=String(type||"Annet").trim().toLowerCase();return {norm:norm,type:typeNameByKey[norm]||type};}).filter(function(entry){if(seen.has(entry.norm)||!map[entry.norm])return false;seen.add(entry.norm);return true;}).map(function(entry){return {type:entry.type,items:map[entry.norm]};});}
 function uniqueShoppingTypesForForm(values){
   const seen=new Set();
   const result=[];
@@ -492,7 +539,7 @@ async function createShoppingItemFromHandle(){
 function render(){const root=document.getElementById("shoppingList");const ordered=getOrderedItems();const finishButton=document.getElementById("finishButton");const toggleAllButton=document.getElementById("toggleAllButton");if(finishButton)finishButton.disabled=!ordered.length;if(toggleAllButton){const allBought=ordered.length>0&&ordered.every(item=>boughtIds.has(Number(item.id)));toggleAllButton.disabled=!ordered.length;toggleAllButton.textContent=allBought?"Avmerk alle":"Merk alle";toggleAllButton.title=allBought?"Fjern avkrysning på alle varer":"Merk alle varer som handlet";}if(!ordered.length){root.innerHTML='<div class="empty">Ingen varer er bestilt handlet.</div>';return;}root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{const isBought=boughtIds.has(Number(item.id));const badges=`${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name">${esc(item.name)}</div><div class="badge-stack">${badges}</div></div>`;}).join("")}</div></div>`).join("");}
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked)boughtIds.add(numericId);else boughtIds.delete(numericId);saveRememberedBoughtIds();render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();render();}
-async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser&&data.currentUser.name)||(data.currentUser&&data.currentUser.email)||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(function(item){return item.type;}),typeOrder));boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser&&data.currentUser.name)||(data.currentUser&&data.currentUser.email)||"";items=Array.isArray(data.items)?data.items:[];typeOrder=await loadTypeOrderForChain(loadActiveStoreChain()||"Standard",data);typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(function(item){return item.type;}),typeOrder));boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
@@ -680,8 +727,17 @@ async function checkCurrentStore(silent){
     const matched=!!(data.storeName || (data.store&&data.store.name));
     const uncertain=String(data.storeMatchStatus || "") === "Uncertain";
 
-    // Handlelisten skal alltid sorteres etter standardlisten for varetyper.
-    // Butikkmatch brukes kun som informasjon/status, ikke til å overstyre rekkefølgen.
+    if(matched && !uncertain && Array.isArray(data.typeOrder) && data.typeOrder.length){
+      typeOrder=data.typeOrder;
+      currentStoreChain=data.typeOrderChain || data.storeChain || (data.store&&data.store.chain) || "Standard";
+      saveActiveStoreChain(currentStoreChain);
+      render();
+    }else if(!matched){
+      clearActiveStoreChain();
+      typeOrder=await loadTypeOrderForChain("Standard",data);
+      render();
+    }
+
     setStoreMatchStatus(formatStoreMatchResult(data), matched && !uncertain ? "success" : "");
   }catch(error){
     setStoreMatchStatus(`Kunne ikke sjekke butikk.<br><br>${esc(error.message)}`, "error");

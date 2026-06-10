@@ -236,8 +236,48 @@ function normalizePermissionText(value){return String(value||"").trim().toLowerC
 function isSupervisorOrAdministrator(){const role=normalizePermissionText((currentUser&&currentUser.role));return role==="administrator"||role==="supervisor";}
 function applyStandardPermissionToModal(){const input=document.getElementById("newItemStandard");if(!input)return;const allowed=isSupervisorOrAdministrator();input.disabled=!allowed;if(!allowed)input.checked=false;const row=input.closest(".checkbox-row");if(row){row.style.opacity=allowed?"1":".45";row.title=allowed?"":"Bare supervisor og administrator kan sette standardvare";}}
 
-let items=[];let currentUser=null;let typeOrder=[...DEFAULT_TYPES];let selectedOwner=getInitialOwner();
-function allTypes(){const seen=new Set();return [...typeOrder,...DEFAULT_TYPES,...items.map(item=>item.type||"Annet")].filter(type=>{const key=String(type||"Annet").toLowerCase();if(seen.has(key))return false;seen.add(key);return true;});}
+let items=[];let currentUser=null;let typeOrder=DEFAULT_TYPES.slice();let selectedOwner=getInitialOwner();let currentStoreChain="Standard";
+const STORE_CHAIN_STORAGE_KEY="kvimarka92ShoppingStoreChain";
+const STORE_CHAIN_MAX_AGE_MS=6*60*60*1000;
+function clearActiveStoreChain(){
+  try{localStorage.removeItem(STORE_CHAIN_STORAGE_KEY);}catch(error){}
+}
+function loadActiveStoreChain(){
+  try{
+    const raw=localStorage.getItem(STORE_CHAIN_STORAGE_KEY);
+    if(!raw){return "";}
+    const data=JSON.parse(raw);
+    const chain=String((data&&data.chain)||"").trim();
+    const ts=Number((data&&data.ts)||0);
+    if(!chain){return "";}
+    if(ts&&Date.now()-ts>STORE_CHAIN_MAX_AGE_MS){
+      clearActiveStoreChain();
+      return "";
+    }
+    return chain;
+  }catch(error){
+    return "";
+  }
+}
+async function loadTypeOrderForChain(chain,fallbackData){
+  const requestedChain=String(chain||"Standard").trim()||"Standard";
+  try{
+    const orderData=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(requestedChain)}`);
+    if(Array.isArray(orderData.typeOrder)&&orderData.typeOrder.length){
+      currentStoreChain=orderData.chain||requestedChain;
+      return orderData.typeOrder;
+    }
+  }catch(error){
+    console.warn("Kunne ikke hente varetyperekkefølge for "+requestedChain,error);
+  }
+  if(fallbackData&&Array.isArray(fallbackData.typeOrder)&&fallbackData.typeOrder.length){
+    currentStoreChain=String(fallbackData.typeOrderChain||fallbackData.storeChain||requestedChain||"Standard").trim()||"Standard";
+    return fallbackData.typeOrder;
+  }
+  currentStoreChain="Standard";
+  return DEFAULT_TYPES.slice();
+}
+function allTypes(){const seen=new Set();return typeOrder.concat(DEFAULT_TYPES,items.map(function(item){return item.type||"Annet";})).filter(function(type){const key=String(type||"Annet").toLowerCase();if(seen.has(key))return false;seen.add(key);return true;});}
 function populateTypes(){const select=document.getElementById("newItemType");select.innerHTML=allTypes().map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");select.value="Annet";}
 function populateOwners(){const select=document.getElementById("newItemOwner");select.innerHTML=SHOPPING_OWNERS.map(owner=>`<option value="${esc(owner)}">${esc(owner)}</option>`).join("");select.value=selectedOwner;}
 function renderOwnerButtons(){document.getElementById("ownerButtons").innerHTML=SHOPPING_OWNERS.map(owner=>`<button class="owner-button ${owner===selectedOwner?"active":""}" type="button" onclick="setOwnerFilter('${esc(owner)}')">${esc(owner)}</button>`).join("");}
@@ -251,9 +291,9 @@ function setOwnerFilter(owner){
   updateOwnerStatus();
 }
 function filteredItems(){return items.filter(item=>normalizeOwner(item.owner)===selectedOwner);}function compareShoppingItemName(a,b){return String((a&&a.name)||(a&&a.itemName)||"").localeCompare(String((b&&b.name)||(b&&b.itemName)||""),"no",{numeric:true,sensitivity:"base"});}
-function orderedGroups(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});Object.keys(map).forEach(type=>map[type].sort(compareShoppingItemName));const seen=new Set();return [...typeOrder,...DEFAULT_TYPES,...Object.keys(map)].filter(type=>{const key=String(type).toLowerCase();if(seen.has(key)||!map[type])return false;seen.add(key);return true;}).map(type=>({type,items:map[type]}));}
+function orderedGroups(list){const map={};const typeNameByKey={};list.forEach(function(item){const key=String(item.type||"Annet").trim()||"Annet";const norm=key.toLowerCase();if(!typeNameByKey[norm])typeNameByKey[norm]=key;(map[norm]=map[norm]||[]).push(item);});Object.keys(map).forEach(function(key){map[key].sort(compareShoppingItemName);});const seen=new Set();return typeOrder.concat(DEFAULT_TYPES,Object.keys(typeNameByKey)).map(function(type){const norm=String(type||"Annet").trim().toLowerCase();return {norm:norm,type:typeNameByKey[norm]||type};}).filter(function(entry){if(seen.has(entry.norm)||!map[entry.norm])return false;seen.add(entry.norm);return true;}).map(function(entry){return {type:entry.type,items:map[entry.norm]};});}
 function render(){renderOwnerButtons();const visible=filteredItems();const list=document.getElementById("itemList");document.getElementById("totalValue").textContent=String(visible.length);document.getElementById("orderValue").textContent=String(visible.filter(item=>item.shouldBuy).length);document.getElementById("standardValue").textContent=String(visible.filter(item=>item.standardItem).length);if(!visible.length){list.innerHTML=`<div class="empty">Ingen varer er lagt inn for ${esc(selectedOwner)} ennå.</div>`;return;}list.innerHTML=orderedGroups(visible).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>`<div class="item-row"><input class="item-check" type="checkbox" ${item.shouldBuy?"checked":""} onchange="toggleShouldBuy(${item.id}, this.checked)" title="Skal handles"><div><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${item.standardItem?'<span class="badge">Standard</span>':""}</div></div>`).join("")}</div></div>`).join("");}
-async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)&&data.typeOrder.length?data.typeOrder:[...DEFAULT_TYPES];setShoppingOwners(data.ownerOptions);render();updateOwnerStatus();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];typeOrder=await loadTypeOrderForChain(loadActiveStoreChain()||"Standard",data);setShoppingOwners(data.ownerOptions);render();updateOwnerStatus();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 async function toggleShouldBuy(id,checked){try{await fetchJson(`${API_BASE}/shopping/item-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id,shouldBuy:checked})});const item=items.find(item=>Number(item.id)===Number(id));if(item)item.shouldBuy=checked;render();setStatus(checked?"Varen er lagt til i Handle-listen.":"Varen er fjernet fra Handle-listen.","success");}catch(error){setStatus(`Kunne ikke oppdatere varen.<br><br>${esc(error.message)}`,"error");await loadItems();}}
 function openNewItemModal(){document.getElementById("newItemForm").reset();populateOwners();populateTypes();document.getElementById("newItemShouldBuy").checked=true;applyStandardPermissionToModal();document.getElementById("newItemModal").classList.add("open");setTimeout(()=>document.getElementById("newItemName").focus(),80);}function closeNewItemModal(){document.getElementById("newItemModal").classList.remove("open");}function handleModalBackdrop(event){if(event.target.id==="newItemModal")closeNewItemModal();}
 function buildShoppingListText(){const ordered=items.filter(item=>item.shouldBuy);const lines=["Handleliste",""];orderedGroups(ordered).forEach(group=>{lines.push(group.type);group.items.forEach(item=>lines.push(`- ${normalizeOwner(item.owner)!=="Felles"?`(${normalizeOwner(item.owner)}) `:""}${item.name}`));lines.push("");});return lines.join("\n");}
