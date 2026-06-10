@@ -299,9 +299,9 @@ function toggleShoppingDesign(){
                     <div>
                       <label for="shoppingMinuteInput">Minutt</label>
                       <div class="custom-time-field">
-                        <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('minute',-1)">−</button>
+                        <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('minute',-5)">−</button>
                         <input class="custom-time-input" type="text" inputmode="numeric" id="shoppingMinuteInput" maxlength="2" value="00" onblur="setShoppingTimePart('minute',this.value)">
-                        <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('minute',1)">+</button>
+                        <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('minute',5)">+</button>
                       </div>
                     </div>
                   </div>
@@ -385,7 +385,16 @@ function normalizeTimePart(value,min,max){
 function setShoppingTimePart(part,value){
   const input=document.getElementById(part==="hour"?"shoppingHourInput":"shoppingMinuteInput");
   if(!input)return;
-  input.value=normalizeTimePart(value,0,part==="hour"?23:59);
+  if(part==="minute"){
+    let number=Number(String(value||"").replace(/\D/g,""));
+    if(!Number.isFinite(number))number=0;
+    number=Math.max(0,Math.min(59,number));
+    number=Math.round(number/5)*5;
+    if(number>55)number=55;
+    input.value=pad(number);
+    return;
+  }
+  input.value=normalizeTimePart(value,0,23);
 }
 function stepShoppingTimePart(part,delta){
   const input=document.getElementById(part==="hour"?"shoppingHourInput":"shoppingMinuteInput");
