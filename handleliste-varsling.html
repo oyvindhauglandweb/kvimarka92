@@ -8,6 +8,55 @@
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--active-button:#b8c0c7;--active-button-text:#222;--soft:#eaeaea;--success:#72c184;--danger:#d77;--warning:#d9b15f;--soft-card-bg:rgba(0,0,0,.035);--soft-row-bg:rgba(0,0,0,.055);--soft-button-bg:rgba(0,0,0,.075);--soft-button-hover:rgba(0,0,0,.11);--soft-empty-bg:rgba(0,0,0,.045);}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--active-button:#5a5a5a;--active-button-text:#fff;--soft:#333;--soft-card-bg:rgba(255,255,255,.038);--soft-row-bg:rgba(0,0,0,.18);--soft-button-bg:rgba(255,255,255,.055);--soft-button-hover:rgba(255,255,255,.09);--soft-empty-bg:rgba(0,0,0,.12);}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}body.dark-mode.soft-design{--card:#202020;--button:#242424;--button-hover:#303030;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.option-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.option-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 12px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.primary{background:var(--active-button);border-color:var(--active-button);color:var(--active-button-text);}.danger{color:#ff8b8b;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--link);}.status.warning{color:var(--warning);}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;}.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}label{font-weight:bold;font-size:14px;}input,select,textarea{width:100%;min-height:40px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:15px;}textarea{min-height:78px;padding-top:10px;resize:vertical;}.computed{background:rgba(127,127,127,.07);border:1px solid var(--border);border-radius:10px;padding:0 12px;min-height:40px;display:flex;align-items:center;justify-content:center;line-height:1.4;}.computed-value{width:100%;font-size:16px;font-weight:bold;color:var(--link);margin-top:0;line-height:1.15;text-align:center;}.system-clock-value{color:var(--active-button-text);font-size:16px;text-align:center;}#shoppingTime{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
 .datetime-picker-wrap{position:relative;min-height:40px;border:0;border-radius:8px;background:var(--active-button);overflow:hidden;box-shadow:none;}
 .datetime-display{width:100%;min-height:40px;padding:0 36px 0 12px;border:0;background:transparent;color:var(--active-button-text);font-size:16px;font-weight:bold;text-align:center;cursor:pointer;}
+
+.custom-datetime-panel{
+  display:none;
+  margin-top:8px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--card);
+  box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+.custom-datetime-panel.open{
+  display:block;
+}
+.custom-datetime-grid{
+  display:grid;
+  grid-template-columns:1.3fr .8fr .8fr;
+  gap:8px;
+  align-items:end;
+}
+.custom-datetime-panel label{
+  display:block;
+  margin:0 0 5px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:bold;
+}
+.custom-datetime-panel input,
+.custom-datetime-panel select{
+  width:100%;
+  min-height:40px;
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--button);
+  color:var(--text);
+  font-size:16px;
+}
+.custom-datetime-actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+@media(max-width:700px){
+  .custom-datetime-grid{
+    grid-template-columns:1fr;
+  }
+}
+
 .datetime-picker-wrap::after{content:"▣";position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--active-button-text);font-size:14px;pointer-events:none;opacity:.95;}.minutes-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;}.option-button{min-height:42px;}.option-button.active{background:var(--active-button);border-color:var(--active-button);color:var(--active-button-text);}.recipient-list{display:flex;flex-direction:column;gap:6px;}.recipient-row{display:grid;grid-template-columns:1fr 82px 82px;gap:8px;align-items:center;background:rgba(127,127,127,.05);border:1px solid var(--border);border-radius:10px;padding:10px;}.recipient-name{font-weight:bold;}.recipient-meta{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.25;}.check-cell{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:bold;color:var(--muted);}.check-cell input{width:22px;height:22px;min-height:22px;accent-color:var(--link);}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}.active-plan{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;}.plan-title{font-weight:bold;font-size:18px;margin-bottom:4px;}.plan-meta{color:var(--muted);font-size:14px;line-height:1.45;}.small{font-size:12px;color:var(--muted);line-height:1.35;}body.soft-design .card,body.soft-design .computed,body.soft-design .recipient-row,body.soft-design input,body.soft-design select,body.soft-design textarea,body.soft-design .top-button,body.soft-design .action-button,body.soft-design .option-button{border:0;background:rgba(255,255,255,.055);}body.soft-design .card{background:rgba(255,255,255,.038);}body.soft-design .recipient-row{background:rgba(0,0,0,.18);}body.soft-design .option-button.active,body.soft-design .primary{background:var(--active-button);color:var(--active-button-text);}@media(max-width:700px){body{padding:6px;}.header{margin-bottom:12px;}.site-title{font-size:28px;}.card{padding:8px;margin-bottom:8px;border-radius:10px;}.grid{grid-template-columns:1fr;gap:0;}.toolbar,.toolbar-left,.toolbar-right{align-items:stretch;width:100%;}.action-button,.option-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.minutes-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}.recipient-row{grid-template-columns:1fr 62px 62px;padding:8px;gap:6px;}.check-cell{font-size:11px;}.computed-value{font-size:15px;}.active-plan{grid-template-columns:1fr;}.active-plan .action-button{width:100%;}}
 .theme-toggle-button{font-size:19px;}
 
@@ -171,7 +220,27 @@ function toggleShoppingDesign(){
           <label for="shoppingTime">Tidspunkt for neste handling</label>
           <div class="datetime-picker-wrap">
                   <button type="button" class="datetime-display" id="shoppingTimeDisplay" onclick="openShoppingTimePicker()">-</button>
-                  <input type="datetime-local" id="shoppingTime" required onchange="updateNotifyAtDisplay()" oninput="updateNotifyAtDisplay()">
+                  <input type="hidden" id="shoppingTime" required onchange="updateNotifyAtDisplay()" oninput="updateNotifyAtDisplay()">
+                </div>
+                <div class="custom-datetime-panel" id="shoppingTimePanel">
+                  <div class="custom-datetime-grid">
+                    <div>
+                      <label for="shoppingDateInput">Dato</label>
+                      <input type="date" id="shoppingDateInput">
+                    </div>
+                    <div>
+                      <label for="shoppingHourSelect">Time</label>
+                      <select id="shoppingHourSelect"></select>
+                    </div>
+                    <div>
+                      <label for="shoppingMinuteSelect">Minutt</label>
+                      <select id="shoppingMinuteSelect"></select>
+                    </div>
+                  </div>
+                  <div class="custom-datetime-actions">
+                    <button class="action-button" type="button" onclick="closeShoppingTimePicker()">Avbryt</button>
+                    <button class="action-button primary" type="button" onclick="applyShoppingTimePicker()">Velg</button>
+                  </div>
                 </div>
         </div>
       </div>
@@ -239,15 +308,70 @@ function updateShoppingTimeDisplay(){
   const el=document.getElementById("shoppingTimeDisplay");
   if(el)el.textContent=formatLocalDateTime(shoppingTime);
 }
-function openShoppingTimePicker(){
-  const input=document.getElementById("shoppingTime");
-  if(!input)return;
-  if(typeof input.showPicker==="function"){
-    input.showPicker();
-  }else{
-    input.focus();
-    input.click();
+function fillShoppingTimePickerOptions(){
+  const hourSelect=document.getElementById("shoppingHourSelect");
+  const minuteSelect=document.getElementById("shoppingMinuteSelect");
+  if(hourSelect&&!hourSelect.options.length){
+    for(let i=0;i<24;i++){
+      const value=pad(i);
+      const option=document.createElement("option");
+      option.value=value;
+      option.textContent=value;
+      hourSelect.appendChild(option);
+    }
   }
+  if(minuteSelect&&!minuteSelect.options.length){
+    for(let i=0;i<60;i++){
+      const value=pad(i);
+      const option=document.createElement("option");
+      option.value=value;
+      option.textContent=value;
+      minuteSelect.appendChild(option);
+    }
+  }
+}
+function syncShoppingTimePickerFromHidden(){
+  fillShoppingTimePickerOptions();
+  const hidden=document.getElementById("shoppingTime");
+  const dateInput=document.getElementById("shoppingDateInput");
+  const hourSelect=document.getElementById("shoppingHourSelect");
+  const minuteSelect=document.getElementById("shoppingMinuteSelect");
+  let date=getShoppingTimeDate();
+  if(!date){
+    date=new Date();
+    date.setMinutes(date.getMinutes()+90);
+    date.setMinutes(Math.ceil(date.getMinutes()/15)*15,0,0);
+  }
+  if(dateInput)dateInput.value=`${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
+  if(hourSelect)hourSelect.value=pad(date.getHours());
+  if(minuteSelect)minuteSelect.value=pad(date.getMinutes());
+  if(hidden&&!hidden.value)hidden.value=toDatetimeLocal(date);
+}
+function openShoppingTimePicker(){
+  const panel=document.getElementById("shoppingTimePanel");
+  if(!panel)return;
+  syncShoppingTimePickerFromHidden();
+  panel.classList.add("open");
+}
+function closeShoppingTimePicker(){
+  const panel=document.getElementById("shoppingTimePanel");
+  if(panel)panel.classList.remove("open");
+}
+function applyShoppingTimePicker(){
+  const hidden=document.getElementById("shoppingTime");
+  const dateInput=document.getElementById("shoppingDateInput");
+  const hourSelect=document.getElementById("shoppingHourSelect");
+  const minuteSelect=document.getElementById("shoppingMinuteSelect");
+  const dateValue=dateInput?String(dateInput.value||"").trim():"";
+  const hourValue=hourSelect?String(hourSelect.value||"00").padStart(2,"0"):"00";
+  const minuteValue=minuteSelect?String(minuteSelect.value||"00").padStart(2,"0"):"00";
+  if(!dateValue){
+    setStatus("Velg dato for neste handling.","error");
+    return;
+  }
+  if(hidden)hidden.value=`${dateValue}T${hourValue}:${minuteValue}`;
+  closeShoppingTimePicker();
+  updateNotifyAtDisplay();
 }
 function updateNotifyAtDisplay(){const notifyAt=getNotifyAtDate();updateShoppingTimeDisplay();document.getElementById("notifyAtDisplay").textContent=formatLocalDateTime(notifyAt);}
 function getActiveNotifyAtDate(){if(!activeNotification)return null;return parseFlexibleDateTime(activeNotification.notifyAt||activeNotification.notify_at||activeNotification["Notify at"]);}
@@ -256,7 +380,7 @@ function updateSystemClock(){const now=new Date();const el=document.getElementBy
 function startSystemClock(){updateSystemClock();setInterval(updateSystemClock,1000);}
 function setMinutes(value){selectedMinutes=value;renderMinutes();updateNotifyAtDisplay();}
 function renderMinutes(){document.getElementById("minutesButtons").innerHTML=MINUTES_OPTIONS.map(option=>`<button type="button" class="option-button ${option===selectedMinutes?"active":""}" onclick="setMinutes('${esc(option)}')">${esc(option)}</button>`).join("");}
-function setDefaultShoppingTime(){const input=document.getElementById("shoppingTime");if(input.value)return;const now=new Date();now.setMinutes(now.getMinutes()+90);now.setMinutes(Math.ceil(now.getMinutes()/15)*15,0,0);input.value=toDatetimeLocal(now);}
+function setDefaultShoppingTime(){const input=document.getElementById("shoppingTime");if(input.value)return;const now=new Date();now.setMinutes(now.getMinutes()+90);now.setMinutes(Math.ceil(now.getMinutes()/15)*15,0,0);input.value=toDatetimeLocal(now);syncShoppingTimePickerFromHidden();}
 const RECIPIENT_PREFS_KEY="kvimarka92NotificationRecipientPrefs";
 function loadRecipientPrefs(){
   try{
