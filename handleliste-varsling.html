@@ -744,6 +744,146 @@ body:not(.dark-mode) #shoppingTimePanel .custom-datetime-actions .action-button.
   }
 }
 
+
+/* FINAL 4: tidspunktvelger uten horisontal overflow.
+   Dato ligger på egen rad, Time/Minutt på raden under. */
+#shoppingTimePanel.custom-datetime-panel{
+  width:calc(200% + 12px) !important;
+  min-width:0 !important;
+  max-width:none !important;
+  padding:14px 18px 16px 18px !important;
+  border:0 !important;
+  border-radius:12px !important;
+  background:var(--active-button) !important;
+  color:var(--active-button-text) !important;
+  overflow:hidden !important;
+  box-shadow:none !important;
+}
+#shoppingTimePanel .custom-datetime-grid{
+  display:grid !important;
+  grid-template-columns:250px 170px 170px !important;
+  gap:14px 18px !important;
+  align-items:end !important;
+  justify-content:start !important;
+}
+#shoppingTimePanel .custom-datetime-grid > div:nth-child(1){
+  grid-column:1 / 4 !important;
+  width:250px !important;
+  max-width:250px !important;
+}
+#shoppingTimePanel .custom-datetime-grid > div:nth-child(2),
+#shoppingTimePanel .custom-datetime-grid > div:nth-child(3){
+  width:170px !important;
+  max-width:170px !important;
+}
+#shoppingTimePanel .custom-date-input{
+  width:250px !important;
+  max-width:250px !important;
+  height:50px !important;
+  min-height:50px !important;
+  padding:0 14px !important;
+  box-sizing:border-box !important;
+  background:#4a4a4a !important;
+  color:#fff !important;
+  border:1px solid #686868 !important;
+  border-radius:10px !important;
+  font-size:18px !important;
+}
+#shoppingTimePanel .custom-time-field{
+  display:grid !important;
+  grid-template-columns:44px 58px 44px !important;
+  gap:8px !important;
+  width:170px !important;
+  min-width:170px !important;
+  max-width:170px !important;
+  justify-content:start !important;
+  align-items:center !important;
+}
+#shoppingTimePanel .custom-time-button{
+  width:44px !important;
+  min-width:44px !important;
+  max-width:44px !important;
+  height:50px !important;
+  min-height:50px !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+  background:#303030 !important;
+  color:#fff !important;
+  border:1px solid #707070 !important;
+  border-radius:9px !important;
+  font-size:22px !important;
+  font-weight:bold !important;
+}
+#shoppingTimePanel .custom-time-input{
+  width:58px !important;
+  min-width:58px !important;
+  max-width:58px !important;
+  height:50px !important;
+  min-height:50px !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+  background:#555 !important;
+  color:#fff !important;
+  border:1px solid #707070 !important;
+  border-radius:9px !important;
+  text-align:center !important;
+  font-size:23px !important;
+  font-weight:bold !important;
+}
+#shoppingTimePanel .custom-datetime-actions{
+  margin-top:14px !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  gap:10px !important;
+}
+#shoppingTimePanel .custom-datetime-actions .action-button{
+  flex:0 0 auto !important;
+  min-width:88px !important;
+  height:44px !important;
+  min-height:44px !important;
+  background:#303030 !important;
+  color:#fff !important;
+  border:1px solid #707070 !important;
+  border-radius:9px !important;
+}
+#shoppingTimePanel .custom-datetime-actions .action-button.primary{
+  background:#777 !important;
+  color:#fff !important;
+  border-color:#909090 !important;
+}
+body:not(.dark-mode) #shoppingTimePanel .custom-date-input,
+body:not(.dark-mode) #shoppingTimePanel .custom-time-button,
+body:not(.dark-mode) #shoppingTimePanel .custom-datetime-actions .action-button{
+  background:#d0d0d0 !important;
+  color:#222 !important;
+  border-color:#b8b8b8 !important;
+}
+body:not(.dark-mode) #shoppingTimePanel .custom-time-input,
+body:not(.dark-mode) #shoppingTimePanel .custom-datetime-actions .action-button.primary{
+  background:#b8c0c7 !important;
+  color:#222 !important;
+  border-color:#aab2b9 !important;
+}
+@media(max-width:900px){
+  #shoppingTimePanel.custom-datetime-panel{
+    width:100% !important;
+  }
+  #shoppingTimePanel .custom-datetime-grid{
+    grid-template-columns:1fr !important;
+  }
+  #shoppingTimePanel .custom-datetime-grid > div:nth-child(1),
+  #shoppingTimePanel .custom-datetime-grid > div:nth-child(2),
+  #shoppingTimePanel .custom-datetime-grid > div:nth-child(3){
+    grid-column:auto !important;
+    width:100% !important;
+    max-width:none !important;
+  }
+  #shoppingTimePanel .custom-date-input{
+    width:100% !important;
+    max-width:none !important;
+  }
+}
+
 </style>
 <script>
 (function(){
