@@ -34,8 +34,7 @@
   font-size:12px;
   font-weight:bold;
 }
-.custom-datetime-panel input,
-.custom-datetime-panel select{
+.custom-datetime-panel input{
   width:100%;
   min-height:40px;
   padding:8px 10px;
@@ -44,6 +43,41 @@
   background:var(--button);
   color:var(--text);
   font-size:16px;
+  color-scheme:dark;
+}
+body:not(.dark-mode) .custom-datetime-panel input{
+  color-scheme:light;
+}
+.custom-time-field{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) 38px;
+  gap:6px;
+  align-items:center;
+}
+.custom-time-button{
+  min-height:40px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--button);
+  color:var(--text);
+  font-size:20px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.custom-time-button:hover{
+  background:var(--button-hover);
+}
+.custom-time-input{
+  text-align:center;
+  font-weight:bold;
+  font-size:20px !important;
+  appearance:textfield;
+  -moz-appearance:textfield;
+}
+.custom-time-input::-webkit-outer-spin-button,
+.custom-time-input::-webkit-inner-spin-button{
+  -webkit-appearance:none;
+  margin:0;
 }
 .custom-datetime-actions{
   display:flex;
@@ -229,12 +263,20 @@ function toggleShoppingDesign(){
                       <input type="date" id="shoppingDateInput">
                     </div>
                     <div>
-                      <label for="shoppingHourSelect">Time</label>
-                      <select id="shoppingHourSelect"></select>
+                      <label for="shoppingHourInput">Time</label>
+                      <div class="custom-time-field">
+                        <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('hour',-1)">−</button>
+                        <input class="custom-time-input" type="text" inputmode="numeric" id="shoppingHourInput" maxlength="2" value="00">
+                        <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('hour',1)">+</button>
+                      </div>
                     </div>
                     <div>
-                      <label for="shoppingMinuteSelect">Minutt</label>
-                      <select id="shoppingMinuteSelect"></select>
+                      <label for="shoppingMinuteInput">Minutt</label>
+                      <div class="custom-time-field">
+                        <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('minute',-1)">−</button>
+                        <input class="custom-time-input" type="text" inputmode="numeric" id="shoppingMinuteInput" maxlength="2" value="00">
+                        <button class="custom-time-button" type="button" onclick="stepShoppingTimePart('minute',1)">+</button>
+                      </div>
                     </div>
                   </div>
                   <div class="custom-datetime-actions">
@@ -308,34 +350,31 @@ function updateShoppingTimeDisplay(){
   const el=document.getElementById("shoppingTimeDisplay");
   if(el)el.textContent=formatLocalDateTime(shoppingTime);
 }
-function fillShoppingTimePickerOptions(){
-  const hourSelect=document.getElementById("shoppingHourSelect");
-  const minuteSelect=document.getElementById("shoppingMinuteSelect");
-  if(hourSelect&&!hourSelect.options.length){
-    for(let i=0;i<24;i++){
-      const value=pad(i);
-      const option=document.createElement("option");
-      option.value=value;
-      option.textContent=value;
-      hourSelect.appendChild(option);
-    }
-  }
-  if(minuteSelect&&!minuteSelect.options.length){
-    for(let i=0;i<60;i++){
-      const value=pad(i);
-      const option=document.createElement("option");
-      option.value=value;
-      option.textContent=value;
-      minuteSelect.appendChild(option);
-    }
-  }
+function normalizeTimePart(value,min,max){
+  let number=Number(String(value||"").replace(/\D/g,""));
+  if(!Number.isFinite(number))number=min;
+  number=Math.max(min,Math.min(max,number));
+  return pad(number);
+}
+function setShoppingTimePart(part,value){
+  const input=document.getElementById(part==="hour"?"shoppingHourInput":"shoppingMinuteInput");
+  if(!input)return;
+  input.value=normalizeTimePart(value,0,part==="hour"?23:59);
+}
+function stepShoppingTimePart(part,delta){
+  const input=document.getElementById(part==="hour"?"shoppingHourInput":"shoppingMinuteInput");
+  if(!input)return;
+  const max=part==="hour"?23:59;
+  let number=Number(String(input.value||"0").replace(/\D/g,""));
+  if(!Number.isFinite(number))number=0;
+  number=(number+delta+max+1)%(max+1);
+  input.value=pad(number);
 }
 function syncShoppingTimePickerFromHidden(){
-  fillShoppingTimePickerOptions();
   const hidden=document.getElementById("shoppingTime");
   const dateInput=document.getElementById("shoppingDateInput");
-  const hourSelect=document.getElementById("shoppingHourSelect");
-  const minuteSelect=document.getElementById("shoppingMinuteSelect");
+  const hourInput=document.getElementById("shoppingHourInput");
+  const minuteInput=document.getElementById("shoppingMinuteInput");
   let date=getShoppingTimeDate();
   if(!date){
     date=new Date();
@@ -343,8 +382,8 @@ function syncShoppingTimePickerFromHidden(){
     date.setMinutes(Math.ceil(date.getMinutes()/15)*15,0,0);
   }
   if(dateInput)dateInput.value=`${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
-  if(hourSelect)hourSelect.value=pad(date.getHours());
-  if(minuteSelect)minuteSelect.value=pad(date.getMinutes());
+  if(hourInput)hourInput.value=pad(date.getHours());
+  if(minuteInput)minuteInput.value=pad(date.getMinutes());
   if(hidden&&!hidden.value)hidden.value=toDatetimeLocal(date);
 }
 function openShoppingTimePicker(){
@@ -360,11 +399,11 @@ function closeShoppingTimePicker(){
 function applyShoppingTimePicker(){
   const hidden=document.getElementById("shoppingTime");
   const dateInput=document.getElementById("shoppingDateInput");
-  const hourSelect=document.getElementById("shoppingHourSelect");
-  const minuteSelect=document.getElementById("shoppingMinuteSelect");
+  const hourInput=document.getElementById("shoppingHourInput");
+  const minuteInput=document.getElementById("shoppingMinuteInput");
   const dateValue=dateInput?String(dateInput.value||"").trim():"";
-  const hourValue=hourSelect?String(hourSelect.value||"00").padStart(2,"0"):"00";
-  const minuteValue=minuteSelect?String(minuteSelect.value||"00").padStart(2,"0"):"00";
+  const hourValue=hourInput?normalizeTimePart(hourInput.value,0,23):"00";
+  const minuteValue=minuteInput?normalizeTimePart(minuteInput.value,0,59):"00";
   if(!dateValue){
     setStatus("Velg dato for neste handling.","error");
     return;
@@ -373,6 +412,18 @@ function applyShoppingTimePicker(){
   closeShoppingTimePicker();
   updateNotifyAtDisplay();
 }
+
+document.addEventListener("DOMContentLoaded",function(){
+  const hourInput=document.getElementById("shoppingHourInput");
+  const minuteInput=document.getElementById("shoppingMinuteInput");
+  if(hourInput){
+    hourInput.addEventListener("blur",function(){setShoppingTimePart("hour",hourInput.value);});
+  }
+  if(minuteInput){
+    minuteInput.addEventListener("blur",function(){setShoppingTimePart("minute",minuteInput.value);});
+  }
+});
+
 function updateNotifyAtDisplay(){const notifyAt=getNotifyAtDate();updateShoppingTimeDisplay();document.getElementById("notifyAtDisplay").textContent=formatLocalDateTime(notifyAt);}
 function getActiveNotifyAtDate(){if(!activeNotification)return null;return parseFlexibleDateTime(activeNotification.notifyAt||activeNotification.notify_at||activeNotification["Notify at"]);}
 function clearExpiredActiveNotification(now,silent){if(!activeNotification)return false;const notifyAt=getActiveNotifyAtDate();if(!notifyAt||now<notifyAt)return false;activeNotification=null;activeRecipients=[];renderActivePlan();renderRecipients();if(!silent)setStatus("Varslingstidspunktet er passert. Aktiv varsling er nullstilt lokalt.","warning");return true;}
