@@ -368,14 +368,14 @@ let ownerContacts=[];
 let currentUserName="";
 const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
-async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error(data?.detail||data?.error||`HTTP ${res.status}`);}return data;}
+function esc(value){return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");}
+async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error((data&&data.detail)||(data&&data.error)||`HTTP ${res.status}`);}return data;}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
 function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
 function getInitialOwner(){const saved=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");return SHOPPING_OWNERS.includes(saved)?saved:"Felles";}function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}}
 function ownerBadge(item){const owner=normalizeOwner(item.owner);return owner&&owner!=="Felles"?`<span class="badge">${esc(owner)}</span>`:"";}
 function getOwnerPhone(owner){const normalized=normalizeOwner(owner);const contact=ownerContacts.find(item=>String(item.name||"").trim().toLowerCase()===normalized.toLowerCase());return contact?String(contact.phone||"").trim():"";}
-function makeSmsMessage(item){const sender=String(currentUserName||"").trim()||"";const itemName=String(item?.name||"varen").trim()||"varen";return `Jeg er i butikken. Denne varen må du forklare litt mer om hvis du ønsker jeg skal kjøpe den: ${itemName} - Mvh ${sender}`.trim();}
+function makeSmsMessage(item){const sender=String(currentUserName||"").trim()||"";const itemName=String((item&&item.name)||"varen").trim()||"varen";return `Jeg er i butikken. Denne varen må du forklare litt mer om hvis du ønsker jeg skal kjøpe den: ${itemName} - Mvh ${sender}`.trim();}
 function smsHref(phone,message){const number=String(phone||"").replace(/[^+0-9]/g,"");return `sms:${encodeURIComponent(number)}?&body=${encodeURIComponent(message)}`;}
 function ownerSmsButton(item){const owner=normalizeOwner(item.owner);if(!owner||owner==="Felles")return "";const phone=getOwnerPhone(owner);if(!phone)return "";return `<a class="sms-button" href="${esc(smsHref(phone,makeSmsMessage(item)))}" onclick="event.stopPropagation();" title="Send SMS til ${esc(owner)}">SMS</a>`;}
 function recipeBadge(item){
@@ -455,10 +455,10 @@ function closeAddItemModal(){
 }
 async function createShoppingItemFromHandle(){
   const button=document.getElementById("addItemSaveButton");
-  const name=String(document.getElementById("addItemName")?.value||"").trim();
-  const type=String(document.getElementById("addItemType")?.value||"Annet").trim()||"Annet";
-  const owner=normalizeOwner(document.getElementById("addItemOwner")?.value||"Felles");
-  const shouldBuy=!!document.getElementById("addItemShouldBuy")?.checked;
+  const name=String((document.getElementById("addItemName")&&document.getElementById("addItemName").value)||"").trim();
+  const type=String((document.getElementById("addItemType")&&document.getElementById("addItemType").value)||"Annet").trim()||"Annet";
+  const owner=normalizeOwner((document.getElementById("addItemOwner")&&document.getElementById("addItemOwner").value)||"Felles");
+  const shouldBuy=!!(document.getElementById("addItemShouldBuy")&&document.getElementById("addItemShouldBuy").checked);
   if(!name){
     alert("Skriv inn varenavn.");
     return;
@@ -484,7 +484,7 @@ async function createShoppingItemFromHandle(){
 function render(){const root=document.getElementById("shoppingList");const ordered=getOrderedItems();const finishButton=document.getElementById("finishButton");const toggleAllButton=document.getElementById("toggleAllButton");if(finishButton)finishButton.disabled=!ordered.length;if(toggleAllButton){const allBought=ordered.length>0&&ordered.every(item=>boughtIds.has(Number(item.id)));toggleAllButton.disabled=!ordered.length;toggleAllButton.textContent=allBought?"Avmerk alle":"Merk alle";toggleAllButton.title=allBought?"Fjern avkrysning på alle varer":"Merk alle varer som handlet";}if(!ordered.length){root.innerHTML='<div class="empty">Ingen varer er bestilt handlet.</div>';return;}root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{const isBought=boughtIds.has(Number(item.id));const badges=`${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name">${esc(item.name)}</div><div class="badge-stack">${badges}</div></div>`;}).join("")}</div></div>`).join("");}
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked)boughtIds.add(numericId);else boughtIds.delete(numericId);saveRememberedBoughtIds();render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();render();}
-async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.(currentUser&&currentUser.name)||data.(currentUser&&currentUser.email)||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
@@ -600,12 +600,12 @@ function setStoreMatchStatus(message, type){
 }
 
 function formatStoreMatchResult(data){
-  const matchStatus=String(data?.storeMatchStatus || "");
-  const storeName=String(data?.storeName || data?.store?.name || "").trim();
-  const storeChain=String(data?.storeChain || data?.store?.chain || "").trim();
-  const logoUrl=String(data?.storeLogoUrl || data?.logoUrl || data?.store?.logoUrl || "").trim();
-  const distance=data?.storeDistance;
-  const location=data?.location || {};
+  const matchStatus=String((data&&data.storeMatchStatus) || "");
+  const storeName=String((data&&data.storeName) || (data&&data.store&&data.store.name) || "").trim();
+  const storeChain=String((data&&data.storeChain) || (data&&data.store&&data.store.chain) || "").trim();
+  const logoUrl=String((data&&data.storeLogoUrl) || (data&&data.logoUrl) || (data&&data.store&&data.store.logoUrl) || "").trim();
+  const distance=(data&&data.storeDistance);
+  const location=(data&&data.location) || {};
   const accuracy=location.accuracy !== null && location.accuracy !== undefined
     ? `${Math.round(Number(location.accuracy))} m`
     : "ukjent";
@@ -669,12 +669,12 @@ async function checkCurrentStore(silent){
       })
     });
 
-    const matched=!!(data.storeName || data.store?.name);
+    const matched=!!(data.storeName || (data.store&&data.store.name));
     const uncertain=String(data.storeMatchStatus || "") === "Uncertain";
 
     if(Array.isArray(data.typeOrder) && data.typeOrder.length){
       typeOrder=data.typeOrder;
-      currentStoreChain=data.typeOrderChain || data.storeChain || data.store?.chain || "Standard";
+      currentStoreChain=data.typeOrderChain || data.storeChain || (data.store&&data.store.chain) || "Standard";
       render();
     }
 
@@ -719,11 +719,11 @@ function shoppingSessionStatusText(session){
 }
 
 function formatLocationDebug(data, clientLocation){
-  const debug=data?.locationDebug || {};
+  const debug=(data&&data.location)Debug || {};
   const parts=[];
   parts.push(`<br><br><strong>GPS-diagnose:</strong>`);
   parts.push(`<br>Mobil/nettleser: ${esc(formatGpsLocation(clientLocation))}`);
-  parts.push(`<br>Worker mottok: lat=${esc(debug.latitude ?? "tom")}, lon=${esc(debug.longitude ?? "tom")}, accuracy=${esc(debug.gpsAccuracy ?? "tom")}, status=${esc(debug.status ?? "tom")}`);
+  parts.push(`<br>Worker mottok: lat=${esc((debug.latitude==null?"tom":debug.latitude))}, lon=${esc((debug.longitude==null?"tom":debug.longitude))}, accuracy=${esc((debug.gpsAccuracy==null?"tom":debug.gpsAccuracy))}, status=${esc((debug.status==null?"tom":debug.status))}`);
   parts.push(`<br>Session opprettet: ${debug.sessionCreated ? "ja" : "nei"}`);
 
   if(debug.sessionPatchResult){
@@ -773,10 +773,10 @@ async function finishShopping(){
       body:JSON.stringify({
         boughtIds:[...boughtIds],
         location,
-        latitude:location?.latitude,
-        longitude:location?.longitude,
-        accuracy:location?.accuracy,
-        locationStatus:location?.status
+        latitude:(location&&location.latitude),
+        longitude:(location&&location.longitude),
+        accuracy:(location&&location.accuracy),
+        locationStatus:(location&&location.status)
       })
     });
 

@@ -134,14 +134,14 @@ let draggedIndex=null;
 let hasUnsavedChanges=false;
 let canEditTypeOrder=false;
 let currentUserRole="";
-function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
-async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error(data?.error||data?.detail||`HTTP ${res.status}`);}return data;}
+function esc(value){return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");}
+async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error((data&&data.error)||(data&&data.detail)||`HTTP ${res.status}`);}return data;}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
 function renderChains(){const el=document.getElementById("chainTabs");el.innerHTML=chains.map(chain=>`<button class="chain-button ${chain===currentChain?"active":""}" type="button" onclick="selectChain('${esc(chain)}')">${esc(chain)}</button>`).join("");}
 function updateChainLogo(){const logo=document.getElementById("chainLogo");if(!logo){return;}const logoUrl=chainLogos&&currentChain?chainLogos[currentChain]:"";if(!logoUrl||currentChain==="Standard"){logo.style.display="none";logo.removeAttribute("src");logo.alt="";return;}logo.src=logoUrl;logo.alt=`${currentChain} logo`;logo.title=currentChain;logo.style.display="block";}
 function updateEditUi(){const saveButton=document.getElementById("saveButton");const note=document.getElementById("editNote");if(saveButton){saveButton.style.display=canEditTypeOrder?"inline-flex":"none";saveButton.disabled=!canEditTypeOrder;}if(note){note.textContent=canEditTypeOrder?"":"Kun administrator kan endre rekkefølgen.";}}
 function render(){renderChains();updateChainLogo();updateEditUi();const list=document.getElementById("typeList");list.innerHTML=types.map((type,index)=>{const dragAttrs=canEditTypeOrder?`draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event, ${index})" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)" onpointerdown="handlePointerDown(event, ${index})"`:"";const actions=canEditTypeOrder?`<div class="type-actions"><button class="type-button" type="button" onclick="moveType(${index}, ${index-1})" ${index===0?"disabled":""} title="Flytt opp">↑</button><button class="type-button" type="button" onclick="moveType(${index}, ${index+1})" ${index===types.length-1?"disabled":""} title="Flytt ned">↓</button></div>`:`<div class="type-actions"></div>`;return `<div class="type-row ${canEditTypeOrder?"touch-enabled":"readonly"}" ${dragAttrs} data-index="${index}"><div class="type-number">${index+1}</div><div class="type-name">${esc(type)}</div>${actions}</div>`;}).join("");}
-async function loadTypes(chain){currentChain=chain||currentChain||"Standard";setStatus(`Laster varetyper for ${esc(currentChain)}...`);try{const data=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(currentChain)}`);types=Array.isArray(data.typeOrder)?data.typeOrder:[];chains=Array.isArray(data.chains)&&data.chains.length?data.chains:["Standard"];chainLogos=data.chainLogos||chainLogos||{};currentChain=data.chain||currentChain;canEditTypeOrder=Boolean(data.canEditTypeOrder);currentUserRole=data.currentUser?.role||"";hasUnsavedChanges=false;render();setStatus(canEditTypeOrder?`Klar. Redigerer rekkefølge for <strong>${esc(currentChain)}</strong>.`:`Klar. Viser rekkefølge for <strong>${esc(currentChain)}</strong>. Kun administrator kan endre.`, "success");}catch(error){setStatus(`Kunne ikke laste varetyper.<br><br>${esc(error.message)}`,"error");}}
+async function loadTypes(chain){currentChain=chain||currentChain||"Standard";setStatus(`Laster varetyper for ${esc(currentChain)}...`);try{const data=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(currentChain)}`);types=Array.isArray(data.typeOrder)?data.typeOrder:[];chains=Array.isArray(data.chains)&&data.chains.length?data.chains:["Standard"];chainLogos=data.chainLogos||chainLogos||{};currentChain=data.chain||currentChain;canEditTypeOrder=Boolean(data.canEditTypeOrder);currentUserRole=data.(currentUser&&currentUser.role)||"";hasUnsavedChanges=false;render();setStatus(canEditTypeOrder?`Klar. Redigerer rekkefølge for <strong>${esc(currentChain)}</strong>.`:`Klar. Viser rekkefølge for <strong>${esc(currentChain)}</strong>. Kun administrator kan endre.`, "success");}catch(error){setStatus(`Kunne ikke laste varetyper.<br><br>${esc(error.message)}`,"error");}}
 function selectChain(chain){if(chain===currentChain){return;}if(hasUnsavedChanges&&!confirm("Du har ulagrede endringer. Bytte kjede uten å lagre?")){return;}loadTypes(chain);}
 function moveType(fromIndex,toIndex){if(!canEditTypeOrder){return;}if(fromIndex<0||fromIndex>=types.length||toIndex<0||toIndex>=types.length||fromIndex===toIndex){return;}const [type]=types.splice(fromIndex,1);types.splice(toIndex,0,type);hasUnsavedChanges=true;render();}
 function handleDragStart(event,index){if(!canEditTypeOrder){event.preventDefault();return;}draggedIndex=index;event.currentTarget.classList.add("dragging");event.dataTransfer.effectAllowed="move";}
@@ -157,7 +157,7 @@ function handlePointerDown(event,index){
   if(event.target.closest("button")){return;}
   const row=event.currentTarget;
   pointerDragState={startIndex:index,currentIndex:index,startX:event.clientX,startY:event.clientY,dragging:false,pointerId:event.pointerId,row};
-  row.setPointerCapture?.(event.pointerId);
+  if(row.setPointerCapture){row.setPointerCapture(event.pointerId);}
   row.addEventListener("pointermove",handlePointerMove);
   row.addEventListener("pointerup",handlePointerUp);
   row.addEventListener("pointercancel",handlePointerCancel);
@@ -173,7 +173,7 @@ function handlePointerMove(event){
   if(!pointerDragState.dragging){return;}
   event.preventDefault();
   const element=document.elementFromPoint(event.clientX,event.clientY);
-  const targetRow=element?.closest?.(".type-row");
+  const targetRow=(element&&element.closest?element.closest(".type-row"):null);
   document.querySelectorAll(".type-row.drag-over").forEach(row=>row.classList.remove("drag-over"));
   if(targetRow){
     const targetIndex=Number(targetRow.dataset.index);
@@ -200,9 +200,9 @@ function handlePointerCancel(event){
   pointerDragState=null;
 }
 function cleanupPointerListeners(row){
-  row?.removeEventListener("pointermove",handlePointerMove);
-  row?.removeEventListener("pointerup",handlePointerUp);
-  row?.removeEventListener("pointercancel",handlePointerCancel);
+  if(row){row.removeEventListener("pointermove",handlePointerMove);}
+  if(row){row.removeEventListener("pointerup",handlePointerUp);}
+  if(row){row.removeEventListener("pointercancel",handlePointerCancel);}
 }
 
 async function saveTypeOrder(){if(!canEditTypeOrder){setStatus("Kun administrator kan lagre varetyperekkefølge.","error");return;}const button=document.getElementById("saveButton");button.disabled=true;setStatus(`Lagrer rekkefølge for ${esc(currentChain)}...`);try{const data=await fetchJson(`${API_BASE}/shopping/type-order`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({chain:currentChain,types})});types=Array.isArray(data.typeOrder)?data.typeOrder:types;chains=Array.isArray(data.chains)&&data.chains.length?data.chains:chains;chainLogos=data.chainLogos||chainLogos||{};hasUnsavedChanges=false;render();setStatus(`Varetyperekkefølgen for <strong>${esc(currentChain)}</strong> er lagret.`, "success");}catch(error){setStatus(`Kunne ikke lagre varetyperekkefølgen.<br><br>${esc(error.message)}`,"error");}finally{button.disabled=false;}}
