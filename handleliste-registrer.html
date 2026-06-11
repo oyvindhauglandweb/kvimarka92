@@ -192,7 +192,7 @@
   </div>
 
   <script>
-    const API_BASE = "";
+    const API_BASE = "https://api-kvimarka92.carstereogarage.com";
     const membersEl = document.getElementById("members");
     const messageEl = document.getElementById("message");
     const submitBtn = document.getElementById("submitBtn");
@@ -303,7 +303,7 @@
         membersEl.innerHTML = "";
         addMember();
       }catch(error){
-        showMessage("err", (error && error.message ? error.message : String(error)) + "\n\nKontroller at Worker v84 er deployet, og at siden ikke ligger bak en Access-regel som blokkerer public API-kall.");
+        showMessage("err", (error && error.message ? error.message : String(error)) + "\n\nKontroller at Worker v84 er deployet på api-kvimarka92.carstereogarage.com, og at siden ikke ligger bak en Access-regel som blokkerer public API-kall.");
       }finally{
         submitBtn.disabled = false;
         submitBtn.textContent = "Send registrering";
