@@ -286,7 +286,7 @@
         const res = await fetch(`${API_BASE}/shopping/register-family`, {
           method:"POST",
           mode:"cors",
-          headers:{ "Content-Type":"application/json" },
+          headers:{ "Content-Type":"text/plain;charset=UTF-8" },
           body:JSON.stringify(payload)
         });
 
@@ -307,7 +307,7 @@
         membersEl.innerHTML = "";
         addMember();
       }catch(error){
-        showMessage("err", error.message || String(error));
+        showMessage("err", (error && error.message ? error.message : String(error)) + "\n\nKontroller at Worker v82 er deployet, og at siden ikke ligger bak en Access-regel som blokkerer public API-kall.");
       }finally{
         submitBtn.disabled = false;
         submitBtn.textContent = "Send registrering";
