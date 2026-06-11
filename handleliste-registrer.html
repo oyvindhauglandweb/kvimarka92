@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Registrer handleliste</title>
+  <style>
+    :root{
+      color-scheme:dark;
+      --bg:#121212;
+      --panel:#1f1f1f;
+      --panel2:#252525;
+      --text:#f4f4f4;
+      --muted:#cfcfcf;
+      --border:#3a3a3a;
+      --accent:#7fd8ff;
+      --error:#ff8080;
+      --ok:#88e28b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      padding:18px;
+    }
+    .wrap{
+      max-width:860px;
+      margin:0 auto;
+    }
+    header{
+      text-align:center;
+      margin:8px 0 22px;
+    }
+    h1{
+      margin:0;
+      font-size:30px;
+    }
+    .subtitle{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:16px;
+    }
+    .card{
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px;
+      margin-bottom:14px;
+    }
+    label{
+      display:block;
+      font-weight:bold;
+      margin:12px 0 6px;
+    }
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:var(--panel2);
+      color:var(--text);
+      padding:12px;
+      font-size:16px;
+    }
+    textarea{min-height:80px;resize:vertical}
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .member{
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px;
+      margin-top:12px;
+      background:#1b1b1b;
+    }
+    .member-title{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      font-weight:bold;
+      margin-bottom:4px;
+    }
+    button{
+      border:0;
+      border-radius:8px;
+      background:#333;
+      color:var(--text);
+      padding:12px 16px;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    button.primary{
+      background:#5d5d5d;
+    }
+    button.danger{
+      background:#3a2424;
+    }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top:14px;
+    }
+    .msg{
+      border-radius:10px;
+      padding:13px;
+      margin:14px 0;
+      display:none;
+      white-space:pre-wrap;
+    }
+    .msg.ok{
+      display:block;
+      color:var(--ok);
+      background:#172417;
+    }
+    .msg.err{
+      display:block;
+      color:var(--error);
+      background:#291919;
+    }
+    .hint{
+      color:var(--muted);
+      line-height:1.45;
+    }
+    .small{
+      font-size:14px;
+      color:var(--muted);
+    }
+    @media (max-width:700px){
+      body{padding:10px}
+      .row{grid-template-columns:1fr}
+      h1{font-size:26px}
+      .actions{justify-content:stretch}
+      button{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Registrer handleliste</h1>
+      <div class="subtitle">Registrering av ny familie / handleliste</div>
+    </header>
+
+    <div id="message" class="msg"></div>
+
+    <form id="registrationForm">
+      <section class="card">
+        <p class="hint">
+          Registreringen sendes inn til godkjenning. Familien får ikke tilgang før administrator har godkjent familien og brukerne.
+        </p>
+
+        <label for="familyName">Familienavn / navn på handleliste</label>
+        <input id="familyName" name="familyName" autocomplete="organization" required placeholder="F.eks. Familie Hansen">
+
+        <label for="streetAddress">Gateadresse</label>
+        <select id="streetAddress" name="streetAddress" required>
+          <option value="">Velg adresse</option>
+          <option>Rektor Sælands veg 4</option>
+          <option>Rimestadvegen 289</option>
+          <option>Kvimarka 87</option>
+          <option>Slettevegen 11</option>
+        </select>
+      </section>
+
+      <section class="card">
+        <h2 style="margin-top:0">Brukere</h2>
+        <p class="small">Første bruker blir foreslått som familieadministrator.</p>
+
+        <div id="members"></div>
+
+        <div class="actions">
+          <button type="button" id="addMemberBtn">Legg til bruker</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="actions">
+          <button type="submit" class="primary" id="submitBtn">Send registrering</button>
+        </div>
+      </section>
+    </form>
+  </div>
+
+  <script>
+    const API_BASE = "https://api.kvimarka92.carstereogarage.com";
+    const membersEl = document.getElementById("members");
+    const messageEl = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
+    const addMemberBtn = document.getElementById("addMemberBtn");
+
+    function showMessage(type, text){
+      messageEl.className = "msg " + (type === "ok" ? "ok" : "err");
+      messageEl.textContent = text || "";
+      if(text){
+        messageEl.scrollIntoView({ behavior:"smooth", block:"start" });
+      }
+    }
+
+    function makeMember(index){
+      const div = document.createElement("div");
+      div.className = "member";
+      div.innerHTML = `
+        <div class="member-title">
+          <span>Bruker ${index + 1}${index === 0 ? " (familieadministrator)" : ""}</span>
+          ${index === 0 ? "" : '<button type="button" class="danger remove-member">Fjern</button>'}
+        </div>
+        <label>Navn</label>
+        <input name="memberName" autocomplete="name" required>
+        <div class="row">
+          <div>
+            <label>E-post</label>
+            <input name="memberEmail" type="email" autocomplete="email" required>
+          </div>
+          <div>
+            <label>Telefonnummer</label>
+            <input name="memberPhone" type="tel" autocomplete="tel" required>
+          </div>
+        </div>
+      `;
+
+      const removeBtn = div.querySelector(".remove-member");
+      if(removeBtn){
+        removeBtn.addEventListener("click", () => {
+          div.remove();
+          renumberMembers();
+        });
+      }
+
+      return div;
+    }
+
+    function renumberMembers(){
+      Array.from(membersEl.children).forEach((member, index) => {
+        const title = member.querySelector(".member-title span");
+        title.textContent = `Bruker ${index + 1}${index === 0 ? " (familieadministrator)" : ""}`;
+      });
+    }
+
+    function addMember(){
+      membersEl.appendChild(makeMember(membersEl.children.length));
+    }
+
+    function collectMembers(){
+      return Array.from(membersEl.children).map(member => ({
+        name:member.querySelector('[name="memberName"]').value.trim(),
+        email:member.querySelector('[name="memberEmail"]').value.trim(),
+        phone:member.querySelector('[name="memberPhone"]').value.trim()
+      })).filter(member => member.name || member.email || member.phone);
+    }
+
+    addMemberBtn.addEventListener("click", addMember);
+
+    document.getElementById("registrationForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      showMessage("", "");
+
+      const payload = {
+        familyName:document.getElementById("familyName").value.trim(),
+        streetAddress:document.getElementById("streetAddress").value.trim(),
+        members:collectMembers()
+      };
+
+      if(!payload.familyName || !payload.streetAddress || !payload.members.length){
+        showMessage("err", "Fyll ut familienavn, adresse og minst én bruker.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sender...";
+
+      try{
+        const res = await fetch(`${API_BASE}/shopping/register-family`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify(payload)
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if(!res.ok || !data.success){
+          throw new Error(data.error || `Registrering feilet (${res.status}).`);
+        }
+
+        showMessage("ok",
+          "Registreringen er mottatt og venter på godkjenning.\\n\\n" +
+          "Familie: " + data.family.familyName + "\\n" +
+          "Adresse: " + data.family.streetAddress + "\\n" +
+          "Antall brukere: " + data.members.length
+        );
+
+        event.target.reset();
+        membersEl.innerHTML = "";
+        addMember();
+      }catch(error){
+        showMessage("err", error.message || String(error));
+      }finally{
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send registrering";
+      }
+    });
+
+    addMember();
+  </script>
+</body>
+</html>
