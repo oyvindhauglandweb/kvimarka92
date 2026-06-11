@@ -282,7 +282,6 @@
         const res = await fetch(`${API_BASE}/shopping/register-family`, {
           method:"POST",
           mode:"cors",
-          credentials:"include",
           headers:{ "Content-Type":"text/plain;charset=UTF-8" },
           body:JSON.stringify(payload)
         });
@@ -304,7 +303,7 @@
         membersEl.innerHTML = "";
         addMember();
       }catch(error){
-        showMessage("err", (error && error.message ? error.message : String(error)) + "\n\nKontroller at Worker v84/v85 er deployet. Denne testversjonen sender credentials/include for å teste Cloudflare Access-cookie.");
+        showMessage("err", (error && error.message ? error.message : String(error)) + "\n\nKontroller at Worker v84 er deployet på api-kvimarka92.carstereogarage.com, og at siden ikke ligger bak en Access-regel som blokkerer public API-kall.");
       }finally{
         submitBtn.disabled = false;
         submitBtn.textContent = "Send registrering";
