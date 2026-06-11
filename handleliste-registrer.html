@@ -192,7 +192,11 @@
   </div>
 
   <script>
-    const API_BASE = "https://api.kvimarka92.carstereogarage.com";
+    const API_BASE = (
+      location.hostname.startsWith("api.")
+        ? ""
+        : "https://api.kvimarka92.carstereogarage.com"
+    );
     const membersEl = document.getElementById("members");
     const messageEl = document.getElementById("message");
     const submitBtn = document.getElementById("submitBtn");
@@ -281,6 +285,7 @@
       try{
         const res = await fetch(`${API_BASE}/shopping/register-family`, {
           method:"POST",
+          mode:"cors",
           headers:{ "Content-Type":"application/json" },
           body:JSON.stringify(payload)
         });
