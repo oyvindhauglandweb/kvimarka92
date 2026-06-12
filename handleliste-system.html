@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Handleliste systemmålinger</title>
+<style>
+:root{color-scheme:dark;--bg:#111;--panel:#1b1b1b;--panel2:#242424;--text:#f2f2f2;--muted:#aaa;--border:#333;--ok:#96e696;--err:#ff9d9d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;padding:18px}
+.wrap{max-width:1200px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+h1{margin:0;font-size:28px}.subtitle{color:var(--muted);margin-top:6px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+button{border:0;border-radius:8px;background:#333;color:var(--text);padding:11px 14px;font-weight:bold;cursor:pointer}
+button.primary{background:#485ca8}button.danger{background:#5b2b2b}button:disabled{opacity:.55;cursor:not-allowed}
+.badge{display:inline-block;border-radius:999px;padding:5px 10px;background:#333;color:var(--muted);font-weight:bold}
+.badge.on{background:#214a25;color:var(--ok)}.badge.off{background:#4a2a21;color:#ffbf9d}
+.msg{display:none;border-radius:10px;padding:12px;margin:12px 0;white-space:pre-wrap}
+.msg.ok{display:block;background:#172417;color:var(--ok)}.msg.err{display:block;background:#291919;color:var(--err)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid var(--border);padding:8px;text-align:left;vertical-align:top}
+th{color:#ddd;background:#202020;position:sticky;top:0}
+.small{font-size:13px;color:var(--muted)}
+.details{font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;color:#d8d8d8;background:#151515;border:1px solid #2c2c2c;border-radius:8px;padding:8px;margin-top:6px}
+.row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.metric{background:var(--panel2);border-radius:10px;padding:12px}.metric .value{font-size:24px;font-weight:bold;margin-top:4px}
+@media(max-width:800px){body{padding:10px}.row{grid-template-columns:1fr 1fr}table{font-size:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Handleliste systemmålinger</h1>
+    <div class="subtitle">Aktiver/deaktiver ytelsesmåling og se siste måleresultater fra API Worker.</div>
+  </div>
+  <div class="actions">
+    <button id="refreshBtn">Oppdater</button>
+    <button id="enableBtn" class="primary">Aktiver måling</button>
+    <button id="disableBtn">Deaktiver måling</button>
+    <button id="clearBtn" class="danger">Tøm resultater</button>
+  </div>
+</header>
+<div id="message" class="msg"></div>
+<section class="card">
+  <div class="row">
+    <div class="metric"><div class="small">Status</div><div class="value"><span id="enabledBadge" class="badge">...</span></div></div>
+    <div class="metric"><div class="small">Antall målinger</div><div class="value" id="countValue">0</div></div>
+    <div class="metric"><div class="small">Siste total</div><div class="value" id="lastTotalValue">-</div></div>
+    <div class="metric"><div class="small">Gjennomsnitt siste 10</div><div class="value" id="avgValue">-</div></div>
+  </div>
+  <p class="small">Målinger lagres i Worker-minne. De kan forsvinne når Cloudflare starter en ny Worker-instans.</p>
+</section>
+<section class="card">
+  <h2 style="margin-top:0">Siste målinger</h2>
+  <div style="overflow:auto;max-height:70vh">
+    <table>
+      <thead><tr><th>Tid</th><th>Endpoint</th><th>Total</th><th>Detaljer</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</section>
+</div>
+<script>
+const messageEl=document.getElementById("message");
+const rowsEl=document.getElementById("rows");
+const enabledBadge=document.getElementById("enabledBadge");
+const countValue=document.getElementById("countValue");
+const lastTotalValue=document.getElementById("lastTotalValue");
+const avgValue=document.getElementById("avgValue");
+function showMessage(type,text){messageEl.className="msg "+(type==="ok"?"ok":"err");messageEl.textContent=text||""}
+function formatMs(value){const n=Number(value||0);return n?n+" ms":"-"}
+function escapeHtml(value){return String(value||"").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function render(data){
+  const perf=data.perf||{};
+  const entries=Array.isArray(perf.entries)?perf.entries:[];
+  enabledBadge.textContent=perf.enabled?"På":"Av";
+  enabledBadge.className="badge "+(perf.enabled?"on":"off");
+  countValue.textContent=String(perf.count||entries.length||0);
+  lastTotalValue.textContent=entries.length?formatMs(entries[0].totalMs):"-";
+  const avgEntries=entries.slice(0,10);
+  const avg=avgEntries.length?Math.round(avgEntries.reduce((sum,item)=>sum+Number(item.totalMs||0),0)/avgEntries.length):0;
+  avgValue.textContent=avg?formatMs(avg):"-";
+  rowsEl.innerHTML="";
+  if(!entries.length){
+    rowsEl.innerHTML='<tr><td colspan="4" class="small">Ingen målinger ennå. Aktiver måling og åpne Bestille/Handle/Historikk.</td></tr>';
+    return;
+  }
+  entries.forEach(entry=>{
+    const tr=document.createElement("tr");
+    const marks=Array.isArray(entry.marks)?entry.marks:[];
+    const details=marks.map(mark => String(mark.step || "") + ": +" + String(mark.deltaMs || 0) + "ms / " + String(mark.totalMs || 0) + "ms" + (mark.extra ? " / " + mark.extra : "")).join("\\n");
+    tr.innerHTML =
+      '<td>' + escapeHtml(entry.at || "") + '</td>' +
+      '<td><strong>' + escapeHtml(entry.label || "") + '</strong><div class="small">' + escapeHtml(entry.url || "") + '</div></td>' +
+      '<td><strong>' + escapeHtml(formatMs(entry.totalMs)) + '</strong></td>' +
+      '<td><div class="details">' + escapeHtml(details || "") + '</div></td>';
+    rowsEl.appendChild(tr);
+  });
+}
+async function api(action){
+  const options=action?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})}:{method:"GET"};
+  const API_BASE="https://api-kvimarka92.carstereogarage.com";
+  options.credentials="include";
+  const res=await fetch(API_BASE + "/shopping/perf/state",options);
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok||!data.success){throw new Error(data.error||"Kunne ikke hente systemmålinger.")}
+  return data;
+}
+async function refresh(){try{const data=await api("");render(data);showMessage("","")}catch(error){showMessage("err",error.message||String(error))}}
+async function runAction(action){try{const data=await api(action);render(data);showMessage("ok",action==="enable"?"Måling er aktivert.":action==="disable"?"Måling er deaktivert.":"Måleresultater er tømt.")}catch(error){showMessage("err",error.message||String(error))}}
+document.getElementById("refreshBtn").addEventListener("click",refresh);
+document.getElementById("enableBtn").addEventListener("click",()=>runAction("enable"));
+document.getElementById("disableBtn").addEventListener("click",()=>runAction("disable"));
+document.getElementById("clearBtn").addEventListener("click",()=>runAction("clear"));
+refresh();
+</script>
+</body>
+</html>
