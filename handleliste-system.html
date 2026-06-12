@@ -101,12 +101,15 @@ function render(data){
   });
 }
 async function api(action){
-  const options=action?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})}:{method:"GET"};
   const API_BASE="https://api-kvimarka92.carstereogarage.com";
-  options.credentials="include";
+  const options=action
+    ? {method:"POST",mode:"cors",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({action})}
+    : {method:"GET",mode:"cors"};
   const res=await fetch(API_BASE + "/shopping/perf/state",options);
-  const data=await res.json().catch(()=>({}));
-  if(!res.ok||!data.success){throw new Error(data.error||"Kunne ikke hente systemmålinger.")}
+  const text=await res.text();
+  let data={};
+  try{data=JSON.parse(text||"{}")}catch(error){data={error:text||"Kunne ikke lese svar fra Worker."}}
+  if(!res.ok||!data.success){throw new Error(data.error||("Kunne ikke hente systemmålinger. HTTP "+res.status))}
   return data;
 }
 async function refresh(){try{const data=await api("");render(data);showMessage("","")}catch(error){showMessage("err",error.message||String(error))}}
