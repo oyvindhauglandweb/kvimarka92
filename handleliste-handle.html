@@ -1,8 +1,8 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-toolbar-exact-top-right-v41-2026-06-09+mobile-toolbar-polish-2026-06-09+status-blue-2026-06-09+toolbar-fit-2026-06-09+lightmode-buttons-2026-06-09 --><style>
-:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--active-button:#b8c0c7;--active-button-text:#222;--soft:#eaeaea;--success:#72c184;--danger:#d77;--soft-card-bg:rgba(0,0,0,.035);--soft-row-bg:rgba(0,0,0,.055);--soft-button-bg:rgba(0,0,0,.075);--soft-button-hover:rgba(0,0,0,.11);--soft-empty-bg:rgba(0,0,0,.045);}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--active-button:#5a5a5a;--active-button-text:#fff;--soft:#333;--soft-card-bg:rgba(255,255,255,.038);--soft-row-bg:rgba(0,0,0,.18);--soft-button-bg:rgba(255,255,255,.055);--soft-button-hover:rgba(255,255,255,.09);--soft-empty-bg:rgba(0,0,0,.12);}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.action-button.equal-large{min-width:128px;min-height:42px;}.action-button.equal-small{min-width:76px;min-height:42px;}.owner-button.active{background:var(--active-button);border-color:var(--active-button);color:var(--active-button-text);}.primary{background:var(--active-button);border-color:var(--active-button);color:var(--active-button-text);}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--link);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-persist-size-additem-v31-2026-06-08 | previous: design-toggle-soft-default-2026-06-08 --><style>
+:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
-@media(max-width:700px){.store-match-line{gap:8px;}.store-logo{max-width:82px;max-height:32px;padding:3px;}}.group{margin-bottom:10px;}.group-title{font-size:15px;font-weight:bold;margin:0 0 4px;color:var(--muted);}.item-list{display:flex;flex-direction:column;gap:3px;}.item-row{display:grid;grid-template-columns:26px 1fr auto;gap:6px;align-items:center;border:1px solid var(--border);border-radius:7px;padding:4px 6px;background:rgba(127,127,127,.04);min-height:32px;}.item-check{width:19px;height:19px;accent-color:var(--link);}.item-name{font-weight:bold;font-size:14px;line-height:1.1;}.item-meta{color:var(--muted);font-size:11px;margin-top:1px;line-height:1.15;}.badge{display:inline-flex;align-items:center;min-height:18px;padding:0 6px;border-radius:999px;background:rgba(124,199,232,.16);color:var(--link);font-size:10px;font-weight:bold;white-space:nowrap;}.badge-stack{display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap;}.sms-button{display:inline-flex;align-items:center;justify-content:center;min-height:22px;padding:0 7px;border:0;border-radius:999px;background:rgba(124,199,232,.16);color:var(--link);font-size:10px;font-weight:bold;text-decoration:none;white-space:nowrap;box-shadow:none;}.sms-button:hover{background:rgba(124,199,232,.22);}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}.modal{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.82);padding:18px;overflow:auto;}.modal.open{display:block;}.modal-content{max-width:560px;margin:50px auto;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;}.modal-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;}.modal-title{font-size:22px;font-weight:bold;}.modal-close{width:42px;height:42px;border:1px solid var(--border);border-radius:8px;background:var(--button);color:var(--text);font-size:24px;font-weight:bold;cursor:pointer;}.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}label{font-weight:bold;font-size:14px;}input,select{width:100%;min-height:40px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:15px;}.checkbox-row{display:flex;align-items:center;gap:10px;}.checkbox-row input{width:22px;height:22px;min-height:auto;}@media(max-width:700px){body{padding:6px;}.header{margin-bottom:12px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}.summary-item{padding:6px;}.summary-label{font-size:10px;}.summary-value{font-size:15px;}.toolbar,.toolbar-left,.toolbar-right{align-items:stretch;width:100%;}.toolbar.space{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;align-items:stretch;justify-content:stretch;}.toolbar.space .toolbar-left,.toolbar.space .toolbar-right{display:contents;}.toolbar-separator{display:none !important;}.action-button,.owner-button{min-width:0;width:100%;min-height:38px;padding:0 7px;font-size:12px;}.action-button.equal-large,.action-button.equal-small{min-width:0;min-height:38px;}.group{margin-bottom:8px;}.group-title{font-size:13px;margin-bottom:3px;}.item-list{gap:2px;}.item-row{grid-template-columns:24px 1fr auto;padding:3px 5px;min-height:30px;gap:5px;border-radius:6px;}.item-check{width:18px;height:18px;}.item-name{font-size:13px;}.item-meta{font-size:10px;}.badge{min-height:16px;font-size:9px;padding:0 5px;}.sms-button{min-height:18px;font-size:9px;padding:0 5px;}.modal-content{margin:30px auto;padding:14px;}}
+@media(max-width:700px){.store-match-line{gap:8px;}.store-logo{max-width:82px;max-height:32px;padding:3px;}}.group{margin-bottom:10px;}.group-title{font-size:15px;font-weight:bold;margin:0 0 4px;color:var(--muted);}.item-list{display:flex;flex-direction:column;gap:3px;}.item-row{display:grid;grid-template-columns:26px 1fr auto;gap:6px;align-items:center;border:1px solid var(--border);border-radius:7px;padding:4px 6px;background:rgba(127,127,127,.04);min-height:32px;}.item-check{width:19px;height:19px;accent-color:var(--link);}.item-name{font-weight:bold;font-size:14px;line-height:1.1;}.item-meta{color:var(--muted);font-size:11px;margin-top:1px;line-height:1.15;}.badge{display:inline-flex;align-items:center;min-height:18px;padding:0 6px;border-radius:999px;background:rgba(124,199,232,.16);color:var(--link);font-size:10px;font-weight:bold;white-space:nowrap;}.badge-stack{display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap;}.sms-button{display:inline-flex;align-items:center;justify-content:center;min-height:22px;padding:0 7px;border:1px solid var(--link);border-radius:999px;background:rgba(124,199,232,.10);color:var(--link);font-size:10px;font-weight:bold;text-decoration:none;white-space:nowrap;}.sms-button:hover{background:rgba(124,199,232,.18);}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}.modal{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.82);padding:18px;overflow:auto;}.modal.open{display:block;}.modal-content{max-width:560px;margin:50px auto;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;}.modal-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;}.modal-title{font-size:22px;font-weight:bold;}.modal-close{width:42px;height:42px;border:1px solid var(--border);border-radius:8px;background:var(--button);color:var(--text);font-size:24px;font-weight:bold;cursor:pointer;}.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}label{font-weight:bold;font-size:14px;}input,select{width:100%;min-height:40px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:15px;}.checkbox-row{display:flex;align-items:center;gap:10px;}.checkbox-row input{width:22px;height:22px;min-height:auto;}@media(max-width:700px){body{padding:6px;}.header{margin-bottom:12px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}.summary-item{padding:6px;}.summary-label{font-size:10px;}.summary-value{font-size:15px;}.toolbar,.toolbar-left,.toolbar-right{align-items:stretch;width:100%;}.action-button,.owner-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.group{margin-bottom:8px;}.group-title{font-size:13px;margin-bottom:3px;}.item-list{gap:2px;}.item-row{grid-template-columns:24px 1fr auto;padding:3px 5px;min-height:30px;gap:5px;border-radius:6px;}.item-check{width:18px;height:18px;}.item-name{font-size:13px;}.item-meta{font-size:10px;}.badge{min-height:16px;font-size:9px;padding:0 5px;}.sms-button{min-height:18px;font-size:9px;padding:0 5px;}.modal-content{margin:30px auto;padding:14px;}}
 
 /* Superkompakt handleliste: samme tette radstil som ønsket på Bestille. */
 #shoppingList .group{margin-bottom:7px !important;}
@@ -38,7 +38,7 @@ html:not(.classic-design-root) .recipe-card,
 html:not(.classic-design-root) .history-group,
 html:not(.classic-design-root) .modal-content{
   border:0 !important;
-  background:var(--soft-card-bg) !important;
+  background:rgba(255,255,255,.038) !important;
   box-shadow:none !important;
 }
 html:not(.classic-design-root) .status.card,
@@ -52,7 +52,7 @@ html:not(.classic-design-root) .ingredient-row,
 html:not(.classic-design-root) .edit-row,
 html:not(.classic-design-root) .type-row{
   border:0 !important;
-  background:var(--soft-row-bg) !important;
+  background:rgba(0,0,0,.18) !important;
   box-shadow:none !important;
 }
 html:not(.classic-design-root) .top-button,
@@ -64,25 +64,25 @@ html:not(.classic-design-root) .small-button,
 html:not(.classic-design-root) .delete-button,
 html:not(.classic-design-root) .standard-button{
   border:0 !important;
-  background:var(--soft-button-bg) !important;
+  background:rgba(255,255,255,.055) !important;
   box-shadow:none !important;
 }
 html:not(.classic-design-root) .owner-button.active,
 html:not(.classic-design-root) .chain-button.active,
 html:not(.classic-design-root) .primary{
-  background:var(--active-button) !important;
-  color:var(--active-button-text) !important;
+  background:var(--link) !important;
+  color:#fff !important;
 }
 html:not(.classic-design-root) .empty{
   border:0 !important;
-  background:var(--soft-empty-bg) !important;
+  background:rgba(0,0,0,.12) !important;
 }
-.theme-toggle-button{font-size:19px;}.design-toggle-button{font-size:21px;}
+.design-toggle-button{font-size:21px;}
 
 /* Handlevisning: 3 trinn for tekst og avkrysningsbokser. small = tidligere kompakt visning. */
-html.handle-size-small{--handle-row-height:30px;--handle-grid-check:21px;--handle-check-size:17px;--handle-name-size:13px;--handle-group-size:14px;--handle-badge-height:15px;--handle-badge-font-size:9px;--handle-badge-padding-x:5px;--handle-sms-height:17px;--handle-sms-font-size:9px;--handle-sms-padding-x:5px;}
-html.handle-size-medium{--handle-row-height:38px;--handle-grid-check:31px;--handle-check-size:25px;--handle-name-size:17px;--handle-group-size:16px;--handle-badge-height:22px;--handle-badge-font-size:12px;--handle-badge-padding-x:8px;--handle-sms-height:24px;--handle-sms-font-size:12px;--handle-sms-padding-x:8px;}
-html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handle-check-size:33px;--handle-name-size:21px;--handle-group-size:18px;--handle-badge-height:28px;--handle-badge-font-size:14px;--handle-badge-padding-x:10px;--handle-sms-height:30px;--handle-sms-font-size:14px;--handle-sms-padding-x:10px;}
+html.handle-size-small{--handle-row-height:30px;--handle-grid-check:21px;--handle-check-size:17px;--handle-name-size:13px;--handle-group-size:14px;}
+html.handle-size-medium{--handle-row-height:38px;--handle-grid-check:31px;--handle-check-size:25px;--handle-name-size:17px;--handle-group-size:16px;}
+html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handle-check-size:33px;--handle-name-size:21px;--handle-group-size:18px;}
 #shoppingList .item-row{
   height:var(--handle-row-height) !important;
   grid-template-columns:var(--handle-grid-check) minmax(0,1fr) auto !important;
@@ -97,144 +97,16 @@ html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handl
 #shoppingList .group-title{
   font-size:var(--handle-group-size) !important;
 }
-#shoppingList .badge{
-  min-height:var(--handle-badge-height) !important;
-  font-size:var(--handle-badge-font-size) !important;
-  padding:0 var(--handle-badge-padding-x) !important;
-}
-#shoppingList .sms-button{
-  min-height:var(--handle-sms-height) !important;
-  font-size:var(--handle-sms-font-size) !important;
-  padding:0 var(--handle-sms-padding-x) !important;
-}
 .handle-size-toggle-button{font-size:18px;}
 .add-item-modal-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px;}
 body.dark-mode .modal{background:rgba(0,0,0,.82);}
 @media(max-width:700px){
-  html.handle-size-small{--handle-row-height:29px;--handle-grid-check:20px;--handle-check-size:16px;--handle-name-size:12.5px;--handle-group-size:13px;--handle-badge-height:15px;--handle-badge-font-size:9px;--handle-badge-padding-x:5px;--handle-sms-height:17px;--handle-sms-font-size:9px;--handle-sms-padding-x:5px;}
-  html.handle-size-medium{--handle-row-height:38px;--handle-grid-check:31px;--handle-check-size:25px;--handle-name-size:17px;--handle-group-size:16px;--handle-badge-height:22px;--handle-badge-font-size:12px;--handle-badge-padding-x:8px;--handle-sms-height:24px;--handle-sms-font-size:12px;--handle-sms-padding-x:8px;}
-  html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handle-check-size:33px;--handle-name-size:21px;--handle-group-size:18px;--handle-badge-height:28px;--handle-badge-font-size:14px;--handle-badge-padding-x:10px;--handle-sms-height:30px;--handle-sms-font-size:14px;--handle-sms-padding-x:10px;}
+  html.handle-size-small{--handle-row-height:29px;--handle-grid-check:20px;--handle-check-size:16px;--handle-name-size:12.5px;--handle-group-size:13px;}
+  html.handle-size-medium{--handle-row-height:38px;--handle-grid-check:31px;--handle-check-size:25px;--handle-name-size:17px;--handle-group-size:16px;}
+  html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handle-check-size:33px;--handle-name-size:21px;--handle-group-size:18px;}
 }
 
-
-/* Handle toolbar: nøyaktig plassering på bred skjerm, og maks 3 rader på mobil. */
-@media(min-width:701px){
-  .handle-main-toolbar{
-    display:grid;
-    grid-template-columns:120px 120px 120px minmax(8px,1fr) 72px 72px 118px;
-    grid-auto-rows:42px;
-    gap:7px;
-    align-items:stretch;
-    justify-content:stretch;
-  }
-  .handle-main-toolbar .action-button{
-    width:100%;
-    min-width:0;
-    min-height:42px;
-  }
-  .handle-pos-add{grid-column:1;grid-row:1;}
-  .handle-pos-edit{grid-column:2;grid-row:1;}
-  .handle-pos-types{grid-column:3;grid-row:1;}
-  .handle-pos-all{grid-column:1;grid-row:2;}
-  .handle-pos-finish{grid-column:2;grid-row:2;}
-  .handle-pos-store{grid-column:3;grid-row:2;}
-  .handle-pos-email{grid-column:5;grid-row:1;}
-  .handle-pos-sms{grid-column:6;grid-row:1;}
-  .handle-pos-history{grid-column:7;grid-row:1;}
-}
-@media(max-width:700px){
-  .handle-main-toolbar{
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:7px;
-    align-items:stretch;
-    justify-content:stretch;
-  }
-  .handle-main-toolbar .action-button{
-    width:100%;
-    min-width:0;
-    min-height:38px;
-  }
-}
-
-
-/* Mobil: mindre viktige handleknapper flyttes under varelisten. */
-@media(max-width:700px){
-  .handle-pos-history,
-  .handle-pos-email,
-  .handle-pos-sms{
-    display:none !important;
-  }
-  .handle-main-toolbar{
-    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    gap:7px !important;
-  }
-  .handle-main-toolbar .action-button,
-  .handle-bottom-actions .action-button{
-    min-height:58px !important;
-    font-size:17px !important;
-    line-height:1.12 !important;
-    padding:0 7px !important;
-    width:100% !important;
-  }
-  .handle-bottom-actions-card{
-    display:block !important;
-    margin-top:7px;
-  }
-  .handle-bottom-actions{
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:7px;
-    align-items:stretch;
-  }
-}
-@media(min-width:701px){
-  .handle-bottom-actions-card{
-    display:none !important;
-  }
-}
-
-
-/* Desktop-justering: hold Historikk/E-post/SMS innenfor kortet. */
-@media(min-width:701px){
-  .handle-main-toolbar{
-    grid-template-columns:120px 120px 120px minmax(8px,1fr) 72px 72px 118px !important;
-  }
-  .handle-main-toolbar .action-button{
-    min-width:0 !important;
-  }
-}
-
-
-/* Soft/light-mode button visibility fix. */
-body:not(.dark-mode).soft-design .top-button,
-body:not(.dark-mode).soft-design .action-button,
-body:not(.dark-mode).soft-design .option-button,
-body:not(.dark-mode).soft-design .owner-button,
-body:not(.dark-mode).soft-design .chain-button,
-body:not(.dark-mode).soft-design .type-button,
-body:not(.dark-mode).soft-design .small-button{
-  background:var(--button) !important;
-  color:var(--text) !important;
-}
-body:not(.dark-mode).soft-design .primary,
-body:not(.dark-mode).soft-design .option-button.active,
-body:not(.dark-mode).soft-design .owner-button.active,
-body:not(.dark-mode).soft-design .chain-button.active,
-body:not(.dark-mode).soft-design .type-button.active{
-  background:var(--active-button) !important;
-  color:var(--active-button-text) !important;
-}
-
-</style><script>
-if(!String.prototype.replaceAll){
-  String.prototype.replaceAll=function(search,replacement){
-    return String(this).split(search).join(replacement);
-  };
-}
-</script>
-
-</head><body class="dark-mode"><script>
+</style></head><body class="dark-mode"><script>
 (function(){
   try{
     const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
@@ -260,34 +132,10 @@ window.toggleShoppingDesign = function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
-window.applyShoppingThemeState=function(){
-  try{
-    const savedTheme=localStorage.getItem("brochureTheme")||localStorage.getItem("shoppingTheme")||"dark";
-    const isDark=savedTheme==="dark";
-    document.body.classList.toggle("dark-mode",isDark);
-    localStorage.setItem("brochureTheme",isDark?"dark":"light");
-    localStorage.setItem("shoppingTheme",isDark?"dark":"light");
-    const btn=document.getElementById("shoppingThemeToggle");
-    if(btn){
-      btn.textContent=isDark?"✱":"☾";
-      btn.title=isDark?"Bytt til lys modus":"Bytt til mørk modus";
-      btn.setAttribute("aria-label",btn.title);
-    }
-  }catch(e){}
-};
-window.toggleShoppingTheme=function(){
-  try{
-    const isDark=document.body.classList.contains("dark-mode");
-    localStorage.setItem("brochureTheme",isDark?"light":"dark");
-    localStorage.setItem("shoppingTheme",isDark?"light":"dark");
-    window.applyShoppingThemeState();
-  }catch(e){}
-};
-document.addEventListener("DOMContentLoaded", window.applyShoppingThemeState);
 (function(){
   try{
     const allowed=["small","medium","large"];
-    const saved=localStorage.getItem("shoppingListSize")||localStorage.getItem("shoppingHandleSize")||localStorage.getItem("shoppingOrderSize")||"small";
+    const saved=localStorage.getItem("shoppingHandleSize")||"small";
     const size=allowed.includes(saved)?saved:"small";
     document.documentElement.classList.remove("handle-size-small","handle-size-medium","handle-size-large");
     document.documentElement.classList.add("handle-size-"+size);
@@ -298,7 +146,7 @@ document.addEventListener("DOMContentLoaded", window.applyShoppingThemeState);
 window.applyHandleSizeState=function(){
   try{
     const allowed=["small","medium","large"];
-    const saved=localStorage.getItem("shoppingListSize")||localStorage.getItem("shoppingHandleSize")||localStorage.getItem("shoppingOrderSize")||"small";
+    const saved=localStorage.getItem("shoppingHandleSize")||"small";
     const size=allowed.includes(saved)?saved:"small";
     document.documentElement.classList.remove("handle-size-small","handle-size-medium","handle-size-large");
     document.documentElement.classList.add("handle-size-"+size);
@@ -314,32 +162,15 @@ window.applyHandleSizeState=function(){
 window.toggleHandleSize=function(){
   try{
     const allowed=["small","medium","large"];
-    const current=localStorage.getItem("shoppingListSize")||localStorage.getItem("shoppingHandleSize")||localStorage.getItem("shoppingOrderSize")||"small";
+    const current=localStorage.getItem("shoppingHandleSize")||"small";
     const index=allowed.indexOf(current);
     const next=allowed[(index<0?0:index+1)%allowed.length];
-    localStorage.setItem("shoppingListSize",next);localStorage.setItem("shoppingHandleSize",next);localStorage.setItem("shoppingOrderSize",next);
+    localStorage.setItem("shoppingHandleSize",next);
     window.applyHandleSizeState();
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">✱</button><button type="button" class="top-button handle-size-toggle-button" id="handleSizeToggle" onclick="toggleHandleSize()" title="Endre tekststørrelse og avkrysningsbokser" aria-label="Endre tekststørrelse og avkrysningsbokser">A</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar handle-main-toolbar">
-<button class="action-button primary equal-large handle-pos-add" type="button" onclick="openAddItemModal()">Legg til vare</button>
-<a class="action-button equal-large handle-pos-edit" href="handleliste-rediger.html">Rediger</a>
-<a class="action-button equal-large handle-pos-types" href="handleliste-varetyper.html">Varetyper</a>
-<button class="action-button equal-large handle-pos-all" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button>
-<button class="action-button primary equal-large handle-pos-finish" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button>
-<button class="action-button equal-large handle-pos-store" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button>
-<button class="action-button equal-small handle-pos-email" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button>
-<button class="action-button equal-small handle-pos-sms" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button>
-<a class="action-button equal-large handle-pos-history" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a>
-</div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div>
-<div class="card handle-bottom-actions-card" style="display:none;">
-  <div class="handle-bottom-actions">
-    <a class="action-button equal-large" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a>
-    <button class="action-button equal-large" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button>
-    <button class="action-button equal-large" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button>
-  </div>
-</div></div>
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button handle-size-toggle-button" id="handleSizeToggle" onclick="toggleHandleSize()" title="Endre tekststørrelse og avkrysningsbokser" aria-label="Endre tekststørrelse og avkrysningsbokser">A</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
   <div class="modal-content">
     <div class="modal-header">
@@ -376,14 +207,14 @@ let ownerContacts=[];
 let currentUserName="";
 const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-function esc(value){return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");}
-async function fetchJson(url,options){const res=await fetch(url,Object.assign({credentials:"include"},options||{}));const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error((data&&data.detail)||(data&&data.error)||`HTTP ${res.status}`);}return data;}
+function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error(data?.detail||data?.error||`HTTP ${res.status}`);}return data;}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
 function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
 function getInitialOwner(){const saved=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");return SHOPPING_OWNERS.includes(saved)?saved:"Felles";}function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}}
 function ownerBadge(item){const owner=normalizeOwner(item.owner);return owner&&owner!=="Felles"?`<span class="badge">${esc(owner)}</span>`:"";}
 function getOwnerPhone(owner){const normalized=normalizeOwner(owner);const contact=ownerContacts.find(item=>String(item.name||"").trim().toLowerCase()===normalized.toLowerCase());return contact?String(contact.phone||"").trim():"";}
-function makeSmsMessage(item){const sender=String(currentUserName||"").trim()||"";const itemName=String((item&&item.name)||"varen").trim()||"varen";return `Jeg er i butikken. Denne varen må du forklare litt mer om hvis du ønsker jeg skal kjøpe den: ${itemName} - Mvh ${sender}`.trim();}
+function makeSmsMessage(item){const sender=String(currentUserName||"").trim()||"";const itemName=String(item?.name||"varen").trim()||"varen";return `Jeg er i butikken. Denne varen må du forklare litt mer om hvis du ønsker jeg skal kjøpe den: ${itemName} - Mvh ${sender}`.trim();}
 function smsHref(phone,message){const number=String(phone||"").replace(/[^+0-9]/g,"");return `sms:${encodeURIComponent(number)}?&body=${encodeURIComponent(message)}`;}
 function ownerSmsButton(item){const owner=normalizeOwner(item.owner);if(!owner||owner==="Felles")return "";const phone=getOwnerPhone(owner);if(!phone)return "";return `<a class="sms-button" href="${esc(smsHref(phone,makeSmsMessage(item)))}" onclick="event.stopPropagation();" title="Send SMS til ${esc(owner)}">SMS</a>`;}
 function recipeBadge(item){
@@ -398,53 +229,6 @@ function recipeBadge(item){
 
 const BOUGHT_STORAGE_KEY="kvimarka92ShoppingBoughtIds";
 let items=[];let boughtIds=new Set();let typeOrder=[];let typeOptions=[];let currentStoreChain="Standard";
-const STORE_CHAIN_STORAGE_KEY="kvimarka92ShoppingStoreChain";
-const STORE_CHAIN_MAX_AGE_MS=6*60*60*1000;
-function saveActiveStoreChain(chain){
-  const value=String(chain||"").trim();
-  if(!value){return;}
-  try{
-    localStorage.setItem(STORE_CHAIN_STORAGE_KEY,JSON.stringify({chain:value,ts:Date.now()}));
-  }catch(error){}
-}
-function clearActiveStoreChain(){
-  try{localStorage.removeItem(STORE_CHAIN_STORAGE_KEY);}catch(error){}
-}
-function loadActiveStoreChain(){
-  try{
-    const raw=localStorage.getItem(STORE_CHAIN_STORAGE_KEY);
-    if(!raw){return "";}
-    const data=JSON.parse(raw);
-    const chain=String((data&&data.chain)||"").trim();
-    const ts=Number((data&&data.ts)||0);
-    if(!chain){return "";}
-    if(ts&&Date.now()-ts>STORE_CHAIN_MAX_AGE_MS){
-      clearActiveStoreChain();
-      return "";
-    }
-    return chain;
-  }catch(error){
-    return "";
-  }
-}
-async function loadTypeOrderForChain(chain,fallbackData){
-  const requestedChain=String(chain||"Standard").trim()||"Standard";
-  try{
-    const orderData=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(requestedChain)}`);
-    if(Array.isArray(orderData.typeOrder)&&orderData.typeOrder.length){
-      currentStoreChain=orderData.chain||requestedChain;
-      return orderData.typeOrder;
-    }
-  }catch(error){
-    console.warn("Kunne ikke hente varetyperekkefølge for "+requestedChain,error);
-  }
-  if(fallbackData&&Array.isArray(fallbackData.typeOrder)&&fallbackData.typeOrder.length){
-    currentStoreChain=String(fallbackData.typeOrderChain||fallbackData.storeChain||requestedChain||"Standard").trim()||"Standard";
-    return fallbackData.typeOrder;
-  }
-  currentStoreChain="Standard";
-  return DEFAULT_TYPES.slice();
-}
 function getBoughtStorageKey(){return BOUGHT_STORAGE_KEY;}
 function loadRememberedBoughtIds(){
   try{
@@ -456,7 +240,7 @@ function loadRememberedBoughtIds(){
 }
 function saveRememberedBoughtIds(){
   try{
-    localStorage.setItem(getBoughtStorageKey(),JSON.stringify(Array.from(boughtIds)));
+    localStorage.setItem(getBoughtStorageKey(),JSON.stringify([...boughtIds]));
   }catch(error){}
 }
 function clearRememberedBoughtIds(){
@@ -465,11 +249,11 @@ function clearRememberedBoughtIds(){
 }
 function reconcileBoughtIdsWithItems(){
   const validIds=new Set(getOrderedItems().map(item=>Number(item.id)));
-  boughtIds=new Set(Array.from(boughtIds).map(function(id){return Number(id);}).filter(function(id){return validIds.has(id);}));
+  boughtIds=new Set([...boughtIds].map(id=>Number(id)).filter(id=>validIds.has(id)));
   saveRememberedBoughtIds();
 }
-function getOrderedItems(){return items.filter(item=>item.shouldBuy);}function compareShoppingItemName(a,b){return String((a&&a.name)||(a&&a.itemName)||"").localeCompare(String((b&&b.name)||(b&&b.itemName)||""),"no",{numeric:true,sensitivity:"base"});}
-function groupOrderedItems(list){const map={};const typeNameByKey={};list.forEach(function(item){const key=String(item.type||"Annet").trim()||"Annet";const norm=key.toLowerCase();if(!typeNameByKey[norm])typeNameByKey[norm]=key;(map[norm]=map[norm]||[]).push(item);});Object.keys(map).forEach(function(key){map[key].sort(compareShoppingItemName);});const seen=new Set();return typeOrder.concat(DEFAULT_TYPES,Object.keys(typeNameByKey)).map(function(type){const norm=String(type||"Annet").trim().toLowerCase();return {norm:norm,type:typeNameByKey[norm]||type};}).filter(function(entry){if(seen.has(entry.norm)||!map[entry.norm])return false;seen.add(entry.norm);return true;}).map(function(entry){return {type:entry.type,items:map[entry.norm]};});}
+function getOrderedItems(){return items.filter(item=>item.shouldBuy);}
+function groupOrderedItems(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});const seen=new Set();return [...typeOrder,...Object.keys(map)].filter(type=>{const key=String(type).toLowerCase();if(seen.has(key)||!map[type])return false;seen.add(key);return true;}).map(type=>({type,items:map[type]}));}
 function uniqueShoppingTypesForForm(values){
   const seen=new Set();
   const result=[];
@@ -487,7 +271,7 @@ function fillAddItemSelects(){
   const typeSelect=document.getElementById("addItemType");
   const ownerSelect=document.getElementById("addItemOwner");
   if(typeSelect){
-    const options=uniqueShoppingTypesForForm((typeOptions||[]).concat(DEFAULT_TYPES,typeOrder,items.map(function(item){return item.type;})));
+    const options=uniqueShoppingTypesForForm([...(typeOptions||[]),...DEFAULT_TYPES,...typeOrder,...items.map(item=>item.type)]);
     typeSelect.innerHTML=options.map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");
   }
   if(ownerSelect){
@@ -510,10 +294,10 @@ function closeAddItemModal(){
 }
 async function createShoppingItemFromHandle(){
   const button=document.getElementById("addItemSaveButton");
-  const name=String((document.getElementById("addItemName")&&document.getElementById("addItemName").value)||"").trim();
-  const type=String((document.getElementById("addItemType")&&document.getElementById("addItemType").value)||"Annet").trim()||"Annet";
-  const owner=normalizeOwner((document.getElementById("addItemOwner")&&document.getElementById("addItemOwner").value)||"Felles");
-  const shouldBuy=!!(document.getElementById("addItemShouldBuy")&&document.getElementById("addItemShouldBuy").checked);
+  const name=String(document.getElementById("addItemName")?.value||"").trim();
+  const type=String(document.getElementById("addItemType")?.value||"Annet").trim()||"Annet";
+  const owner=normalizeOwner(document.getElementById("addItemOwner")?.value||"Felles");
+  const shouldBuy=!!document.getElementById("addItemShouldBuy")?.checked;
   if(!name){
     alert("Skriv inn varenavn.");
     return;
@@ -539,7 +323,7 @@ async function createShoppingItemFromHandle(){
 function render(){const root=document.getElementById("shoppingList");const ordered=getOrderedItems();const finishButton=document.getElementById("finishButton");const toggleAllButton=document.getElementById("toggleAllButton");if(finishButton)finishButton.disabled=!ordered.length;if(toggleAllButton){const allBought=ordered.length>0&&ordered.every(item=>boughtIds.has(Number(item.id)));toggleAllButton.disabled=!ordered.length;toggleAllButton.textContent=allBought?"Avmerk alle":"Merk alle";toggleAllButton.title=allBought?"Fjern avkrysning på alle varer":"Merk alle varer som handlet";}if(!ordered.length){root.innerHTML='<div class="empty">Ingen varer er bestilt handlet.</div>';return;}root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{const isBought=boughtIds.has(Number(item.id));const badges=`${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name">${esc(item.name)}</div><div class="badge-stack">${badges}</div></div>`;}).join("")}</div></div>`).join("");}
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked)boughtIds.add(numericId);else boughtIds.delete(numericId);saveRememberedBoughtIds();render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();render();}
-async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser&&data.currentUser.name)||(data.currentUser&&data.currentUser.email)||"";items=Array.isArray(data.items)?data.items:[];typeOrder=await loadTypeOrderForChain(loadActiveStoreChain()||"Standard",data);typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(function(item){return item.type;}),typeOrder));boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
@@ -655,12 +439,12 @@ function setStoreMatchStatus(message, type){
 }
 
 function formatStoreMatchResult(data){
-  const matchStatus=String((data&&data.storeMatchStatus) || "");
-  const storeName=String((data&&data.storeName) || (data&&data.store&&data.store.name) || "").trim();
-  const storeChain=String((data&&data.storeChain) || (data&&data.store&&data.store.chain) || "").trim();
-  const logoUrl=String((data&&data.storeLogoUrl) || (data&&data.logoUrl) || (data&&data.store&&data.store.logoUrl) || "").trim();
-  const distance=(data&&data.storeDistance);
-  const location=(data&&data.location) || {};
+  const matchStatus=String(data?.storeMatchStatus || "");
+  const storeName=String(data?.storeName || data?.store?.name || "").trim();
+  const storeChain=String(data?.storeChain || data?.store?.chain || "").trim();
+  const logoUrl=String(data?.storeLogoUrl || data?.logoUrl || data?.store?.logoUrl || "").trim();
+  const distance=data?.storeDistance;
+  const location=data?.location || {};
   const accuracy=location.accuracy !== null && location.accuracy !== undefined
     ? `${Math.round(Number(location.accuracy))} m`
     : "ukjent";
@@ -724,17 +508,12 @@ async function checkCurrentStore(silent){
       })
     });
 
-    const matched=!!(data.storeName || (data.store&&data.store.name));
+    const matched=!!(data.storeName || data.store?.name);
     const uncertain=String(data.storeMatchStatus || "") === "Uncertain";
 
-    if(matched && !uncertain && Array.isArray(data.typeOrder) && data.typeOrder.length){
+    if(Array.isArray(data.typeOrder) && data.typeOrder.length){
       typeOrder=data.typeOrder;
-      currentStoreChain=data.typeOrderChain || data.storeChain || (data.store&&data.store.chain) || "Standard";
-      saveActiveStoreChain(currentStoreChain);
-      render();
-    }else if(!matched){
-      clearActiveStoreChain();
-      typeOrder=await loadTypeOrderForChain("Standard",data);
+      currentStoreChain=data.typeOrderChain || data.storeChain || data.store?.chain || "Standard";
       render();
     }
 
@@ -779,11 +558,11 @@ function shoppingSessionStatusText(session){
 }
 
 function formatLocationDebug(data, clientLocation){
-  const debug=(data&&data.locationDebug) || {};
+  const debug=data?.locationDebug || {};
   const parts=[];
   parts.push(`<br><br><strong>GPS-diagnose:</strong>`);
   parts.push(`<br>Mobil/nettleser: ${esc(formatGpsLocation(clientLocation))}`);
-  parts.push(`<br>Worker mottok: lat=${esc((debug.latitude==null?"tom":debug.latitude))}, lon=${esc((debug.longitude==null?"tom":debug.longitude))}, accuracy=${esc((debug.gpsAccuracy==null?"tom":debug.gpsAccuracy))}, status=${esc((debug.status==null?"tom":debug.status))}`);
+  parts.push(`<br>Worker mottok: lat=${esc(debug.latitude ?? "tom")}, lon=${esc(debug.longitude ?? "tom")}, accuracy=${esc(debug.gpsAccuracy ?? "tom")}, status=${esc(debug.status ?? "tom")}`);
   parts.push(`<br>Session opprettet: ${debug.sessionCreated ? "ja" : "nei"}`);
 
   if(debug.sessionPatchResult){
@@ -825,24 +604,42 @@ async function finishShopping(){
       }
     }
 
-    setStatus(`${formatGpsLocation(location)}<br>Sender avslutning til Worker...`, location.status === "ok" ? "success" : "error");
+    const allBoughtIds=[...boughtIds];
+    const chunkSize=8;
+    const chunks=[];
 
-    const data=await fetchJson(`${API_BASE}/shopping/finish`,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body:JSON.stringify({
-        boughtIds:[...boughtIds],
-        location,
-        latitude:(location&&location.latitude),
-        longitude:(location&&location.longitude),
-        accuracy:(location&&location.accuracy),
-        locationStatus:(location&&location.status)
-      })
-    });
+    for(let index=0; index<allBoughtIds.length; index+=chunkSize){
+      chunks.push(allBoughtIds.slice(index,index+chunkSize));
+    }
+
+    let totalBought=0;
+    let lastData=null;
+
+    for(let index=0; index<chunks.length; index+=1){
+      setStatus(`${formatGpsLocation(location)}<br>Sender avslutning til Worker... Del ${index+1} av ${chunks.length}.`, location.status === "ok" ? "success" : "error");
+
+      const data=await fetchJson(`${API_BASE}/shopping/finish`,{
+        method:"POST",
+        headers:{"Content-Type":"text/plain;charset=UTF-8"},
+        body:JSON.stringify({
+          boughtIds:chunks[index],
+          chunkIndex:index+1,
+          chunkCount:chunks.length,
+          location,
+          latitude:location?.latitude,
+          longitude:location?.longitude,
+          accuracy:location?.accuracy,
+          locationStatus:location?.status
+        })
+      });
+
+      totalBought += Number(data.boughtCount || chunks[index].length || 0);
+      lastData=data;
+    }
 
     clearRememberedBoughtIds();
     await loadItems();
-    setStatus(`Handelen er avsluttet. ${data.boughtCount} varer ble lagret som handlet.${shoppingSessionStatusText(data.session)}`,"success");
+    setStatus(`Handelen er avsluttet. ${totalBought} varer ble lagret som handlet.${shoppingSessionStatusText(lastData?.session)}`,"success");
   }catch(error){
     setStatus(`Kunne ikke avslutte handelen.<br><br>${esc(error.message)}<br><br>${esc(formatGpsLocation(location))}`,"error");
   }finally{
