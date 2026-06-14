@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: onedrive-route-image-resolve-fallback-v6-2026-06-03 -->
+  <!-- version: route-case-edit-period-fix-v7-2026-06-14 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -527,6 +527,37 @@
 }
 
 body.dark-mode .route-action-button:hover{
+  background:#3a3a3a;
+}
+
+.route-case-edit-actions{
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.route-case-edit-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:0 14px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:14px;
+  font-weight:bold;
+  box-sizing:border-box;
+}
+
+.route-case-edit-button:hover{
+  background:#e9eef2;
+}
+
+body.dark-mode .route-case-edit-button:hover{
   background:#3a3a3a;
 }
 
@@ -1247,7 +1278,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: onedrive-route-image-resolve-fallback-v6-2026-06-03");
+console.log("reiserute.html version: route-case-edit-period-fix-v7-2026-06-14");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1643,18 +1674,57 @@ function getFileUrl(images, options){
       return fromText || toText || "";
     }
 
+    function normalizeRouteDateValue(value){
+      const text = String(value || "").trim();
+
+      if(!text){
+        return "";
+      }
+
+      if(/^\d{4}-\d{2}-\d{2}$/.test(text)){
+        return text;
+      }
+
+      const dmy = text.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{4})$/);
+
+      if(dmy){
+        return `${dmy[3]}-${String(dmy[2]).padStart(2, "0")}-${String(dmy[1]).padStart(2, "0")}`;
+      }
+
+      return text;
+    }
+
     function firstDate(stops){
-      return stops
-        .map(stop => stop.dateFrom || stop.dateTo)
-        .filter(Boolean)[0] || "";
+      const dates = (Array.isArray(stops) ? stops : [])
+        .map(stop => normalizeRouteDateValue(stop.dateFrom || stop.dateTo))
+        .filter(Boolean)
+        .sort();
+
+      return dates[0] || "";
     }
 
     function lastDate(stops){
-      const dates = stops
-        .map(stop => stop.dateTo || stop.dateFrom)
-        .filter(Boolean);
+      const dates = (Array.isArray(stops) ? stops : [])
+        .map(stop => normalizeRouteDateValue(stop.dateTo || stop.dateFrom))
+        .filter(Boolean)
+        .sort();
 
       return dates[dates.length - 1] || "";
+    }
+
+    function getRoutePeriodText(data){
+      const apiPeriod =
+        data?.case?.displayDate ||
+        data?.case?.period ||
+        data?.period?.displayDate ||
+        "";
+
+      if(apiPeriod){
+        return apiPeriod;
+      }
+
+      const stops = data?.stops || [];
+      return formatDateRange(firstDate(stops), lastDate(stops));
     }
 
     function createNumberIcon(number){
@@ -1856,15 +1926,25 @@ async function refreshRouteImageMetadata(event){
 
 function renderGeneralDescription(data){
   const description = String(data.case?.generalDescription || "").trim();
+  const caseName = data.case?.caseName || data.case?.title || getCaseFromUrl();
+  const editUrl = `reiserute-case-rediger.html?case=${encodeURIComponent(caseName)}`;
 
-  if(!description){
+  if(!description && currentUser?.role !== "Administrator"){
     return "";
   }
 
   return `
     <div class="general-description-card">
       <div class="general-description-title">Generell beskrivelse</div>
-      <div class="general-description-text">${esc(description)}</div>
+      ${description ? `<div class="general-description-text">${esc(description)}</div>` : `<div class="general-description-text">-</div>`}
+
+      ${currentUser?.role === "Administrator" ? `
+        <div class="route-case-edit-actions">
+          <a class="route-case-edit-button" href="${esc(editUrl)}" title="Rediger Route cases-raden">
+            ✎ Rediger reisedestinasjon
+          </a>
+        </div>
+      ` : ""}
 
       <div class="summary-image-refresh-status" id="imageRefreshStatus"></div>
     </div>
@@ -1873,14 +1953,13 @@ function renderGeneralDescription(data){
 
 function renderSummary(data){
   const stops = data.stops || [];
-  const from = firstDate(stops);
-  const to = lastDate(stops);
+  const periodText = getRoutePeriodText(data);
 
   return `
     <div class="summary">
       <div class="summary-item">
         <div class="summary-label">Periode</div>
-        <div class="summary-value">${esc(formatDateRange(from, to)) || "-"}</div>
+        <div class="summary-value">${esc(periodText) || "-"}</div>
       </div>
 
 <div class="summary-item">
@@ -2273,6 +2352,9 @@ function renderEmptyRoute(data){
 
       ${currentUser?.role === "Administrator" ? `
         <div class="empty-route-actions">
+          <a class="route-action-button" href="reiserute-case-rediger.html?case=${encodeURIComponent(caseName)}">
+            Rediger reisedestinasjon
+          </a>
           <a class="route-action-button" href="stop-order.html?case=${encodeURIComponent(caseName)}">
             Rediger stoppesteder
           </a>
