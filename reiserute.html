@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reiserute - Kvimarka 92</title>
-  <!-- version: route-case-edit-period-fix-v7-2026-06-14 -->
+  <!-- version: route-case-edit-period-fix-v8-round-case-edit-button-2026-06-14 -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -530,35 +530,36 @@ body.dark-mode .route-action-button:hover{
   background:#3a3a3a;
 }
 
-.route-case-edit-actions{
-  margin-top:12px;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
+.general-description-card{
+  position:relative;
 }
 
 .route-case-edit-button{
-  display:inline-flex;
+  position:absolute;
+  top:18px;
+  right:18px;
+  display:flex;
   align-items:center;
   justify-content:center;
-  min-height:36px;
-  padding:0 14px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:8px;
-  color:var(--text);
+  width:30px;
+  height:30px;
+  border:2px solid var(--link);
+  border-radius:50%;
+  color:var(--link);
+  background:transparent;
   text-decoration:none;
-  font-size:14px;
+  font-size:17px;
   font-weight:bold;
+  line-height:1;
   box-sizing:border-box;
 }
 
 .route-case-edit-button:hover{
-  background:#e9eef2;
+  background:rgba(124,199,232,.12);
 }
 
-body.dark-mode .route-case-edit-button:hover{
-  background:#3a3a3a;
+.general-description-card.has-route-case-edit{
+  padding-right:64px;
 }
 
 .empty-route-actions{
@@ -1278,7 +1279,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
   
   <script>
     const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("reiserute.html version: route-case-edit-period-fix-v7-2026-06-14");
+console.log("reiserute.html version: route-case-edit-period-fix-v8-round-case-edit-button-2026-06-14");
 let imageModalImages = [];
 let imageModalTitle = "";
 let imageModalIndex = 0;
@@ -1928,23 +1929,24 @@ function renderGeneralDescription(data){
   const description = String(data.case?.generalDescription || "").trim();
   const caseName = data.case?.caseName || data.case?.title || getCaseFromUrl();
   const editUrl = `reiserute-case-rediger.html?case=${encodeURIComponent(caseName)}`;
+  const isAdmin = currentUser?.role === "Administrator";
 
-  if(!description && currentUser?.role !== "Administrator"){
+  if(!description && !isAdmin){
     return "";
   }
 
   return `
-    <div class="general-description-card">
+    <div class="general-description-card${isAdmin ? " has-route-case-edit" : ""}">
+      ${isAdmin ? `
+        <a
+          class="route-case-edit-button"
+          href="${esc(editUrl)}"
+          title="Rediger reisedestinasjon"
+        >✎</a>
+      ` : ""}
+
       <div class="general-description-title">Generell beskrivelse</div>
       ${description ? `<div class="general-description-text">${esc(description)}</div>` : `<div class="general-description-text">-</div>`}
-
-      ${currentUser?.role === "Administrator" ? `
-        <div class="route-case-edit-actions">
-          <a class="route-case-edit-button" href="${esc(editUrl)}" title="Rediger Route cases-raden">
-            ✎ Rediger reisedestinasjon
-          </a>
-        </div>
-      ` : ""}
 
       <div class="summary-image-refresh-status" id="imageRefreshStatus"></div>
     </div>
