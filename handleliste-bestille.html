@@ -139,7 +139,44 @@ html:not(.classic-design-root) .empty{
   display:block;
 }
 
-</style></head><body class="dark-mode"><script>
+</style><!-- lightdark-restore-2026-06-16 -->
+</head><body class="dark-mode"><script>
+(function(){
+  window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
+    try{
+      const saved = localStorage.getItem("shoppingTheme") || localStorage.getItem("brochureTheme") || "dark";
+      const isDark = saved !== "light";
+      if(document.body){
+        document.body.classList.toggle("dark-mode", isDark);
+      }
+      localStorage.setItem("shoppingTheme", isDark ? "dark" : "light");
+      localStorage.setItem("brochureTheme", isDark ? "dark" : "light");
+
+      const btn = document.getElementById("shoppingThemeToggle");
+      if(btn){
+        btn.textContent = isDark ? "☀" : "☾";
+        btn.title = isDark ? "Bytt til lys modus" : "Bytt til mørk modus";
+        btn.setAttribute("aria-label", btn.title);
+      }
+    }catch(e){}
+  };
+
+  window.toggleShoppingTheme = window.toggleShoppingTheme || function(){
+    try{
+      const isDark = document.body ? document.body.classList.contains("dark-mode") : true;
+      localStorage.setItem("shoppingTheme", isDark ? "light" : "dark");
+      localStorage.setItem("brochureTheme", isDark ? "light" : "dark");
+      window.applyShoppingThemeState();
+    }catch(e){}
+  };
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", window.applyShoppingThemeState);
+  }else{
+    window.applyShoppingThemeState();
+  }
+})();
+</script><script>
 (function(){
   try{
     const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
@@ -165,7 +202,7 @@ window.toggleShoppingDesign = function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
-</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Bestille</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button handle-top-button" href="handleliste-handle.html" title="Handle">🛒</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div>
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Bestille</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button handle-top-button" href="handleliste-handle.html" title="Handle">🛒</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div>
 <div class="card"><div class="summary"><div class="summary-item"><div class="summary-label">Alle varer</div><div class="summary-value" id="totalValue">-</div></div><div class="summary-item"><div class="summary-label">Skal handles</div><div class="summary-value" id="orderValue">-</div></div><div class="summary-item"><div class="summary-label">Standard varer</div><div class="summary-value" id="standardValue">-</div></div></div></div>
 <div class="card"><div class="toolbar"><div class="toolbar-left" id="ownerButtons"></div><div class="toolbar-right"><a class="owner-button" href="handleliste-oppskrifter.html">Oppskrifter</a></div></div></div>
 <div class="card"><div class="toolbar space order-actions"><div class="toolbar-left"><button class="action-button primary equal-order" type="button" onclick="openNewItemModal()">Legg til ny vare</button><a class="action-button equal-order" href="handleliste-rediger.html">Rediger</a><a class="action-button equal-order" href="handleliste-varetyper.html">Varetyper</a></div><div class="toolbar-right"><a class="action-button equal-order" href="handleliste-varsling.html">Varsling</a><button class="action-button equal-order" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button equal-order" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button></div></div></div>
