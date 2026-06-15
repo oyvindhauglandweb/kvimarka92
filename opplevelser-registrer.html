@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Opplevelser - registrer v2</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg:#f4f5f7;
+      --card:#ffffff;
+      --text:#172033;
+      --muted:#5d6678;
+      --border:#d8dde8;
+      --accent:#2563eb;
+      --danger:#b42318;
+      --ok:#067647;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{ --bg:#10131a; --card:#171b24; --text:#f1f5f9; --muted:#a7b0c0; --border:#303746; --accent:#7aa2ff; }
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); }
+    .wrap{ max-width:920px; margin:0 auto; padding:18px; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; box-shadow:0 10px 25px rgba(15,23,42,.08); }
+    h1{ margin:0 0 4px; font-size:1.6rem; }
+    .sub{ color:var(--muted); margin:0 0 18px; }
+    .grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .full{ grid-column:1 / -1; }
+    label{ display:block; font-weight:650; margin:0 0 6px; }
+    input, textarea, select{ width:100%; min-height:44px; border:1px solid var(--border); border-radius:10px; padding:10px 12px; font:inherit; background:transparent; color:var(--text); box-sizing:border-box; }
+    textarea{ min-height:110px; resize:vertical; }
+    .buttons{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    button{ border:0; border-radius:999px; padding:10px 14px; font-weight:700; cursor:pointer; background:var(--accent); color:white; }
+    button.secondary{ background:transparent; color:var(--text); border:1px solid var(--border); }
+    button:disabled{ opacity:.6; cursor:not-allowed; }
+    .status{ margin-top:14px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); color:var(--muted); white-space:pre-wrap; }
+    .status.ok{ color:var(--ok); }
+    .status.err{ color:var(--danger); }
+    .bible-card{ border:1px dashed var(--border); border-radius:12px; padding:12px; color:var(--muted); }
+    .bible-card strong{ color:var(--text); }
+    .small{ font-size:.92rem; color:var(--muted); }
+
+    select{
+      display:block;
+      width:100%;
+      min-height:44px;
+      padding:0 38px 0 12px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:var(--card);
+      color:var(--text);
+      font:inherit;
+      line-height:44px;
+      box-sizing:border-box;
+      outline:none;
+    }
+
+    select:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(122,162,255,.22);
+    }
+
+    select:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+    }
+
+    select option{
+      background:#242424;
+      color:#ffffff;
+    }
+
+
+/* Opplevelser standard header/nav - aligned with Kvimarka92 app pages */
+.header{
+  text-align:center;
+  margin-bottom:20px;
+}
+.site-title{
+  margin:0;
+  font-size:30px;
+  font-weight:800;
+}
+.subtitle{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:16px;
+}
+.top-buttons{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin:14px 0 0;
+  flex-wrap:wrap;
+}
+.top-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  padding:0;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  text-decoration:none;
+  font-size:24px;
+  font-weight:bold;
+  line-height:1;
+  cursor:pointer;
+}
+.top-button:hover{
+  background:rgba(127,127,127,.16);
+}
+.top-button.app-switch-button{
+  font-size:19px;
+}
+.font-size-button{
+  font-size:18px;
+}
+.design-toggle-button{
+  font-size:21px;
+}
+
+html.opplevelser-font-small{
+  --opplevelser-font-scale:1;
+}
+html.opplevelser-font-medium{
+  --opplevelser-font-scale:1.12;
+}
+html.opplevelser-font-large{
+  --opplevelser-font-scale:1.25;
+}
+body{
+  font-size:calc(16px * var(--opplevelser-font-scale, 1));
+}
+input, textarea, select, button{
+  font-size:inherit;
+}
+body.light-mode{
+  color-scheme:light;
+  --bg:#f4f5f7;
+  --card:#ffffff;
+  --text:#172033;
+  --muted:#5d6678;
+  --border:#d8dde8;
+  --accent:#2563eb;
+  --danger:#b42318;
+  --ok:#067647;
+  --soft:#eef2ff;
+  --input-bg:#ffffff;
+}
+body.dark-mode{
+  color-scheme:dark;
+}
+
+@media(max-width:700px){
+  .header{
+    margin-bottom:12px;
+  }
+  .site-title{
+    font-size:28px;
+  }
+  .top-buttons{
+    gap:8px;
+  }
+  .top-button{
+    width:40px;
+    height:40px;
+    font-size:22px;
+  }
+}
+
+</style>
+<!-- version: opplevelser-registrer-v12-standard-header-2026-06-15 -->
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <div class="header">
+        <h1 class="site-title">Opplevelser</h1>
+        <div class="subtitle">Registrer ny</div>
+        <div class="top-buttons">
+          <a class="top-button" href="https://kvimarka92.carstereogarage.com/index.html?restoreMenu=1" onclick="goOpplevelserBack(event)" title="Tilbake til forrige side" aria-label="Tilbake til forrige side">←</a>
+          <a class="top-button app-switch-button" href="opplevelser.html" title="Søk i eksisterende" aria-label="Søk i eksisterende">⌕</a>
+          <a class="top-button" href="https://kvimarka92.carstereogarage.com/index.html" title="Hovedmeny" aria-label="Hovedmeny">⌂</a>
+          <a class="top-button" href="https://kvimarka92.carstereogarage.com/help.html?case=Opplevelser" title="Hjelp" aria-label="Hjelp">?</a>
+          <button type="button" class="top-button font-size-button" id="opplevelserFontToggle" onclick="toggleOpplevelserFontSize()" title="Endre tekststørrelse" aria-label="Endre tekststørrelse">A</button>
+          <button type="button" class="top-button design-toggle-button" id="opplevelserThemeToggle" onclick="toggleOpplevelserTheme()" title="Bytt visning" aria-label="Bytt visning">◫</button>
+        </div>
+      </div>
+      <p class="sub" id="userLine">Laster ...</p>
+
+      <form id="experienceForm">
+        <div class="grid">
+          <div>
+            <label for="heading">Overskrift</label>
+            <input id="heading" name="heading" type="text" maxlength="160" placeholder="Kort overskrift">
+          </div>
+          <div>
+            <label for="experienceDate">Dato for opplevelse</label>
+            <input id="experienceDate" name="experienceDate" type="date" required>
+          </div>
+          <div>
+            <label for="place">Sted</label>
+            <input id="place" name="place" list="placesList" autocomplete="off">
+            <datalist id="placesList"></datalist>
+          </div>
+          <div>
+            <label for="environment">Miljø</label>
+            <select id="environment" name="environment">
+              <option value="">Laster miljøvalg ...</option>
+            </select>
+          </div>
+
+          <div class="full">
+            <label for="occasion">Foranledning</label>
+            <textarea id="occasion" name="occasion"></textarea>
+          </div>
+
+          <div class="full">
+            <label for="experience">Opplevelse</label>
+            <textarea id="experience" name="experience"></textarea>
+          </div>
+
+          <div class="full">
+            <label>Bibelsted</label>
+            <div class="bible-card" id="bibleCard">
+              Ingen bibelreferanse valgt ennå.
+            </div>
+            <input id="bibleReference" name="bibleReference" type="hidden">
+            <input id="bibleText" name="bibleText" type="hidden">
+            <input id="bibleSource" name="bibleSource" type="hidden" value="Bibelen på Norsk (1930)">
+            <div class="buttons" style="margin-top:10px">
+              <button type="button" class="secondary" id="findBibleBtn">Finn bibelsted</button>
+              <button type="button" class="secondary" id="clearBibleBtn">Fjern bibelsted</button>
+            </div>
+            <p class="small">Bibelsted hentes fra <code>bibel-sok.html</code> via valgt vers i nettleseren.</p>
+          </div>
+
+          <div class="full">
+            <label for="consequence">Konsekvens</label>
+            <textarea id="consequence" name="consequence"></textarea>
+          </div>
+
+          <div class="full">
+            <label for="note">Notat</label>
+            <textarea id="note" name="note"></textarea>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button type="submit" id="saveBtn">Lagre opplevelse</button>
+          <button type="button" class="secondary" id="resetBtn">Tøm skjema</button>
+
+        </div>
+      </form>
+
+      <div id="status" class="status">Klar.</div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = window.OPPLEVELSER_API_BASE || (
+      location.hostname === "kvimarka92.carstereogarage.com" || location.hostname === "www.kvimarka92.carstereogarage.com"
+        ? ""
+        : "https://api-kvimarka92.carstereogarage.com"
+    );
+
+    const BIBLE_SEARCH_URL = window.OPPLEVELSER_BIBLE_SEARCH_URL || "./bibel-sok.html";
+    const SELECTED_VERSE_KEY = "kvimarka92SelectedBibleVerse";
+
+    const el = id => document.getElementById(id);
+    const statusEl = el("status");
+    const form = el("experienceForm");
+
+    function setStatus(text, kind){
+      statusEl.textContent = text;
+      statusEl.className = "status" + (kind ? " " + kind : "");
+    }
+
+    async function apiFetch(path, options){
+      const safeOptions = options || {};
+      const method = String(safeOptions.method || "GET").toUpperCase();
+      const headers = {
+        ...(safeOptions.headers || {})
+      };
+
+      // Ikke sett Content-Type på GET. Da unngår vi CORS preflight mot Cloudflare Access.
+      // For POST bruker vi text/plain, samme mønster som flere eksisterende Kvimarka92-sider,
+      // slik at nettleseren ikke sender OPTIONS-preflight før selve API-kallet.
+      if(method !== "GET" && safeOptions.body !== undefined && !headers["Content-Type"]){
+        headers["Content-Type"] = "text/plain;charset=UTF-8";
+      }
+
+      const res = await fetch(API_BASE + path, {
+        credentials:"include",
+        ...safeOptions,
+        method,
+        headers
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if(!res.ok){
+        throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+      }
+
+      return data;
+    }
+
+    function fillDatalist(id, items, getName){
+      const list = el(id);
+      list.innerHTML = "";
+
+      (items || []).forEach(item => {
+        const name = getName ? getName(item) : item.name;
+        if(!name) return;
+        const option = document.createElement("option");
+        option.value = name;
+        list.appendChild(option);
+      });
+    }
+
+    function fillSelect(id, items){
+      const select = el(id);
+      const currentValue = select.value;
+      const names = [];
+
+      (items || []).forEach(item => {
+        const text = String((item && (item.name || item.environmentName || item.value)) || item || "").trim();
+        if(text && !names.includes(text)) names.push(text);
+      });
+
+      select.innerHTML = "";
+
+      const emptyOption = document.createElement("option");
+      emptyOption.value = "";
+      emptyOption.textContent = names.length ? "Velg miljø" : "Ingen miljøvalg funnet";
+      select.appendChild(emptyOption);
+
+      names.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+
+      select.disabled = names.length === 0;
+
+      if(currentValue && names.includes(currentValue)){
+        select.value = currentValue;
+      }
+    }
+
+    function setBibleVerse(verse){
+      const reference = (verse && verse.reference || "").trim();
+      const text = (verse && verse.text || "").trim();
+      const source = (verse && verse.source || "Bibelen på Norsk (1930)").trim();
+
+      el("bibleReference").value = reference;
+      el("bibleText").value = text;
+      el("bibleSource").value = source;
+
+      if(reference || text){
+        el("bibleCard").innerHTML = `<strong>${escapeHtml(reference || "Valgt bibelsted")}</strong><br>${escapeHtml(text)}<br><span class="small">${escapeHtml(source)}</span>`;
+      }else{
+        el("bibleCard").textContent = "Ingen bibelreferanse valgt ennå.";
+      }
+    }
+
+    function escapeHtml(value){
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function readSelectedBibleVerseFromStorage(){
+      const raw = localStorage.getItem(SELECTED_VERSE_KEY) || sessionStorage.getItem(SELECTED_VERSE_KEY);
+      if(!raw) return null;
+      try{ return JSON.parse(raw); }catch(error){ return null; }
+    }
+
+    function pollSelectedBibleVerseForAWhile(){
+      let count = 0;
+      const timer = setInterval(() => {
+        count += 1;
+        const verse = readSelectedBibleVerseFromStorage();
+        if(verse && (verse.reference || verse.text)){
+          setBibleVerse(verse);
+          setStatus("Bibelsted valgt: " + (verse.reference || ""), "ok");
+          clearInterval(timer);
+        }
+        if(count > 120){
+          clearInterval(timer);
+        }
+      }, 1000);
+    }
+
+    window.addEventListener("message", event => {
+      const data = event.data || {};
+      if(data.type === "kvimarka92:bible-verse-selected"){
+        setBibleVerse(data.payload || data.verse || data);
+        setStatus("Bibelsted valgt.", "ok");
+      }
+    });
+
+    el("findBibleBtn").addEventListener("click", () => {
+      window.open(BIBLE_SEARCH_URL, "kvimarka92BibleSearch", "width=980,height=760");
+      pollSelectedBibleVerseForAWhile();
+    });
+
+    el("clearBibleBtn").addEventListener("click", () => {
+      setBibleVerse(null);
+      localStorage.removeItem(SELECTED_VERSE_KEY);
+      sessionStorage.removeItem(SELECTED_VERSE_KEY);
+      setStatus("Bibelsted fjernet.");
+    });
+
+    el("resetBtn").addEventListener("click", () => {
+      form.reset();
+      setBibleVerse(null);
+      initDate();
+      setStatus("Skjema tømt.");
+    });
+
+    function initDate(defaultDate){
+      el("experienceDate").value = defaultDate || new Date().toISOString().slice(0, 10);
+    }
+
+    async function loadOptions(){
+      try{
+        const data = await apiFetch("/experience-options", { method:"GET" });
+        initDate(data.today);
+        fillDatalist("placesList", data.places || []);
+        const environmentOptions = data.environmentOptions || [];
+        fillSelect("environment", environmentOptions);
+
+        if(!environmentOptions.length){
+          setStatus("Miljøvalg mangler: Worker returnerte ingen Baserow-options for Experiences → Environment.", "err");
+        }
+        el("userLine").textContent = `Innlogget som ${data.user.name || data.user.email} (${data.user.experienceAccess})`;
+
+        const storedVerse = readSelectedBibleVerseFromStorage();
+        if(storedVerse && (storedVerse.reference || storedVerse.text)){
+          setBibleVerse(storedVerse);
+        }
+
+        setStatus("Klar.");
+      }catch(error){
+        const envSelect = el("environment");
+        if(envSelect){
+          envSelect.innerHTML = '<option value="">Kunne ikke hente miljøvalg</option>';
+          envSelect.disabled = true;
+        }
+        setStatus("Kunne ikke laste Opplevelser: " + error.message, "err");
+      }
+    }
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      el("saveBtn").disabled = true;
+      setStatus("Lagrer ...");
+
+      const payload = {
+        experienceDate:el("experienceDate").value,
+        heading:el("heading").value,
+        place:el("place").value,
+        environment:el("environment").value,
+        occasion:el("occasion").value,
+        experience:el("experience").value,
+        bibleReference:el("bibleReference").value,
+        bibleText:el("bibleText").value,
+        bibleSource:el("bibleSource").value,
+        consequence:el("consequence").value,
+        note:el("note").value
+      };
+
+      try{
+        const data = await apiFetch("/experience-create", {
+          method:"POST",
+          body:JSON.stringify(payload)
+        });
+
+        setStatus(`Opplevelse lagret. Rad-ID: ${data.id}`, "ok");
+        await loadOptions();
+      }catch(error){
+        setStatus("Lagring feilet: " + error.message, "err");
+      }finally{
+        el("saveBtn").disabled = false;
+      }
+    });
+
+    loadOptions();
+  </script>
+</body>
+</html>
