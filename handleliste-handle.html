@@ -312,11 +312,12 @@ body:not(.dark-mode) .added-at-popup-time{
 /* Handleliste Handle v46: aktiv varsling markeres bare med grønn tekst, ikke grønn knapp */
 #activateStandardNotificationButton.standard-notification-active{
   color:var(--success, #72c184) !important;
-  border-color:inherit !important;
-  background:inherit !important;
+  background:var(--button, #242424) !important;
+  border-color:var(--border, #555) !important;
 }
 #activateStandardNotificationButton.standard-notification-active:hover{
   color:var(--success, #72c184) !important;
+  background:var(--button-hover, #333) !important;
 }
 
 
@@ -554,7 +555,7 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
     </div>
   </div>
 </div><script>
-function escJs(value){return String(value??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\r?\n/g," ");}
+function escJs(value){return String(value??"").replace(/\\/g,"\\\\").replace(/'/g,"\'").replace(/\r?\n/g," ");}
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 const SHOPPING_NOTIFICATION_DEFAULT_KEY="kvimarka92ShoppingNotificationDefaultV1";
 const SHOPPING_STANDARD_ACTIVE_CONTEXT_KEY="kvimarka92ShoppingStandardNotificationActiveContextV1";
@@ -716,24 +717,23 @@ async function activateStandardNotification(){
         sendSms:!!item.sendSms
       }))
     };
-    const data=await fetchJson(`${API_BASE}/shopping/notification-save`,{
+    await fetchJson(`${API_BASE}/shopping/notification-save`,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
       body:JSON.stringify(body)
     });
-    shoppingNotificationActive=true;
-    shoppingNotificationData=data&&data.notification?data.notification:null;
-    shoppingNotificationStartedAt=now.toISOString();
-    shoppingNotificationCheckedAt=Date.now();
-    setStandardActiveContext({
-      startedAt:now.toISOString(),
-      shoppingTime:shoppingTime.toISOString(),
-      notifyMinutesBefore,
-      activatedAt:now.toISOString()
-    });
+
+    // v48: Etter lagring spør vi Worker/API på nytt og bruker dette som felles sannhet.
+    await refreshShoppingNotificationState(true);
+
+    if(!shoppingNotificationActive){
+      setStatus("Standard varsling ble sendt til API, men API returnerer ikke aktiv varsling. Last siden på nytt eller sjekk Varsling-siden.","error");
+      return;
+    }
+
     flushDeferredNewItemPopupIfAllowed();
     queueCurrentItemsAddedAfterActiveContext(items);
-    const recipientCount=Array.isArray(standard.recipients)?standard.recipients.length:0;
+    const recipientCount=Array.isArray(standard.recipients)?standard.recipients.filter(item=>item&&item.userId).length:0;
     updateActivateStandardNotificationButtonState();
     setStatus(`Standard varsling er aktivert. Tidspunkt for handling: ${esc(formatLocalDateTimeShort(shoppingTime))}. Mottakere: ${recipientCount}.`,"success");
   }catch(error){
@@ -864,7 +864,8 @@ function isShoppingInProgress(){
   return boughtIds&&boughtIds.size>0;
 }
 function shouldShowNewItemPopup(){
-  return !!shoppingNotificationActive || !!getStandardActiveContext() || isShoppingInProgress();
+  // v48: Felles status skal komme fra Worker/API, ikke fra lokal standard-kontekst.
+  return !!shoppingNotificationActive || isShoppingInProgress();
 }
 function updateActivateStandardNotificationButtonState(){
   const btn=document.getElementById("activateStandardNotificationButton");
@@ -879,12 +880,9 @@ function updateActivateStandardNotificationButtonState(){
   btn.title=active ? "Varsling er aktiv" : "Aktiver varsling med lagret standard-oppsett";
 }
 function getActiveNewItemContextStart(){
+  // v48: Bruk kun aktiv varsling fra Worker/API eller pågående handling.
   if(shoppingNotificationActive){
     return shoppingNotificationStartedAt || normalizeIsoDateTime(new Date(Date.now()-5*60000).toISOString());
-  }
-  const standardContext=getStandardActiveContext();
-  if(standardContext){
-    return normalizeIsoDateTime(standardContext.startedAt) || normalizeIsoDateTime(new Date(Date.now()-5*60000).toISOString());
   }
   if(isShoppingInProgress()){
     return getShoppingInProgressSince() || normalizeIsoDateTime(new Date(Date.now()-5*60000).toISOString());
@@ -1272,7 +1270,14 @@ function render(){
 }
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked)boughtIds.add(numericId);else boughtIds.delete(numericId);saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);render();}
-async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive && !shoppingNotificationActive)setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");
+async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
+  if(shoppingNotificationActive){
+    const when=shoppingNotificationData&&shoppingNotificationData.shoppingTime ? ` Tidspunkt for handling: ${esc(formatLocalDateTimeShort(new Date(shoppingNotificationData.shoppingTime)))}` : "";
+    setStatus(`Varsling er aktivert.${when}`,"success");
+  }else{
+    setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");
+  }
+}
 updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
