@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v4-2026-06-17";
+  const MENU_VERSION = "handleliste-menu-v5-2026-06-17";
 
   function svg(name){
     const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
@@ -314,6 +314,24 @@
     return `<a${cls} href="${current ? "#" : url}" onclick="return HandlelisteMenu.pushAndGo('${url}', event)">${label}</a>`;
   }
 
+  function actionLink(functionName, label){
+    const exists = typeof window[functionName] === "function";
+    if(!exists) return "";
+    return `<a href="#" onclick="return HandlelisteMenu.runPageAction('${functionName}', event)">${label}</a>`;
+  }
+
+  function runPageAction(functionName, event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    closeSettings();
+    if(typeof window[functionName] === "function"){
+      window[functionName]();
+    }
+    return false;
+  }
+
   function render(){
     if(!shouldRenderOnThisPage()) return;
     addCss();
@@ -339,6 +357,8 @@
           ${settingsLink("handleliste-rediger.html", "Varer")}
           ${settingsLink("handleliste-rydde.html", "Rydde i varer")}
           ${settingsLink("handleliste-oppskrifter-rediger.html", "Oppskrifter")}
+          ${actionLink("sendShoppingListEmail", "E-post")}
+          ${actionLink("sendShoppingListSms", "SMS")}
         </span>
       </span>
     `;
@@ -355,7 +375,8 @@
     toggleTheme,
     toggleDesign,
     toggleSize,
-    toggleSettings
+    toggleSettings,
+    runPageAction
   };
 
   document.addEventListener("click", closeSettings);
