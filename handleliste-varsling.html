@@ -74,6 +74,87 @@ body:not(.dark-mode).soft-design textarea{
   border:1px solid #d1d5db !important;
 }
 
+
+/* Handleliste Varsling v39: layout uten tynne rammer rundt felt/seksjoner */
+body:not(.dark-mode),
+body:not(.dark-mode).soft-design{
+  --card:#f3f4f6;
+}
+
+/* Hovedseksjoner skal følge samme myke layout som de andre Handleliste-sidene. */
+.card,
+body.soft-design .card,
+body:not(.dark-mode).soft-design .card{
+  border:0 !important;
+  box-shadow:none !important;
+  background:rgba(0,0,0,.045) !important;
+}
+
+body.dark-mode .card,
+body.dark-mode.soft-design .card{
+  border:0 !important;
+  box-shadow:none !important;
+  background:rgba(255,255,255,.045) !important;
+}
+
+/* Selve feltflatene skal ha bakgrunn, men ikke tynn ramme. */
+#notificationForm input,
+#notificationForm textarea,
+#notificationForm select,
+#notificationForm .computed,
+.recipient-row,
+.empty,
+body.soft-design #notificationForm input,
+body.soft-design #notificationForm textarea,
+body.soft-design #notificationForm select,
+body.soft-design #notificationForm .computed,
+body.soft-design .recipient-row,
+body.soft-design .empty{
+  border:0 !important;
+  box-shadow:none !important;
+  background:rgba(0,0,0,.075) !important;
+}
+
+body.dark-mode #notificationForm input,
+body.dark-mode #notificationForm textarea,
+body.dark-mode #notificationForm select,
+body.dark-mode #notificationForm .computed,
+body.dark-mode .recipient-row,
+body.dark-mode .empty,
+body.dark-mode.soft-design #notificationForm input,
+body.dark-mode.soft-design #notificationForm textarea,
+body.dark-mode.soft-design #notificationForm select,
+body.dark-mode.soft-design #notificationForm .computed,
+body.dark-mode.soft-design .recipient-row,
+body.dark-mode.soft-design .empty{
+  border:0 !important;
+  box-shadow:none !important;
+  background:rgba(255,255,255,.075) !important;
+}
+
+/* Behold tydelig fokus uten å legge tilbake permanent ramme. */
+#notificationForm input:focus,
+#notificationForm textarea:focus,
+#notificationForm select:focus{
+  outline:2px solid rgba(31,120,157,.35) !important;
+  outline-offset:2px !important;
+}
+
+/* Topp/header skal stå fritt uten bakgrunnsramme. */
+.header,
+.header *,
+.top-buttons{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+
+/* Toolbar-kortet skal bare være en myk seksjon, ikke en innrammet boks. */
+.container > .card:first-of-type{
+  border:0 !important;
+  box-shadow:none !important;
+}
+
 </style>
 <script>
 (function(){
