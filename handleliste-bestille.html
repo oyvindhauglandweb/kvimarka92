@@ -180,6 +180,27 @@ body:not(.dark-mode) .owner-button.active{
   color:#fff !important;
 }
 
+
+/* Handleliste ikonpakke v1 */
+.header{position:relative;}
+.page-icon-panel{position:absolute;left:0;top:-2px;width:74px;height:74px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.page-icon-panel svg{width:54px;height:54px;fill:none;stroke:var(--page-icon-color,var(--link));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.top-button.top-icon-link{font-size:0;padding:0;}
+.top-button.top-icon-link svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.top-button.bestille-top-button,.top-button.handle-top-button,.top-button.varsling-top-button,.top-button.history-top-button,.top-button.recipe-top-button,.top-button.edit-top-button,.top-button.type-top-button{color:var(--link);}
+.action-button .btn-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:7px;vertical-align:middle;}
+.action-button .btn-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.action-button.gps-button{color:#ff7a9a;}
+.action-button.finish-icon-button .btn-icon{color:inherit;}
+.action-button.finish-icon-button .btn-icon svg{stroke:currentColor;}
+body.dark-mode .action-button.gps-button{color:#ff8aa8;}
+.page-icon-spacer-title .site-title,
+.page-icon-spacer-title .subtitle{padding-left:0;}
+@media(max-width:700px){
+  .page-icon-panel{left:2px;top:-6px;width:52px;height:52px;}
+  .page-icon-panel svg{width:38px;height:38px;}
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -243,7 +264,7 @@ window.toggleShoppingDesign = function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
-</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Bestille</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny" data-handleliste-back="1" onclick="return window.goHandlelisteBackOrHome(event)">←</a><a class="top-button handle-top-button" href="handleliste-handle.html" title="Handle">🛒</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><div class="page-icon-panel" style="--page-icon-color:#2fb7ff;" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5h6"></path><path d="M10 3h4a1 1 0 0 1 1 1v1H9V4a1 1 0 0 1 1-1z"></path><rect x="6" y="5" width="12" height="16" rx="2"></rect><path d="M9 10l1.4 1.4L13 8.8"></path><path d="M9 14l1.4 1.4L13 12.8"></path><path d="M9 18l1.4 1.4L13 16.8"></path><path d="M14.5 10H16"></path><path d="M14.5 14H16"></path><path d="M14.5 18H16"></path></svg></div><h1 class="site-title">Handleliste</h1><div class="subtitle">Bestille</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
 <div class="card"><div class="summary"><div class="summary-item"><div class="summary-label">Alle varer</div><div class="summary-value" id="totalValue">-</div></div><div class="summary-item"><div class="summary-label">Skal handles</div><div class="summary-value" id="orderValue">-</div></div><div class="summary-item"><div class="summary-label">Standard varer</div><div class="summary-value" id="standardValue">-</div></div></div></div>
 <div class="card"><div class="toolbar"><div class="toolbar-left" id="ownerButtons"></div><div class="toolbar-right"><a class="owner-button" href="handleliste-oppskrifter.html">Oppskrifter</a></div></div></div>
 <div class="card"><div class="toolbar space order-actions"><div class="toolbar-left"><button class="action-button primary equal-order" type="button" onclick="openNewItemModal()">Legg til ny vare</button><a class="action-button equal-order" href="handleliste-rediger.html">Rediger</a><a class="action-button equal-order" href="handleliste-varetyper.html">Varetyper</a></div><div class="toolbar-right"><a class="action-button equal-order" href="handleliste-varsling.html">Varsling</a><button class="action-button equal-order" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button equal-order" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button></div></div></div>
@@ -597,4 +618,4 @@ loadItems();
 })();
 </script>
 
-</body></html>
+<script src="handleliste-menu_v1.js"></script></body></html>

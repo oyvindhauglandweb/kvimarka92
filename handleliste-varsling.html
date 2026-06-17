@@ -241,6 +241,27 @@ body.dark-mode.soft-design .action-button.danger{
 .notification-api-debug-card .ok{color:var(--success,#72c184) !important;font-weight:800;}
 .notification-api-debug-card .bad{color:var(--danger,#d77) !important;font-weight:800;}
 .notification-api-debug-card code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.95em;}
+
+/* Handleliste ikonpakke v1 */
+.header{position:relative;}
+.page-icon-panel{position:absolute;left:0;top:-2px;width:74px;height:74px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.page-icon-panel svg{width:54px;height:54px;fill:none;stroke:var(--page-icon-color,var(--link));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.top-button.top-icon-link{font-size:0;padding:0;}
+.top-button.top-icon-link svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.top-button.bestille-top-button,.top-button.handle-top-button,.top-button.varsling-top-button,.top-button.history-top-button,.top-button.recipe-top-button,.top-button.edit-top-button,.top-button.type-top-button{color:var(--link);}
+.action-button .btn-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:7px;vertical-align:middle;}
+.action-button .btn-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.action-button.gps-button{color:#ff7a9a;}
+.action-button.finish-icon-button .btn-icon{color:inherit;}
+.action-button.finish-icon-button .btn-icon svg{stroke:currentColor;}
+body.dark-mode .action-button.gps-button{color:#ff8aa8;}
+.page-icon-spacer-title .site-title,
+.page-icon-spacer-title .subtitle{padding-left:0;}
+@media(max-width:700px){
+  .page-icon-panel{left:2px;top:-6px;width:52px;height:52px;}
+  .page-icon-panel svg{width:38px;height:38px;}
+}
+
 </style>
 <script>
 (function(){
@@ -287,72 +308,7 @@ function toggleShoppingDesign(){
   <div class="header">
     <h1 class="site-title">Handleliste</h1>
     <div class="subtitle">Varsling</div>
-    <div class="top-buttons">
-      <a class="top-button" href="index.html?restoreMenu=1" title="Tilbake" data-handleliste-back="1" onclick="return window.goHandlelisteBackOrHome(event)">←</a>
-      <a class="top-button handle-top-button" href="handleliste-handle.html" title="Handle">🛒</a>
-      <a class="top-button" href="index.html" title="Hovedside">⌂</a>
-      <a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a>
-      <button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="toolbar space">
-      <div class="toolbar-left">
-        <a class="action-button" href="handleliste-bestille.html">Bestille</a>
-        <a class="action-button" href="handleliste-handle.html">Handle</a>
-      </div>
-      <div class="toolbar-right">
-        <button class="action-button" type="button" onclick="saveNotificationDefault()" id="saveDefaultButton" title="Ingen standard er lagret ennå. Klikk for å lagre nåværende oppsett som standard.">Lagre standard for varsling</button>
-        <button class="action-button primary" type="button" onclick="saveNotification()" id="saveButton">Lagre varsling</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card status" id="status">Laster varslingsoppsett...</div>
-  <div class="card notification-api-debug-card" id="notificationApiDebugCard"><strong>TEST varslingsstatus</strong><br>Sjekker API-status ...</div>
-  <div id="activePlanCard"></div>
-
-  <form id="notificationForm" class="card" onsubmit="event.preventDefault(); saveNotification();">
-    <div class="grid">
-      <div>
-        <div class="form-field">
-          <label for="shoppingTime">Tidspunkt for neste handling</label>
-          <input type="datetime-local" id="shoppingTime" required onchange="updateNotifyAtDisplay()" oninput="updateNotifyAtDisplay()">
-        </div>
-      </div>
-      <div>
-        <div class="form-field">
-          <label>Melding sendes</label>
-          <div class="computed">
-            <div class="computed-value" id="notifyAtDisplay">-</div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="form-field">
-          <label>Systemklokke</label>
-          <div class="computed">
-            <div class="computed-value system-clock-value" id="systemClockDisplay">-</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-field">
-      <label>Varsle før handling</label>
-      <div class="minutes-row" id="minutesButtons"></div>
-    </div>
-
-    <div class="form-field">
-      <label for="notes">Notat</label>
-      <textarea id="notes" placeholder="Valgfritt notat, f.eks. hvem som skal handle eller hva som er viktig."></textarea>
-    </div>
-  </form>
-
-  <div class="card">
-    <div class="toolbar space" style="margin-bottom:10px;">
-      <div><strong>Mottakere</strong><div class="small">Velg hvem som skal få e-post og/eller SMS.</div></div>
+    <div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
       <div class="toolbar-right">
         <button class="action-button" type="button" onclick="selectAllEmail()">Alle e-post</button>
         <button class="action-button" type="button" onclick="selectAllSms()">Alle SMS</button>
@@ -716,5 +672,5 @@ window.addEventListener("load",()=>{
 })();
 </script>
 
-</body>
+<script src="handleliste-menu_v1.js"></script></body>
 </html>

@@ -77,6 +77,27 @@ body:not(.dark-mode).soft-design .type-button.active{
   color:var(--active-button-text) !important;
 }
 
+
+/* Handleliste ikonpakke v1 */
+.header{position:relative;}
+.page-icon-panel{position:absolute;left:0;top:-2px;width:74px;height:74px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.page-icon-panel svg{width:54px;height:54px;fill:none;stroke:var(--page-icon-color,var(--link));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.top-button.top-icon-link{font-size:0;padding:0;}
+.top-button.top-icon-link svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.top-button.bestille-top-button,.top-button.handle-top-button,.top-button.varsling-top-button,.top-button.history-top-button,.top-button.recipe-top-button,.top-button.edit-top-button,.top-button.type-top-button{color:var(--link);}
+.action-button .btn-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:7px;vertical-align:middle;}
+.action-button .btn-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.action-button.gps-button{color:#ff7a9a;}
+.action-button.finish-icon-button .btn-icon{color:inherit;}
+.action-button.finish-icon-button .btn-icon svg{stroke:currentColor;}
+body.dark-mode .action-button.gps-button{color:#ff8aa8;}
+.page-icon-spacer-title .site-title,
+.page-icon-spacer-title .subtitle{padding-left:0;}
+@media(max-width:700px){
+  .page-icon-panel{left:2px;top:-6px;width:52px;height:52px;}
+  .page-icon-panel svg{width:38px;height:38px;}
+}
+
 </style>
 <script>
 if(!String.prototype.replaceAll){
@@ -139,25 +160,7 @@ window.toggleShoppingTheme=function(){
 document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
 </script>
 <div class="container">
-  <div class="header">
-    <h1 class="site-title">Handleliste</h1>
-    <div class="subtitle">Historikk</div>
-    <div class="top-buttons">
-      <a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til handleliste" data-handleliste-back="1" onclick="return window.goHandlelisteBackOrHome(event)">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a>
-      <a class="top-button" href="index.html" title="Hovedside">⌂</a>
-      <a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a>
-    <button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">✱</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div>
-  </div>
-
-  <div class="card">
-    <div class="toolbar">
-      
-      
-      <button class="action-button" type="button" onclick="loadHistory()">Last på nytt</button>
-    </div>
-  </div>
-
-  <div class="card"><div id="status" class="status">Laster...</div></div>
+  <div class="header page-icon-spacer-title"><div class="page-icon-panel" style="--page-icon-color:#b8b8c4;" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12"></path><path d="M12 20V5"></path><path d="M19 20V9"></path></svg></div><h1 class="site-title">Handleliste</h1><div class="subtitle">Historikk</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
   <div class="card"><div id="historyList"></div></div>
 </div>
 
@@ -422,5 +425,5 @@ loadHistory();
 })();
 </script>
 
-</body>
+<script src="handleliste-menu_v1.js"></script></body>
 </html>
