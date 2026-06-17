@@ -167,6 +167,17 @@ body.dark-mode.soft-design .empty{
   }
 }
 
+
+
+/* Handleliste Varsling v41: standard-knapp flyttet til toppfelt */
+#saveDefaultButton{
+  white-space:nowrap !important;
+}
+@media(max-width:700px){
+  #saveDefaultButton, #saveButton{
+    flex:1 1 100% !important;
+  }
+}
 </style>
 <script>
 (function(){
@@ -229,6 +240,7 @@ function toggleShoppingDesign(){
         <a class="action-button" href="handleliste-handle.html">Handle</a>
       </div>
       <div class="toolbar-right">
+        <button class="action-button" type="button" onclick="saveNotificationDefault()" id="saveDefaultButton">Lagre standard for varsling</button>
         <button class="action-button primary" type="button" onclick="saveNotification()" id="saveButton">Lagre varsling</button>
       </div>
     </div>
@@ -278,7 +290,6 @@ function toggleShoppingDesign(){
     <div class="toolbar space" style="margin-bottom:10px;">
       <div><strong>Mottakere</strong><div class="small">Velg hvem som skal få e-post og/eller SMS.</div></div>
       <div class="toolbar-right">
-        <button class="action-button" type="button" onclick="saveNotificationDefault()" id="saveDefaultButton">Lagre standard for varsling</button>
         <button class="action-button" type="button" onclick="selectAllEmail()">Alle e-post</button>
         <button class="action-button" type="button" onclick="selectAllSms()">Alle SMS</button>
       </div>
