@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v40-new-items-popup-status-and-addedat-schedule-2026-06-17 | previous: handle-v39-new-items-popup-reliable-notification-2026-06-17 --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v41-debug-new-items-popup-trigger-2026-06-17 | previous: handle-v40-new-items-popup-status-and-addedat-schedule-2026-06-17 --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -294,6 +294,39 @@ body:not(.dark-mode) .added-at-popup-time{
   max-width:calc(100vw - 64px) !important;
 }
 
+
+
+/* Handle v41 DEBUG: synlig testpanel for nye varer/varsel */
+#newItemDebugCard{
+  display:block !important;
+  background:rgba(255, 193, 7, .10) !important;
+  border:1px solid rgba(255, 193, 7, .55) !important;
+  border-radius:10px !important;
+  padding:10px !important;
+  margin:0 0 10px !important;
+}
+#newItemDebugCard .debug-title{
+  font-weight:800 !important;
+  margin-bottom:6px !important;
+  color:var(--text) !important;
+}
+#newItemDebugOutput{
+  font-family:Consolas, Menlo, Monaco, monospace !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+  white-space:pre-wrap !important;
+  color:var(--text) !important;
+}
+#newItemDebugCard .debug-muted{
+  color:var(--muted) !important;
+  font-size:12px !important;
+  margin-top:5px !important;
+}
+body.light-mode #newItemDebugCard,
+body:not(.dark-mode) #newItemDebugCard{
+  background:#fff8db !important;
+  border-color:#e5c558 !important;
+}
 </style><!-- lightdark-restore-2026-06-16 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -395,7 +428,11 @@ window.toggleHandleSize=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button handle-size-toggle-button" id="handleSizeToggle" onclick="toggleHandleSize()" title="Endre tekststørrelse og avkrysningsbokser" aria-label="Endre tekststørrelse og avkrysningsbokser">A</button><button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div>
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button handle-size-toggle-button" id="handleSizeToggle" onclick="toggleHandleSize()" title="Endre tekststørrelse og avkrysningsbokser" aria-label="Endre tekststørrelse og avkrysningsbokser">A</button><button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card" id="newItemDebugCard">
+  <div class="debug-title">TEST nye varer / popup-varsel</div>
+  <div id="newItemDebugOutput">Debugpanel lastes ...</div>
+  <div class="debug-muted">Dette panelet er midlertidig og skal fjernes når vi har funnet feilen.</div>
+</div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
   <div class="modal-content">
     <div class="modal-header">
@@ -460,6 +497,50 @@ const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
 function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+const NEW_ITEM_DEBUG_ENABLED=true;
+let newItemDebugState={
+  scriptLoadedAt:new Date().toLocaleTimeString("no-NO"),
+  lastEvent:"Script lastet",
+  events:[]
+};
+function updateNewItemDebug(patch,event){
+  if(!NEW_ITEM_DEBUG_ENABLED)return;
+  try{
+    if(patch&&typeof patch==="object")Object.assign(newItemDebugState,patch);
+    if(event){
+      const line=`${new Date().toLocaleTimeString("no-NO")} - ${event}`;
+      newItemDebugState.lastEvent=event;
+      newItemDebugState.events=[line,...(newItemDebugState.events||[])].slice(0,8);
+      console.log("[Handleliste debug]",event,patch||{});
+    }
+    renderNewItemDebug();
+  }catch(error){console.log("[Handleliste debug error]",error);}
+}
+function renderNewItemDebug(){
+  const el=document.getElementById("newItemDebugOutput");
+  if(!el)return;
+  const seen=getSeenNewItemAlerts ? getSeenNewItemAlerts() : {};
+  const addedMap=getItemAddedAtMap ? getItemAddedAtMap() : {};
+  const lines=[
+    `script: ${newItemDebugState.scriptLoadedAt || "?"}`,
+    `siste: ${newItemDebugState.lastEvent || "-"}`,
+    `loadItems: ${newItemDebugState.loadItems || "ikke kjørt"}`,
+    `varer totalt / skal handles / ikke-standard: ${newItemDebugState.itemsTotal ?? "?"} / ${newItemDebugState.shouldBuyCount ?? "?"} / ${newItemDebugState.nonStandardShouldBuyCount ?? "?"}`,
+    `varsling aktiv: ${newItemDebugState.notificationActive ?? "?"}  start: ${newItemDebugState.notificationStartedAt || "-"}`,
+    `handling pågår: ${newItemDebugState.shoppingInProgress ?? "?"}  start: ${newItemDebugState.shoppingInProgressSince || "-"}`,
+    `contextStart: ${newItemDebugState.contextStart || "-"}`,
+    `kandidater etter start: ${newItemDebugState.candidateCount ?? "?"}  nye siden forrige last: ${newItemDebugState.newItemsCount ?? "?"}`,
+    `queue: fresh=${newItemDebugState.freshCount ?? "?"} pending=${newItemDebugState.pendingCount ?? "?"} deferred=${newItemDebugState.deferredCount ?? "?"}`,
+    `timer: ${newItemDebugState.timerText || "-"}`,
+    `sett-varsel-lagring: ${Object.keys(seen||{}).length}  tidsstempel-lagring: ${Object.keys(addedMap||{}).length}`,
+    `siste feil: ${newItemDebugState.lastError || "-"}`,
+    "--- siste hendelser ---",
+    ...(newItemDebugState.events||[])
+  ];
+  el.textContent=lines.join("\n");
+}
+setTimeout(()=>updateNewItemDebug({},"Debugpanel klart"),0);
+
 async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error(data?.detail||data?.error||`HTTP ${res.status}`);}return data;}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
 function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
@@ -567,6 +648,7 @@ function openAddedAtModal(id){
 
   body.innerHTML=`<div class="added-at-popup-body"><div class="added-at-popup-name">${esc(itemName)}</div><div class="added-at-popup-label">Lagt til</div><div class="added-at-popup-time">${esc(timeText)}</div></div>`;
   modal.classList.add("open");
+  updateNewItemDebug({timerText:"Popup vist",pendingCount:0},`Popup vist med ${list.length} vare(r)`);
 }
 function closeAddedAtModal(){
   const modal=document.getElementById("addedAtModal");
@@ -631,8 +713,10 @@ function getNotificationStartFromData(activeNotification){
   );
 }
 async function refreshShoppingNotificationState(force){
+  updateNewItemDebug({notificationCheck:"starter",notificationForce:!!force},"Sjekker /shopping/notification-setup");
   const now=Date.now();
   if(!force && shoppingNotificationCheckedAt && now-shoppingNotificationCheckedAt<15000){
+    updateNewItemDebug({notificationActive:shoppingNotificationActive,notificationStartedAt:shoppingNotificationStartedAt||"",notificationCheck:"cache"},"Bruker cached varslingsstatus");
     return shoppingNotificationActive;
   }
   shoppingNotificationCheckedAt=now;
@@ -641,10 +725,12 @@ async function refreshShoppingNotificationState(force){
     shoppingNotificationData=data?.activeNotification||null;
     shoppingNotificationActive=!!shoppingNotificationData;
     shoppingNotificationStartedAt=getNotificationStartFromData(shoppingNotificationData);
+    updateNewItemDebug({notificationActive:shoppingNotificationActive,notificationStartedAt:shoppingNotificationStartedAt||"",notificationCheck:"ok",notificationRaw:shoppingNotificationData?JSON.stringify(shoppingNotificationData).slice(0,180):"null"},shoppingNotificationActive?"Varsling er aktiv":"Varsling er ikke aktiv");
   }catch(error){
     shoppingNotificationData=null;
     shoppingNotificationActive=false;
     shoppingNotificationStartedAt="";
+    updateNewItemDebug({notificationActive:false,notificationStartedAt:"",notificationCheck:"feil",lastError:"notification-setup: "+(error.message||String(error))},"Feil ved sjekk av varsling");
   }
   return shoppingNotificationActive;
 }
@@ -659,6 +745,7 @@ function rememberDeferredNewItems(newItems){
 }
 function scheduleNewItemPopup(fresh){
   const relevant=(Array.isArray(fresh)?fresh:[]).filter(item=>item&&item.id);
+  updateNewItemDebug({scheduleInputCount:relevant.length},`scheduleNewItemPopup kjørt med ${relevant.length} vare(r)`);
   if(!relevant.length)return;
   pendingNewItems=[...pendingNewItems,...relevant];
   const now=Date.now();
@@ -669,6 +756,7 @@ function scheduleNewItemPopup(fresh){
   }).filter(value=>Number.isFinite(value));
   const delay=delays.length?Math.min(...delays):60000;
   const seconds=Math.max(0,Math.ceil(delay/1000));
+  updateNewItemDebug({pendingCount:(pendingNewItems||[]).length,timerText:`Popup om ca. ${seconds} sekunder`,freshCount:relevant.length},`Popup-timer satt: ${seconds} sekunder`);
   const names=relevant.map(item=>String(item.name||"Vare")).filter(Boolean).slice(0,3).join(", ");
   setStatus(`Nye varer er lagt til${names?`: ${esc(names)}`:""}. Varsel vises ${seconds>5?`om ca. ${seconds} sekunder`:"nå"}.`,"success");
   if(pendingNewItemTimer)window.clearTimeout(pendingNewItemTimer);
@@ -676,9 +764,11 @@ function scheduleNewItemPopup(fresh){
 }
 function queueNewItemPopup(newItems){
   const relevant=(Array.isArray(newItems)?newItems:[]).filter(item=>item&&item.shouldBuy&&!item.standardItem);
+  updateNewItemDebug({queueInputCount:relevant.length,shoppingInProgress:isShoppingInProgress(),shoppingInProgressSince:getShoppingInProgressSince()},`queueNewItemPopup: ${relevant.length} relevant(e) vare(r)`);
   if(!relevant.length)return;
 
   if(!shouldShowNewItemPopup()){
+    updateNewItemDebug({deferredCount:(deferredNewItems||[]).length+relevant.length},"Varsling/handling ikke aktiv - legger i deferred kø");
     rememberDeferredNewItems(relevant);
     return;
   }
@@ -693,15 +783,22 @@ function queueNewItemPopup(newItems){
     fresh.push({...item,addedAt});
   });
   saveSeenNewItemAlerts(seen);
-  if(!fresh.length)return;
+  if(!fresh.length){
+    updateNewItemDebug({freshCount:0},"Ingen fresh varer - sannsynligvis allerede varslet/sett");
+    return;
+  }
+  updateNewItemDebug({freshCount:fresh.length},`Fresh varer klare: ${fresh.map(item=>item.name||item.id).join(", ")}`);
   scheduleNewItemPopup(fresh);
 }
 function queueCurrentItemsAddedAfterActiveContext(loadedItems){
-  if(!shouldShowNewItemPopup())return;
+  const allowed=shouldShowNewItemPopup();
+  updateNewItemDebug({shoppingInProgress:isShoppingInProgress(),shoppingInProgressSince:getShoppingInProgressSince(),notificationActive:shoppingNotificationActive,notificationStartedAt:shoppingNotificationStartedAt||""},allowed?"Aktiv kontekst finnes":"Ingen aktiv varsling/handling");
+  if(!allowed)return;
   const contextStart=getActiveNewItemContextStart();
-  if(!contextStart)return;
+  if(!contextStart){updateNewItemDebug({contextStart:""},"Mangler contextStart");return;}
   const startTime=new Date(contextStart).getTime()-5000;
   if(!Number.isFinite(startTime))return;
+  updateNewItemDebug({contextStart},`Sjekker varer etter contextStart ${contextStart}`);
   const candidates=(Array.isArray(loadedItems)?loadedItems:[]).filter(item=>{
     if(!item||!item.shouldBuy||item.standardItem)return false;
     const addedAt=getItemAddedAt(item);
@@ -709,6 +806,7 @@ function queueCurrentItemsAddedAfterActiveContext(loadedItems){
     const addedTime=new Date(addedAt).getTime();
     return Number.isFinite(addedTime)&&addedTime>=startTime;
   });
+  updateNewItemDebug({candidateCount:candidates.length},`Fant ${candidates.length} kandidat(er) etter aktiv start`);
   queueNewItemPopup(candidates);
 }
 function flushDeferredNewItemPopupIfAllowed(){
@@ -719,12 +817,13 @@ function flushDeferredNewItemPopupIfAllowed(){
   queueNewItemPopup(itemsToQueue);
 }
 function showPendingNewItemsPopup(){
+  updateNewItemDebug({timerText:"Popup-funksjon kjører",pendingCount:(pendingNewItems||[]).length},"showPendingNewItemsPopup kjører");
   const modal=document.getElementById("newItemsModal");
   const body=document.getElementById("newItemsModalBody");
   const byId=new Map();
   pendingNewItems.forEach(item=>{if(item&&item.id)byId.set(Number(item.id),item);});
   pendingNewItems=[];
-  if(!modal || !body || !byId.size)return;
+  if(!modal || !body || !byId.size){updateNewItemDebug({lastError:`Popup stoppet: modal=${!!modal}, body=${!!body}, items=${byId.size}`},"Popup kunne ikke vises");return;}
   const list=[...byId.values()].sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"no",{sensitivity:"base"}));
   body.innerHTML=`<p class="new-items-popup-note">Det er lagt til nye varer i handlelisten etter at varsling/handel var aktiv.</p><ul class="new-items-popup-list">${list.map(item=>`<li><strong>${esc(item.name)}</strong>${item.owner&&normalizeOwner(item.owner)!=="Felles"?` (${esc(normalizeOwner(item.owner))})`:""}${item.type?` – ${esc(item.type)}`:""}</li>`).join("")}</ul>`;
   modal.classList.add("open");
@@ -735,6 +834,7 @@ function closeNewItemsModal(){
 }
 function registerLoadedItemsForTimestampsAndAlerts(loadedItems){
   const ordered=(Array.isArray(loadedItems)?loadedItems:[]).filter(item=>item&&item.shouldBuy);
+  updateNewItemDebug({itemsTotal:Array.isArray(loadedItems)?loadedItems.length:0,shouldBuyCount:ordered.length,nonStandardShouldBuyCount:ordered.filter(item=>!item.standardItem).length},`registerLoadedItems: ${ordered.length} skal handles`);
   const currentIds=new Set(ordered.map(item=>Number(item.id)).filter(Boolean));
   const map=getItemAddedAtMap();
   let changed=false;
@@ -759,6 +859,7 @@ function registerLoadedItemsForTimestampsAndAlerts(loadedItems){
     return;
   }
   const newItems=ordered.filter(item=>Number(item.id||0)&&!previousOrderedItemIds.has(Number(item.id)));
+  updateNewItemDebug({newItemsCount:newItems.length},`Nye varer siden forrige last: ${newItems.length}`);
   newItems.forEach(item=>{
     if(!item.standardItem && !getItemAddedAt(item)){
       rememberItemAddedAt(item.id,new Date().toISOString());
@@ -898,7 +999,7 @@ function render(){
 }
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked)boughtIds.add(numericId);else boughtIds.delete(numericId);saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);render();}
-async function loadItems(options){const silent=!!(options&&options.silent);if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();render();if(!silent && !pendingNewItemTimer)setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();startShoppingItemsPolling();}catch(error){if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();render();if(!silent && !pendingNewItemTimer)setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
