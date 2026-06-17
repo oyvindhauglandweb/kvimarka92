@@ -709,7 +709,7 @@ function openAddedAtModal(id){
 
   body.innerHTML=`<div class="added-at-popup-body"><div class="added-at-popup-name">${esc(itemName)}</div><div class="added-at-popup-label">Lagt til</div><div class="added-at-popup-time">${esc(timeText)}</div></div>`;
   modal.classList.add("open");
-  updateNewItemDebug({timerText:"Popup vist",pendingCount:0},`Popup vist med ${list.length} vare(r)`);
+  updateNewItemDebug({timerText:"Lagt til-popup vist",pendingCount:0},`Lagt til-popup vist for ${itemName}`);
 }
 function closeAddedAtModal(){
   const modal=document.getElementById("addedAtModal");
@@ -722,6 +722,7 @@ let shoppingNotificationCheckedAt=0;
 let previousOrderedItemIds=null;
 let pendingNewItems=[];
 let pendingNewItemTimer=null;
+let newItemsStatusActive=false;
 let shoppingItemsPollTimer=null;
 let deferredNewItems=[];
 let deferredNewItemIds=new Set();
@@ -768,14 +769,69 @@ function getActiveNewItemContextStart(){
 }
 function getNotificationStartFromData(activeNotification){
   if(!activeNotification)return "";
-  return normalizeIsoDateTime(
+
+  // Viktig for mobil/ny enhet:
+  // Vi må bruke tidspunktet varslingen ble OPPRETTET/AKTIVERT, ikke "Melding sendes".
+  // Hvis Worker en periode ikke returnerer createdAt, bruker vi trygg fallback lenger bak i tid,
+  // slik at varer lagt til etter at varslingen ble aktivert fortsatt blir fanget opp når siden åpnes senere.
+  const explicitStart=normalizeIsoDateTime(
+    activeNotification.activationStartedAt ||
+    activeNotification.activatedAt ||
+    activeNotification.savedAt ||
     activeNotification.createdAt ||
     activeNotification.created_at ||
     activeNotification.created ||
-    activeNotification.notifyAt ||
-    activeNotification.shoppingTime ||
+    activeNotification.createdOn ||
+    activeNotification.created_on ||
     ""
   );
+
+  if(explicitStart)return explicitStart;
+
+  const now=Date.now();
+  const notifyAt=normalizeIsoDateTime(activeNotification.notifyAt || "");
+  const shoppingTime=normalizeIsoDateTime(activeNotification.shoppingTime || "");
+  const minutes=minutesToNumber(activeNotification.notifyMinutesBefore || "0 minutter");
+
+  // Hvis notifyAt er frem i tid, kan den IKKE brukes som start.
+  // Bruk heller shoppingTime - varslingstid hvis det gir mening, men aldri frem i tid.
+  if(shoppingTime){
+    const calculatedStart=new Date(shoppingTime).getTime()-minutes*60000;
+    if(Number.isFinite(calculatedStart) && calculatedStart<=now){
+      return new Date(calculatedStart).toISOString();
+    }
+  }
+
+  if(notifyAt){
+    const notifyTime=new Date(notifyAt).getTime();
+    if(Number.isFinite(notifyTime) && notifyTime<=now){
+      return notifyAt;
+    }
+  }
+
+  // Siste fallback: aktiv varsling finnes, men starttidspunkt mangler/er frem i tid.
+  // Da må vi heller være litt for raus enn å overse varer på mobil.
+  return new Date(now-24*60*60000).toISOString();
+}
+
+function getActiveNewItemContextKey(){
+  if(shoppingNotificationActive && shoppingNotificationData){
+    return `notification:${shoppingNotificationData.id || shoppingNotificationStartedAt || "active"}`;
+  }
+  const standardContext=getStandardActiveContext();
+  if(standardContext){
+    return `standard:${standardContext.startedAt || standardContext.shoppingTime || "active"}`;
+  }
+  if(isShoppingInProgress()){
+    return `shopping:${getShoppingInProgressSince() || "active"}`;
+  }
+  return "inactive";
+}
+
+function getSeenNewItemAlertKey(item){
+  const id=Number(item?.id||0);
+  if(!id)return "";
+  return `${getActiveNewItemContextKey()}|${id}`;
 }
 async function refreshShoppingNotificationState(force){
   const now=Date.now();
@@ -822,6 +878,7 @@ function scheduleNewItemPopup(fresh){
   const seconds=Math.max(0,Math.ceil(delay/1000));
   updateNewItemDebug({pendingCount:(pendingNewItems||[]).length,timerText:`Popup om ca. ${seconds} sekunder`,freshCount:relevant.length},`Popup-timer satt: ${seconds} sekunder`);
   const names=relevant.map(item=>String(item.name||"Vare")).filter(Boolean).slice(0,3).join(", ");
+  newItemsStatusActive=true;
   setStatus(`Nye varer er lagt til${names?`: ${esc(names)}`:""}. Varsel vises ${seconds>5?`om ca. ${seconds} sekunder`:"nå"}.`,"success");
   if(pendingNewItemTimer)window.clearTimeout(pendingNewItemTimer);
   pendingNewItemTimer=window.setTimeout(showPendingNewItemsPopup,delay);
@@ -840,20 +897,42 @@ function queueNewItemPopup(newItems){
   const seen=getSeenNewItemAlerts();
   const fresh=[];
   relevant.forEach(item=>{
-    const id=Number(item.id||0);
-    if(!id || seen[String(id)])return;
-    const addedAt=getItemAddedAt(item)||rememberItemAddedAt(id,new Date().toISOString());
-    seen[String(id)]=addedAt;
+    const key=getSeenNewItemAlertKey(item);
+    if(!key || seen[key])return;
+    const addedAt=getItemAddedAt(item)||rememberItemAddedAt(item.id,new Date().toISOString());
+    seen[key]=addedAt;
     fresh.push({...item,addedAt});
   });
   saveSeenNewItemAlerts(seen);
+
   if(!fresh.length){
-    updateNewItemDebug({freshCount:0},"Ingen fresh varer - sannsynligvis allerede varslet/sett");
+    updateNewItemDebug({freshCount:0},"Ingen fresh varer i denne varslingskonteksten - sannsynligvis allerede varslet/sett");
     return;
   }
+
   updateNewItemDebug({freshCount:fresh.length},`Fresh varer klare: ${fresh.map(item=>item.name||item.id).join(", ")}`);
   scheduleNewItemPopup(fresh);
 }
+
+function setNewItemsStatusForCandidates(candidates){
+  const relevant=(Array.isArray(candidates)?candidates:[]).filter(item=>item&&item.shouldBuy&&!item.standardItem);
+  if(!relevant.length)return;
+  const names=relevant.map(item=>String(item.name||"Vare")).filter(Boolean).slice(0,5).join(", ");
+  const extra=relevant.length>5?` + ${relevant.length-5} til`:"";
+
+  const now=Date.now();
+  const delays=relevant.map(item=>{
+    const addedAt=normalizeIsoDateTime(getItemAddedAt(item)||"");
+    const time=addedAt?new Date(addedAt).getTime():now;
+    return Math.max(0,time+60000-now);
+  }).filter(value=>Number.isFinite(value));
+  const delay=delays.length?Math.min(...delays):0;
+  const seconds=Math.max(0,Math.ceil(delay/1000));
+
+  newItemsStatusActive=true;
+  setStatus(`Nye varer er lagt til etter at varsling/handel ble aktiv${names?`: ${esc(names)}${esc(extra)}`:""}. ${seconds>5?`Popup vises om ca. ${seconds} sekunder.`:"Popup vises nå."}`,"success");
+}
+
 function queueCurrentItemsAddedAfterActiveContext(loadedItems){
   const allowed=shouldShowNewItemPopup();
   updateNewItemDebug({shoppingInProgress:isShoppingInProgress(),shoppingInProgressSince:getShoppingInProgressSince(),notificationActive:shoppingNotificationActive,notificationStartedAt:shoppingNotificationStartedAt||""},allowed?"Aktiv kontekst finnes":"Ingen aktiv varsling/handling");
@@ -871,6 +950,7 @@ function queueCurrentItemsAddedAfterActiveContext(loadedItems){
     return Number.isFinite(addedTime)&&addedTime>=startTime;
   });
   updateNewItemDebug({candidateCount:candidates.length},`Fant ${candidates.length} kandidat(er) etter aktiv start`);
+  setNewItemsStatusForCandidates(candidates);
   queueNewItemPopup(candidates);
 }
 function flushDeferredNewItemPopupIfAllowed(){
@@ -1063,7 +1143,7 @@ function render(){
 }
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked)boughtIds.add(numericId);else boughtIds.delete(numericId);saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);render();}
-async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();render();if(!silent && !pendingNewItemTimer)setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive)setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
