@@ -155,6 +155,18 @@ body.dark-mode.soft-design .empty{
   box-shadow:none !important;
 }
 
+
+
+/* Handleliste Varsling v40: standard-varsling-knapp */
+#saveDefaultButton{
+  white-space:nowrap !important;
+}
+@media(max-width:700px){
+  #saveDefaultButton{
+    flex:1 1 100% !important;
+  }
+}
+
 </style>
 <script>
 (function(){
@@ -266,6 +278,7 @@ function toggleShoppingDesign(){
     <div class="toolbar space" style="margin-bottom:10px;">
       <div><strong>Mottakere</strong><div class="small">Velg hvem som skal få e-post og/eller SMS.</div></div>
       <div class="toolbar-right">
+        <button class="action-button" type="button" onclick="saveNotificationDefault()" id="saveDefaultButton">Lagre standard for varsling</button>
         <button class="action-button" type="button" onclick="selectAllEmail()">Alle e-post</button>
         <button class="action-button" type="button" onclick="selectAllSms()">Alle SMS</button>
       </div>
@@ -275,6 +288,7 @@ function toggleShoppingDesign(){
 </div>
 <script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
+const SHOPPING_NOTIFICATION_DEFAULT_KEY="kvimarka92ShoppingNotificationDefaultV1";
 const MINUTES_OPTIONS=["0 minutter","15 minutter","30 minutter","45 minutter","1 time","3 timer"];
 let users=[];
 let activeNotification=null;
@@ -312,6 +326,50 @@ function selectAllSms(){toggleAllBySelector(".recipient-sms");}
 function collectRecipients(){return Array.from(document.querySelectorAll(".recipient-row")).map(row=>({userId:Number(row.dataset.userId),sendEmail:row.querySelector(".recipient-email").checked,sendSms:row.querySelector(".recipient-sms").checked}));}
 function applyActiveNotificationToForm(){if(!activeNotification)return;const shoppingTime=new Date(activeNotification.shoppingTime);if(!Number.isNaN(shoppingTime.getTime())){document.getElementById("shoppingTime").value=toDatetimeLocal(shoppingTime);}selectedMinutes=activeNotification.notifyMinutesBefore||selectedMinutes;document.getElementById("notes").value=activeNotification.notes||"";}
 async function loadSetup(){setStatus("Laster varslingsoppsett...");try{const data=await fetchJson(`${API_BASE}/shopping/notification-setup`);users=Array.isArray(data.users)?data.users:[];activeNotification=data.activeNotification||null;activeRecipients=Array.isArray(data.activeRecipients)?data.activeRecipients:[];clearExpiredActiveNotification(new Date(),true);applyActiveNotificationToForm();setDefaultShoppingTime();renderMinutes();renderRecipients();renderActivePlan();updateNotifyAtDisplay();if(activeNotification){setStatus('Varsling er aktivert. Velg "Avbryt varsling" for å stoppe varsling.',"success");}else{setStatus("Klar. Velg tidspunkt, varslingstid og mottakere.","success");}}catch(error){setStatus(`Kunne ikke laste varsling.<br><br>${esc(error.message)}`,"error");renderMinutes();setDefaultShoppingTime();updateNotifyAtDisplay();}}
+
+function readNotificationDefault(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(SHOPPING_NOTIFICATION_DEFAULT_KEY)||"");
+    return parsed&&typeof parsed==="object"?parsed:null;
+  }catch(error){
+    return null;
+  }
+}
+function saveNotificationDefault(){
+  const button=document.getElementById("saveDefaultButton");
+  if(button)button.disabled=true;
+  try{
+    const recipients=collectRecipients().filter(item=>item.sendEmail||item.sendSms);
+    if(!recipients.length){
+      throw new Error("Velg minst én mottaker for e-post eller SMS før standard lagres.");
+    }
+    const recipientDetails=recipients.map(recipient=>{
+      const user=users.find(item=>Number(item.id)===Number(recipient.userId))||{};
+      return {
+        userId:Number(recipient.userId),
+        name:user.name||"",
+        email:user.email||"",
+        phone:user.phone||"",
+        sendEmail:!!recipient.sendEmail,
+        sendSms:!!recipient.sendSms
+      };
+    });
+    const standard={
+      version:1,
+      notifyMinutesBefore:selectedMinutes,
+      recipients,
+      recipientDetails,
+      savedAt:new Date().toISOString()
+    };
+    localStorage.setItem(SHOPPING_NOTIFICATION_DEFAULT_KEY,JSON.stringify(standard));
+    setStatus(`Standard for varsling er lagret: ${esc(selectedMinutes)} før handling · ${recipients.length} mottaker${recipients.length===1?"":"e"}.`,"success");
+  }catch(error){
+    setStatus(`Kunne ikke lagre standard for varsling.<br><br>${esc(error.message)}`,"error");
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+
 async function saveNotification(){const button=document.getElementById("saveButton");button.disabled=true;try{const shoppingTime=getShoppingTimeDate();const notifyAt=getNotifyAtDate();if(!shoppingTime||!notifyAt){throw new Error("Velg tidspunkt for neste handling.");}const body={shoppingTime:shoppingTime.toISOString(),notifyMinutesBefore:selectedMinutes,notifyAt:notifyAt.toISOString(),notes:document.getElementById("notes").value.trim(),recipients:collectRecipients()};const data=await fetchJson(`${API_BASE}/shopping/notification-save`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(body)});activeNotification=data.notification||null;activeRecipients=Array.isArray(data.recipients)?data.recipients:[];renderActivePlan();setStatus('Varsling er aktivert. Velg "Avbryt varsling" for å stoppe varsling.',"success");}catch(error){setStatus(`Kunne ikke lagre varsling.<br><br>${esc(error.message)}`,"error");}finally{button.disabled=false;}}
 async function cancelNotification(){if(!activeNotification||!activeNotification.id)return;if(!confirm("Avbryte aktiv varsling?"))return;try{await fetchJson(`${API_BASE}/shopping/notification-cancel`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id:activeNotification.id})});activeNotification=null;activeRecipients=[];renderActivePlan();renderRecipients();setStatus("Varsling er avbrutt.","success");}catch(error){setStatus(`Kunne ikke avbryte varsling.<br><br>${esc(error.message)}`,"error");}}
 function safeAppTarget(value){const text=String(value||"").trim();if(!text)return"";if(/^https?:/i.test(text))return"";if(text.startsWith("//"))return"";if(text.includes(".."))return"";return text;}

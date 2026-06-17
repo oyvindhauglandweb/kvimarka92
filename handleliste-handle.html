@@ -295,6 +295,18 @@ body:not(.dark-mode) .added-at-popup-time{
 }
 
 
+
+
+/* Handleliste Handle v43: standard varsling-knapp */
+#activateStandardNotificationButton{
+  white-space:nowrap !important;
+}
+@media(max-width:700px){
+  #activateStandardNotificationButton{
+    flex:1 1 100% !important;
+  }
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -396,7 +408,7 @@ window.toggleHandleSize=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button handle-size-toggle-button" id="handleSizeToggle" onclick="toggleHandleSize()" title="Endre tekststørrelse og avkrysningsbokser" aria-label="Endre tekststørrelse og avkrysningsbokser">A</button><button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div>
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button handle-size-toggle-button" id="handleSizeToggle" onclick="toggleHandleSize()" title="Endre tekststørrelse og avkrysningsbokser" aria-label="Endre tekststørrelse og avkrysningsbokser">A</button><button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="activateStandardNotification()" title="Aktiver varsling med lagret standard-oppsett">Aktiver standard varsling</button><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
   <div class="modal-content">
     <div class="modal-header">
@@ -452,6 +464,8 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
   </div>
 </div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
+const SHOPPING_NOTIFICATION_DEFAULT_KEY="kvimarka92ShoppingNotificationDefaultV1";
+const SHOPPING_STANDARD_ACTIVE_CONTEXT_KEY="kvimarka92ShoppingStandardNotificationActiveContextV1";
 let SHOPPING_OWNERS=["Felles"];
 let ownerContacts=[];
 let currentUserName="";
@@ -534,6 +548,89 @@ function readJsonStorage(key, fallback){
 function writeJsonStorage(key,value){
   try{localStorage.setItem(key,JSON.stringify(value));}catch(error){}
 }
+
+function minutesToNumber(value){
+  const text=String(value||"").toLowerCase();
+  if(text.includes("3 timer"))return 180;
+  if(text.includes("1 time"))return 60;
+  if(text.includes("45"))return 45;
+  if(text.includes("30"))return 30;
+  if(text.includes("15"))return 15;
+  if(text==="0"||text==="0 minutter"||text.includes("ved handling"))return 0;
+  return 0;
+}
+function formatLocalDateTimeShort(date){
+  if(!date||Number.isNaN(date.getTime()))return "-";
+  return date.toLocaleString("no-NO",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function readNotificationDefault(){
+  return readJsonStorage(SHOPPING_NOTIFICATION_DEFAULT_KEY,null);
+}
+function getStandardActiveContext(){
+  const context=readJsonStorage(SHOPPING_STANDARD_ACTIVE_CONTEXT_KEY,null);
+  if(!context||!context.startedAt||!context.shoppingTime)return null;
+  const shoppingTime=new Date(context.shoppingTime);
+  if(Number.isNaN(shoppingTime.getTime())||shoppingTime.getTime()<Date.now()){
+    try{localStorage.removeItem(SHOPPING_STANDARD_ACTIVE_CONTEXT_KEY);}catch(error){}
+    return null;
+  }
+  return context;
+}
+function setStandardActiveContext(context){
+  if(context)writeJsonStorage(SHOPPING_STANDARD_ACTIVE_CONTEXT_KEY,context);
+  else{try{localStorage.removeItem(SHOPPING_STANDARD_ACTIVE_CONTEXT_KEY);}catch(error){}}
+}
+async function activateStandardNotification(){
+  const button=document.getElementById("activateStandardNotificationButton");
+  if(button)button.disabled=true;
+  try{
+    const standard=readNotificationDefault();
+    if(!standard||!Array.isArray(standard.recipients)||!standard.recipients.length){
+      throw new Error('Ingen standard for varsling er lagret. Gå til "Varsling" og trykk "Lagre standard for varsling" først.');
+    }
+    const notifyMinutesBefore=standard.notifyMinutesBefore||"0 minutter";
+    const minutes=minutesToNumber(notifyMinutesBefore);
+    const now=new Date();
+    const shoppingTime=new Date(now.getTime()+minutes*60000);
+    const notifyAt=now;
+    const body={
+      notificationName:"Standard varsling",
+      shoppingTime:shoppingTime.toISOString(),
+      notifyMinutesBefore,
+      notifyAt:notifyAt.toISOString(),
+      notes:"Aktivert fra Handleliste med lagret standard-oppsett.",
+      recipients:standard.recipients.map(item=>({
+        userId:Number(item.userId),
+        sendEmail:!!item.sendEmail,
+        sendSms:!!item.sendSms
+      }))
+    };
+    const data=await fetchJson(`${API_BASE}/shopping/notification-save`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify(body)
+    });
+    shoppingNotificationActive=true;
+    shoppingNotificationData=data&&data.notification?data.notification:null;
+    shoppingNotificationStartedAt=now.toISOString();
+    shoppingNotificationCheckedAt=Date.now();
+    setStandardActiveContext({
+      startedAt:now.toISOString(),
+      shoppingTime:shoppingTime.toISOString(),
+      notifyMinutesBefore,
+      activatedAt:now.toISOString()
+    });
+    flushDeferredNewItemPopupIfAllowed();
+    queueCurrentItemsAddedAfterActiveContext(items);
+    const recipientCount=Array.isArray(standard.recipients)?standard.recipients.length:0;
+    setStatus(`Standard varsling er aktivert. Tidspunkt for handling: ${esc(formatLocalDateTimeShort(shoppingTime))}. Mottakere: ${recipientCount}.`,"success");
+  }catch(error){
+    setStatus(`Kunne ikke aktivere standard varsling.<br><br>${esc(error.message)}`,"error");
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+
 function getApiAddedAt(item){
   return String(
     item?.addedAt ||
@@ -654,11 +751,15 @@ function isShoppingInProgress(){
   return boughtIds&&boughtIds.size>0;
 }
 function shouldShowNewItemPopup(){
-  return !!shoppingNotificationActive || isShoppingInProgress();
+  return !!shoppingNotificationActive || !!getStandardActiveContext() || isShoppingInProgress();
 }
 function getActiveNewItemContextStart(){
   if(shoppingNotificationActive){
     return shoppingNotificationStartedAt || normalizeIsoDateTime(new Date(Date.now()-5*60000).toISOString());
+  }
+  const standardContext=getStandardActiveContext();
+  if(standardContext){
+    return normalizeIsoDateTime(standardContext.startedAt) || normalizeIsoDateTime(new Date(Date.now()-5*60000).toISOString());
   }
   if(isShoppingInProgress()){
     return getShoppingInProgressSince() || normalizeIsoDateTime(new Date(Date.now()-5*60000).toISOString());
