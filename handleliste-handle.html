@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v42_new_items_popup_working_no_debug_panel_2026_06_17 | based-on: handle-v41-debug-new-items-popup-trigger-2026-06-17 --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v47_colored_badges_links_2026_06_17 | based-on: handle-v46-standard-button-green-only-when-api-active --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -318,6 +318,86 @@ body:not(.dark-mode) .added-at-popup-time{
 #activateStandardNotificationButton.standard-notification-active:hover{
   color:var(--success, #72c184) !important;
 }
+
+
+/* Handleliste Handle v47: fargekodede merker uten ramme + aktive lenker */
+#shoppingList .badge,
+#shoppingList .sms-button,
+#shoppingList .added-time-button{
+  border:0 !important;
+  box-shadow:none !important;
+  text-decoration:none !important;
+}
+#shoppingList .badge:hover,
+#shoppingList .sms-button:hover,
+#shoppingList .added-time-button:hover{
+  filter:brightness(1.12);
+}
+#shoppingList .badge.standard-badge{
+  background:rgba(34,197,94,.18) !important;
+  color:#86efac !important;
+}
+body:not(.dark-mode) #shoppingList .badge.standard-badge{
+  background:rgba(34,197,94,.16) !important;
+  color:#15803d !important;
+}
+#shoppingList .added-time-button{
+  background:rgba(250,204,21,.20) !important;
+  color:#fde68a !important;
+}
+body:not(.dark-mode) #shoppingList .added-time-button{
+  background:rgba(250,204,21,.26) !important;
+  color:#854d0e !important;
+}
+#shoppingList .sms-button{
+  background:rgba(59,130,246,.18) !important;
+  color:#93c5fd !important;
+}
+body:not(.dark-mode) #shoppingList .sms-button{
+  background:rgba(59,130,246,.16) !important;
+  color:#1d4ed8 !important;
+}
+#shoppingList .owner-badge.owner-camilla{
+  background:rgba(34,211,238,.18) !important;
+  color:#67e8f9 !important;
+}
+body:not(.dark-mode) #shoppingList .owner-badge.owner-camilla{
+  background:rgba(34,211,238,.18) !important;
+  color:#0e7490 !important;
+}
+#shoppingList .owner-badge.owner-malin{
+  background:rgba(167,139,250,.18) !important;
+  color:#c4b5fd !important;
+}
+body:not(.dark-mode) #shoppingList .owner-badge.owner-malin{
+  background:rgba(167,139,250,.18) !important;
+  color:#6d28d9 !important;
+}
+#shoppingList .owner-badge.owner-synnove{
+  background:rgba(251,146,60,.18) !important;
+  color:#fdba74 !important;
+}
+body:not(.dark-mode) #shoppingList .owner-badge.owner-synnove{
+  background:rgba(251,146,60,.20) !important;
+  color:#c2410c !important;
+}
+#shoppingList .owner-badge.owner-oyvind{
+  background:rgba(244,114,182,.18) !important;
+  color:#f9a8d4 !important;
+}
+body:not(.dark-mode) #shoppingList .owner-badge.owner-oyvind{
+  background:rgba(244,114,182,.18) !important;
+  color:#be185d !important;
+}
+#shoppingList .owner-badge.owner-other{
+  background:rgba(148,163,184,.18) !important;
+  color:#cbd5e1 !important;
+}
+body:not(.dark-mode) #shoppingList .owner-badge.owner-other{
+  background:rgba(148,163,184,.18) !important;
+  color:#475569 !important;
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -474,6 +554,7 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
     </div>
   </div>
 </div><script>
+function escJs(value){return String(value??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\r?\n/g," ");}
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 const SHOPPING_NOTIFICATION_DEFAULT_KEY="kvimarka92ShoppingNotificationDefaultV1";
 const SHOPPING_STANDARD_ACTIVE_CONTEXT_KEY="kvimarka92ShoppingStandardNotificationActiveContextV1";
@@ -534,7 +615,26 @@ async function fetchJson(url,options){const res=await fetch(url,{credentials:"in
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
 function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
 function getInitialOwner(){const saved=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");return SHOPPING_OWNERS.includes(saved)?saved:"Felles";}function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}}
-function ownerBadge(item){const owner=normalizeOwner(item.owner);return owner&&owner!=="Felles"?`<span class="badge">${esc(owner)}</span>`:"";}
+function ownerBadgeColorClass(owner){
+  const key=String(owner||"").trim().toLowerCase();
+  if(key==="camilla") return "owner-camilla";
+  if(key==="malin") return "owner-malin";
+  if(key==="synnøve" || key==="synnove") return "owner-synnove";
+  if(key==="øyvind" || key==="oyvind") return "owner-oyvind";
+  return "owner-other";
+}
+function goToOrderForOwner(owner,event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  const normalized=normalizeOwner(owner);
+  try{localStorage.setItem(OWNER_STORAGE_KEY, normalized);}catch(error){}
+  window.location.href="handleliste-bestille.html";
+}
+function ownerBadge(item){
+  const owner=normalizeOwner(item.owner);
+  if(!owner || owner==="Felles") return "";
+  const colorClass=ownerBadgeColorClass(owner);
+  return `<a class="badge owner-badge ${colorClass}" href="handleliste-bestille.html" onclick="goToOrderForOwner('${escJs(owner)}', event)" title="Gå til bestillingslisten for ${esc(owner)}">${esc(owner)}</a>`;
+}
 function getOwnerPhone(owner){const normalized=normalizeOwner(owner);const contact=ownerContacts.find(item=>String(item.name||"").trim().toLowerCase()===normalized.toLowerCase());return contact?String(contact.phone||"").trim():"";}
 function makeSmsMessage(item){const sender=String(currentUserName||"").trim()||"";const itemName=String(item?.name||"varen").trim()||"varen";return `Jeg er i butikken. Denne varen må du forklare litt mer om hvis du ønsker jeg skal kjøpe den: ${itemName} - Mvh ${sender}`.trim();}
 function smsHref(phone,message){const number=String(phone||"").replace(/[^+0-9]/g,"");return `sms:${encodeURIComponent(number)}?&body=${encodeURIComponent(message)}`;}
@@ -1166,7 +1266,7 @@ function render(){
   }
   root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
     const isBought=boughtIds.has(Number(item.id));
-    const badges=`${addedAtButton(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    const badges=`${addedAtButton(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
     return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
