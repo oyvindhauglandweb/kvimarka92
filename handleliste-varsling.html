@@ -241,6 +241,45 @@ body.dark-mode.soft-design .action-button.danger{
 .notification-api-debug-card .ok{color:var(--success,#72c184) !important;font-weight:800;}
 .notification-api-debug-card .bad{color:var(--danger,#d77) !important;font-weight:800;}
 .notification-api-debug-card code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.95em;}
+
+/* Handleliste v62: felles roligere primær-/meldingsfarge */
+body.dark-mode{
+  --handle-important-button:#2f5f6f;
+  --handle-important-button-hover:#376f82;
+  --handle-important-text:#7fb4c2;
+}
+body:not(.dark-mode){
+  --handle-important-button:#245f73;
+  --handle-important-button-hover:#2d7188;
+  --handle-important-text:#245f73;
+}
+.primary,
+.action-button.primary,
+.option-button.active,
+html:not(.classic-design-root) .primary,
+html:not(.classic-design-root) .action-button.primary,
+html:not(.classic-design-root) .option-button.active{
+  background:var(--handle-important-button) !important;
+  border-color:var(--handle-important-button) !important;
+  color:#fff !important;
+}
+.primary:hover,
+.action-button.primary:hover,
+.option-button.active:hover,
+html:not(.classic-design-root) .primary:hover,
+html:not(.classic-design-root) .action-button.primary:hover,
+html:not(.classic-design-root) .option-button.active:hover{
+  background:var(--handle-important-button-hover) !important;
+  border-color:var(--handle-important-button-hover) !important;
+  color:#fff !important;
+}
+.status.success,
+.status.ok,
+#status.success,
+#status.ok{
+  color:var(--handle-important-text) !important;
+}
+
 </style>
 <script>
 (function(){
@@ -593,5 +632,5 @@ loadNotificationDefault();
 })();
 </script>
 
-<script src="handleliste-menu.js?v=6"></script></body>
+<script src="handleliste-menu.js?v=8"></script></body>
 </html>

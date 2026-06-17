@@ -91,6 +91,45 @@ body.dark-mode .action-button.gps-button{color:#ff8aa8;}
   .page-icon-panel svg{width:38px;height:38px;}
 }
 
+
+/* Handleliste v62: felles roligere primær-/meldingsfarge */
+body.dark-mode{
+  --handle-important-button:#2f5f6f;
+  --handle-important-button-hover:#376f82;
+  --handle-important-text:#7fb4c2;
+}
+body:not(.dark-mode){
+  --handle-important-button:#245f73;
+  --handle-important-button-hover:#2d7188;
+  --handle-important-text:#245f73;
+}
+.primary,
+.action-button.primary,
+.option-button.active,
+html:not(.classic-design-root) .primary,
+html:not(.classic-design-root) .action-button.primary,
+html:not(.classic-design-root) .option-button.active{
+  background:var(--handle-important-button) !important;
+  border-color:var(--handle-important-button) !important;
+  color:#fff !important;
+}
+.primary:hover,
+.action-button.primary:hover,
+.option-button.active:hover,
+html:not(.classic-design-root) .primary:hover,
+html:not(.classic-design-root) .action-button.primary:hover,
+html:not(.classic-design-root) .option-button.active:hover{
+  background:var(--handle-important-button-hover) !important;
+  border-color:var(--handle-important-button-hover) !important;
+  color:#fff !important;
+}
+.status.success,
+.status.ok,
+#status.success,
+#status.ok{
+  color:var(--handle-important-text) !important;
+}
+
 </style><script>
 if(!String.prototype.replaceAll){
   String.prototype.replaceAll=function(search,replacement){
@@ -149,7 +188,7 @@ window.toggleShoppingTheme=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><div class="page-icon-panel" style="--page-icon-color:#23d3e7;" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12l-8 8-8-8V4h8z"></path><circle cx="9" cy="9" r="1.3"></circle></svg></div><h1 class="site-title">Handleliste</h1><div class="subtitle">Sorter varetyper</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Sorter varetyper</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
 <div class="card"><div class="toolbar type-admin-toolbar"><div class="toolbar-left"><a class="action-button" href="handleliste-rediger.html">Rediger</a></div><div class="toolbar-right"><button class="action-button primary" type="button" id="saveButton" onclick="saveTypeOrder()">Lagre rekkefølge</button><span class="readonly-note" id="editNote"></span></div></div></div>
 <div class="card"><div class="small-help">Velg <strong>Standard</strong> for vanlig rekkefølge, eller en butikkjede for å tilpasse rekkefølgen slik varene står i den kjeden. Dra og slipp varetypene fra øverst til nederst.</div></div><div class="card"><div id="chainTabs" class="chain-tabs"></div></div>
 <div class="card"><div class="chain-status-row"><div id="status" class="status">Laster...</div><img id="chainLogo" class="chain-logo" alt=""></div></div><div class="card"><div id="typeList" class="type-list"></div></div></div>
@@ -472,4 +511,4 @@ document.getElementById("chainLogo").addEventListener("error",function(){this.st
 })();
 </script>
 
-<script src="handleliste-menu.js?v=5"></script></body></html>
+<script src="handleliste-menu.js?v=8"></script></body></html>

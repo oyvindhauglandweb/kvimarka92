@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v7-2026-06-17";
+  const MENU_VERSION = "handleliste-menu-v8-2026-06-17";
 
   function svg(name){
     const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
@@ -10,7 +10,12 @@
       clipboard:`<svg ${common}><path d="M9 4.5h6"></path><path d="M10 3h4a1 1 0 0 1 1 1v1H9V4a1 1 0 0 1 1-1z"></path><rect x="6" y="5" width="12" height="16" rx="2"></rect><path d="M9 10l1.4 1.4L13 8.8"></path><path d="M9 14l1.4 1.4L13 12.8"></path><path d="M9 18l1.4 1.4L13 16.8"></path><path d="M14.5 10H16"></path><path d="M14.5 14H16"></path><path d="M14.5 18H16"></path></svg>`,
       cart:`<svg ${common}><circle cx="9" cy="19" r="1.6"></circle><circle cx="17" cy="19" r="1.6"></circle><path d="M3 4h2l2.2 9.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L20 8H7.2"></path></svg>`,
       home:`<svg ${common}><path d="M4 11.5L12 5l8 6.5"></path><path d="M7 10.5V19h10v-8.5"></path></svg>`,
-      sliders:`<svg ${common}><path d="M5 7h14"></path><path d="M5 12h14"></path><path d="M5 17h14"></path><circle cx="9" cy="7" r="1.7"></circle><circle cx="15" cy="12" r="1.7"></circle><circle cx="11" cy="17" r="1.7"></circle></svg>`
+      sliders:`<svg ${common}><path d="M5 7h14"></path><path d="M5 12h14"></path><path d="M5 17h14"></path><circle cx="9" cy="7" r="1.7"></circle><circle cx="15" cy="12" r="1.7"></circle><circle cx="11" cy="17" r="1.7"></circle></svg>`,
+      pencil:`<svg ${common}><path d="M4 20h4l11-11a2.6 2.6 0 0 0-4-4L4 16v4z"></path><path d="M13.5 6.5l4 4"></path></svg>`,
+      bell:`<svg ${common}><path d="M18 9a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>`,
+      book:`<svg ${common}><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H7a3 3 0 0 0-3 3V5.5z"></path><path d="M4 20a3 3 0 0 1 3-3h13"></path></svg>`,
+      history:`<svg ${common}><path d="M5 20V12"></path><path d="M12 20V5"></path><path d="M19 20V9"></path></svg>`,
+      help:`<svg ${common}><circle cx="12" cy="12" r="9"></circle><path d="M9.7 9a2.4 2.4 0 0 1 4.6 1c0 1.8-2.3 2-2.3 4"></path><path d="M12 17.2v.1"></path></svg>`
     };
     return icons[name] || "";
   }
@@ -134,6 +139,41 @@
       html.handleliste-size-large .action-button,
       html.handleliste-size-large .owner-button,
       html.handleliste-size-large .status{font-size:calc(1em * 1.13) !important;}
+
+
+      body.dark-mode .handleliste-shared-top-menu .bestille-top-button,
+      body.dark-mode .handleliste-shared-top-menu .handle-top-button{
+        color:#ffffff !important;
+      }
+      body:not(.dark-mode) .handleliste-shared-top-menu .bestille-top-button,
+      body:not(.dark-mode) .handleliste-shared-top-menu .handle-top-button{
+        color:#111827 !important;
+      }
+      .handleliste-page-corner-icon{
+        position:fixed !important;
+        top:18px !important;
+        left:20px !important;
+        width:48px !important;
+        height:48px !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        z-index:50 !important;
+        color:#b8b8c4 !important;
+        pointer-events:none !important;
+      }
+      .handleliste-page-corner-icon svg{
+        width:42px !important;
+        height:42px !important;
+        fill:none !important;
+        stroke:currentColor !important;
+        stroke-width:2 !important;
+        stroke-linecap:round !important;
+        stroke-linejoin:round !important;
+      }
+      body:not(.dark-mode) .handleliste-page-corner-icon{
+        color:#59606c !important;
+      }
 
       @media(max-width:700px){
         .handleliste-shared-top-menu{gap:8px !important;}
@@ -332,6 +372,36 @@
     return false;
   }
 
+
+  function iconForPage(){
+    const page = currentBasePage();
+    if(page === "handleliste-bestille.html") return "clipboard";
+    if(page === "handleliste-handle.html") return "cart";
+    if(page === "handleliste-varsling.html") return "bell";
+    if(page === "handleliste-historikk.html") return "history";
+    if(page === "handleliste-oppskrifter.html") return "book";
+    if(page === "help.html") return "help";
+    return "pencil";
+  }
+
+  function renderCornerIcon(){
+    if(!shouldRenderOnThisPage()) return;
+
+    document.querySelectorAll(".page-icon-panel,.handleliste-page-corner-icon").forEach(node => {
+      if(node && node.parentNode){
+        node.parentNode.removeChild(node);
+      }
+    });
+
+    const iconName = iconForPage();
+    const corner = document.createElement("div");
+    corner.id = "handlelistePageCornerIcon";
+    corner.className = "handleliste-page-corner-icon";
+    corner.setAttribute("aria-hidden", "true");
+    corner.innerHTML = svg(iconName);
+    document.body.appendChild(corner);
+  }
+
   function render(){
     if(!shouldRenderOnThisPage()) return;
     addCss();
@@ -364,6 +434,7 @@
       </span>
     `;
 
+    renderCornerIcon();
     applySizeState();
     updateThemeButton();
   }

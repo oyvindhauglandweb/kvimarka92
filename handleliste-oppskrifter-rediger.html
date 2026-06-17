@@ -69,6 +69,45 @@ body:not(.dark-mode).soft-design .type-button.active{
   color:var(--active-button-text) !important;
 }
 
+
+/* Handleliste v62: felles roligere primær-/meldingsfarge */
+body.dark-mode{
+  --handle-important-button:#2f5f6f;
+  --handle-important-button-hover:#376f82;
+  --handle-important-text:#7fb4c2;
+}
+body:not(.dark-mode){
+  --handle-important-button:#245f73;
+  --handle-important-button-hover:#2d7188;
+  --handle-important-text:#245f73;
+}
+.primary,
+.action-button.primary,
+.option-button.active,
+html:not(.classic-design-root) .primary,
+html:not(.classic-design-root) .action-button.primary,
+html:not(.classic-design-root) .option-button.active{
+  background:var(--handle-important-button) !important;
+  border-color:var(--handle-important-button) !important;
+  color:#fff !important;
+}
+.primary:hover,
+.action-button.primary:hover,
+.option-button.active:hover,
+html:not(.classic-design-root) .primary:hover,
+html:not(.classic-design-root) .action-button.primary:hover,
+html:not(.classic-design-root) .option-button.active:hover{
+  background:var(--handle-important-button-hover) !important;
+  border-color:var(--handle-important-button-hover) !important;
+  color:#fff !important;
+}
+.status.success,
+.status.ok,
+#status.success,
+#status.ok{
+  color:var(--handle-important-text) !important;
+}
+
 </style><script>
 if(!String.prototype.replaceAll){
   String.prototype.replaceAll=function(search,replacement){
@@ -335,4 +374,4 @@ loadRecipes();
 })();
 </script>
 
-<script src="handleliste-menu.js?v=5"></script></body></html>
+<script src="handleliste-menu.js?v=8"></script></body></html>
