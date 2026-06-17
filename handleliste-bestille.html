@@ -139,6 +139,47 @@ html:not(.classic-design-root) .empty{
   display:block;
 }
 
+
+/* Handleliste Bestille v33: synlige nøytrale knapper i light mode
+   Beholder primary/aktiv eier blå, men gir alle andre knapper tydelig lys grå bakgrunn. */
+body:not(.dark-mode) .top-button,
+body:not(.dark-mode) .action-button:not(.primary),
+body:not(.dark-mode) .owner-button:not(.active),
+body:not(.dark-mode) .chain-button:not(.active),
+body:not(.dark-mode) .type-button:not(.active),
+body:not(.dark-mode) .small-button:not(.primary),
+body:not(.dark-mode) .delete-button,
+body:not(.dark-mode) .standard-button,
+body:not(.dark-mode) .modal-close,
+body:not(.dark-mode) .item-suggestion-button{
+  background:#e5e7eb !important;
+  color:#111827 !important;
+  border:1px solid #d1d5db !important;
+  box-shadow:none !important;
+}
+
+body:not(.dark-mode) .top-button:hover,
+body:not(.dark-mode) .action-button:not(.primary):hover,
+body:not(.dark-mode) .owner-button:not(.active):hover,
+body:not(.dark-mode) .chain-button:not(.active):hover,
+body:not(.dark-mode) .type-button:not(.active):hover,
+body:not(.dark-mode) .small-button:not(.primary):hover,
+body:not(.dark-mode) .delete-button:hover,
+body:not(.dark-mode) .standard-button:hover,
+body:not(.dark-mode) .modal-close:hover,
+body:not(.dark-mode) .item-suggestion-button:hover{
+  background:#d1d5db !important;
+  color:#111827 !important;
+}
+
+body:not(.dark-mode) .action-button.primary,
+body:not(.dark-mode) .primary,
+body:not(.dark-mode) .owner-button.active{
+  background:var(--link) !important;
+  border-color:var(--link) !important;
+  color:#fff !important;
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 </head><body class="dark-mode"><script>
 (function(){
