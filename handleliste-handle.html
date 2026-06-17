@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-persist-size-additem-v31-2026-06-08 | previous: design-toggle-soft-default-2026-06-08 --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-added-timestamp-light-buttons-new-items-popup-v32-2026-06-17 | previous: handle-persist-size-additem-v31-2026-06-08 --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -104,6 +104,63 @@ body.dark-mode .modal{background:rgba(0,0,0,.82);}
   html.handle-size-small{--handle-row-height:29px;--handle-grid-check:20px;--handle-check-size:16px;--handle-name-size:12.5px;--handle-group-size:13px;}
   html.handle-size-medium{--handle-row-height:38px;--handle-grid-check:31px;--handle-check-size:25px;--handle-name-size:17px;--handle-group-size:16px;}
   html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handle-check-size:33px;--handle-name-size:21px;--handle-group-size:18px;}
+}
+
+
+/* Handle v32: synlige nøytrale knapper i light mode + datostempel på ikke-standardvarer */
+body:not(.dark-mode) .top-button,
+body:not(.dark-mode) .action-button:not(.primary),
+body:not(.dark-mode) .owner-button:not(.active),
+body:not(.dark-mode) .modal-close,
+body:not(.dark-mode) html:not(.classic-design-root) .top-button,
+body:not(.dark-mode) html:not(.classic-design-root) .action-button:not(.primary),
+body:not(.dark-mode) html:not(.classic-design-root) .owner-button:not(.active){
+  background:#e5e7eb !important;
+  color:#111827 !important;
+  border:1px solid #d1d5db !important;
+  box-shadow:none !important;
+}
+body:not(.dark-mode) .top-button:hover,
+body:not(.dark-mode) .action-button:not(.primary):hover,
+body:not(.dark-mode) .owner-button:not(.active):hover,
+body:not(.dark-mode) .modal-close:hover{
+  background:#d1d5db !important;
+  color:#111827 !important;
+}
+body:not(.dark-mode) .primary,
+body:not(.dark-mode) .action-button.primary,
+body:not(.dark-mode) html:not(.classic-design-root) .primary,
+body:not(.dark-mode) html:not(.classic-design-root) .action-button.primary{
+  background:var(--link) !important;
+  border-color:var(--link) !important;
+  color:#fff !important;
+}
+#shoppingList .item-name-wrap{
+  min-width:0 !important;
+}
+#shoppingList .item-added-meta{
+  display:block !important;
+  color:var(--muted) !important;
+  font-size:10px !important;
+  font-weight:400 !important;
+  line-height:1.15 !important;
+  margin-top:2px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.new-items-popup-list{
+  margin:0 0 14px 20px;
+  padding:0;
+  line-height:1.45;
+}
+.new-items-popup-list li{
+  margin:4px 0;
+}
+.new-items-popup-note{
+  color:var(--muted);
+  line-height:1.35;
+  margin:0 0 14px;
 }
 
 </style><!-- lightdark-restore-2026-06-16 -->
@@ -237,12 +294,27 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
       </div>
     </form>
   </div>
+
+</div>
+<div class="modal" id="newItemsModal" onclick="if(event.target===this) closeNewItemsModal();">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Nye varer lagt til</div>
+      <button class="modal-close" type="button" onclick="closeNewItemsModal()" aria-label="Lukk">×</button>
+    </div>
+    <div id="newItemsModalBody"></div>
+    <div class="add-item-modal-actions">
+      <button class="action-button primary" type="button" onclick="closeNewItemsModal()">OK</button>
+    </div>
+  </div>
 </div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 let SHOPPING_OWNERS=["Felles"];
 let ownerContacts=[];
 let currentUserName="";
 const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
+const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
+const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
 function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
 async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error(data?.detail||data?.error||`HTTP ${res.status}`);}return data;}
@@ -261,6 +333,173 @@ function recipeBadge(item){
 
   const recipeName=String(item.recipeName||"").trim()||"Oppskrift";
   return `<span class="badge recipe-badge" title="Oppskrift: ${esc(recipeName)}">${esc(recipeName)}</span>`;
+}
+
+function readJsonStorage(key, fallback){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(key)||"");
+    return parsed&&typeof parsed==="object"?parsed:fallback;
+  }catch(error){
+    return fallback;
+  }
+}
+function writeJsonStorage(key,value){
+  try{localStorage.setItem(key,JSON.stringify(value));}catch(error){}
+}
+function getApiAddedAt(item){
+  return String(
+    item?.addedAt ||
+    item?.cartAddedAt ||
+    item?.shoppingCartAddedAt ||
+    item?.createdAt ||
+    item?.created_on ||
+    item?.created ||
+    ""
+  ).trim();
+}
+function normalizeIsoDateTime(value){
+  const text=String(value||"").trim();
+  if(!text)return "";
+  const date=new Date(text);
+  return Number.isNaN(date.getTime())?"":date.toISOString();
+}
+function getItemAddedAtMap(){
+  return readJsonStorage(ITEM_ADDED_AT_STORAGE_KEY,{});
+}
+function saveItemAddedAtMap(map){
+  writeJsonStorage(ITEM_ADDED_AT_STORAGE_KEY,map||{});
+}
+function rememberItemAddedAt(id,value){
+  const numericId=Number(id);
+  if(!numericId)return "";
+  const iso=normalizeIsoDateTime(value)||new Date().toISOString();
+  const map=getItemAddedAtMap();
+  map[String(numericId)]=iso;
+  saveItemAddedAtMap(map);
+  return iso;
+}
+function getItemAddedAt(item){
+  const id=Number(item?.id||0);
+  if(!id)return "";
+  const apiValue=normalizeIsoDateTime(getApiAddedAt(item));
+  if(apiValue){
+    rememberItemAddedAt(id,apiValue);
+    return apiValue;
+  }
+  const map=getItemAddedAtMap();
+  return normalizeIsoDateTime(map[String(id)]||"");
+}
+function formatAddedAt(value){
+  const iso=normalizeIsoDateTime(value);
+  if(!iso)return "";
+  const date=new Date(iso);
+  return date.toLocaleString("no-NO",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).replace(",","");
+}
+function addedAtMeta(item){
+  if(item?.standardItem)return "";
+  const addedAt=getItemAddedAt(item);
+  if(!addedAt)return "";
+  return `<div class="item-added-meta">Lagt til: ${esc(formatAddedAt(addedAt))}</div>`;
+}
+let shoppingNotificationActive=false;
+let shoppingNotificationCheckedAt=0;
+let previousOrderedItemIds=null;
+let pendingNewItems=[];
+let pendingNewItemTimer=null;
+let shoppingItemsPollTimer=null;
+function getSeenNewItemAlerts(){
+  return readJsonStorage(NEW_ITEM_ALERT_STORAGE_KEY,{});
+}
+function saveSeenNewItemAlerts(seen){
+  writeJsonStorage(NEW_ITEM_ALERT_STORAGE_KEY,seen||{});
+}
+function isShoppingInProgress(){
+  return boughtIds&&boughtIds.size>0;
+}
+function shouldShowNewItemPopup(){
+  return !!shoppingNotificationActive || isShoppingInProgress();
+}
+async function refreshShoppingNotificationState(force){
+  const now=Date.now();
+  if(!force && shoppingNotificationCheckedAt && now-shoppingNotificationCheckedAt<60000){
+    return shoppingNotificationActive;
+  }
+  shoppingNotificationCheckedAt=now;
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/notification-setup`);
+    shoppingNotificationActive=!!data.activeNotification;
+  }catch(error){
+    shoppingNotificationActive=false;
+  }
+  return shoppingNotificationActive;
+}
+function queueNewItemPopup(newItems){
+  const relevant=(Array.isArray(newItems)?newItems:[]).filter(item=>item&&item.shouldBuy&&!item.standardItem);
+  if(!relevant.length || !shouldShowNewItemPopup())return;
+  const seen=getSeenNewItemAlerts();
+  const fresh=[];
+  relevant.forEach(item=>{
+    const id=Number(item.id||0);
+    if(!id || seen[String(id)])return;
+    const addedAt=getItemAddedAt(item)||rememberItemAddedAt(id,new Date().toISOString());
+    seen[String(id)]=addedAt;
+    fresh.push({...item,addedAt});
+  });
+  saveSeenNewItemAlerts(seen);
+  if(!fresh.length)return;
+  pendingNewItems=[...pendingNewItems,...fresh];
+  if(pendingNewItemTimer)window.clearTimeout(pendingNewItemTimer);
+  pendingNewItemTimer=window.setTimeout(showPendingNewItemsPopup,60000);
+}
+function showPendingNewItemsPopup(){
+  const modal=document.getElementById("newItemsModal");
+  const body=document.getElementById("newItemsModalBody");
+  const byId=new Map();
+  pendingNewItems.forEach(item=>{if(item&&item.id)byId.set(Number(item.id),item);});
+  pendingNewItems=[];
+  if(!modal || !body || !byId.size)return;
+  const list=[...byId.values()].sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"no",{sensitivity:"base"}));
+  body.innerHTML=`<p class="new-items-popup-note">Det er lagt til nye varer i handlelisten etter at varsling/handel var aktiv.</p><ul class="new-items-popup-list">${list.map(item=>`<li><strong>${esc(item.name)}</strong>${item.owner&&normalizeOwner(item.owner)!=="Felles"?` (${esc(normalizeOwner(item.owner))})`:""}${item.type?` – ${esc(item.type)}`:""}</li>`).join("")}</ul>`;
+  modal.classList.add("open");
+}
+function closeNewItemsModal(){
+  const modal=document.getElementById("newItemsModal");
+  if(modal)modal.classList.remove("open");
+}
+function registerLoadedItemsForTimestampsAndAlerts(loadedItems){
+  const ordered=(Array.isArray(loadedItems)?loadedItems:[]).filter(item=>item&&item.shouldBuy);
+  const currentIds=new Set(ordered.map(item=>Number(item.id)).filter(Boolean));
+  const map=getItemAddedAtMap();
+  let changed=false;
+  ordered.forEach(item=>{
+    const id=Number(item.id||0);
+    if(!id || item.standardItem)return;
+    const apiValue=normalizeIsoDateTime(getApiAddedAt(item));
+    if(apiValue && map[String(id)]!==apiValue){
+      map[String(id)]=apiValue;
+      changed=true;
+    }
+  });
+  if(changed)saveItemAddedAtMap(map);
+  if(previousOrderedItemIds===null){
+    previousOrderedItemIds=currentIds;
+    return;
+  }
+  const newItems=ordered.filter(item=>Number(item.id||0)&&!previousOrderedItemIds.has(Number(item.id)));
+  newItems.forEach(item=>{
+    if(!item.standardItem && !getItemAddedAt(item)){
+      rememberItemAddedAt(item.id,new Date().toISOString());
+    }
+  });
+  previousOrderedItemIds=currentIds;
+  queueNewItemPopup(newItems);
+}
+function startShoppingItemsPolling(){
+  if(shoppingItemsPollTimer)return;
+  shoppingItemsPollTimer=window.setInterval(()=>{
+    if(document.hidden)return;
+    loadItems({silent:true});
+  },30000);
 }
 
 
@@ -341,11 +580,16 @@ async function createShoppingItemFromHandle(){
   }
   if(button)button.disabled=true;
   try{
-    await fetchJson(`${API_BASE}/shopping/item-create`,{
+    const createdData=await fetchJson(`${API_BASE}/shopping/item-create`,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
       body:JSON.stringify({name,type,owner,shouldBuy,standardItem:false})
     });
+    const createdId=Number(createdData?.item?.id||0);
+    const createdAddedAt=createdData?.cartSync?.row?.addedAt || createdData?.item?.addedAt || new Date().toISOString();
+    if(createdId && shouldBuy){
+      rememberItemAddedAt(createdId,createdAddedAt);
+    }
     document.getElementById("addItemName").value="";
     closeAddItemModal();
     await loadItems();
@@ -357,10 +601,31 @@ async function createShoppingItemFromHandle(){
   }
 }
 
-function render(){const root=document.getElementById("shoppingList");const ordered=getOrderedItems();const finishButton=document.getElementById("finishButton");const toggleAllButton=document.getElementById("toggleAllButton");if(finishButton)finishButton.disabled=!ordered.length;if(toggleAllButton){const allBought=ordered.length>0&&ordered.every(item=>boughtIds.has(Number(item.id)));toggleAllButton.disabled=!ordered.length;toggleAllButton.textContent=allBought?"Avmerk alle":"Merk alle";toggleAllButton.title=allBought?"Fjern avkrysning på alle varer":"Merk alle varer som handlet";}if(!ordered.length){root.innerHTML='<div class="empty">Ingen varer er bestilt handlet.</div>';return;}root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{const isBought=boughtIds.has(Number(item.id));const badges=`${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name">${esc(item.name)}</div><div class="badge-stack">${badges}</div></div>`;}).join("")}</div></div>`).join("");}
+function render(){
+  const root=document.getElementById("shoppingList");
+  const ordered=getOrderedItems();
+  const finishButton=document.getElementById("finishButton");
+  const toggleAllButton=document.getElementById("toggleAllButton");
+  if(finishButton)finishButton.disabled=!ordered.length;
+  if(toggleAllButton){
+    const allBought=ordered.length>0&&ordered.every(item=>boughtIds.has(Number(item.id)));
+    toggleAllButton.disabled=!ordered.length;
+    toggleAllButton.textContent=allBought?"Avmerk alle":"Merk alle";
+    toggleAllButton.title=allBought?"Fjern avkrysning på alle varer":"Merk alle varer som handlet";
+  }
+  if(!ordered.length){
+    root.innerHTML='<div class="empty">Ingen varer er bestilt handlet.</div>';
+    return;
+  }
+  root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
+    const isBought=boughtIds.has(Number(item.id));
+    const badges=`${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div>${addedAtMeta(item)}</div><div class="badge-stack">${badges}</div></div>`;
+  }).join("")}</div></div>`).join("");
+}
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked)boughtIds.add(numericId);else boughtIds.delete(numericId);saveRememberedBoughtIds();render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();render();}
-async function loadItems(){setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();render();setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(options){const silent=!!(options&&options.silent);if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();await refreshShoppingNotificationState(false);registerLoadedItemsForTimestampsAndAlerts(items);render();if(!silent){setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();}startShoppingItemsPolling();}catch(error){if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
