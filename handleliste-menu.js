@@ -1,9 +1,8 @@
 
-/* Handleliste felles toppmeny v2
-   Én felles toppmeny for Handleliste-sidene.
+/* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v2-2026-06-17";
+  const MENU_VERSION = "handleliste-menu-v3-2026-06-17";
 
   function svg(name){
     const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
@@ -16,18 +15,22 @@
     return icons[name] || "";
   }
 
+  function pageName(){
+    return location.pathname.split("/").pop().toLowerCase();
+  }
+
   function isHandlelisteHelpCase(){
     try{
       const url = new URL(location.href);
       const caseName = (url.searchParams.get("case") || "").toLowerCase();
-      return location.pathname.toLowerCase().endsWith("/help.html") && caseName === "handleliste";
+      return pageName() === "help.html" && caseName === "handleliste";
     }catch(error){
       return false;
     }
   }
 
   function shouldRenderOnThisPage(){
-    const page = location.pathname.split("/").pop().toLowerCase();
+    const page = pageName();
     return page.startsWith("handleliste-") || isHandlelisteHelpCase();
   }
 
@@ -103,7 +106,8 @@
         white-space:nowrap !important;
         text-align:center !important;
       }
-      .handleliste-shared-top-menu .settings-menu a:hover{
+      .handleliste-shared-top-menu .settings-menu a:hover,
+      .handleliste-shared-top-menu .settings-menu a.current-page{
         background:rgba(127,127,127,.18) !important;
       }
       body:not(.dark-mode) .handleliste-shared-top-menu .settings-menu{
@@ -152,20 +156,36 @@
     }
   }
 
+  function normalizedSize(){
+    const value = readSize();
+    return ["small","medium","large"].includes(value) ? value : "small";
+  }
+
+  function updateSizeButton(){
+    const btn = document.getElementById("handlelisteSizeToggle");
+    if(!btn) return;
+    const size = normalizedSize();
+    btn.textContent = size === "large" ? "A++" : size === "medium" ? "A+" : "A";
+    btn.title = "Endre tekststørrelse";
+    btn.setAttribute("aria-label", btn.title);
+  }
+
   function applySizeState(){
-    const size = ["small","medium","large"].includes(readSize()) ? readSize() : "small";
+    const size = normalizedSize();
     document.documentElement.classList.remove("handleliste-size-small","handleliste-size-medium","handleliste-size-large");
     document.documentElement.classList.add("handleliste-size-" + size);
 
     if(typeof window.applyHandleSizeState === "function"){
       try{ window.applyHandleSizeState(); }catch(error){}
     }
+
+    updateSizeButton();
   }
 
   function toggleSize(){
     try{
       const allowed = ["small","medium","large"];
-      const current = readSize();
+      const current = normalizedSize();
       const idx = allowed.indexOf(current);
       const next = allowed[(idx < 0 ? 0 : idx + 1) % allowed.length];
       localStorage.setItem("shoppingHandleSize", next);
@@ -198,6 +218,7 @@
       if(document.body){
         document.body.classList.toggle("dark-mode", isDark);
       }
+      document.documentElement.classList.toggle("preload-dark-mode", isDark);
       localStorage.setItem("shoppingTheme", isDark ? "dark" : "light");
       localStorage.setItem("brochureTheme", isDark ? "dark" : "light");
     }catch(error){}
@@ -233,18 +254,29 @@
     return false;
   }
 
-  function currentRelativeUrl(){
-    return location.pathname.split("/").pop() + location.search + location.hash;
+  function currentBasePage(){
+    return pageName();
   }
 
-  function sameTarget(url){
-    return currentRelativeUrl() === url || location.pathname.split("/").pop() === url;
+  function isCurrentTarget(url){
+    try{
+      const targetPage = String(url || "").split("?")[0].split("#")[0].toLowerCase();
+      if(targetPage === currentBasePage()){
+        return true;
+      }
+      if(targetPage === "handleliste-oppskrifter-rediger.html" && currentBasePage() === "handleliste-oppskrifter-rediger.html"){
+        return true;
+      }
+      return false;
+    }catch(error){
+      return false;
+    }
   }
 
   function pushAndGo(url, event){
     if(event) event.preventDefault();
 
-    if(sameTarget(url)){
+    if(isCurrentTarget(url)){
       closeSettings();
       return false;
     }
@@ -276,6 +308,12 @@
     wrap.classList.remove("open");
   }
 
+  function settingsLink(url, label){
+    const current = isCurrentTarget(url);
+    const cls = current ? ' class="current-page" aria-current="page"' : "";
+    return `<a${cls} href="${current ? "#" : url}" onclick="return HandlelisteMenu.pushAndGo('${url}', event)">${label}</a>`;
+  }
+
   function render(){
     if(!shouldRenderOnThisPage()) return;
     addCss();
@@ -290,17 +328,17 @@
       <a class="top-button menu-icon-button handle-top-button" href="handleliste-handle.html" title="Handle" onclick="return HandlelisteMenu.pushAndGo('handleliste-handle.html', event)">${svg("cart")}</a>
       <a class="top-button menu-icon-button" href="index.html" title="Hovedside">${svg("home")}</a>
       <a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a>
-      <button type="button" class="top-button" id="handlelisteSizeToggle" onclick="HandlelisteMenu.toggleSize()" title="Endre tekststørrelse" aria-label="Endre tekststørrelse">A+</button>
+      <button type="button" class="top-button" id="handlelisteSizeToggle" onclick="HandlelisteMenu.toggleSize()" title="Endre tekststørrelse" aria-label="Endre tekststørrelse">A</button>
       <button type="button" class="top-button" id="handlelisteThemeToggle" onclick="HandlelisteMenu.toggleTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus"><span class="theme-text-symbol">✱</span></button>
       <button type="button" class="top-button design-toggle-button" id="handlelisteDesignToggle" onclick="HandlelisteMenu.toggleDesign()" title="Bytt design" aria-label="Bytt design">◫</button>
       <span class="settings-wrap" id="handlelisteSettingsWrap">
         <button type="button" class="top-button menu-icon-button" id="handlelisteSettingsToggle" onclick="return HandlelisteMenu.toggleSettings(event)" title="Innstillinger" aria-label="Innstillinger">${svg("sliders")}</button>
         <span class="settings-menu" role="menu" aria-label="Innstillinger">
-          <a href="handleliste-varsling.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-varsling.html', event)">Varsling</a>
-          <a href="handleliste-varetyper.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-varetyper.html', event)">Varetyper</a>
-          <a href="handleliste-rediger.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-rediger.html', event)">Varer</a>
-          <a href="handleliste-rydde.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-rydde.html', event)">Rydde i varer</a>
-          <a href="handleliste-oppskrifter-rediger.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-oppskrifter-rediger.html', event)">Oppskrifter</a>
+          ${settingsLink("handleliste-varsling.html", "Varsling")}
+          ${settingsLink("handleliste-varetyper.html", "Varetyper")}
+          ${settingsLink("handleliste-rediger.html", "Varer")}
+          ${settingsLink("handleliste-rydde.html", "Rydde i varer")}
+          ${settingsLink("handleliste-oppskrifter-rediger.html", "Oppskrifter")}
         </span>
       </span>
     `;
