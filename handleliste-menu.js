@@ -1,8 +1,9 @@
 
-/* Handleliste felles toppmeny v1
-   Én felles meny for Handleliste-sidene. Endre primært denne filen fremover. */
+/* Handleliste felles toppmeny v2
+   Én felles toppmeny for Handleliste-sidene.
+   Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v1-2026-06-17";
+  const MENU_VERSION = "handleliste-menu-v2-2026-06-17";
 
   function svg(name){
     const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
@@ -10,9 +11,24 @@
       clipboard:`<svg ${common}><path d="M9 4.5h6"></path><path d="M10 3h4a1 1 0 0 1 1 1v1H9V4a1 1 0 0 1 1-1z"></path><rect x="6" y="5" width="12" height="16" rx="2"></rect><path d="M9 10l1.4 1.4L13 8.8"></path><path d="M9 14l1.4 1.4L13 12.8"></path><path d="M9 18l1.4 1.4L13 16.8"></path><path d="M14.5 10H16"></path><path d="M14.5 14H16"></path><path d="M14.5 18H16"></path></svg>`,
       cart:`<svg ${common}><circle cx="9" cy="19" r="1.6"></circle><circle cx="17" cy="19" r="1.6"></circle><path d="M3 4h2l2.2 9.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L20 8H7.2"></path></svg>`,
       home:`<svg ${common}><path d="M4 11.5L12 5l8 6.5"></path><path d="M7 10.5V19h10v-8.5"></path></svg>`,
-      settings:`<svg ${common}><circle cx="12" cy="12" r="3"></circle><path d="M12 2.8v2"></path><path d="M12 19.2v2"></path><path d="M4.9 4.9l1.4 1.4"></path><path d="M17.7 17.7l1.4 1.4"></path><path d="M2.8 12h2"></path><path d="M19.2 12h2"></path><path d="M4.9 19.1l1.4-1.4"></path><path d="M17.7 6.3l1.4-1.4"></path></svg>`
+      sliders:`<svg ${common}><path d="M5 7h14"></path><path d="M5 12h14"></path><path d="M5 17h14"></path><circle cx="9" cy="7" r="1.7"></circle><circle cx="15" cy="12" r="1.7"></circle><circle cx="11" cy="17" r="1.7"></circle></svg>`
     };
     return icons[name] || "";
+  }
+
+  function isHandlelisteHelpCase(){
+    try{
+      const url = new URL(location.href);
+      const caseName = (url.searchParams.get("case") || "").toLowerCase();
+      return location.pathname.toLowerCase().endsWith("/help.html") && caseName === "handleliste";
+    }catch(error){
+      return false;
+    }
+  }
+
+  function shouldRenderOnThisPage(){
+    const page = location.pathname.split("/").pop().toLowerCase();
+    return page.startsWith("handleliste-") || isHandlelisteHelpCase();
   }
 
   function addCss(){
@@ -20,6 +36,10 @@
     const style = document.createElement("style");
     style.id = "handlelisteSharedMenuCss";
     style.textContent = `
+      html.handleliste-size-small{--handleliste-menu-scale:1;}
+      html.handleliste-size-medium{--handleliste-menu-scale:1.08;}
+      html.handleliste-size-large{--handleliste-menu-scale:1.18;}
+
       .handleliste-shared-top-menu{
         display:flex !important;
         justify-content:center !important;
@@ -61,7 +81,7 @@
         position:absolute !important;
         top:50px !important;
         right:0 !important;
-        min-width:190px !important;
+        min-width:210px !important;
         z-index:99999 !important;
         padding:7px !important;
         border-radius:10px !important;
@@ -81,6 +101,7 @@
         text-decoration:none !important;
         font-weight:700 !important;
         white-space:nowrap !important;
+        text-align:center !important;
       }
       .handleliste-shared-top-menu .settings-menu a:hover{
         background:rgba(127,127,127,.18) !important;
@@ -98,6 +119,18 @@
         font-family:Arial, sans-serif !important;
         font-weight:700 !important;
       }
+
+      html.handleliste-size-medium body{font-size:calc(16px * 1.08) !important;}
+      html.handleliste-size-large body{font-size:calc(16px * 1.18) !important;}
+      html.handleliste-size-medium .item-name,
+      html.handleliste-size-medium .action-button,
+      html.handleliste-size-medium .owner-button,
+      html.handleliste-size-medium .status{font-size:calc(1em * 1.06) !important;}
+      html.handleliste-size-large .item-name,
+      html.handleliste-size-large .action-button,
+      html.handleliste-size-large .owner-button,
+      html.handleliste-size-large .status{font-size:calc(1em * 1.13) !important;}
+
       @media(max-width:700px){
         .handleliste-shared-top-menu{gap:8px !important;}
         .handleliste-shared-top-menu .top-button{
@@ -109,6 +142,36 @@
       }
     `;
     document.head.appendChild(style);
+  }
+
+  function readSize(){
+    try{
+      return localStorage.getItem("shoppingHandleSize") || localStorage.getItem("handlelisteSize") || "small";
+    }catch(error){
+      return "small";
+    }
+  }
+
+  function applySizeState(){
+    const size = ["small","medium","large"].includes(readSize()) ? readSize() : "small";
+    document.documentElement.classList.remove("handleliste-size-small","handleliste-size-medium","handleliste-size-large");
+    document.documentElement.classList.add("handleliste-size-" + size);
+
+    if(typeof window.applyHandleSizeState === "function"){
+      try{ window.applyHandleSizeState(); }catch(error){}
+    }
+  }
+
+  function toggleSize(){
+    try{
+      const allowed = ["small","medium","large"];
+      const current = readSize();
+      const idx = allowed.indexOf(current);
+      const next = allowed[(idx < 0 ? 0 : idx + 1) % allowed.length];
+      localStorage.setItem("shoppingHandleSize", next);
+      localStorage.setItem("handlelisteSize", next);
+    }catch(error){}
+    applySizeState();
   }
 
   function getThemeIsDark(){
@@ -161,22 +224,6 @@
     }catch(error){}
   }
 
-  function toggleSize(){
-    if(typeof window.toggleHandleSize === "function"){
-      window.toggleHandleSize();
-      return;
-    }
-    try{
-      const allowed = ["small","medium","large"];
-      const current = localStorage.getItem("shoppingHandleSize") || "small";
-      const idx = allowed.indexOf(current);
-      const next = allowed[(idx < 0 ? 0 : idx + 1) % allowed.length];
-      localStorage.setItem("shoppingHandleSize", next);
-      document.documentElement.classList.remove("handle-size-small","handle-size-medium","handle-size-large");
-      document.documentElement.classList.add("handle-size-" + next);
-    }catch(error){}
-  }
-
   function goBack(event){
     if(window.goHandlelisteBackOrHome){
       return window.goHandlelisteBackOrHome(event);
@@ -186,13 +233,28 @@
     return false;
   }
 
+  function currentRelativeUrl(){
+    return location.pathname.split("/").pop() + location.search + location.hash;
+  }
+
+  function sameTarget(url){
+    return currentRelativeUrl() === url || location.pathname.split("/").pop() === url;
+  }
+
   function pushAndGo(url, event){
     if(event) event.preventDefault();
+
+    if(sameTarget(url)){
+      closeSettings();
+      return false;
+    }
+
     try{
       if(window.pushHandlelisteBackUrl){
         window.pushHandlelisteBackUrl();
       }
     }catch(error){}
+
     window.location.href = url;
     return false;
   }
@@ -215,7 +277,9 @@
   }
 
   function render(){
+    if(!shouldRenderOnThisPage()) return;
     addCss();
+
     const host = document.getElementById("handlelisteTopMenu") || document.querySelector(".header .top-buttons");
     if(!host) return;
 
@@ -230,17 +294,18 @@
       <button type="button" class="top-button" id="handlelisteThemeToggle" onclick="HandlelisteMenu.toggleTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus"><span class="theme-text-symbol">✱</span></button>
       <button type="button" class="top-button design-toggle-button" id="handlelisteDesignToggle" onclick="HandlelisteMenu.toggleDesign()" title="Bytt design" aria-label="Bytt design">◫</button>
       <span class="settings-wrap" id="handlelisteSettingsWrap">
-        <button type="button" class="top-button menu-icon-button" id="handlelisteSettingsToggle" onclick="return HandlelisteMenu.toggleSettings(event)" title="Innstillinger" aria-label="Innstillinger">${svg("settings")}</button>
+        <button type="button" class="top-button menu-icon-button" id="handlelisteSettingsToggle" onclick="return HandlelisteMenu.toggleSettings(event)" title="Innstillinger" aria-label="Innstillinger">${svg("sliders")}</button>
         <span class="settings-menu" role="menu" aria-label="Innstillinger">
           <a href="handleliste-varsling.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-varsling.html', event)">Varsling</a>
           <a href="handleliste-varetyper.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-varetyper.html', event)">Varetyper</a>
           <a href="handleliste-rediger.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-rediger.html', event)">Varer</a>
           <a href="handleliste-rydde.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-rydde.html', event)">Rydde i varer</a>
-          <a href="handleliste-oppskrifter.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-oppskrifter.html', event)">Oppskrifter</a>
+          <a href="handleliste-oppskrifter-rediger.html" onclick="return HandlelisteMenu.pushAndGo('handleliste-oppskrifter-rediger.html', event)">Oppskrifter</a>
         </span>
       </span>
     `;
 
+    applySizeState();
     updateThemeButton();
   }
 
@@ -256,16 +321,19 @@
   };
 
   document.addEventListener("click", closeSettings);
+
   if(document.readyState === "loading"){
     document.addEventListener("DOMContentLoaded", function(){
       render();
       applyThemeState();
+      applySizeState();
       setTimeout(updateThemeButton, 0);
       setTimeout(updateThemeButton, 100);
     });
   }else{
     render();
     applyThemeState();
+    applySizeState();
     setTimeout(updateThemeButton, 0);
     setTimeout(updateThemeButton, 100);
   }
