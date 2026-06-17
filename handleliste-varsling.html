@@ -290,62 +290,21 @@ function toggleShoppingDesign(){
     <div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div>
   </div>
 
-  <div class="card">
-    <div class="toolbar space">
-      <div class="toolbar-left">
-        <a class="action-button" href="handleliste-bestille.html">Bestille</a>
-        <a class="action-button" href="handleliste-handle.html">Handle</a>
-      </div>
-      <div class="toolbar-right">
-        <button class="action-button" type="button" onclick="saveNotificationDefault()" id="saveDefaultButton" title="Ingen standard er lagret ennå. Klikk for å lagre nåværende oppsett som standard.">Lagre standard for varsling</button>
-        <button class="action-button primary" type="button" onclick="saveNotification()" id="saveButton">Lagre varsling</button>
-      </div>
-    </div>
-  </div>
-
+  
   <div class="card status" id="status">Laster varslingsoppsett...</div>
   <div id="activePlanCard"></div>
 
-  <form id="notificationForm" class="card" onsubmit="event.preventDefault(); saveNotification();">
-    <div class="grid">
-      <div>
-        <div class="form-field">
-          <label for="shoppingTime">Tidspunkt for neste handling</label>
-          <input type="datetime-local" id="shoppingTime" required onchange="updateNotifyAtDisplay()" oninput="updateNotifyAtDisplay()">
-        </div>
-      </div>
-      <div>
-        <div class="form-field">
-          <label>Melding sendes</label>
-          <div class="computed">
-            <div class="computed-value" id="notifyAtDisplay">-</div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="form-field">
-          <label>Systemklokke</label>
-          <div class="computed">
-            <div class="computed-value system-clock-value" id="systemClockDisplay">-</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+  <form id="notificationDefaultForm" class="card" onsubmit="event.preventDefault(); saveNotificationDefault();">
     <div class="form-field">
       <label>Varsle før handling</label>
       <div class="minutes-row" id="minutesButtons"></div>
-    </div>
-
-    <div class="form-field">
-      <label for="notes">Notat</label>
-      <textarea id="notes" placeholder="Valgfritt notat, f.eks. hvem som skal handle eller hva som er viktig."></textarea>
+      <div class="small">Tidspunkt for handling beregnes automatisk når varsling aktiveres fra Handle-siden.</div>
     </div>
   </form>
 
   <div class="card">
     <div class="toolbar space" style="margin-bottom:10px;">
-      <div><strong>Mottakere</strong><div class="small">Velg hvem som skal få e-post og/eller SMS.</div></div>
+      <div><strong>Mottakere</strong><div class="small">Velg hvem som skal få e-post og/eller SMS når varsling før handling aktiveres.</div></div>
       <div class="toolbar-right">
         <button class="action-button" type="button" onclick="selectAllEmail()">Alle e-post</button>
         <button class="action-button" type="button" onclick="selectAllSms()">Alle SMS</button>
@@ -353,14 +312,20 @@ function toggleShoppingDesign(){
     </div>
     <div class="recipient-list" id="recipientList"><div class="empty">Laster brukere...</div></div>
   </div>
-</div>
+
+  <div class="card">
+    <div class="toolbar space">
+      <div class="toolbar-left">
+        <button class="action-button primary" type="button" onclick="saveNotificationDefault()" id="saveDefaultButton">Lagre varslingsoppsett</button>
+      </div>
+    </div>
+  </div>
 <script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
-const SHOPPING_NOTIFICATION_DEFAULT_KEY="kvimarka92ShoppingNotificationDefaultV1";
-const MINUTES_OPTIONS=["0 minutter","15 minutter","30 minutter","45 minutter","1 time","3 timer"];
+const MINUTES_OPTIONS=["0 minutter","15 minutter","30 minutter","1 time","2 timer","3 timer"];
 let users=[];
-let activeNotification=null;
-let activeRecipients=[];
+let defaultNotification=null;
+let defaultRecipients=[];
 let selectedMinutes="0 minutter";
 
 function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
@@ -370,175 +335,132 @@ async function fetchJson(url,options){
   if(!res.ok||(data&&data.error)){throw new Error(data?.error||data?.detail||`HTTP ${res.status}`);}
   return data;
 }
-function setStatus(message,type){const el=document.getElementById("status");el.className="card status"+(type?` ${type}`:"");el.innerHTML=message||"";}
-function minutesToNumber(value){const text=String(value||"").toLowerCase();if(text.includes("3 timer"))return 180;if(text.includes("1 time"))return 60;if(text.includes("45"))return 45;if(text.includes("30"))return 30;if(text.includes("15"))return 15;if(text==="0"||text==="0 minutter"||text.includes("ved handling"))return 0;return 0;}
-function pad(value){return String(value).padStart(2,"0");}
-function toDatetimeLocal(date){return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;}
-function parseDatetimeLocal(value){if(!value)return null;const date=new Date(value);return Number.isNaN(date.getTime())?null:date;}
-function parseFlexibleDateTime(value){if(!value)return null;const text=String(value).trim();let m=text.match(/^(\d{2})\.(\d{2})\.(\d{4})[,]?\s+(\d{2}):(\d{2})/);if(m){return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),Number(m[4]),Number(m[5]),0,0);}const date=new Date(text);return Number.isNaN(date.getTime())?null:date;}
-function formatLocalDateTime(date){if(!date||Number.isNaN(date.getTime()))return "-";return date.toLocaleString("no-NO",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}
-function getShoppingTimeDate(){return parseDatetimeLocal(document.getElementById("shoppingTime").value);}
-function getNotifyAtDate(){const shoppingTime=getShoppingTimeDate();if(!shoppingTime)return null;return new Date(shoppingTime.getTime()-minutesToNumber(selectedMinutes)*60000);}
-function getAvailableMinutesOptions(){const shoppingTime=getShoppingTimeDate();if(!shoppingTime)return MINUTES_OPTIONS;const remainingMs=shoppingTime.getTime()-Date.now();const remainingMinutes=Math.max(0,Math.floor(remainingMs/60000));return MINUTES_OPTIONS.filter(option=>minutesToNumber(option)<=remainingMinutes);}
-function ensureSelectedMinutesIsAvailable(){const available=getAvailableMinutesOptions();if(!available.includes(selectedMinutes)){selectedMinutes=available.length?available[available.length-1]:"0 minutter";}}
-function updateNotifyAtDisplay(){ensureSelectedMinutesIsAvailable();const notifyAt=getNotifyAtDate();document.getElementById("notifyAtDisplay").textContent=formatLocalDateTime(notifyAt);renderMinutes();}
-function getActiveNotifyAtDate(){if(!activeNotification)return null;return parseFlexibleDateTime(activeNotification.notifyAt||activeNotification.notify_at||activeNotification["Notify at"]);}
-function clearExpiredActiveNotification(now,silent){
-  // v43: Ikke nullstill aktiv varsling lokalt basert på "Melding sendes".
-  // Worker/API er felles sannhet for aktiv varsling. Lokal nullstilling ga ulik status på PC og mobil.
-  return false;
+function setStatus(message,type){
+  const el=document.getElementById("status");
+  if(!el)return;
+  el.className="card status"+(type?` ${type}`:"");
+  el.innerHTML=message||"";
 }
-function updateSystemClock(){const now=new Date();const el=document.getElementById("systemClockDisplay");if(el)el.textContent=formatLocalDateTime(now);}
-function startSystemClock(){updateSystemClock();setInterval(updateSystemClock,1000);}
-function setMinutes(value){selectedMinutes=value;ensureSelectedMinutesIsAvailable();renderMinutes();const notifyAt=getNotifyAtDate();document.getElementById("notifyAtDisplay").textContent=formatLocalDateTime(notifyAt);updateSaveDefaultButtonTooltip();}
-function renderMinutes(){const available=getAvailableMinutesOptions();if(!available.includes(selectedMinutes)){selectedMinutes=available.length?available[available.length-1]:"0 minutter";}document.getElementById("minutesButtons").innerHTML=available.map(option=>`<button type="button" class="option-button ${option===selectedMinutes?"active":""}" onclick="setMinutes('${esc(option)}')">${esc(option)}</button>`).join("");}
-function setDefaultShoppingTime(){const input=document.getElementById("shoppingTime");if(input.value)return;const now=new Date();now.setMinutes(now.getMinutes()+90);now.setMinutes(Math.ceil(now.getMinutes()/15)*15,0,0);input.value=toDatetimeLocal(now);}
-function getRecipientDefaults(user){const existing=activeRecipients.find(item=>item.userIds&&item.userIds.includes(Number(user.id)));return {sendEmail:existing?!!existing.sendEmail:true,sendSms:existing?!!existing.sendSms:false};}
-function renderRecipients(){const el=document.getElementById("recipientList");if(!users.length){el.innerHTML='<div class="empty">Ingen godkjente brukere funnet.</div>';updateSaveDefaultButtonTooltip();return;}el.innerHTML=users.map(user=>{const defaults=getRecipientDefaults(user);const phone=user.phone?esc(user.phone):"Mangler telefonnummer";return `<div class="recipient-row" data-user-id="${user.id}"><div><div class="recipient-name">${esc(user.name)}</div><div class="recipient-meta">${esc(user.email)}<br>${phone}</div></div><label class="check-cell"><input type="checkbox" class="recipient-email" ${defaults.sendEmail?"checked":""}>E-post</label><label class="check-cell"><input type="checkbox" class="recipient-sms" ${defaults.sendSms?"checked":""}>SMS</label></div>`;}).join("");updateSaveDefaultButtonTooltip();}
-function updateSaveButtonVisibility(){const button=document.getElementById("saveButton");if(!button)return;button.style.display=activeNotification?"none":"";}
-function renderActivePlan(){const el=document.getElementById("activePlanCard");if(!activeNotification){el.innerHTML="";updateSaveButtonVisibility();return;}const shoppingTime=new Date(activeNotification.shoppingTime);const notifyAt=new Date(activeNotification.notifyAt);const recipientText=activeRecipients.length?`${activeRecipients.length} mottaker${activeRecipients.length===1?"":"e"}`:"Ingen mottakere";el.innerHTML=`<div class="card active-plan"><div><div class="plan-title">Aktiv varsling</div><div class="plan-meta">Neste handling: <strong>${esc(formatLocalDateTime(shoppingTime))}</strong><br>Melding sendes: <strong>${esc(formatLocalDateTime(notifyAt))}</strong><br>Varsling: ${esc(activeNotification.notifyMinutesBefore)} før · ${esc(recipientText)}</div></div><button class="action-button danger" type="button" onclick="cancelNotification()">Avbryt varsling</button></div>`;updateSaveButtonVisibility();}
-function toggleAllBySelector(selector){const inputs=Array.from(document.querySelectorAll(selector));if(!inputs.length)return;const allChecked=inputs.every(input=>input.checked);inputs.forEach(input=>input.checked=!allChecked);}
-function selectAllEmail(){toggleAllBySelector(".recipient-email");}
-function selectAllSms(){toggleAllBySelector(".recipient-sms");}
-function collectRecipients(){return Array.from(document.querySelectorAll(".recipient-row")).map(row=>({userId:Number(row.dataset.userId),sendEmail:row.querySelector(".recipient-email").checked,sendSms:row.querySelector(".recipient-sms").checked}));}
-function applyActiveNotificationToForm(){if(!activeNotification)return;const shoppingTime=new Date(activeNotification.shoppingTime);if(!Number.isNaN(shoppingTime.getTime())){document.getElementById("shoppingTime").value=toDatetimeLocal(shoppingTime);}selectedMinutes=activeNotification.notifyMinutesBefore||selectedMinutes;document.getElementById("notes").value=activeNotification.notes||"";}
-async function loadSetup(){setStatus("Laster varslingsoppsett...");try{const data=await fetchJson(`${API_BASE}/shopping/notification-setup`);users=Array.isArray(data.users)?data.users:[];activeNotification=data.activeNotification||null;activeRecipients=Array.isArray(data.activeRecipients)?data.activeRecipients:[];applyActiveNotificationToForm();setDefaultShoppingTime();renderMinutes();renderRecipients();renderActivePlan();updateNotifyAtDisplay();if(activeNotification){const shoppingText=activeNotification.shoppingTime ? ` Tidspunkt for handling: ${esc(formatLocalDateTime(new Date(activeNotification.shoppingTime)))}.` : "";setStatus(`Varsling er aktivert.${shoppingText} Velg "Avbryt varsling" for å stoppe varsling.`,"success");}else{setStatus("Klar. Velg tidspunkt, varslingstid og mottakere.","success");}}catch(error){setStatus(`Kunne ikke laste varsling.<br><br>${esc(error.message)}`,"error");renderMinutes();setDefaultShoppingTime();updateNotifyAtDisplay();}}
-
-function readNotificationDefault(){
-  try{
-    const parsed=JSON.parse(localStorage.getItem(SHOPPING_NOTIFICATION_DEFAULT_KEY)||"");
-    return parsed&&typeof parsed==="object"?parsed:null;
-  }catch(error){
-    return null;
+function renderMinutes(){
+  const el=document.getElementById("minutesButtons");
+  if(!el)return;
+  el.innerHTML=MINUTES_OPTIONS.map(option=>
+    `<button type="button" class="action-button option-button ${option===selectedMinutes?"active":""}" onclick="selectMinutes('${esc(option)}')">${esc(option)}</button>`
+  ).join("");
+}
+function selectMinutes(value){
+  selectedMinutes=String(value||"0 minutter").trim()||"0 minutter";
+  renderMinutes();
+}
+function getDefaultRecipientForUser(userId){
+  const id=Number(userId||0);
+  return (Array.isArray(defaultRecipients)?defaultRecipients:[]).find(item=>Number(item.userId)===id)||null;
+}
+function renderRecipients(){
+  const el=document.getElementById("recipientList");
+  if(!el)return;
+  if(!users.length){
+    el.innerHTML='<div class="empty">Ingen godkjente familiemedlemmer funnet.</div>';
+    return;
   }
+  el.innerHTML=users.map(user=>{
+    const saved=getDefaultRecipientForUser(user.id);
+    const sendEmail=!!(saved&&saved.sendEmail);
+    const sendSms=!!(saved&&saved.sendSms);
+    return `<div class="recipient-row" data-user-id="${Number(user.id)}">
+      <div>
+        <div class="recipient-name">${esc(user.name||user.email||"")}</div>
+        <div class="recipient-meta">${esc(user.email||"")}${user.phone?` · ${esc(user.phone)}`:""}</div>
+      </div>
+      <label class="recipient-check"><input type="checkbox" class="recipient-email" ${sendEmail?"checked":""}> E-post</label>
+      <label class="recipient-check"><input type="checkbox" class="recipient-sms" ${sendSms?"checked":""}> SMS</label>
+    </div>`;
+  }).join("");
 }
-
-function formatStandardSavedAt(value){
+function selectedRecipients(){
+  return Array.from(document.querySelectorAll(".recipient-row")).map(row=>({
+    userId:Number(row.dataset.userId||0),
+    sendEmail:!!row.querySelector(".recipient-email")?.checked,
+    sendSms:!!row.querySelector(".recipient-sms")?.checked
+  })).filter(item=>item.userId&&(item.sendEmail||item.sendSms));
+}
+function selectAllEmail(){
+  document.querySelectorAll(".recipient-email").forEach(input=>{input.checked=true;});
+}
+function selectAllSms(){
+  document.querySelectorAll(".recipient-sms").forEach(input=>{input.checked=true;});
+}
+function formatLocalDateTime(value){
   if(!value)return "";
   const date=new Date(value);
   if(Number.isNaN(date.getTime()))return "";
-  return formatLocalDateTime(date);
+  return date.toLocaleString("no-NO",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).replace(",","");
 }
-
-function namesForDefaultRecipients(standard, channel){
-  const details=Array.isArray(standard&&standard.recipientDetails)?standard.recipientDetails:[];
-  const fallbackRecipients=Array.isArray(standard&&standard.recipients)?standard.recipients:[];
-  const selected=[];
-
-  details.forEach(item=>{
-    if(channel==="email" && !item.sendEmail)return;
-    if(channel==="sms" && !item.sendSms)return;
-    selected.push(String(item.name||item.email||item.phone||item.userId||"").trim());
-  });
-
-  if(!selected.length && fallbackRecipients.length){
-    fallbackRecipients.forEach(item=>{
-      if(channel==="email" && !item.sendEmail)return;
-      if(channel==="sms" && !item.sendSms)return;
-      const user=users.find(user=>Number(user.id)===Number(item.userId))||{};
-      selected.push(String(user.name||user.email||item.userId||"").trim());
-    });
+function renderActivePlan(activeNotification){
+  const el=document.getElementById("activePlanCard");
+  if(!el)return;
+  if(!activeNotification){
+    el.innerHTML="";
+    return;
   }
-
-  return selected.filter(Boolean).join(", ") || "Ingen";
+  const shoppingTime=formatLocalDateTime(activeNotification.shoppingTime);
+  el.innerHTML=`<div class="card status success"><strong>Varsling før handling er aktiv.</strong>${shoppingTime?`<br>Tidspunkt for handling: ${esc(shoppingTime)}`:""}</div>`;
 }
+async function loadNotificationDefault(){
+  setStatus("Laster varslingsoppsett...");
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/notification-default?ts=${Date.now()}`);
+    users=Array.isArray(data.users)?data.users:[];
+    defaultNotification=data.defaultNotification||null;
+    defaultRecipients=Array.isArray(data.defaultRecipients)?data.defaultRecipients:[];
+    selectedMinutes=defaultNotification?.notifyTimeBefore||defaultNotification?.notifyMinutesBefore||"0 minutter";
+    renderMinutes();
+    renderRecipients();
 
-function buildStandardNotificationTooltip(){
-  const standard=readNotificationDefault();
-  if(!standard){
-    return "Ingen standard er lagret ennå.\nKlikk for å lagre nåværende varslingstid og valgte e-post/SMS-mottakere som standard.";
-  }
+    const setup=await fetchJson(`${API_BASE}/shopping/notification-setup?ts=${Date.now()}`).catch(()=>null);
+    renderActivePlan(setup&&setup.activeNotification?setup.activeNotification:null);
 
-  const lines=[
-    "Lagret standard for varsling:",
-    `Varsle før handling: ${standard.notifyMinutesBefore||"Ikke satt"}`,
-    `E-post: ${namesForDefaultRecipients(standard,"email")}`,
-    `SMS: ${namesForDefaultRecipients(standard,"sms")}`
-  ];
-
-  const savedAt=formatStandardSavedAt(standard.savedAt);
-  if(savedAt){
-    lines.push(`Lagret: ${savedAt}`);
-  }
-
-  lines.push("Klikk for å overskrive med nåværende oppsett.");
-  return lines.join("\n");
-}
-
-function updateSaveDefaultButtonTooltip(){
-  const button=document.getElementById("saveDefaultButton");
-  if(!button)return;
-  button.title=buildStandardNotificationTooltip();
-  button.setAttribute("aria-label",button.title.replace(/\n/g,". "));
-}
-
-function setupStandardTooltipUpdates(){
-  const button=document.getElementById("saveDefaultButton");
-  if(button){
-    button.addEventListener("mouseenter",updateSaveDefaultButtonTooltip);
-    button.addEventListener("focus",updateSaveDefaultButtonTooltip);
-    button.addEventListener("touchstart",updateSaveDefaultButtonTooltip,{passive:true});
-  }
-
-  document.addEventListener("change",event=>{
-    if(event.target&&(
-      event.target.classList.contains("recipient-email") ||
-      event.target.classList.contains("recipient-sms") ||
-      event.target.id==="shoppingTime" ||
-      event.target.id==="notes"
-    )){
-      updateSaveDefaultButtonTooltip();
+    const recipientCount=defaultRecipients.filter(item=>item&&(item.sendEmail||item.sendSms)).length;
+    if(defaultNotification){
+      const updated=defaultNotification.updatedAt?` Sist lagret: ${esc(formatLocalDateTime(defaultNotification.updatedAt))}.`:"";
+      setStatus(`Varslingsoppsett lastet. Varsle før handling: ${esc(selectedMinutes)}. Mottakere: ${recipientCount}.${updated}`,"success");
+    }else{
+      setStatus("Ingen varslingsoppsett er lagret ennå. Velg varslingstid og mottakere, og trykk Lagre varslingsoppsett.","success");
     }
-  });
+  }catch(error){
+    setStatus(`Kunne ikke laste varslingsoppsett.<br><br>${esc(error.message)}`,"error");
+    renderMinutes();
+  }
 }
-
-function saveNotificationDefault(){
+async function saveNotificationDefault(){
   const button=document.getElementById("saveDefaultButton");
   if(button)button.disabled=true;
   try{
-    const recipients=collectRecipients().filter(item=>item.sendEmail||item.sendSms);
+    const recipients=selectedRecipients();
     if(!recipients.length){
-      throw new Error("Velg minst én mottaker for e-post eller SMS før standard lagres.");
+      throw new Error("Velg minst én mottaker for e-post eller SMS.");
     }
-    const recipientDetails=recipients.map(recipient=>{
-      const user=users.find(item=>Number(item.id)===Number(recipient.userId))||{};
-      return {
-        userId:Number(recipient.userId),
-        name:user.name||"",
-        email:user.email||"",
-        phone:user.phone||"",
-        sendEmail:!!recipient.sendEmail,
-        sendSms:!!recipient.sendSms
-      };
+    const data=await fetchJson(`${API_BASE}/shopping/notification-default-save`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({
+        notifyTimeBefore:selectedMinutes,
+        recipients
+      })
     });
-    const standard={
-      version:1,
-      notifyMinutesBefore:selectedMinutes,
-      recipients,
-      recipientDetails,
-      savedAt:new Date().toISOString()
-    };
-    localStorage.setItem(SHOPPING_NOTIFICATION_DEFAULT_KEY,JSON.stringify(standard));
-    updateSaveDefaultButtonTooltip();
-    setStatus(`Standard for varsling er lagret: ${esc(selectedMinutes)} før handling · ${recipients.length} mottaker${recipients.length===1?"":"e"}.`,"success");
+    defaultNotification=data.defaultNotification||null;
+    defaultRecipients=Array.isArray(data.defaultRecipients)?data.defaultRecipients:[];
+    renderRecipients();
+    const recipientCount=defaultRecipients.filter(item=>item&&(item.sendEmail||item.sendSms)).length;
+    setStatus(`Varslingsoppsett er lagret. Varsle før handling: ${esc(selectedMinutes)}. Mottakere: ${recipientCount}.`,"success");
   }catch(error){
-    setStatus(`Kunne ikke lagre standard for varsling.<br><br>${esc(error.message)}`,"error");
+    setStatus(`Kunne ikke lagre varslingsoppsett.<br><br>${esc(error.message)}`,"error");
   }finally{
     if(button)button.disabled=false;
   }
 }
-
-async function saveNotification(){const button=document.getElementById("saveButton");button.disabled=true;try{const shoppingTime=getShoppingTimeDate();const notifyAt=getNotifyAtDate();if(!shoppingTime||!notifyAt){throw new Error("Velg tidspunkt for neste handling.");}const body={shoppingTime:shoppingTime.toISOString(),notifyMinutesBefore:selectedMinutes,notifyAt:notifyAt.toISOString(),notes:document.getElementById("notes").value.trim(),recipients:collectRecipients()};const data=await fetchJson(`${API_BASE}/shopping/notification-save`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(body)});activeNotification=data.notification||null;activeRecipients=Array.isArray(data.recipients)?data.recipients:[];renderActivePlan();setStatus('Varsling er aktivert. Velg "Avbryt varsling" for å stoppe varsling.',"success");}catch(error){setStatus(`Kunne ikke lagre varsling.<br><br>${esc(error.message)}`,"error");}finally{button.disabled=false;}}
-async function cancelNotification(){if(!activeNotification||!activeNotification.id)return;if(!confirm("Avbryte aktiv varsling?"))return;try{await fetchJson(`${API_BASE}/shopping/notification-cancel`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id:activeNotification.id})});activeNotification=null;activeRecipients=[];renderActivePlan();renderRecipients();setStatus("Varsling er avbrutt.","success");}catch(error){setStatus(`Kunne ikke avbryte varsling.<br><br>${esc(error.message)}`,"error");}}
-function safeAppTarget(value){const text=String(value||"").trim();if(!text)return"";if(/^https?:/i.test(text))return"";if(text.startsWith("//"))return"";if(text.includes(".."))return"";return text;}
-(function setupBackLinks(){const params=new URLSearchParams(location.search);const from=safeAppTarget(params.get("from"));if(from){const back=document.querySelector('.top-buttons .top-button[title="Tilbake"]');if(back)back.href=from;}})();
-setupStandardTooltipUpdates();
-updateSaveDefaultButtonTooltip();
-startSystemClock();
-loadSetup();
-
+loadNotificationDefault();
 </script>
-
 <script>
 /* Handleliste v51: lokal navigasjonsstack for tilbakeknapp innen Handleliste */
 (function(){
@@ -671,5 +593,5 @@ loadSetup();
 })();
 </script>
 
-<script src="handleliste-menu.js?v=5"></script></body>
+<script src="handleliste-menu.js?v=6"></script></body>
 </html>
