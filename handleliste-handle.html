@@ -309,14 +309,14 @@ body:not(.dark-mode) .added-at-popup-time{
 
 
 
-/* Handleliste Handle v45: aktiv standard-varsling markeres grønt */
+/* Handleliste Handle v46: aktiv varsling markeres bare med grønn tekst, ikke grønn knapp */
 #activateStandardNotificationButton.standard-notification-active{
   color:var(--success, #72c184) !important;
-  border-color:rgba(114,193,132,.45) !important;
-  background:rgba(114,193,132,.10) !important;
+  border-color:inherit !important;
+  background:inherit !important;
 }
 #activateStandardNotificationButton.standard-notification-active:hover{
-  background:rgba(114,193,132,.16) !important;
+  color:var(--success, #72c184) !important;
 }
 </style><!-- lightdark-restore-2026-06-16 -->
 </head><body class="dark-mode"><script>
@@ -769,10 +769,14 @@ function shouldShowNewItemPopup(){
 function updateActivateStandardNotificationButtonState(){
   const btn=document.getElementById("activateStandardNotificationButton");
   if(!btn)return;
-  const active=!!shoppingNotificationActive || !!getStandardActiveContext();
+
+  // v46: Knappen skal kun markeres som aktiv når Worker/API bekrefter at varsling faktisk er aktiv.
+  // Lokal standard-kontekst brukes fortsatt til popup-logikk, men skal ikke alene gjøre knappen grønn.
+  const active=!!shoppingNotificationActive;
+
   btn.classList.toggle("standard-notification-active", active);
   btn.setAttribute("aria-pressed", active ? "true" : "false");
-  btn.title=active ? "Standard varsling/aktiv varsling er aktiv" : "Aktiver varsling med lagret standard-oppsett";
+  btn.title=active ? "Varsling er aktiv" : "Aktiver varsling med lagret standard-oppsett";
 }
 function getActiveNewItemContextStart(){
   if(shoppingNotificationActive){
