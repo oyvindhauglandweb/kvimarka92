@@ -178,6 +178,56 @@ body.dark-mode.soft-design .empty{
     flex:1 1 100% !important;
   }
 }
+
+
+/* Handleliste Varsling v42: synlige knapper i dark mode + riktig handlekurv-ikon */
+body.dark-mode .top-button,
+body.dark-mode .action-button,
+body.dark-mode .option-button,
+body.dark-mode.soft-design .top-button,
+body.dark-mode.soft-design .action-button,
+body.dark-mode.soft-design .option-button{
+  background:rgba(255,255,255,.085) !important;
+  color:#ffffff !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  box-shadow:none !important;
+}
+
+body.dark-mode .top-button:hover,
+body.dark-mode .action-button:hover,
+body.dark-mode .option-button:hover,
+body.dark-mode.soft-design .top-button:hover,
+body.dark-mode.soft-design .action-button:hover,
+body.dark-mode.soft-design .option-button:hover{
+  background:rgba(255,255,255,.14) !important;
+  color:#ffffff !important;
+}
+
+body.dark-mode .action-button.primary,
+body.dark-mode button.primary,
+body.dark-mode.soft-design .action-button.primary,
+body.dark-mode.soft-design button.primary{
+  background:var(--link, #7cc7e8) !important;
+  border-color:var(--link, #7cc7e8) !important;
+  color:#10131a !important;
+}
+
+body.dark-mode .option-button.active,
+body.dark-mode.soft-design .option-button.active{
+  background:rgba(255,255,255,.26) !important;
+  color:#ffffff !important;
+  border-color:rgba(255,255,255,.18) !important;
+}
+
+body.dark-mode .action-button.danger,
+body.dark-mode.soft-design .action-button.danger{
+  color:#ff9b9b !important;
+}
+
+.handle-top-button{
+  font-size:22px !important;
+}
+
 </style>
 <script>
 (function(){
@@ -226,7 +276,7 @@ function toggleShoppingDesign(){
     <div class="subtitle">Varsling</div>
     <div class="top-buttons">
       <a class="top-button" href="handleliste-bestille.html" title="Tilbake">←</a>
-      <a class="top-button" href="handleliste-handle.html" title="Handle">☑</a>
+      <a class="top-button handle-top-button" href="handleliste-handle.html" title="Handle">🛒</a>
       <a class="top-button" href="index.html" title="Hovedside">⌂</a>
       <a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a>
       <button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button>
