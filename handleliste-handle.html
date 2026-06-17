@@ -577,6 +577,8 @@ let previousOrderedItemIds=null;
 let pendingNewItems=[];
 let pendingNewItemTimer=null;
 let shoppingItemsPollTimer=null;
+let deferredNewItems=[];
+let deferredNewItemIds=new Set();
 function getSeenNewItemAlerts(){
   return readJsonStorage(NEW_ITEM_ALERT_STORAGE_KEY,{});
 }
@@ -591,7 +593,7 @@ function shouldShowNewItemPopup(){
 }
 async function refreshShoppingNotificationState(force){
   const now=Date.now();
-  if(!force && shoppingNotificationCheckedAt && now-shoppingNotificationCheckedAt<60000){
+  if(!force && shoppingNotificationCheckedAt && now-shoppingNotificationCheckedAt<15000){
     return shoppingNotificationActive;
   }
   shoppingNotificationCheckedAt=now;
@@ -603,9 +605,26 @@ async function refreshShoppingNotificationState(force){
   }
   return shoppingNotificationActive;
 }
+function rememberDeferredNewItems(newItems){
+  const relevant=(Array.isArray(newItems)?newItems:[]).filter(item=>item&&item.shouldBuy&&!item.standardItem);
+  relevant.forEach(item=>{
+    const id=Number(item.id||0);
+    if(!id || deferredNewItemIds.has(id))return;
+    deferredNewItemIds.add(id);
+    deferredNewItems.push(item);
+  });
+}
 function queueNewItemPopup(newItems){
   const relevant=(Array.isArray(newItems)?newItems:[]).filter(item=>item&&item.shouldBuy&&!item.standardItem);
-  if(!relevant.length || !shouldShowNewItemPopup())return;
+  if(!relevant.length)return;
+
+  // Hvis varsling akkurat er aktivert, kan første polling tidligere ha sett varen før
+  // /shopping/notification-setup var oppdatert lokalt. Da må varen ikke "mistes".
+  if(!shouldShowNewItemPopup()){
+    rememberDeferredNewItems(relevant);
+    return;
+  }
+
   const seen=getSeenNewItemAlerts();
   const fresh=[];
   relevant.forEach(item=>{
@@ -620,6 +639,13 @@ function queueNewItemPopup(newItems){
   pendingNewItems=[...pendingNewItems,...fresh];
   if(pendingNewItemTimer)window.clearTimeout(pendingNewItemTimer);
   pendingNewItemTimer=window.setTimeout(showPendingNewItemsPopup,60000);
+}
+function flushDeferredNewItemPopupIfAllowed(){
+  if(!deferredNewItems.length || !shouldShowNewItemPopup())return;
+  const itemsToQueue=deferredNewItems;
+  deferredNewItems=[];
+  deferredNewItemIds=new Set();
+  queueNewItemPopup(itemsToQueue);
 }
 function showPendingNewItemsPopup(){
   const modal=document.getElementById("newItemsModal");
@@ -669,7 +695,7 @@ function startShoppingItemsPolling(){
   shoppingItemsPollTimer=window.setInterval(()=>{
     if(document.hidden)return;
     loadItems({silent:true});
-  },30000);
+  },15000);
 }
 
 
@@ -795,7 +821,7 @@ function render(){
 }
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked)boughtIds.add(numericId);else boughtIds.delete(numericId);saveRememberedBoughtIds();render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();render();}
-async function loadItems(options){const silent=!!(options&&options.silent);if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();await refreshShoppingNotificationState(false);registerLoadedItemsForTimestampsAndAlerts(items);render();if(!silent)setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();startShoppingItemsPolling();}catch(error){if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(options){const silent=!!(options&&options.silent);if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=data.currentUser?.name||data.currentUser?.email||"";items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm([...DEFAULT_TYPES,...items.map(item=>item.type),...typeOrder]);boughtIds=loadRememberedBoughtIds();reconcileBoughtIdsWithItems();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();render();if(!silent)setStatus("Klar. Kryss av varene etter hvert som de er handlet.","success");autoCheckStoreOnMobile();startShoppingItemsPolling();}catch(error){if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
