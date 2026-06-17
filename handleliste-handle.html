@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v49_notification_status_debug_mobile_2026_06_17 | based-on: handle-v48-api-status-source-of-truth --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v47_colored_badges_links_2026_06_17 | based-on: handle-v46-standard-button-green-only-when-api-active --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -399,19 +399,6 @@ body:not(.dark-mode) #shoppingList .owner-badge.owner-other{
   color:#475569 !important;
 }
 
-
-/* Handle v49: midlertidig API-statuspanel for PC/mobil-diagnose */
-.notification-api-debug-card{
-  font-size:13px !important;
-  line-height:1.35 !important;
-  color:var(--text) !important;
-  background:rgba(255,214,10,.14) !important;
-  border:1px solid rgba(255,214,10,.45) !important;
-  white-space:normal !important;
-}
-.notification-api-debug-card .ok{color:var(--success,#72c184) !important;font-weight:800;}
-.notification-api-debug-card .bad{color:var(--danger,#d77) !important;font-weight:800;}
-.notification-api-debug-card code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.95em;}
 </style><!-- lightdark-restore-2026-06-16 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -513,46 +500,7 @@ window.toggleHandleSize=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-
-
-/* Handle v49: synlig diagnose for hvorfor PC/mobil kan vise ulik varslingsstatus */
-function renderNotificationApiDebugPanel(data,error){
-  const el=document.getElementById("notificationApiDebugCard");
-  if(!el)return;
-  const time=new Date().toLocaleTimeString("no-NO",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  if(error){
-    el.innerHTML=`<strong>TEST varslingsstatus</strong><br><span class="bad">API-feil:</span> ${esc(error.message||String(error))}<br><span>Sist sjekket: ${esc(time)}</span>`;
-    return;
-  }
-  const active=data&&data.activeNotification?data.activeNotification:null;
-  const recipients=Array.isArray(data&&data.activeRecipients)?data.activeRecipients:[];
-  const user=data&&data.currentUser?data.currentUser:{};
-  const activeText=active?"AKTIV":"ikke aktiv";
-  const cls=active?"ok":"bad";
-  el.innerHTML=[
-    `<strong>TEST varslingsstatus</strong>`,
-    `API sier: <span class="${cls}">${activeText}</span>`,
-    `Bruker: <code>${esc(user.name||user.email||"ukjent")}</code>`,
-    `Varsling id: <code>${esc(active&&active.id?active.id:"-")}</code>`,
-    `Handlingstid: <code>${esc(active&&active.shoppingTime?active.shoppingTime:"-")}</code>`,
-    `Melding sendes: <code>${esc(active&&active.notifyAt?active.notifyAt:"-")}</code>`,
-    `Mottakere: <code>${recipients.length}</code>`,
-    `Sist sjekket: <code>${esc(time)}</code>`
-  ].join("<br>");
-}
-async function refreshNotificationApiDebugPanel(){
-  try{
-    const data=await fetchJson(`${API_BASE}/shopping/notification-setup?debugTs=${Date.now()}`);
-    renderNotificationApiDebugPanel(data,null);
-  }catch(error){
-    renderNotificationApiDebugPanel(null,error);
-  }
-}
-window.addEventListener("load",()=>{
-  window.setTimeout(refreshNotificationApiDebugPanel,600);
-  window.setInterval(refreshNotificationApiDebugPanel,10000);
-});
-</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button handle-size-toggle-button" id="handleSizeToggle" onclick="toggleHandleSize()" title="Endre tekststørrelse og avkrysningsbokser" aria-label="Endre tekststørrelse og avkrysningsbokser">A</button><button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="activateStandardNotification()" title="Aktiver varsling med lagret standard-oppsett">Aktiver standard varsling</button><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card notification-api-debug-card" id="notificationApiDebugCard"><strong>TEST varslingsstatus</strong><br>Sjekker API-status ...</div><div class="card"><div id="shoppingList"></div></div></div>
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons"><a class="top-button" href="index.html?restoreMenu=1" title="Tilbake til meny" data-handleliste-back="1" onclick="return window.goHandlelisteBackOrHome(event)">←</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a><button type="button" class="top-button handle-size-toggle-button" id="handleSizeToggle" onclick="toggleHandleSize()" title="Endre tekststørrelse og avkrysningsbokser" aria-label="Endre tekststørrelse og avkrysningsbokser">A</button><button type="button" class="top-button theme-toggle-button" id="shoppingThemeToggle" onclick="toggleShoppingTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus">☀</button><button type="button" class="top-button design-toggle-button" id="shoppingDesignToggle" onclick="toggleShoppingDesign()" title="Bytt design" aria-label="Bytt design">◫</button></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag">Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="activateStandardNotification()" title="Aktiver varsling med lagret standard-oppsett">Aktiver standard varsling</button><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary" id="finishButton" type="button" onclick="finishShopping()">Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
   <div class="modal-content">
     <div class="modal-header">
@@ -664,12 +612,7 @@ function renderNewItemDebug(){
 }
 setTimeout(()=>updateNewItemDebug({},"Debugpanel klart"),0);
 
-async function fetchJson(url,options){
-  const res=await fetch(url,{credentials:"include",cache:"no-store",...(options||{})});
-  const data=await res.json().catch(()=>null);
-  if(!res.ok||(data&&data.error)){throw new Error(data?.detail||data?.error||`HTTP ${res.status}`);}
-  return data;
-}
+async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error(data?.detail||data?.error||`HTTP ${res.status}`);}return data;}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
 function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
 function getInitialOwner(){const saved=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");return SHOPPING_OWNERS.includes(saved)?saved:"Felles";}function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}}
@@ -685,6 +628,7 @@ function goToOrderForOwner(owner,event){
   if(event){event.preventDefault();event.stopPropagation();}
   const normalized=normalizeOwner(owner);
   try{localStorage.setItem(OWNER_STORAGE_KEY, normalized);}catch(error){}
+  if(window.pushHandlelisteBackUrl){ window.pushHandlelisteBackUrl(); }
   window.location.href="handleliste-bestille.html";
 }
 function ownerBadge(item){
@@ -1762,6 +1706,139 @@ loadItems();</script>
   }else{
     initAppNavigation();
   }
+})();
+</script>
+
+
+<script>
+/* Handleliste v51: lokal navigasjonsstack for tilbakeknapp innen Handleliste */
+(function(){
+  const STACK_KEY = "kvimarka92HandlelisteBackStack";
+  const HOME_TARGET = "index.html?restoreMenu=1";
+  const HANDLE_PAGE_RE = /^handleliste-[a-z0-9-]+\.html$/i;
+  const MAX_STACK = 30;
+
+  function pageFromUrl(value){
+    try{
+      const url = new URL(value, location.href);
+      return url.pathname.split("/").pop() || "";
+    }catch(error){
+      return String(value || "").split("?")[0].split("#")[0].split("/").pop() || "";
+    }
+  }
+
+  function isHandlelisteUrl(value){
+    return HANDLE_PAGE_RE.test(pageFromUrl(value));
+  }
+
+  function relativeUrl(value){
+    try{
+      const url = new URL(value, location.href);
+      if(url.origin !== location.origin) return "";
+      const page = url.pathname.split("/").pop() || "";
+      if(!HANDLE_PAGE_RE.test(page)) return "";
+      return page + url.search + url.hash;
+    }catch(error){
+      const text = String(value || "").trim();
+      return isHandlelisteUrl(text) ? text : "";
+    }
+  }
+
+  function currentRelativeUrl(){
+    const page = location.pathname.split("/").pop() || "";
+    return page + location.search + location.hash;
+  }
+
+  function readStack(){
+    try{
+      const parsed = JSON.parse(sessionStorage.getItem(STACK_KEY) || "[]");
+      return Array.isArray(parsed) ? parsed.filter(isHandlelisteUrl) : [];
+    }catch(error){
+      return [];
+    }
+  }
+
+  function writeStack(stack){
+    try{
+      sessionStorage.setItem(STACK_KEY, JSON.stringify(stack.slice(-MAX_STACK)));
+    }catch(error){}
+  }
+
+  function pushCurrentToHandlelisteStack(){
+    const current = currentRelativeUrl();
+    if(!isHandlelisteUrl(current)) return;
+    const stack = readStack();
+    if(stack[stack.length - 1] !== current){
+      stack.push(current);
+      writeStack(stack);
+    }
+  }
+
+  function popPreviousFromHandlelisteStack(){
+    const current = currentRelativeUrl();
+    const stack = readStack();
+    let target = "";
+    while(stack.length){
+      const candidate = stack.pop();
+      if(candidate && candidate !== current){
+        target = candidate;
+        break;
+      }
+    }
+    writeStack(stack);
+    return target;
+  }
+
+  window.pushHandlelisteBackUrl = pushCurrentToHandlelisteStack;
+  window.goHandlelisteBackOrHome = function(event){
+    if(event){
+      event.preventDefault();
+      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+      event.stopPropagation();
+    }
+    location.href = popPreviousFromHandlelisteStack() || HOME_TARGET;
+    return false;
+  };
+
+  function shouldIgnoreClick(event, anchor){
+    if(event.defaultPrevented) return true;
+    if(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return true;
+    if(anchor.target && anchor.target !== "_self") return true;
+    if(anchor.hasAttribute("download")) return true;
+    const href = anchor.getAttribute("href") || "";
+    if(!href || href === "#" || href.startsWith("#")) return true;
+    if(/^(mailto|sms|tel|javascript):/i.test(href)) return true;
+    return false;
+  }
+
+  document.addEventListener("click", function(event){
+    const anchor = event.target && event.target.closest ? event.target.closest("a[href]") : null;
+    if(!anchor) return;
+
+    const isBackButton = anchor.hasAttribute("data-handleliste-back") ||
+      (anchor.classList && anchor.classList.contains("top-button") && (anchor.textContent || "").trim() === "←");
+
+    if(isBackButton){
+      window.goHandlelisteBackOrHome(event);
+      return;
+    }
+
+    const href = anchor.getAttribute("href") || "";
+
+    if(/^(index\.html|\/index\.html)/i.test(href)){
+      try{ sessionStorage.removeItem(STACK_KEY); }catch(error){}
+      return;
+    }
+
+    if(shouldIgnoreClick(event, anchor)) return;
+
+    if(isHandlelisteUrl(href)){
+      const target = relativeUrl(href);
+      if(target && target !== currentRelativeUrl()){
+        pushCurrentToHandlelisteStack();
+      }
+    }
+  }, true);
 })();
 </script>
 
