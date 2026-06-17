@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v8-2026-06-17";
+  const MENU_VERSION = "handleliste-menu-v9-2026-06-17";
 
   function svg(name){
     const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
@@ -123,6 +123,18 @@
       body:not(.dark-mode) .handleliste-shared-top-menu .settings-menu a{
         color:#111827 !important;
       }
+
+      #handlelisteSizeToggle{
+        font-size:20px !important;
+        letter-spacing:-.04em !important;
+        padding:0 3px !important;
+      }
+      html.handleliste-size-medium #handlelisteSizeToggle,
+      html.handleliste-size-large #handlelisteSizeToggle{
+        font-size:18px !important;
+        letter-spacing:-.08em !important;
+      }
+
       .handleliste-shared-top-menu .theme-text-symbol{
         font-size:22px !important;
         font-family:Arial, sans-serif !important;
