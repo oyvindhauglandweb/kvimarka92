@@ -303,7 +303,7 @@ function toggleShoppingDesign(){
         <a class="action-button" href="handleliste-handle.html">Handle</a>
       </div>
       <div class="toolbar-right">
-        <button class="action-button" type="button" onclick="saveNotificationDefault()" id="saveDefaultButton">Lagre standard for varsling</button>
+        <button class="action-button" type="button" onclick="saveNotificationDefault()" id="saveDefaultButton" title="Ingen standard er lagret ennå. Klikk for å lagre nåværende oppsett som standard.">Lagre standard for varsling</button>
         <button class="action-button primary" type="button" onclick="saveNotification()" id="saveButton">Lagre varsling</button>
       </div>
     </div>
@@ -397,11 +397,11 @@ function clearExpiredActiveNotification(now,silent){
 }
 function updateSystemClock(){const now=new Date();const el=document.getElementById("systemClockDisplay");if(el)el.textContent=formatLocalDateTime(now);}
 function startSystemClock(){updateSystemClock();setInterval(updateSystemClock,1000);}
-function setMinutes(value){selectedMinutes=value;ensureSelectedMinutesIsAvailable();renderMinutes();const notifyAt=getNotifyAtDate();document.getElementById("notifyAtDisplay").textContent=formatLocalDateTime(notifyAt);}
+function setMinutes(value){selectedMinutes=value;ensureSelectedMinutesIsAvailable();renderMinutes();const notifyAt=getNotifyAtDate();document.getElementById("notifyAtDisplay").textContent=formatLocalDateTime(notifyAt);updateSaveDefaultButtonTooltip();}
 function renderMinutes(){const available=getAvailableMinutesOptions();if(!available.includes(selectedMinutes)){selectedMinutes=available.length?available[available.length-1]:"0 minutter";}document.getElementById("minutesButtons").innerHTML=available.map(option=>`<button type="button" class="option-button ${option===selectedMinutes?"active":""}" onclick="setMinutes('${esc(option)}')">${esc(option)}</button>`).join("");}
 function setDefaultShoppingTime(){const input=document.getElementById("shoppingTime");if(input.value)return;const now=new Date();now.setMinutes(now.getMinutes()+90);now.setMinutes(Math.ceil(now.getMinutes()/15)*15,0,0);input.value=toDatetimeLocal(now);}
 function getRecipientDefaults(user){const existing=activeRecipients.find(item=>item.userIds&&item.userIds.includes(Number(user.id)));return {sendEmail:existing?!!existing.sendEmail:true,sendSms:existing?!!existing.sendSms:false};}
-function renderRecipients(){const el=document.getElementById("recipientList");if(!users.length){el.innerHTML='<div class="empty">Ingen godkjente brukere funnet.</div>';return;}el.innerHTML=users.map(user=>{const defaults=getRecipientDefaults(user);const phone=user.phone?esc(user.phone):"Mangler telefonnummer";return `<div class="recipient-row" data-user-id="${user.id}"><div><div class="recipient-name">${esc(user.name)}</div><div class="recipient-meta">${esc(user.email)}<br>${phone}</div></div><label class="check-cell"><input type="checkbox" class="recipient-email" ${defaults.sendEmail?"checked":""}>E-post</label><label class="check-cell"><input type="checkbox" class="recipient-sms" ${defaults.sendSms?"checked":""}>SMS</label></div>`;}).join("");}
+function renderRecipients(){const el=document.getElementById("recipientList");if(!users.length){el.innerHTML='<div class="empty">Ingen godkjente brukere funnet.</div>';updateSaveDefaultButtonTooltip();return;}el.innerHTML=users.map(user=>{const defaults=getRecipientDefaults(user);const phone=user.phone?esc(user.phone):"Mangler telefonnummer";return `<div class="recipient-row" data-user-id="${user.id}"><div><div class="recipient-name">${esc(user.name)}</div><div class="recipient-meta">${esc(user.email)}<br>${phone}</div></div><label class="check-cell"><input type="checkbox" class="recipient-email" ${defaults.sendEmail?"checked":""}>E-post</label><label class="check-cell"><input type="checkbox" class="recipient-sms" ${defaults.sendSms?"checked":""}>SMS</label></div>`;}).join("");updateSaveDefaultButtonTooltip();}
 function updateSaveButtonVisibility(){const button=document.getElementById("saveButton");if(!button)return;button.style.display=activeNotification?"none":"";}
 function renderActivePlan(){const el=document.getElementById("activePlanCard");if(!activeNotification){el.innerHTML="";updateSaveButtonVisibility();return;}const shoppingTime=new Date(activeNotification.shoppingTime);const notifyAt=new Date(activeNotification.notifyAt);const recipientText=activeRecipients.length?`${activeRecipients.length} mottaker${activeRecipients.length===1?"":"e"}`:"Ingen mottakere";el.innerHTML=`<div class="card active-plan"><div><div class="plan-title">Aktiv varsling</div><div class="plan-meta">Neste handling: <strong>${esc(formatLocalDateTime(shoppingTime))}</strong><br>Melding sendes: <strong>${esc(formatLocalDateTime(notifyAt))}</strong><br>Varsling: ${esc(activeNotification.notifyMinutesBefore)} før · ${esc(recipientText)}</div></div><button class="action-button danger" type="button" onclick="cancelNotification()">Avbryt varsling</button></div>`;updateSaveButtonVisibility();}
 function toggleAllBySelector(selector){const inputs=Array.from(document.querySelectorAll(selector));if(!inputs.length)return;const allChecked=inputs.every(input=>input.checked);inputs.forEach(input=>input.checked=!allChecked);}
@@ -419,6 +419,89 @@ function readNotificationDefault(){
     return null;
   }
 }
+
+function formatStandardSavedAt(value){
+  if(!value)return "";
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime()))return "";
+  return formatLocalDateTime(date);
+}
+
+function namesForDefaultRecipients(standard, channel){
+  const details=Array.isArray(standard&&standard.recipientDetails)?standard.recipientDetails:[];
+  const fallbackRecipients=Array.isArray(standard&&standard.recipients)?standard.recipients:[];
+  const selected=[];
+
+  details.forEach(item=>{
+    if(channel==="email" && !item.sendEmail)return;
+    if(channel==="sms" && !item.sendSms)return;
+    selected.push(String(item.name||item.email||item.phone||item.userId||"").trim());
+  });
+
+  if(!selected.length && fallbackRecipients.length){
+    fallbackRecipients.forEach(item=>{
+      if(channel==="email" && !item.sendEmail)return;
+      if(channel==="sms" && !item.sendSms)return;
+      const user=users.find(user=>Number(user.id)===Number(item.userId))||{};
+      selected.push(String(user.name||user.email||item.userId||"").trim());
+    });
+  }
+
+  return selected.filter(Boolean).join(", ") || "Ingen";
+}
+
+function buildStandardNotificationTooltip(){
+  const standard=readNotificationDefault();
+  if(!standard){
+    return "Ingen standard er lagret ennå.
+Klikk for å lagre nåværende varslingstid og valgte e-post/SMS-mottakere som standard.";
+  }
+
+  const lines=[
+    "Lagret standard for varsling:",
+    `Varsle før handling: ${standard.notifyMinutesBefore||"Ikke satt"}`,
+    `E-post: ${namesForDefaultRecipients(standard,"email")}`,
+    `SMS: ${namesForDefaultRecipients(standard,"sms")}`
+  ];
+
+  const savedAt=formatStandardSavedAt(standard.savedAt);
+  if(savedAt){
+    lines.push(`Lagret: ${savedAt}`);
+  }
+
+  lines.push("Klikk for å overskrive med nåværende oppsett.");
+  return lines.join("
+");
+}
+
+function updateSaveDefaultButtonTooltip(){
+  const button=document.getElementById("saveDefaultButton");
+  if(!button)return;
+  button.title=buildStandardNotificationTooltip();
+  button.setAttribute("aria-label",button.title.replace(/
+/g,". "));
+}
+
+function setupStandardTooltipUpdates(){
+  const button=document.getElementById("saveDefaultButton");
+  if(button){
+    button.addEventListener("mouseenter",updateSaveDefaultButtonTooltip);
+    button.addEventListener("focus",updateSaveDefaultButtonTooltip);
+    button.addEventListener("touchstart",updateSaveDefaultButtonTooltip,{passive:true});
+  }
+
+  document.addEventListener("change",event=>{
+    if(event.target&&(
+      event.target.classList.contains("recipient-email") ||
+      event.target.classList.contains("recipient-sms") ||
+      event.target.id==="shoppingTime" ||
+      event.target.id==="notes"
+    )){
+      updateSaveDefaultButtonTooltip();
+    }
+  });
+}
+
 function saveNotificationDefault(){
   const button=document.getElementById("saveDefaultButton");
   if(button)button.disabled=true;
@@ -446,6 +529,7 @@ function saveNotificationDefault(){
       savedAt:new Date().toISOString()
     };
     localStorage.setItem(SHOPPING_NOTIFICATION_DEFAULT_KEY,JSON.stringify(standard));
+    updateSaveDefaultButtonTooltip();
     setStatus(`Standard for varsling er lagret: ${esc(selectedMinutes)} før handling · ${recipients.length} mottaker${recipients.length===1?"":"e"}.`,"success");
   }catch(error){
     setStatus(`Kunne ikke lagre standard for varsling.<br><br>${esc(error.message)}`,"error");
@@ -458,6 +542,8 @@ async function saveNotification(){const button=document.getElementById("saveButt
 async function cancelNotification(){if(!activeNotification||!activeNotification.id)return;if(!confirm("Avbryte aktiv varsling?"))return;try{await fetchJson(`${API_BASE}/shopping/notification-cancel`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id:activeNotification.id})});activeNotification=null;activeRecipients=[];renderActivePlan();renderRecipients();setStatus("Varsling er avbrutt.","success");}catch(error){setStatus(`Kunne ikke avbryte varsling.<br><br>${esc(error.message)}`,"error");}}
 function safeAppTarget(value){const text=String(value||"").trim();if(!text)return"";if(/^https?:/i.test(text))return"";if(text.startsWith("//"))return"";if(text.includes(".."))return"";return text;}
 (function setupBackLinks(){const params=new URLSearchParams(location.search);const from=safeAppTarget(params.get("from"));if(from){const back=document.querySelector('.top-buttons .top-button[title="Tilbake"]');if(back)back.href=from;}})();
+setupStandardTooltipUpdates();
+updateSaveDefaultButtonTooltip();
 startSystemClock();
 loadSetup();
 
