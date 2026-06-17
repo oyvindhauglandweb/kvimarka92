@@ -241,27 +241,6 @@ body.dark-mode.soft-design .action-button.danger{
 .notification-api-debug-card .ok{color:var(--success,#72c184) !important;font-weight:800;}
 .notification-api-debug-card .bad{color:var(--danger,#d77) !important;font-weight:800;}
 .notification-api-debug-card code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.95em;}
-
-/* Handleliste ikonpakke v1 */
-.header{position:relative;}
-.page-icon-panel{position:absolute;left:0;top:-2px;width:74px;height:74px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
-.page-icon-panel svg{width:54px;height:54px;fill:none;stroke:var(--page-icon-color,var(--link));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.top-button.top-icon-link{font-size:0;padding:0;}
-.top-button.top-icon-link svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.top-button.bestille-top-button,.top-button.handle-top-button,.top-button.varsling-top-button,.top-button.history-top-button,.top-button.recipe-top-button,.top-button.edit-top-button,.top-button.type-top-button{color:var(--link);}
-.action-button .btn-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:7px;vertical-align:middle;}
-.action-button .btn-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.action-button.gps-button{color:#ff7a9a;}
-.action-button.finish-icon-button .btn-icon{color:inherit;}
-.action-button.finish-icon-button .btn-icon svg{stroke:currentColor;}
-body.dark-mode .action-button.gps-button{color:#ff8aa8;}
-.page-icon-spacer-title .site-title,
-.page-icon-spacer-title .subtitle{padding-left:0;}
-@media(max-width:700px){
-  .page-icon-panel{left:2px;top:-6px;width:52px;height:52px;}
-  .page-icon-panel svg{width:38px;height:38px;}
-}
-
 </style>
 <script>
 (function(){
@@ -308,7 +287,65 @@ function toggleShoppingDesign(){
   <div class="header">
     <h1 class="site-title">Handleliste</h1>
     <div class="subtitle">Varsling</div>
-    <div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
+    <div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar space">
+      <div class="toolbar-left">
+        <a class="action-button" href="handleliste-bestille.html">Bestille</a>
+        <a class="action-button" href="handleliste-handle.html">Handle</a>
+      </div>
+      <div class="toolbar-right">
+        <button class="action-button" type="button" onclick="saveNotificationDefault()" id="saveDefaultButton" title="Ingen standard er lagret ennå. Klikk for å lagre nåværende oppsett som standard.">Lagre standard for varsling</button>
+        <button class="action-button primary" type="button" onclick="saveNotification()" id="saveButton">Lagre varsling</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card status" id="status">Laster varslingsoppsett...</div>
+  <div id="activePlanCard"></div>
+
+  <form id="notificationForm" class="card" onsubmit="event.preventDefault(); saveNotification();">
+    <div class="grid">
+      <div>
+        <div class="form-field">
+          <label for="shoppingTime">Tidspunkt for neste handling</label>
+          <input type="datetime-local" id="shoppingTime" required onchange="updateNotifyAtDisplay()" oninput="updateNotifyAtDisplay()">
+        </div>
+      </div>
+      <div>
+        <div class="form-field">
+          <label>Melding sendes</label>
+          <div class="computed">
+            <div class="computed-value" id="notifyAtDisplay">-</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="form-field">
+          <label>Systemklokke</label>
+          <div class="computed">
+            <div class="computed-value system-clock-value" id="systemClockDisplay">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label>Varsle før handling</label>
+      <div class="minutes-row" id="minutesButtons"></div>
+    </div>
+
+    <div class="form-field">
+      <label for="notes">Notat</label>
+      <textarea id="notes" placeholder="Valgfritt notat, f.eks. hvem som skal handle eller hva som er viktig."></textarea>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="toolbar space" style="margin-bottom:10px;">
+      <div><strong>Mottakere</strong><div class="small">Velg hvem som skal få e-post og/eller SMS.</div></div>
       <div class="toolbar-right">
         <button class="action-button" type="button" onclick="selectAllEmail()">Alle e-post</button>
         <button class="action-button" type="button" onclick="selectAllSms()">Alle SMS</button>
@@ -500,44 +537,6 @@ updateSaveDefaultButtonTooltip();
 startSystemClock();
 loadSetup();
 
-
-/* Varsling v44: synlig diagnose for hvorfor PC/mobil kan vise ulik varslingsstatus */
-function renderNotificationApiDebugPanel(data,error){
-  const el=document.getElementById("notificationApiDebugCard");
-  if(!el)return;
-  const time=new Date().toLocaleTimeString("no-NO",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  if(error){
-    el.innerHTML=`<strong>TEST varslingsstatus</strong><br><span class="bad">API-feil:</span> ${esc(error.message||String(error))}<br><span>Sist sjekket: ${esc(time)}</span>`;
-    return;
-  }
-  const active=data&&data.activeNotification?data.activeNotification:null;
-  const recipients=Array.isArray(data&&data.activeRecipients)?data.activeRecipients:[];
-  const user=data&&data.currentUser?data.currentUser:{};
-  const activeText=active?"AKTIV":"ikke aktiv";
-  const cls=active?"ok":"bad";
-  el.innerHTML=[
-    `<strong>TEST varslingsstatus</strong>`,
-    `API sier: <span class="${cls}">${activeText}</span>`,
-    `Bruker: <code>${esc(user.name||user.email||"ukjent")}</code>`,
-    `Varsling id: <code>${esc(active&&active.id?active.id:"-")}</code>`,
-    `Handlingstid: <code>${esc(active&&active.shoppingTime?active.shoppingTime:"-")}</code>`,
-    `Melding sendes: <code>${esc(active&&active.notifyAt?active.notifyAt:"-")}</code>`,
-    `Mottakere: <code>${recipients.length}</code>`,
-    `Sist sjekket: <code>${esc(time)}</code>`
-  ].join("<br>");
-}
-async function refreshNotificationApiDebugPanel(){
-  try{
-    const data=await fetchJson(`${API_BASE}/shopping/notification-setup?debugTs=${Date.now()}`);
-    renderNotificationApiDebugPanel(data,null);
-  }catch(error){
-    renderNotificationApiDebugPanel(null,error);
-  }
-}
-window.addEventListener("load",()=>{
-  window.setTimeout(refreshNotificationApiDebugPanel,600);
-  window.setInterval(refreshNotificationApiDebugPanel,10000);
-});
 </script>
 
 <script>
@@ -672,5 +671,5 @@ window.addEventListener("load",()=>{
 })();
 </script>
 
-<script src="handleliste-menu.js?v=3"></script></body>
+<script src="handleliste-menu.js?v=4"></script></body>
 </html>
