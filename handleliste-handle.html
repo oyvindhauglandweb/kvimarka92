@@ -445,6 +445,25 @@ body.dark-mode .action-button.gps-button{
   box-sizing:border-box !important;
 }
 
+
+
+/* Handle v60: ryddet betjeningsrekkefølge */
+#toggleAllCard{
+  padding-top:8px !important;
+  padding-bottom:8px !important;
+}
+#toggleAllCard .toolbar{
+  justify-content:flex-start !important;
+}
+@media(max-width:700px){
+  #toggleAllCard .toolbar-left{
+    width:100% !important;
+  }
+  #toggleAllCard #toggleAllButton{
+    width:auto !important;
+  }
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -546,7 +565,7 @@ window.toggleHandleSize=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><div class="page-icon-panel" style="--page-icon-color:#bfc7d5;" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="19" r="1.6"></circle><circle cx="17" cy="19" r="1.6"></circle><path d="M3 4h2l2.2 9.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L20 8H7.2"></path></svg></div><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button" type="button" onclick="sendShoppingListEmail()" title="Send handleliste på e-post">E-post</button><button class="action-button" type="button" onclick="sendShoppingListSms()" title="Send handleliste som SMS">SMS</button><span class="toolbar-separator" aria-hidden="true"></span><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a><span class="toolbar-separator" aria-hidden="true"></span><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="activateStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="shoppingList"></div></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><div class="page-icon-panel" style="--page-icon-color:#bfc7d5;" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="19" r="1.6"></circle><circle cx="17" cy="19" r="1.6"></circle><path d="M3 4h2l2.2 9.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L20 8H7.2"></path></svg></div><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><a class="action-button" href="handleliste-historikk.html" title="Vis handlehistorikk">Historikk</a></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="activateStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
   <div class="modal-content">
     <div class="modal-header">
