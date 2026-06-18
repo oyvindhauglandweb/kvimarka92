@@ -310,6 +310,34 @@ a.primary:hover,
   }
 }
 
+
+/* Bestille v45: valgt vareliste skal bruke samme rolige primærfarge */
+#ownerButtons .owner-button.active,
+#ownerButtons .owner-button.selected,
+#ownerButtons .owner-button[aria-pressed="true"],
+.toolbar-left#ownerButtons .owner-button.active,
+.card #ownerButtons .owner-button.active{
+  background:var(--handle-important-button, #2f5f6f) !important;
+  border-color:var(--handle-important-button, #2f5f6f) !important;
+  color:#fff !important;
+}
+#ownerButtons .owner-button.active:hover,
+#ownerButtons .owner-button.selected:hover,
+#ownerButtons .owner-button[aria-pressed="true"]:hover,
+.toolbar-left#ownerButtons .owner-button.active:hover,
+.card #ownerButtons .owner-button.active:hover{
+  background:var(--handle-important-button-hover, #376f82) !important;
+  border-color:var(--handle-important-button-hover, #376f82) !important;
+  color:#fff !important;
+}
+body:not(.dark-mode) #ownerButtons .owner-button.active,
+body:not(.dark-mode) #ownerButtons .owner-button.selected,
+body:not(.dark-mode) #ownerButtons .owner-button[aria-pressed="true"]{
+  background:var(--handle-important-button, #245f73) !important;
+  border-color:var(--handle-important-button, #245f73) !important;
+  color:#fff !important;
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 </head><body class="dark-mode"><script>
 (function(){
