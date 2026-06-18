@@ -296,6 +296,24 @@ function storeText(group){
   if(status==="Location error")return "GPS-feil";
   return "";
 }
+function storeTextWithoutChain(group){
+  const status=String(group.storeMatchStatus||"").trim();
+  const storeName=String(group.storeName||"").trim();
+  const storeChain=String(group.storeChain||"").trim();
+  const store=storeName || storeChain;
+
+  if(store){
+    const distance=group.storeDistance!==null&&group.storeDistance!==undefined?` · ${group.storeDistance} m`:"";
+    const unsure=status==="Uncertain"?" · usikker match":"";
+    return `${store}${distance}${unsure}`;
+  }
+
+  if(status==="No match")return "Ingen butikkmatch";
+  if(status==="No location")return "Uten posisjon";
+  if(status==="Location denied")return "Posisjon avslått";
+  if(status==="Location error")return "GPS-feil";
+  return "";
+}
 function compareShoppingItemName(a,b){return String((a&&a.name)||(a&&a.itemName)||"").localeCompare(String((b&&b.name)||(b&&b.itemName)||""),"no",{numeric:true,sensitivity:"base"});}function compareHistoryItem(a,b){return String(a.type||"Annet").localeCompare(String(b.type||"Annet"),"no",{numeric:true,sensitivity:"base"})||compareShoppingItemName(a,b);}function sortedHistoryItems(items){return (Array.isArray(items)?items.slice():[]).sort(compareHistoryItem);}
 
 function normalizeLogoKey(value){
@@ -362,8 +380,8 @@ function renderHistory(groups){
   }
   const logoForGroup=buildHistoryLogoResolver(groups);
   root.innerHTML=groups.map(group=>{
-    const store=storeText(group);
     const logoUrl=logoForGroup(group);
+    const store=logoUrl?storeTextWithoutChain(group):storeText(group);
     const logo=logoUrl?`<img class="store-logo" src="${esc(logoUrl)}" alt="${esc(group.storeChain||group.storeName||"Butikk")}" onerror="this.style.display='none';">`:"";
     return `<section class="history-group"><div class="history-title"><div><div class="history-date">${esc(formatDateTime(group.boughtAt))}</div>${store?`<div class="history-store">${esc(store)}</div>`:""}</div>${logo}<div class="history-count">${group.items.length} vare${group.items.length===1?"":"r"}</div></div><div class="history-list">${sortedHistoryItems(group.items).map(item=>`<div class="history-row"><div class="item-name">${esc(item.itemName)}</div><span class="badge">${esc(item.type||"Annet")}</span></div>`).join("")}</div></section>`;
   }).join("");
