@@ -2,7 +2,8 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v9-2026-06-17";
+  const MENU_VERSION = "handleliste-menu-v10-2026-06-17";
+  const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
     const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
@@ -81,6 +82,147 @@
       .handleliste-shared-top-menu .menu-icon-button{
         font-size:0 !important;
       }
+
+      .handleliste-floating-controls{
+        position:fixed !important;
+        top:18px !important;
+        right:20px !important;
+        z-index:99999 !important;
+        display:flex !important;
+        align-items:center !important;
+        gap:8px !important;
+      }
+      .handleliste-floating-controls .floating-round-button,
+      .handleliste-floating-controls .login-status{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        width:38px !important;
+        height:38px !important;
+        min-width:38px !important;
+        min-height:38px !important;
+        padding:0 !important;
+        border:1px solid var(--border,#555) !important;
+        border-radius:50% !important;
+        background:var(--card,#242424) !important;
+        color:var(--muted,#bbb) !important;
+        text-decoration:none !important;
+        font-size:13px !important;
+        font-weight:bold !important;
+        line-height:1 !important;
+        opacity:.88 !important;
+        box-sizing:border-box !important;
+        cursor:pointer !important;
+      }
+      .handleliste-floating-controls .floating-round-button:hover,
+      .handleliste-floating-controls .login-status:hover{
+        opacity:1 !important;
+        color:var(--text,#eee) !important;
+      }
+      .handleliste-floating-controls .floating-round-button svg{
+        width:20px !important;
+        height:20px !important;
+        fill:none !important;
+        stroke:currentColor !important;
+        stroke-width:2 !important;
+        stroke-linecap:round !important;
+        stroke-linejoin:round !important;
+      }
+      .handleliste-floating-controls .settings-wrap{
+        position:relative !important;
+        display:inline-flex !important;
+      }
+      .handleliste-floating-controls .settings-menu{
+        position:absolute !important;
+        top:44px !important;
+        right:0 !important;
+        min-width:210px !important;
+        z-index:99999 !important;
+        padding:7px !important;
+        border-radius:10px !important;
+        background:var(--card,#242424) !important;
+        color:var(--text,#eee) !important;
+        border:1px solid var(--border,#555) !important;
+        box-shadow:0 12px 32px rgba(0,0,0,.28) !important;
+        display:none !important;
+      }
+      .handleliste-floating-controls .settings-wrap.open .settings-menu{
+        display:block !important;
+      }
+      .handleliste-floating-controls .settings-menu a{
+        display:block !important;
+        padding:9px 10px !important;
+        border-radius:8px !important;
+        color:var(--text,#eee) !important;
+        text-decoration:none !important;
+        font-weight:700 !important;
+        white-space:nowrap !important;
+        text-align:center !important;
+      }
+      .handleliste-floating-controls .settings-menu a:hover,
+      .handleliste-floating-controls .settings-menu a.current-page{
+        background:rgba(127,127,127,.18) !important;
+      }
+      .handleliste-floating-controls .login-menu{
+        position:absolute !important;
+        top:44px !important;
+        right:0 !important;
+        min-width:247px !important;
+        padding:10px !important;
+        border:1px solid var(--border,#555) !important;
+        border-radius:10px !important;
+        background:var(--card,#242424) !important;
+        color:var(--text,#eee) !important;
+        box-shadow:0 8px 24px rgba(0,0,0,.25) !important;
+        box-sizing:border-box !important;
+        display:none;
+      }
+      .handleliste-floating-controls .login-menu-name{
+        font-weight:bold !important;
+        font-size:13px !important;
+        margin-bottom:8px !important;
+        color:var(--text,#eee) !important;
+        white-space:nowrap !important;
+      }
+      .handleliste-floating-controls .login-menu-link{
+        display:block !important;
+        padding:8px 10px !important;
+        margin:0 -4px -4px !important;
+        border-radius:8px !important;
+        color:var(--handle-important-text,var(--link,#7cc7e8)) !important;
+        text-decoration:none !important;
+        font-weight:bold !important;
+        font-size:13px !important;
+      }
+      .handleliste-floating-controls .login-menu-link:hover{
+        background:rgba(127,127,127,.14) !important;
+      }
+      .handleliste-floating-controls .login-status.is-signin{
+        font-size:0 !important;
+      }
+      .handleliste-floating-controls .login-status.is-signin::before{
+        content:"↗";
+        font-size:18px;
+        font-weight:bold;
+      }
+      @media(max-width:700px){
+        .handleliste-floating-controls{
+          top:10px !important;
+          right:10px !important;
+          gap:7px !important;
+        }
+        .handleliste-floating-controls .floating-round-button,
+        .handleliste-floating-controls .login-status{
+          width:36px !important;
+          height:36px !important;
+          min-width:36px !important;
+          min-height:36px !important;
+        }
+        .handleliste-shared-top-menu{
+          gap:8px !important;
+        }
+      }
+
       .handleliste-shared-top-menu .settings-wrap{
         position:relative !important;
         display:inline-flex !important;
@@ -343,6 +485,145 @@
     return false;
   }
 
+
+  function getInitials(value){
+    const text = String(value || "").trim();
+
+    if(!text){
+      return "";
+    }
+
+    const withoutEmail = text.includes("@") ? text.split("@")[0] : text;
+    const cleaned = withoutEmail.replace(/[._-]+/g, " ").trim();
+    const parts = cleaned.split(/\s+/).filter(Boolean);
+
+    if(parts.length >= 2){
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+
+    return cleaned.slice(0, 2).toUpperCase();
+  }
+
+  async function fetchCurrentUser(){
+    try{
+      const res = await fetch(`${API_BASE}/whoami`, {
+        credentials:"include",
+        cache:"no-store"
+      });
+
+      if(!res.ok){
+        return null;
+      }
+
+      return await res.json();
+    }catch(error){
+      return null;
+    }
+  }
+
+  async function performLogout(){
+    try{
+      await fetch(`${API_BASE}/cdn-cgi/access/logout`, {
+        method:"GET",
+        credentials:"include",
+        mode:"no-cors"
+      });
+    }catch(error){}
+
+    window.location.href = "index.html?logout=" + Date.now();
+  }
+
+  function settingsMenuHtml(){
+    return `
+          ${settingsLink("handleliste-varsling.html", "Varsling")}
+          ${settingsLink("handleliste-varetyper.html", "Varetyper")}
+          ${settingsLink("handleliste-rediger.html", "Varer")}
+          ${settingsLink("handleliste-historikk.html", "Historikk")}
+          ${settingsLink("handleliste-rydde.html", "Rydde i varer")}
+          ${settingsLink("handleliste-oppskrifter-rediger.html", "Oppskrifter")}
+          ${actionLink("sendShoppingListEmail", "E-post")}
+          ${actionLink("sendShoppingListSms", "SMS")}
+        `;
+  }
+
+  function renderFloatingControls(){
+    if(!shouldRenderOnThisPage()) return;
+
+    let controls = document.getElementById("handlelisteFloatingControls");
+
+    if(!controls){
+      controls = document.createElement("div");
+      controls.id = "handlelisteFloatingControls";
+      controls.className = "handleliste-floating-controls";
+      document.body.appendChild(controls);
+    }
+
+    controls.innerHTML = `
+      <span class="settings-wrap" id="handlelisteSettingsWrap">
+        <button type="button" class="floating-round-button menu-icon-button" id="handlelisteSettingsToggle" onclick="return HandlelisteMenu.toggleSettings(event)" title="Innstillinger" aria-label="Innstillinger">${svg("sliders")}</button>
+        <span class="settings-menu" role="menu" aria-label="Innstillinger">
+          ${settingsMenuHtml()}
+        </span>
+      </span>
+      <span class="login-widget" id="handlelisteLoginWidget">
+        <a id="handlelisteLoginStatus" class="login-status is-signin" href="#" title="Logg inn">↗</a>
+        <span id="handlelisteLoginMenu" class="login-menu">
+          <span id="handlelisteLoginMenuName" class="login-menu-name"></span>
+          <a id="handlelisteLogoutLink" class="login-menu-link" href="#">Logg ut</a>
+        </span>
+      </span>
+    `;
+
+    setupLoginWidget();
+  }
+
+  async function setupLoginWidget(){
+    const loginStatus = document.getElementById("handlelisteLoginStatus");
+    const loginMenu = document.getElementById("handlelisteLoginMenu");
+    const loginMenuName = document.getElementById("handlelisteLoginMenuName");
+    const logoutLink = document.getElementById("handlelisteLogoutLink");
+
+    if(!loginStatus || !loginMenu || !loginMenuName || !logoutLink){
+      return;
+    }
+
+    const currentUser = await fetchCurrentUser();
+
+    if(currentUser){
+      const displayName = currentUser.name || currentUser.email || "Innlogget";
+      loginStatus.textContent = getInitials(displayName) || "✓";
+      loginStatus.href = "#";
+      loginStatus.classList.remove("is-signin");
+      loginStatus.classList.add("signed-in");
+      loginStatus.title = displayName;
+      loginMenuName.textContent = displayName;
+
+      loginStatus.onclick = function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        loginMenu.style.display = loginMenu.style.display === "block" ? "none" : "block";
+        closeSettings();
+        return false;
+      };
+
+      logoutLink.onclick = function(event){
+        event.preventDefault();
+        performLogout();
+        return false;
+      };
+    }else{
+      const returnUrl = window.location.href;
+      loginStatus.textContent = "↗";
+      loginStatus.href = `${API_BASE}/login?returnUrl=${encodeURIComponent(returnUrl)}`;
+      loginStatus.classList.add("is-signin");
+      loginStatus.classList.remove("signed-in");
+      loginStatus.title = "Logg inn";
+      loginStatus.onclick = null;
+      loginMenu.style.display = "none";
+    }
+  }
+
+
   function toggleSettings(event){
     if(event){
       event.preventDefault();
@@ -355,9 +636,20 @@
 
   function closeSettings(event){
     const wrap = document.getElementById("handlelisteSettingsWrap");
-    if(!wrap || !wrap.classList.contains("open")) return;
-    if(event && wrap.contains(event.target)) return;
-    wrap.classList.remove("open");
+    const loginWidget = document.getElementById("handlelisteLoginWidget");
+    const loginMenu = document.getElementById("handlelisteLoginMenu");
+
+    if(wrap && wrap.classList.contains("open")){
+      if(!event || !wrap.contains(event.target)){
+        wrap.classList.remove("open");
+      }
+    }
+
+    if(loginMenu && loginMenu.style.display === "block"){
+      if(!event || !loginWidget || !loginWidget.contains(event.target)){
+        loginMenu.style.display = "none";
+      }
+    }
   }
 
   function settingsLink(url, label){
@@ -431,22 +723,10 @@
       <button type="button" class="top-button" id="handlelisteSizeToggle" onclick="HandlelisteMenu.toggleSize()" title="Endre tekststørrelse" aria-label="Endre tekststørrelse">A</button>
       <button type="button" class="top-button" id="handlelisteThemeToggle" onclick="HandlelisteMenu.toggleTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus"><span class="theme-text-symbol">✱</span></button>
       <button type="button" class="top-button design-toggle-button" id="handlelisteDesignToggle" onclick="HandlelisteMenu.toggleDesign()" title="Bytt design" aria-label="Bytt design">◫</button>
-      <span class="settings-wrap" id="handlelisteSettingsWrap">
-        <button type="button" class="top-button menu-icon-button" id="handlelisteSettingsToggle" onclick="return HandlelisteMenu.toggleSettings(event)" title="Innstillinger" aria-label="Innstillinger">${svg("sliders")}</button>
-        <span class="settings-menu" role="menu" aria-label="Innstillinger">
-          ${settingsLink("handleliste-varsling.html", "Varsling")}
-          ${settingsLink("handleliste-varetyper.html", "Varetyper")}
-          ${settingsLink("handleliste-rediger.html", "Varer")}
-          ${settingsLink("handleliste-historikk.html", "Historikk")}
-          ${settingsLink("handleliste-rydde.html", "Rydde i varer")}
-          ${settingsLink("handleliste-oppskrifter-rediger.html", "Oppskrifter")}
-          ${actionLink("sendShoppingListEmail", "E-post")}
-          ${actionLink("sendShoppingListSms", "SMS")}
-        </span>
-      </span>
     `;
 
     renderCornerIcon();
+    renderFloatingControls();
     applySizeState();
     updateThemeButton();
   }
@@ -460,7 +740,8 @@
     toggleDesign,
     toggleSize,
     toggleSettings,
-    runPageAction
+    runPageAction,
+    renderFloatingControls
   };
 
   document.addEventListener("click", closeSettings);
