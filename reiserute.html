@@ -1217,6 +1217,7 @@ body.dark-mode .stop-gallery-admin-link:hover{
       }
     }
   </style>
+<!-- version: REISERUTE v1 ios12 load fix 2026-06-19 -->
 </head>
 
 <body class="dark-mode">
@@ -1333,12 +1334,12 @@ function getMissingImageClass(){
 }
     
     function esc(value){
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+      return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
 function scrollToHashStop(){
@@ -1389,14 +1390,14 @@ function parseImageMetadataValue(value){
 }
 
 function getOneDriveImageProxyUrl(image, options){
-  const itemId = String(image?.oneDriveItemId || image?.id || "").trim();
+  const itemId = String((image && image.oneDriveItemId) || (image && image.id) || "").trim();
 
   if(!itemId){
     return "";
   }
 
-  const mode = options?.mode === "full" ? "full" : "thumb";
-  const size = ["small", "medium", "large"].includes(options?.size) ? options.size : "large";
+  const mode = (options && options.mode) === "full" ? "full" : "thumb";
+  const size = ["small", "medium", "large"].includes((options && options.size)) ? options.size : "large";
   const cacheKey = String(image.lastModifiedDateTime || image.name || itemId);
   const params = new URLSearchParams();
 
@@ -1412,12 +1413,12 @@ function getOneDriveImageProxyUrl(image, options){
     params.set("name", image.name || image.fileName || image.title);
   }
 
-  if(image.parentId || image.parentReference?.id || image.folderId || image.oneDriveParentId){
-    params.set("parentId", image.parentId || image.parentReference?.id || image.folderId || image.oneDriveParentId);
+  if(image.parentId || (image.parentReference && image.parentReference.id) || image.folderId || image.oneDriveParentId){
+    params.set("parentId", image.parentId || (image.parentReference && image.parentReference.id) || image.folderId || image.oneDriveParentId);
   }
 
-  if(image.parentPath || image.parentReference?.path){
-    params.set("parentPath", image.parentPath || image.parentReference?.path);
+  if(image.parentPath || (image.parentReference && image.parentReference.path)){
+    params.set("parentPath", image.parentPath || (image.parentReference && image.parentReference.path));
   }
 
   return `${API_BASE}/onedrive/image?${params.toString()}`;
@@ -1447,11 +1448,11 @@ function getImageFallbackUrls(image, options){
   // then try full-size proxy, and only then fall back to stored direct URLs.
   const oneDriveThumbUrl = getOneDriveImageProxyUrl(image, {
     mode:"thumb",
-    size:options?.size || "large"
+    size:(options && options.size) || "large"
   });
   const oneDriveFullUrl = getOneDriveImageProxyUrl(image, {
     mode:"full",
-    size:options?.size || "large"
+    size:(options && options.size) || "large"
   });
 
   add(oneDriveThumbUrl);
@@ -1462,10 +1463,10 @@ function getImageFallbackUrls(image, options){
   add(image.mediumUrl);
   add(image.largeUrl);
   add(image.url);
-  add(image.thumbnails?.large?.url);
-  add(image.thumbnails?.large);
-  add(image.thumbnails?.small?.url);
-  add(image.thumbnails?.small);
+  add((image.thumbnails && image.thumbnails.large && image.thumbnails.large.url));
+  add((image.thumbnails && image.thumbnails.large));
+  add((image.thumbnails && image.thumbnails.small && image.thumbnails.small.url));
+  add((image.thumbnails && image.thumbnails.small));
   add(image.thumbUrl);
   add(image.thumbnailUrl);
 
@@ -1553,7 +1554,7 @@ function getImageParentFolderId(image){
 
   return String(
     image.parentId ||
-    image.parentReference?.id ||
+    (image.parentReference && image.parentReference.id) ||
     image.folderId ||
     image.oneDriveParentId ||
     ""
@@ -1599,10 +1600,8 @@ function getStopImages(stop){
     return stop.images;
   }
 
-  return [
-    ...(Array.isArray(stop.image) ? stop.image : []),
-    ...parseImageMetadataValue(stop.imageMetadata)
-  ];
+  return (Array.isArray(stop.image) ? stop.image : [])
+    .concat(parseImageMetadataValue(stop.imageMetadata));
 }
 
 function getFileUrls(images, options){
@@ -1625,10 +1624,8 @@ function getFileUrl(images, options){
     }
 
     async function fetchJson(url, options){
-      const res = await fetch(url, {
-        credentials:"include",
-        ...(options || {})
-      });
+      const fetchOptions = Object.assign({ credentials:"include" }, options || {});
+      const res = await fetch(url, fetchOptions);
 
       if(!res.ok){
         const text = await res.text();
@@ -1715,16 +1712,16 @@ function getFileUrl(images, options){
 
     function getRoutePeriodText(data){
       const apiPeriod =
-        data?.case?.displayDate ||
-        data?.case?.period ||
-        data?.period?.displayDate ||
+        (data && data.case && data.case.displayDate) ||
+        (data && data.case && data.case.period) ||
+        (data && data.period && data.period.displayDate) ||
         "";
 
       if(apiPeriod){
         return apiPeriod;
       }
 
-      const stops = data?.stops || [];
+      const stops = (data && data.stops) || [];
       return formatDateRange(firstDate(stops), lastDate(stops));
     }
 
@@ -1780,7 +1777,7 @@ function wait(ms){
 }
 
 function isWorkerSubrequestLimitError(error){
-  const text = `${error?.message || ""} ${error?.responseText || ""}`;
+  const text = `${(error && error.message) || ""} ${(error && error.responseText) || ""}`;
   return text.includes("Too many subrequests") || text.includes("Worker invocation");
 }
 
@@ -1810,8 +1807,8 @@ async function refreshRouteImageMetadata(event){
     event.stopPropagation();
   }
 
-  const caseName = currentRouteData?.case?.caseName || currentRouteData?.case?.title || getCaseFromUrl();
-  const button = event?.currentTarget || document.querySelector(".summary-image-refresh-button");
+  const caseName = (currentRouteData && currentRouteData.case && currentRouteData.case.caseName) || (currentRouteData && currentRouteData.case && currentRouteData.case.title) || getCaseFromUrl();
+  const button = (event && event.currentTarget) || document.querySelector(".summary-image-refresh-button");
 
   if(!caseName){
     setImageRefreshStatus("Mangler case-navn.", "error");
@@ -1822,7 +1819,7 @@ async function refreshRouteImageMetadata(event){
     button.disabled = true;
   }
 
-  const existingStopCount = Math.max(1, Number(currentRouteData?.stops?.length || 0));
+  const existingStopCount = Math.max(1, Number((currentRouteData && currentRouteData.stops && currentRouteData.stops.length) || 0));
   const maxRounds = Math.min(Math.max(existingStopCount + 12, 12), 140);
   const total = {
     createdStopCount:0,
@@ -1926,10 +1923,10 @@ async function refreshRouteImageMetadata(event){
 }
 
 function renderGeneralDescription(data){
-  const description = String(data.case?.generalDescription || "").trim();
-  const caseName = data.case?.caseName || data.case?.title || getCaseFromUrl();
+  const description = String((data.case && data.case.generalDescription) || "").trim();
+  const caseName = (data.case && data.case.caseName) || (data.case && data.case.title) || getCaseFromUrl();
   const editUrl = `reiserute-case-rediger.html?case=${encodeURIComponent(caseName)}`;
-  const isAdmin = currentUser?.role === "Administrator";
+  const isAdmin = (currentUser && currentUser.role) === "Administrator";
 
   if(!description && !isAdmin){
     return "";
@@ -1965,10 +1962,10 @@ function renderSummary(data){
       </div>
 
 <div class="summary-item">
-  ${currentUser?.role === "Administrator" ? `
+  ${(currentUser && currentUser.role) === "Administrator" ? `
     <a
       class="summary-stop-edit-link"
-      href="stop-order.html?case=${encodeURIComponent(data.case?.caseName || data.case?.title || "")}"
+      href="stop-order.html?case=${encodeURIComponent((data.case && data.case.caseName) || (data.case && data.case.title) || "")}"
       title="Rediger stoppesteder"
     >✎</a>
 
@@ -1982,7 +1979,7 @@ function renderSummary(data){
 
   <a
     class="summary-map-link"
-    href="google-mymaps-export.html?case=${encodeURIComponent(data.case?.caseName || data.case?.title || "")}"
+    href="google-mymaps-export.html?case=${encodeURIComponent((data.case && data.case.caseName) || (data.case && data.case.title) || "")}"
     title="Eksporter til Google My Maps"
   >⌖</a>
 
@@ -2004,7 +2001,7 @@ function renderStopList(stops){
           const imageUrl = getImageDisplayUrl(firstImage);
           const dateText = formatDateRange(stop.dateFrom, stop.dateTo);
           const webLink = String(stop.webLink || "").trim();
-          const isAdmin = currentUser?.role === "Administrator";
+          const isAdmin = (currentUser && currentUser.role) === "Administrator";
           const caseName = getCaseFromUrl();
           const metaParts = [
             dateText,
@@ -2110,7 +2107,7 @@ function renderStopActions(stop, caseName){
 
   return `
     <div class="route-card-links">
-      ${currentUser?.role === "Administrator" ? `
+      ${(currentUser && currentUser.role) === "Administrator" ? `
         <a
           class="route-card-link"
           href="stop-order.html?case=${encodeURIComponent(caseName)}&edit=${encodeURIComponent(stop.id)}"
@@ -2316,7 +2313,7 @@ function renderMissingRouteCase(caseName){
       <h2>Reiseruten finnes ikke ennå</h2>
       <p>Fant ingen Route Case for <strong>${esc(caseName)}</strong>.</p>
 
-      ${currentUser?.role === "Administrator" ? `
+      ${(currentUser && currentUser.role) === "Administrator" ? `
         <div class="create-route-form">
           <label class="create-route-label" for="newRouteDescription">Generell beskrivelse</label>
           <textarea
@@ -2338,8 +2335,8 @@ function renderMissingRouteCase(caseName){
 
 function renderEmptyRoute(data){
   const content = document.getElementById("content");
-  const caseName = data.case?.caseName || data.case?.title || getCaseFromUrl();
-  const title = data.case?.title || caseName || "Reiserute";
+  const caseName = (data.case && data.case.caseName) || (data.case && data.case.title) || getCaseFromUrl();
+  const title = (data.case && data.case.title) || caseName || "Reiserute";
 
   document.title = title + " - Reiserute";
   document.getElementById("pageTitle").textContent = title;
@@ -2352,7 +2349,7 @@ function renderEmptyRoute(data){
       <h2>Ingen stoppesteder ennå</h2>
       <p>Denne reiseruten er opprettet, men har ingen aktive stoppesteder ennå.</p>
 
-      ${currentUser?.role === "Administrator" ? `
+      ${(currentUser && currentUser.role) === "Administrator" ? `
         <div class="empty-route-actions">
           <a class="route-action-button" href="reiserute-case-rediger.html?case=${encodeURIComponent(caseName)}">
             Rediger reisedestinasjon
@@ -2835,9 +2832,9 @@ function updateStopGalleryAdminLink(){
     return;
   }
 
-  const isAdmin = currentUser?.role === "Administrator";
-  const caseName = currentRouteData?.case?.caseName || getCaseFromUrl();
-  const oneDriveFolderPath = String(currentRouteData?.case?.oneDriveFolderPath || "").trim();
+  const isAdmin = (currentUser && currentUser.role) === "Administrator";
+  const caseName = (currentRouteData && currentRouteData.case && currentRouteData.case.caseName) || getCaseFromUrl();
+  const oneDriveFolderPath = String((currentRouteData && currentRouteData.case && currentRouteData.case.oneDriveFolderPath) || "").trim();
 
   if(!isAdmin || !caseName || !oneDriveFolderPath || !stopGalleryStop){
     link.classList.remove("visible");
@@ -2961,7 +2958,7 @@ function renderMap(stops){
       currentRouteData = data;
 
       const content = document.getElementById("content");
-      const title = data.case?.title || data.case?.caseName || "Reiserute";
+      const title = (data.case && data.case.title) || (data.case && data.case.caseName) || "Reiserute";
       const stops = data.stops || [];
 
       document.title = title + " - Reiserute";
