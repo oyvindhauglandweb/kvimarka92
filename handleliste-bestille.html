@@ -339,6 +339,7 @@ body:not(.dark-mode) #ownerButtons .owner-button[aria-pressed="true"]{
 }
 
 </style><!-- lightdark-restore-2026-06-16 -->
+<!-- version: BESTILLE v46 ios12 load fix 2026-06-19 -->
 </head><body class="dark-mode"><script>
 (function(){
   window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
@@ -412,14 +413,34 @@ const API_BASE="https://api-kvimarka92.carstereogarage.com";
 let SHOPPING_OWNERS=["Felles"];
 const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
-async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error(data?.error||data?.detail||`HTTP ${res.status}`);}return data;}
+function esc(value){
+  return String(value == null ? "" : value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+async function fetchJson(url,options){
+  const fetchOptions = Object.assign({credentials:"include"}, options || {});
+  const res = await fetch(url, fetchOptions);
+  const data = await res.json().catch(()=>null);
+
+  if(!res.ok || (data && data.error)){
+    throw new Error((data && (data.error || data.detail)) || `HTTP ${res.status}`);
+  }
+
+  return data;
+}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
 function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
 function getInitialOwner(){const saved=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");return SHOPPING_OWNERS.includes(saved)?saved:"Felles";}function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}selectedOwner=normalizeOwner(selectedOwner);if(!SHOPPING_OWNERS.includes(selectedOwner)){selectedOwner=SHOPPING_OWNERS[0]||"Felles";}localStorage.setItem(OWNER_STORAGE_KEY,selectedOwner);}
 function ownerBadge(item){const owner=normalizeOwner(item.owner);return owner&&owner!=="Felles"?`<span class="badge">${esc(owner)}</span>`:"";}
 function normalizePermissionText(value){return String(value||"").trim().toLowerCase();}
-function isSupervisorOrAdministrator(){const role=normalizePermissionText(currentUser?.role);return role==="administrator"||role==="supervisor";}
+function isSupervisorOrAdministrator(){
+  const role = normalizePermissionText(currentUser && currentUser.role);
+  return role === "administrator" || role === "supervisor";
+}
 function applyStandardPermissionToModal(){const input=document.getElementById("newItemStandard");if(!input)return;const allowed=isSupervisorOrAdministrator();input.disabled=!allowed;if(!allowed)input.checked=false;const row=input.closest(".checkbox-row");if(row){row.style.opacity=allowed?"1":".45";row.title=allowed?"":"Bare supervisor og administrator kan sette standardvare";}}
 
 let items=[];let currentUser=null;let typeOrder=[...DEFAULT_TYPES];let selectedOwner=getInitialOwner();
