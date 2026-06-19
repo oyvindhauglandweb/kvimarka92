@@ -607,7 +607,7 @@ a.primary:hover,
 }
 
 </style><!-- lightdark-restore-2026-06-16 -->
-<!-- version: HANDLE v65 ios12 load fix 2026-06-19 -->
+<!-- version: HANDLE v66 ios12 syntax check fix 2026-06-19 -->
 </head><body class="dark-mode"><script>
 (function(){
   window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
@@ -763,8 +763,7 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
     </div>
   </div>
 </div><script>
-function escJs(value){return String(value == null ? "" : value).replace(/\/g,"\\").replace(/\'/g,"\'").replace(/?
-/g," ");}
+function escJs(value){return String(value == null ? "" : value).replace(/\\/g,"\\\\").replace(/\'/g,"\'").replace(/\r?\n/g," ");}
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 const SHOPPING_NOTIFICATION_DEFAULT_KEY="kvimarka92ShoppingNotificationDefaultV1";
 const SHOPPING_STANDARD_ACTIVE_CONTEXT_KEY="kvimarka92ShoppingStandardNotificationActiveContextV1";
@@ -812,18 +811,17 @@ function renderNewItemDebug(){
     `script: ${newItemDebugState.scriptLoadedAt || "?"}`,
     `siste: ${newItemDebugState.lastEvent || "-"}`,
     `loadItems: ${newItemDebugState.loadItems || "ikke kjørt"}`,
-    `varer totalt / skal handles / ikke-standard: ${newItemDebugState.itemsTotal == null ? "?" : newItemDebugState.itemsTotal} / ${newItemDebugState.shouldBuyCount == null ? "?" : newItemDebugState.shouldBuyCount} / ${newItemDebugState.nonStandardShouldBuyCount == null ? "?" : newItemDebugState.nonStandardShouldBuyCount}`,
-    `varsling aktiv: ${newItemDebugState.notificationActive == null ? "?" : newItemDebugState.notificationActive}  start: ${newItemDebugState.notificationStartedAt || "-"}`,
-    `handling pågår: ${newItemDebugState.shoppingInProgress == null ? "?" : newItemDebugState.shoppingInProgress}  start: ${newItemDebugState.shoppingInProgressSince || "-"}`,
+    `varer totalt / skal handles / ikke-standard: ${(newItemDebugState.itemsTotal == null ? "?" : newItemDebugState.itemsTotal)} / ${(newItemDebugState.shouldBuyCount == null ? "?" : newItemDebugState.shouldBuyCount)} / ${(newItemDebugState.nonStandardShouldBuyCount == null ? "?" : newItemDebugState.nonStandardShouldBuyCount)}`,
+    `varsling aktiv: ${(newItemDebugState.notificationActive == null ? "?" : newItemDebugState.notificationActive)}  start: ${newItemDebugState.notificationStartedAt || "-"}`,
+    `handling pågår: ${(newItemDebugState.shoppingInProgress == null ? "?" : newItemDebugState.shoppingInProgress)}  start: ${newItemDebugState.shoppingInProgressSince || "-"}`,
     `contextStart: ${newItemDebugState.contextStart || "-"}`,
-    `kandidater etter start: ${newItemDebugState.candidateCount == null ? "?" : newItemDebugState.candidateCount}  nye siden forrige last: ${newItemDebugState.newItemsCount == null ? "?" : newItemDebugState.newItemsCount}`,
-    `queue: fresh=${newItemDebugState.freshCount == null ? "?" : newItemDebugState.freshCount} pending=${newItemDebugState.pendingCount == null ? "?" : newItemDebugState.pendingCount} deferred=${newItemDebugState.deferredCount == null ? "?" : newItemDebugState.deferredCount}`,
+    `kandidater etter start: ${(newItemDebugState.candidateCount == null ? "?" : newItemDebugState.candidateCount)}  nye siden forrige last: ${(newItemDebugState.newItemsCount == null ? "?" : newItemDebugState.newItemsCount)}`,
+    `queue: fresh=${(newItemDebugState.freshCount == null ? "?" : newItemDebugState.freshCount)} pending=${(newItemDebugState.pendingCount == null ? "?" : newItemDebugState.pendingCount)} deferred=${(newItemDebugState.deferredCount == null ? "?" : newItemDebugState.deferredCount)}`,
     `timer: ${newItemDebugState.timerText || "-"}`,
     `sett-varsel-lagring: ${Object.keys(seen||{}).length}  tidsstempel-lagring: ${Object.keys(addedMap||{}).length}`,
     `siste feil: ${newItemDebugState.lastError || "-"}`,
     "--- siste hendelser ---",
-    ].concat(newItemDebugState.events||[
-  ];
+  ].concat(newItemDebugState.events||[]);
   el.textContent=lines.join("\n");
 }
 setTimeout(()=>updateNewItemDebug({},"Debugpanel klart"),0);
@@ -1198,14 +1196,14 @@ function scheduleNewItemPopup(fresh){
   const relevant=(Array.isArray(fresh)?fresh:[]).filter(item=>item&&item.id);
   updateNewItemDebug({scheduleInputCount:relevant.length},`scheduleNewItemPopup kjørt med ${relevant.length} vare(r)`);
   if(!relevant.length)return;
-  pendingNewItems=[...pendingNewItems,...relevant];
+  pendingNewItems=(pendingNewItems||[]).concat(relevant);
   const now=Date.now();
   const delays=relevant.map(item=>{
     const addedAt=normalizeIsoDateTime(item.addedAt||getItemAddedAt(item)||"");
     const time=addedAt?new Date(addedAt).getTime():now;
     return Math.max(0,time+60000-now);
   }).filter(value=>Number.isFinite(value));
-  const delay=delays.length?Math.min(...delays):60000;
+  const delay=delays.length?Math.min.apply(null,delays):60000;
   const seconds=Math.max(0,Math.ceil(delay/1000));
   updateNewItemDebug({pendingCount:(pendingNewItems||[]).length,timerText:`Popup om ca. ${seconds} sekunder`,freshCount:relevant.length},`Popup-timer satt: ${seconds} sekunder`);
   const names=relevant.map(item=>String(item.name||"Vare")).filter(Boolean).slice(0,3).join(", ");
@@ -1232,7 +1230,7 @@ function queueNewItemPopup(newItems){
     if(!key || seen[key])return;
     const addedAt=getItemAddedAt(item)||rememberItemAddedAt(item.id,new Date().toISOString());
     seen[key]=addedAt;
-    fresh.push({...item,addedAt});
+    fresh.push(Object.assign({}, item, {addedAt:addedAt}));
   });
   saveSeenNewItemAlerts(seen);
 
@@ -1257,7 +1255,7 @@ function setNewItemsStatusForCandidates(candidates){
     const time=addedAt?new Date(addedAt).getTime():now;
     return Math.max(0,time+60000-now);
   }).filter(value=>Number.isFinite(value));
-  const delay=delays.length?Math.min(...delays):0;
+  const delay=delays.length?Math.min.apply(null,delays):0;
   const seconds=Math.max(0,Math.ceil(delay/1000));
 
   newItemsStatusActive=true;
@@ -1303,7 +1301,7 @@ function showPendingNewItemsPopup(){
   pendingNewItems.forEach(item=>{if(item&&item.id)byId.set(Number(item.id),item);});
   pendingNewItems=[];
   if(!modal || !body || !byId.size){updateNewItemDebug({lastError:`Popup stoppet: modal=${!!modal}, body=${!!body}, items=${byId.size}`},"Popup kunne ikke vises");return;}
-  const list=[...byId.values()].sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"no",{sensitivity:"base"}));
+  const list=Array.from(byId.values()).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"no",{sensitivity:"base"}));
   body.innerHTML=`<p class="new-items-popup-note">Det er lagt til nye varer i handlelisten etter at varsling/handel var aktiv.</p><ul class="new-items-popup-list">${list.map(item=>`<li><strong>${esc(item.name)}</strong>${item.owner&&normalizeOwner(item.owner)!=="Felles"?` (${esc(normalizeOwner(item.owner))})`:""}${item.type?` – ${esc(item.type)}`:""}</li>`).join("")}</ul>`;
   modal.classList.add("open");
 }
@@ -1369,7 +1367,7 @@ function loadRememberedBoughtIds(){
 }
 function saveRememberedBoughtIds(){
   try{
-    localStorage.setItem(getBoughtStorageKey(),JSON.stringify([...boughtIds]));
+    localStorage.setItem(getBoughtStorageKey(),JSON.stringify(Array.from(boughtIds)));
   }catch(error){}
 }
 function clearRememberedBoughtIds(){
@@ -1378,11 +1376,11 @@ function clearRememberedBoughtIds(){
 }
 function reconcileBoughtIdsWithItems(){
   const validIds=new Set(getOrderedItems().map(item=>Number(item.id)));
-  boughtIds=new Set([...boughtIds].map(id=>Number(id)).filter(id=>validIds.has(id)));
+  boughtIds=new Set(Array.from(boughtIds).map(id=>Number(id)).filter(id=>validIds.has(id)));
   saveRememberedBoughtIds();
 }
 function getOrderedItems(){return items.filter(item=>item.shouldBuy);}
-function groupOrderedItems(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});const seen=new Set();return [...typeOrder,...Object.keys(map)].filter(type=>{const key=String(type).toLowerCase();if(seen.has(key)||!map[type])return false;seen.add(key);return true;}).map(type=>({type,items:map[type]}));}
+function groupOrderedItems(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});const seen=new Set();return typeOrder.concat(Object.keys(map)).filter(type=>{const key=String(type).toLowerCase();if(seen.has(key)||!map[type])return false;seen.add(key);return true;}).map(type=>({type,items:map[type]}));}
 function uniqueShoppingTypesForForm(values){
   const seen=new Set();
   const result=[];
@@ -1400,7 +1398,7 @@ function fillAddItemSelects(){
   const typeSelect=document.getElementById("addItemType");
   const ownerSelect=document.getElementById("addItemOwner");
   if(typeSelect){
-    const options=uniqueShoppingTypesForForm([...(typeOptions||[]),...DEFAULT_TYPES,...typeOrder,...items.map(item=>item.type)]);
+    const options=uniqueShoppingTypesForForm((typeOptions||[]).concat(DEFAULT_TYPES).concat(typeOrder).concat(items.map(item=>item.type)));
     typeSelect.innerHTML=options.map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");
   }
   if(ownerSelect){
@@ -1721,7 +1719,7 @@ function shoppingSessionStatusText(session){
 }
 
 function formatLocationDebug(data, clientLocation){
-  const debug=(data && data.location)Debug || {};
+  const debug=(data && data.locationDebug) || {};
   const parts=[];
   parts.push(`<br><br><strong>GPS-diagnose:</strong>`);
   parts.push(`<br>Mobil/nettleser: ${esc(formatGpsLocation(clientLocation))}`);
@@ -1767,7 +1765,7 @@ async function finishShopping(){
       }
     }
 
-    const allBoughtIds=[...boughtIds];
+    const allBoughtIds=Array.from(boughtIds);
     const chunkSize=8;
     const chunks=[];
 
