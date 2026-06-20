@@ -365,7 +365,7 @@ body:not(.dark-mode) .badge.area-bondekompaniet{background:rgba(22,163,74,.16) !
 
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: BESTILLE v46 ios12 load fix 2026-06-19 -->
-<!-- version: BESTILLE v48 force nonfood type options 2026-06-21 -->
+<!-- version: BESTILLE v49 remove_duplicate_allTypes_nonfood_options 2026-06-21 -->
 </head><body class="dark-mode"><script>
 (function(){
   window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
@@ -552,7 +552,7 @@ function isSupervisorOrAdministrator(){
 function applyStandardPermissionToModal(){const input=document.getElementById("newItemStandard");if(!input)return;const allowed=isSupervisorOrAdministrator();input.disabled=!allowed;if(!allowed)input.checked=false;const row=input.closest(".checkbox-row");if(row){row.style.opacity=allowed?"1":".45";row.title=allowed?"":"Bare supervisor og administrator kan sette standardvare";}}
 
 let items=[];let currentUser=null;let typeOrder=[...DEFAULT_TYPES];let selectedOwner=getInitialOwner();
-function allTypes(){const seen=new Set();return [...typeOrder,...DEFAULT_TYPES,...items.map(item=>item.type||"Annet")].filter(type=>{const key=String(type||"Annet").toLowerCase();if(seen.has(key))return false;seen.add(key);return true;});}
+
 function normalizeItemNameKey(value){return String(value||"").trim().replace(/\s+/g," ").toLowerCase();}
 function getAllFamilyItemSuggestions(query){
   const text=normalizeItemNameKey(query);
