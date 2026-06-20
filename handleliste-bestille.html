@@ -365,7 +365,7 @@ body:not(.dark-mode) .badge.area-bondekompaniet{background:rgba(22,163,74,.16) !
 
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: BESTILLE v46 ios12 load fix 2026-06-19 -->
-<!-- version: BESTILLE v47 shopping area badges 2026-06-21 -->
+<!-- version: BESTILLE v48 force nonfood type options 2026-06-21 -->
 </head><body class="dark-mode"><script>
 (function(){
   window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
@@ -442,6 +442,7 @@ const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrv
 let typeOptions=[];
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_ORDER=["Matvarer","Normal","Europris","Frisør","Clas Ohlson","Sport","Bondekompaniet"];
+const NON_FOOD_SHOPPING_TYPES=["Bondekompaniet","Clas Ohlson","Europris","Frisør","Normal","Sport"];
 const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet"};
 function normalizeShoppingArea(value,type){
   const raw=String(value||"").trim();
@@ -485,19 +486,39 @@ function compareShoppingTypes(a,b){
   return String(a||"").localeCompare(String(b||""),"no",{sensitivity:"base"});
 }
 function allTypes(){
-  const values=[];
-  (Array.isArray(typeOptions)?typeOptions:[]).forEach(type=>values.push(type));
-  (Array.isArray(typeOrder)?typeOrder:[]).forEach(type=>values.push(type));
-  DEFAULT_TYPES.forEach(type=>values.push(type));
-  (Array.isArray(items)?items:[]).forEach(item=>values.push(item.type));
-  SHOPPING_AREA_ORDER.forEach(area=>{if(area!==SHOPPING_AREA_DEFAULT)values.push(area);});
+  const foodValues=[];
+  const otherValues=[];
+  function addType(value){
+    const type=String(value||"").trim();
+    if(!type)return;
+    const area=normalizeShoppingArea("",type);
+    if(area===SHOPPING_AREA_DEFAULT){
+      foodValues.push(type);
+    }else{
+      otherValues.push(type);
+    }
+  }
+
+  (Array.isArray(typeOptions)?typeOptions:[]).forEach(addType);
+  (Array.isArray(typeOrder)?typeOrder:[]).forEach(addType);
+  DEFAULT_TYPES.forEach(addType);
+  (Array.isArray(items)?items:[]).forEach(item=>addType(item.type));
+
+  // Viktig: disse skal alltid være valgbare som egne grove varegrupper/butikktyper.
+  NON_FOOD_SHOPPING_TYPES.forEach(addType);
+
   const seen=new Set();
-  return values.map(type=>String(type||"").trim()).filter(Boolean).filter(type=>{
-    const key=type.toLowerCase();
-    if(seen.has(key))return false;
-    seen.add(key);
-    return true;
-  }).sort(compareShoppingTypes);
+  function unique(list){
+    return list.map(type=>String(type||"").trim()).filter(Boolean).filter(type=>{
+      const key=type.toLowerCase();
+      if(seen.has(key))return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  return unique(foodValues).sort(compareShoppingTypes)
+    .concat(unique(otherValues).sort(compareShoppingTypes));
 }
 
 function esc(value){
@@ -603,7 +624,12 @@ function updateNewItemDuplicateWarning(){
   }
 }
 
-function populateTypes(){const select=document.getElementById("newItemType");select.innerHTML=allTypes().map(type=>{const area=getTypeShoppingArea(type);const label=isMatvarerArea(area)?type:`${type} (${area})`;return `<option value="${esc(type)}">${esc(label)}</option>`;}).join("");select.value=allTypes().indexOf("Annet")>=0?"Annet":(allTypes()[0]||"Annet");}
+function populateTypes(){
+  const select=document.getElementById("newItemType");
+  const types=allTypes();
+  select.innerHTML=types.map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");
+  select.value=types.indexOf("Annet")>=0?"Annet":(types[0]||"Annet");
+}
 function populateOwners(){const select=document.getElementById("newItemOwner");select.innerHTML=SHOPPING_OWNERS.map(owner=>`<option value="${esc(owner)}">${esc(owner)}</option>`).join("");select.value=selectedOwner;}
 function renderOwnerButtons(){document.getElementById("ownerButtons").innerHTML=SHOPPING_OWNERS.map(owner=>`<button class="owner-button ${owner===selectedOwner?"active":""}" type="button" onclick="setOwnerFilter('${esc(owner)}')">${esc(owner)}</button>`).join("");}
 function updateOwnerStatus(){
