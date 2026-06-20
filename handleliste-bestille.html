@@ -338,8 +338,34 @@ body:not(.dark-mode) #ownerButtons .owner-button[aria-pressed="true"]{
   color:#fff !important;
 }
 
+
+/* Handleliste bestille v47: Shopping area-merker for butikktyper utenom matvarer */
+.badge.area-badge{
+  background:rgba(59,130,246,.18) !important;
+  color:#93c5fd !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+body:not(.dark-mode) .badge.area-badge{
+  background:rgba(59,130,246,.16) !important;
+  color:#1d4ed8 !important;
+}
+.badge.area-normal{background:rgba(251,191,36,.20) !important;color:#fde68a !important;}
+body:not(.dark-mode) .badge.area-normal{background:rgba(251,191,36,.28) !important;color:#92400e !important;}
+.badge.area-europris{background:rgba(34,197,94,.18) !important;color:#86efac !important;}
+body:not(.dark-mode) .badge.area-europris{background:rgba(34,197,94,.16) !important;color:#15803d !important;}
+.badge.area-frisor{background:rgba(251,146,60,.20) !important;color:#fdba74 !important;}
+body:not(.dark-mode) .badge.area-frisor{background:rgba(251,146,60,.18) !important;color:#c2410c !important;}
+.badge.area-clas-ohlson{background:rgba(96,165,250,.20) !important;color:#bfdbfe !important;}
+body:not(.dark-mode) .badge.area-clas-ohlson{background:rgba(96,165,250,.18) !important;color:#1d4ed8 !important;}
+.badge.area-sport{background:rgba(37,99,235,.22) !important;color:#bfdbfe !important;}
+body:not(.dark-mode) .badge.area-sport{background:rgba(37,99,235,.16) !important;color:#1e40af !important;}
+.badge.area-bondekompaniet{background:rgba(22,163,74,.22) !important;color:#bbf7d0 !important;}
+body:not(.dark-mode) .badge.area-bondekompaniet{background:rgba(22,163,74,.16) !important;color:#166534 !important;}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: BESTILLE v46 ios12 load fix 2026-06-19 -->
+<!-- version: BESTILLE v47 shopping area badges 2026-06-21 -->
 </head><body class="dark-mode"><script>
 (function(){
   window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
@@ -413,6 +439,67 @@ const API_BASE="https://api-kvimarka92.carstereogarage.com";
 let SHOPPING_OWNERS=["Felles"];
 const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
+let typeOptions=[];
+const SHOPPING_AREA_DEFAULT="Matvarer";
+const SHOPPING_AREA_ORDER=["Matvarer","Normal","Europris","Frisør","Clas Ohlson","Sport","Bondekompaniet"];
+const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet"};
+function normalizeShoppingArea(value,type){
+  const raw=String(value||"").trim();
+  if(raw)return raw;
+  const key=String(type||"").trim().toLowerCase();
+  return NON_FOOD_TYPE_AREAS[key]||SHOPPING_AREA_DEFAULT;
+}
+function getTypeShoppingArea(type){
+  const target=String(type||"").trim().toLowerCase();
+  const fromItems=(Array.isArray(items)?items:[]).find(item=>String(item.type||"").trim().toLowerCase()===target && item.shoppingArea);
+  if(fromItems)return normalizeShoppingArea(fromItems.shoppingArea,type);
+  return normalizeShoppingArea("",type);
+}
+function getItemShoppingArea(item){
+  return normalizeShoppingArea(item&&item.shoppingArea,item&&item.type);
+}
+function isMatvarerArea(area){
+  return normalizeShoppingArea(area,"")===SHOPPING_AREA_DEFAULT;
+}
+function areaClass(area){
+  return "area-"+String(area||"").toLowerCase().replace(/ø/g,"o").replace(/æ/g,"ae").replace(/å/g,"a").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+function shoppingAreaBadge(item){
+  const area=getItemShoppingArea(item);
+  if(isMatvarerArea(area))return "";
+  return `<span class="badge area-badge ${areaClass(area)}" title="Butikkgruppe: ${esc(area)}">${esc(area)}</span>`;
+}
+function compareShoppingTypes(a,b){
+  const areaA=getTypeShoppingArea(a);
+  const areaB=getTypeShoppingArea(b);
+  const ai=SHOPPING_AREA_ORDER.indexOf(areaA);
+  const bi=SHOPPING_AREA_ORDER.indexOf(areaB);
+  const ia=ai<0?999:ai;
+  const ib=bi<0?999:bi;
+  if(ia!==ib)return ia-ib;
+  const orderA=typeOrder.indexOf(a);
+  const orderB=typeOrder.indexOf(b);
+  const oa=orderA<0?9999:orderA;
+  const ob=orderB<0?9999:orderB;
+  if(oa!==ob)return oa-ob;
+  return String(a||"").localeCompare(String(b||""),"no",{sensitivity:"base"});
+}
+function allTypes(){
+  const values=[];
+  (Array.isArray(typeOptions)?typeOptions:[]).forEach(type=>values.push(type));
+  (Array.isArray(typeOrder)?typeOrder:[]).forEach(type=>values.push(type));
+  DEFAULT_TYPES.forEach(type=>values.push(type));
+  (Array.isArray(items)?items:[]).forEach(item=>values.push(item.type));
+  SHOPPING_AREA_ORDER.forEach(area=>{if(area!==SHOPPING_AREA_DEFAULT)values.push(area);});
+  const seen=new Set();
+  return values.map(type=>String(type||"").trim()).filter(Boolean).filter(type=>{
+    const key=type.toLowerCase();
+    if(seen.has(key))return false;
+    seen.add(key);
+    return true;
+  }).sort(compareShoppingTypes);
+}
+
 function esc(value){
   return String(value == null ? "" : value)
     .replace(/&/g,"&amp;")
@@ -498,7 +585,7 @@ function renderNewItemSuggestions(){
   if(!input||!box)return;
   const suggestions=getAllFamilyItemSuggestions(input.value);
   if(!suggestions.length){hideNewItemSuggestions();updateNewItemDuplicateWarning();return;}
-  box.innerHTML=suggestions.map(item=>`<button class="item-suggestion-button" type="button" onclick="selectExistingItemSuggestion('${esc(item.id)}')"><div class="item-suggestion-name">${esc(item.name)}</div><div class="item-suggestion-meta">${esc(normalizeOwner(item.owner))} · ${esc(item.type||"Annet")}${item.standardItem?" · Standard":""}${item.shouldBuy?" · Skal handles":""}</div></button>`).join("");
+  box.innerHTML=suggestions.map(item=>`<button class="item-suggestion-button" type="button" onclick="selectExistingItemSuggestion('${esc(item.id)}')"><div class="item-suggestion-name">${esc(item.name)}</div><div class="item-suggestion-meta">${esc(normalizeOwner(item.owner))} · ${esc(item.type||"Annet")}${!isMatvarerArea(getItemShoppingArea(item))?` · ${esc(getItemShoppingArea(item))}`:""}${item.standardItem?" · Standard":""}${item.shouldBuy?" · Skal handles":""}</div></button>`).join("");
   box.className="item-suggestions visible";
   updateNewItemDuplicateWarning();
 }
@@ -516,7 +603,7 @@ function updateNewItemDuplicateWarning(){
   }
 }
 
-function populateTypes(){const select=document.getElementById("newItemType");select.innerHTML=allTypes().map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");select.value="Annet";}
+function populateTypes(){const select=document.getElementById("newItemType");select.innerHTML=allTypes().map(type=>{const area=getTypeShoppingArea(type);const label=isMatvarerArea(area)?type:`${type} (${area})`;return `<option value="${esc(type)}">${esc(label)}</option>`;}).join("");select.value=allTypes().indexOf("Annet")>=0?"Annet":(allTypes()[0]||"Annet");}
 function populateOwners(){const select=document.getElementById("newItemOwner");select.innerHTML=SHOPPING_OWNERS.map(owner=>`<option value="${esc(owner)}">${esc(owner)}</option>`).join("");select.value=selectedOwner;}
 function renderOwnerButtons(){document.getElementById("ownerButtons").innerHTML=SHOPPING_OWNERS.map(owner=>`<button class="owner-button ${owner===selectedOwner?"active":""}" type="button" onclick="setOwnerFilter('${esc(owner)}')">${esc(owner)}</button>`).join("");}
 function updateOwnerStatus(){
@@ -529,9 +616,9 @@ function setOwnerFilter(owner){
   updateOwnerStatus();
 }
 function filteredItems(){return items.filter(item=>normalizeOwner(item.owner)===selectedOwner);}
-function orderedGroups(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});const seen=new Set();return [...typeOrder,...DEFAULT_TYPES,...Object.keys(map)].filter(type=>{const key=String(type).toLowerCase();if(seen.has(key)||!map[type])return false;seen.add(key);return true;}).map(type=>({type,items:map[type]}));}
-function render(){renderOwnerButtons();const visible=filteredItems();const list=document.getElementById("itemList");document.getElementById("totalValue").textContent=String(visible.length);document.getElementById("orderValue").textContent=String(visible.filter(item=>item.shouldBuy).length);document.getElementById("standardValue").textContent=String(visible.filter(item=>item.standardItem).length);if(!visible.length){list.innerHTML=`<div class="empty">Ingen varer er lagt inn for ${esc(selectedOwner)} ennå.</div>`;return;}list.innerHTML=orderedGroups(visible).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>`<div class="item-row"><input class="item-check" type="checkbox" ${item.shouldBuy?"checked":""} onchange="toggleShouldBuy(${item.id}, this.checked)" title="Skal handles"><div><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${item.standardItem?'<span class="badge">Standard</span>':""}</div></div>`).join("")}</div></div>`).join("");}
-async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];typeOrder=Array.isArray(data.typeOrder)&&data.typeOrder.length?data.typeOrder:[...DEFAULT_TYPES];setShoppingOwners(data.ownerOptions);render();updateOwnerStatus();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+function orderedGroups(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});return Object.keys(map).sort(compareShoppingTypes).map(type=>({type,items:map[type]}));}
+function render(){renderOwnerButtons();const visible=filteredItems();const list=document.getElementById("itemList");document.getElementById("totalValue").textContent=String(visible.length);document.getElementById("orderValue").textContent=String(visible.filter(item=>item.shouldBuy).length);document.getElementById("standardValue").textContent=String(visible.filter(item=>item.standardItem).length);if(!visible.length){list.innerHTML=`<div class="empty">Ingen varer er lagt inn for ${esc(selectedOwner)} ennå.</div>`;return;}list.innerHTML=orderedGroups(visible).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>`<div class="item-row"><input class="item-check" type="checkbox" ${item.shouldBuy?"checked":""} onchange="toggleShouldBuy(${item.id}, this.checked)" title="Skal handles"><div><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${shoppingAreaBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}</div></div>`).join("")}</div></div>`).join("");}
+async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=Array.isArray(data.typeOrder)&&data.typeOrder.length?data.typeOrder:DEFAULT_TYPES.slice();typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:[];setShoppingOwners(data.ownerOptions);render();updateOwnerStatus();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 async function toggleShouldBuy(id,checked){try{await fetchJson(`${API_BASE}/shopping/item-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id,shouldBuy:checked})});const item=items.find(item=>Number(item.id)===Number(id));if(item)item.shouldBuy=checked;render();setStatus(checked?"Varen er lagt til i Handle-listen.":"Varen er fjernet fra Handle-listen.","success");}catch(error){setStatus(`Kunne ikke oppdatere varen.<br><br>${esc(error.message)}`,"error");await loadItems();}}
 function openNewItemModal(){document.getElementById("newItemForm").reset();hideNewItemSuggestions();populateOwners();populateTypes();document.getElementById("newItemShouldBuy").checked=true;applyStandardPermissionToModal();document.getElementById("newItemModal").classList.add("open");setTimeout(()=>document.getElementById("newItemName").focus(),80);}function closeNewItemModal(){document.getElementById("newItemModal").classList.remove("open");hideNewItemSuggestions();}function handleModalBackdrop(event){if(event.target.id==="newItemModal")closeNewItemModal();}
 function buildShoppingListText(){const ordered=items.filter(item=>item.shouldBuy);const lines=["Handleliste",""];orderedGroups(ordered).forEach(group=>{lines.push(group.type);group.items.forEach(item=>lines.push(`- ${normalizeOwner(item.owner)!=="Felles"?`(${normalizeOwner(item.owner)}) `:""}${item.name}`));lines.push("");});return lines.join("\n");}
