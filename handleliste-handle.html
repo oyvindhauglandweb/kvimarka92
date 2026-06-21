@@ -823,8 +823,32 @@ body:not(.dark-mode) #adminVersionInfo{
   border-color:#2dd4bf !important;
 }
 
+
+/* Handle v84: enkel versjonsvisning for admin */
+#adminVersionInfo{
+  display:none;
+  position:fixed;
+  top:74px !important;
+  right:10px !important;
+  bottom:auto !important;
+  z-index:99999 !important;
+  padding:6px 9px !important;
+  border:1px solid #2dd4bf !important;
+  border-radius:8px !important;
+  background:rgba(20,20,20,.94) !important;
+  color:#a7f3d0 !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+  box-shadow:0 8px 24px rgba(0,0,0,.25) !important;
+  pointer-events:none !important;
+}
+body:not(.dark-mode) #adminVersionInfo{
+  background:rgba(255,255,255,.97) !important;
+  color:#065f46 !important;
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
-<!-- version: HANDLE v83 admin_version_info_visible 2026-06-21 -->
+<!-- version: HANDLE v84 admin_version_info_force_visible 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -993,7 +1017,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v83-admin-version-info-visible";
+const HANDLELISTE_HANDLE_VERSION="v84";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -1291,6 +1315,11 @@ function isHandlelisteAdminUser(user){
     initials==="oh";
 }
 
+function pageLooksLikeOyvindAdmin(){
+  const text=String(document.body && document.body.innerText || "").toLowerCase();
+  return text.indexOf("øh")>=0 || text.indexOf("oyvind")>=0 || text.indexOf("øyvind")>=0;
+}
+
 async function showAdminVersionInfoIfAllowed(user){
   const box=document.getElementById("adminVersionInfo");
 
@@ -1298,18 +1327,16 @@ async function showAdminVersionInfoIfAllowed(user){
     return;
   }
 
-  let allowed=isHandlelisteAdminUser(user);
+  let allowed=isHandlelisteAdminUser(user) || pageLooksLikeOyvindAdmin();
   let workerVersion=(user && user.workerVersion) || "";
 
-  if(!workerVersion){
-    try{
-      const data=await fetchJson(`${API_BASE}/shopping/version`);
-      workerVersion=data.workerVersion || "";
-      allowed=true;
-    }catch(error){
-      if(allowed){
-        workerVersion="Kunne ikke hente";
-      }
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/version`);
+    workerVersion=data.workerVersion || workerVersion || "";
+    allowed=true;
+  }catch(error){
+    if(!workerVersion && allowed){
+      workerVersion="v?";
     }
   }
 
@@ -1319,7 +1346,7 @@ async function showAdminVersionInfoIfAllowed(user){
     return;
   }
 
-  box.innerHTML=`<strong>Handleliste</strong><br>HTML: ${esc(HANDLELISTE_HANDLE_VERSION)}<br>Worker: ${esc(workerVersion || "-")}`;
+  box.innerHTML=`HTML: ${esc(HANDLELISTE_HANDLE_VERSION)}<br>Worker: ${esc(workerVersion || "v?")}`;
   box.style.display="block";
 }
 
@@ -2622,6 +2649,19 @@ loadItems();</script>
     }catch(error){}
     if(count>=20)window.clearInterval(timer);
   },1000);
+})();
+</script>
+
+
+<script id="handleVersionDelayedAdminCheckV84">
+(function(){
+  window.setTimeout(function(){
+    try{
+      if(typeof showAdminVersionInfoIfAllowed==="function"){
+        showAdminVersionInfoIfAllowed(null).catch(function(){});
+      }
+    }catch(error){}
+  },1500);
 })();
 </script>
 
