@@ -207,6 +207,40 @@ a.primary:hover,
   }
 }
 
+
+/* Historikk v47: antall varer flyttet ved dato, logo helt til høyre */
+.history-title{
+  grid-template-columns:1fr auto !important;
+  align-items:start !important;
+}
+.history-date-line{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+}
+.history-count{
+  color:var(--muted) !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+  margin-left:2px !important;
+}
+.store-logo{
+  justify-self:end !important;
+}
+@media(max-width:700px){
+  .history-title{
+    grid-template-columns:1fr auto !important;
+    gap:6px !important;
+  }
+  .history-date-line{
+    gap:6px !important;
+  }
+  .history-count{
+    font-size:11px !important;
+  }
+}
+
 </style>
 <script>
 if(!String.prototype.replaceAll){
@@ -216,6 +250,7 @@ if(!String.prototype.replaceAll){
 }
 </script>
 
+<!-- version: HISTORIKK v47 count_after_date_logo_right 2026-06-21 -->
 </head>
 <body class="dark-mode"><script>
 (function(){
@@ -383,7 +418,7 @@ function renderHistory(groups){
     const logoUrl=logoForGroup(group);
     const store=logoUrl?storeTextWithoutChain(group):storeText(group);
     const logo=logoUrl?`<img class="store-logo" src="${esc(logoUrl)}" alt="${esc(group.storeChain||group.storeName||"Butikk")}" onerror="this.style.display='none';">`:"";
-    return `<section class="history-group"><div class="history-title"><div><div class="history-date">${esc(formatDateTime(group.boughtAt))}</div>${store?`<div class="history-store">${esc(store)}</div>`:""}</div>${logo}<div class="history-count">${group.items.length} vare${group.items.length===1?"":"r"}</div></div><div class="history-list">${sortedHistoryItems(group.items).map(item=>`<div class="history-row"><div class="item-name">${esc(item.itemName)}</div><span class="badge">${esc(item.type||"Annet")}</span></div>`).join("")}</div></section>`;
+    return `<section class="history-group"><div class="history-title"><div><div class="history-date-line"><span class="history-date">${esc(formatDateTime(group.boughtAt))}</span><span class="history-count">${group.items.length} vare${group.items.length===1?"":"r"}</span></div>${store?`<div class="history-store">${esc(store)}</div>`:""}</div>${logo}</div><div class="history-list">${sortedHistoryItems(group.items).map(item=>`<div class="history-row"><div class="item-name">${esc(item.itemName)}</div><span class="badge">${esc(item.type||"Annet")}</span></div>`).join("")}</div></section>`;
   }).join("");
 }
 async function loadHistory(){setStatus("Laster handlehistorikk...");try{const data=await fetchJson(`${API_BASE}/shopping/history?limit=500&ts=${Date.now()}`);const groups=Array.isArray(data.groups)?data.groups:[];renderHistory(groups);setStatus(`Klar. Viser ${groups.length} ${groups.length===1?"handel":"handler"}, nyeste øverst.`, "success");}catch(error){setStatus(`Kunne ikke laste handlehistorikk.<br><br>${esc(error.message)}`, "error");}}
