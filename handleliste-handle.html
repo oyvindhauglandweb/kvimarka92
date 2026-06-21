@@ -894,7 +894,7 @@ body:not(.dark-mode) #adminVersionInfo{
 }
 
 </style><!-- lightdark-restore-2026-06-16 -->
-<!-- version: HANDLE v86 finish_button_requires_active_context 2026-06-21 -->
+<!-- version: HANDLE v87 store_notification_message 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
 </head><body class="dark-mode"><div id="adminVersionInfo" aria-live="polite"></div><script>
 (function(){
@@ -1063,7 +1063,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v86";
+const HANDLELISTE_HANDLE_VERSION="v87";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -1163,6 +1163,7 @@ function setShoppingArea(area){
   }
   selectedShoppingArea=next;
   currentShoppingPlace="";
+  currentShoppingNotificationMessage="";
   writeShoppingAreaStorage(SHOPPING_AREA_STORAGE_KEY,selectedShoppingArea);
   if(isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);
   renderShoppingAreaButtons();
@@ -1196,6 +1197,9 @@ function getNotificationShoppingPlace(){
   }
 
   return defaultShoppingPlaceForArea(selectedShoppingArea);
+}
+function getNotificationMessageForRequest(){
+  return String(currentShoppingNotificationMessage||"").trim();
 }
 function getSelectedShoppingAreaForNotification(){
   const activeButton=document.querySelector(".shopping-area-button.active");
@@ -1474,7 +1478,8 @@ async function activateStandardNotification(){
 
   const notificationArea=getSelectedShoppingAreaForNotification();
   const notificationPlace=getNotificationShoppingPlace();
-  const activationUrl=`${API_BASE}/shopping/notification-activate-default?shoppingArea=${encodeURIComponent(notificationArea)}&shoppingPlace=${encodeURIComponent(notificationPlace)}`;
+  const notificationMessage=getNotificationMessageForRequest();
+  const activationUrl=`${API_BASE}/shopping/notification-activate-default?shoppingArea=${encodeURIComponent(notificationArea)}&shoppingPlace=${encodeURIComponent(notificationPlace)}&notificationMessage=${encodeURIComponent(notificationMessage)}`;
 
   function markNotificationActiveLocal(data, fallbackMessage){
     const shoppingTime=(data && (data.shoppingTime || (data.notification && data.notification.shoppingTime))) || shoppingNotificationShoppingTime || "";
@@ -1487,7 +1492,7 @@ async function activateStandardNotification(){
       id:(data && data.notificationId) || 0,
       shoppingTime:shoppingTime,
       createdAt:new Date().toISOString(),
-      notes:`Butikkgruppe: ${notificationArea}.\nHandles hos: ${activatedPlace}.`
+      notes:`Butikkgruppe: ${notificationArea}.\nHandles hos: ${activatedPlace}.\nVarslingsmelding: ${(data && data.notificationMessage) || notificationMessage || ""}.`
     };
 
     shoppingNotificationActive=true;
@@ -1514,7 +1519,8 @@ async function activateStandardNotification(){
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
       body:JSON.stringify({
         shoppingArea:notificationArea,
-        shoppingPlace:notificationPlace
+        shoppingPlace:notificationPlace,
+        notificationMessage:notificationMessage
       })
     });
 
@@ -1987,7 +1993,7 @@ function startShoppingItemsPolling(){
 
 
 const BOUGHT_STORAGE_KEY="kvimarka92ShoppingBoughtIds";
-let items=[];let boughtIds=new Set();let typeOrder=[];let typeOptions=[];let currentStoreChain="Standard";let currentShoppingPlace="";
+let items=[];let boughtIds=new Set();let typeOrder=[];let typeOptions=[];let currentStoreChain="Standard";let currentShoppingPlace="";let currentShoppingNotificationMessage="";
 function getBoughtStorageKey(){return BOUGHT_STORAGE_KEY;}
 function loadRememberedBoughtIds(){
   try{
@@ -2309,9 +2315,11 @@ async function checkCurrentStore(silent){
     const uncertain=String(data.storeMatchStatus || "") === "Uncertain";
     const matchedChain=String(data.storeChain || (data.store && data.store.chain) || "").trim();
     const matchedName=String(data.storeName || (data.store && data.store.name) || "").trim();
+    const matchedNotificationMessage=String(data.storeNotificationMessage || data.notificationMessage || (data.store && data.store.notificationMessage) || "").trim();
     currentShoppingPlace=matched
       ? (matchedChain || selectedShoppingArea || SHOPPING_AREA_DEFAULT)
       : defaultShoppingPlaceForArea(selectedShoppingArea);
+    currentShoppingNotificationMessage=matchedNotificationMessage;
 
     if(Array.isArray(data.typeOrder) && data.typeOrder.length){
       typeOrder=data.typeOrder;
