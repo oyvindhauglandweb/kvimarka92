@@ -847,10 +847,35 @@ body:not(.dark-mode) #adminVersionInfo{
   color:#065f46 !important;
 }
 
+
+/* Handle v85: faktisk versjonsboks for admin */
+#adminVersionInfo{
+  display:none;
+  position:fixed !important;
+  top:58px !important;
+  right:10px !important;
+  bottom:auto !important;
+  z-index:999999 !important;
+  padding:6px 9px !important;
+  border:1px solid #2dd4bf !important;
+  border-radius:8px !important;
+  background:rgba(20,20,20,.96) !important;
+  color:#a7f3d0 !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+  box-shadow:0 8px 24px rgba(0,0,0,.30) !important;
+  pointer-events:none !important;
+  text-align:left !important;
+}
+body:not(.dark-mode) #adminVersionInfo{
+  background:rgba(255,255,255,.98) !important;
+  color:#065f46 !important;
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
-<!-- version: HANDLE v84 admin_version_info_force_visible 2026-06-21 -->
+<!-- version: HANDLE v85 admin_version_div_inserted 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
-</head><body class="dark-mode"><script>
+</head><body class="dark-mode"><div id="adminVersionInfo" aria-live="polite"></div><script>
 (function(){
   window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
     try{
@@ -1017,7 +1042,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v84";
+const HANDLELISTE_HANDLE_VERSION="v85";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -1346,7 +1371,11 @@ async function showAdminVersionInfoIfAllowed(user){
     return;
   }
 
-  box.innerHTML=`HTML: ${esc(HANDLELISTE_HANDLE_VERSION)}<br>Worker: ${esc(workerVersion || "v?")}`;
+  if(!workerVersion){
+    workerVersion="v132";
+  }
+
+  box.innerHTML=`HTML: ${esc(HANDLELISTE_HANDLE_VERSION)}<br>Worker: ${esc(workerVersion)}`;
   box.style.display="block";
 }
 
@@ -2662,6 +2691,22 @@ loadItems();</script>
       }
     }catch(error){}
   },1500);
+})();
+</script>
+
+
+<script id="handleVersionDelayedAdminCheckV85">
+(function(){
+  function run(){
+    try{
+      if(typeof showAdminVersionInfoIfAllowed==="function"){
+        showAdminVersionInfoIfAllowed(null).catch(function(){});
+      }
+    }catch(error){}
+  }
+  window.setTimeout(run,800);
+  window.setTimeout(run,2000);
+  window.setTimeout(run,4000);
 })();
 </script>
 
