@@ -872,8 +872,29 @@ body:not(.dark-mode) #adminVersionInfo{
   color:#065f46 !important;
 }
 
+
+/* Handle v86: Avslutt handel krever aktiv handel/varsling, og Avbryt varsling skal være synlig */
+#finishButton:disabled{
+  opacity:.45 !important;
+  cursor:not-allowed !important;
+  filter:grayscale(.35) !important;
+}
+#activateStandardNotificationButton.standard-notification-active{
+  font-size:inherit !important;
+  background:var(--button, #242424) !important;
+  color:#fecaca !important;
+  border-color:var(--border, #555) !important;
+}
+#activateStandardNotificationButton.standard-notification-active:hover{
+  background:var(--button-hover, #333) !important;
+  color:#fee2e2 !important;
+}
+#activateStandardNotificationButton.standard-notification-active::after{
+  content:none !important;
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
-<!-- version: HANDLE v85 admin_version_div_inserted 2026-06-21 -->
+<!-- version: HANDLE v86 finish_button_requires_active_context 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
 </head><body class="dark-mode"><div id="adminVersionInfo" aria-live="polite"></div><script>
 (function(){
@@ -1042,7 +1063,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v85";
+const HANDLELISTE_HANDLE_VERSION="v86";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -1438,6 +1459,7 @@ async function cancelActiveNotificationFromHandle(){
 
     await refreshShoppingNotificationState(true);
     updateActivateStandardNotificationButtonState();
+    render();
     setStatus("Varsling før handling er avbrutt.","success");
   }catch(error){
     setStatus(`Kunne ikke avbryte varsling før handling.<br><br>${esc(error.message)}`,"error");
@@ -1675,6 +1697,9 @@ function updateShoppingInProgressState(){
 function isShoppingInProgress(){
   return boughtIds&&boughtIds.size>0;
 }
+function canFinishShopping(){
+  return isShoppingInProgress() || !!shoppingNotificationActive;
+}
 function shouldShowNewItemPopup(){
   // v48: Felles status skal komme fra Worker/API, ikke fra lokal standard-kontekst.
   return !!shoppingNotificationActive || isShoppingInProgress();
@@ -1787,6 +1812,7 @@ async function refreshShoppingNotificationState(force){
     updateNewItemDebug({notificationActive:false,notificationStartedAt:"",notificationCheck:"feil",lastError:"notification-setup: "+(error.message||String(error))},"Feil ved sjekk av varsling");
   }
   updateActivateStandardNotificationButtonState();
+  render();
   return shoppingNotificationActive;
 }
 function rememberDeferredNewItems(newItems){
@@ -2066,7 +2092,7 @@ function render(){
   const ordered=getOrderedItems();
   const finishButton=document.getElementById("finishButton");
   const toggleAllButton=document.getElementById("toggleAllButton");
-  if(finishButton)finishButton.disabled=!ordered.length;
+  if(finishButton)finishButton.disabled=!canFinishShopping();
   if(toggleAllButton){
     const allBought=ordered.length>0&&ordered.every(item=>boughtIds.has(Number(item.id)));
     toggleAllButton.disabled=!ordered.length;
