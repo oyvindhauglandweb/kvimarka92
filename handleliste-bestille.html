@@ -384,9 +384,20 @@ body:not(.dark-mode) .badge.area-bondekompaniet{background:rgba(22,163,74,.16) !
 .owner-recipe-toolbar .recipes-shortcut-button{
   flex:0 0 auto !important;
 }
+
+/* Bestille v51: Legg til ny vare / Rediger varer skal ha samme høyde som eierknappene på desktop */
+@media(min-width:701px){
+  .toolbar.order-actions .action-button,
+  .toolbar.order-actions .action-button.equal-order{
+    height:34px !important;
+    min-height:34px !important;
+    padding-top:0 !important;
+    padding-bottom:0 !important;
+  }
+}
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: BESTILLE v46 ios12 load fix 2026-06-19 -->
-<!-- version: BESTILLE v50 hard_remove_deprecated_meieri_option 2026-06-23 -->
+<!-- version: BESTILLE v51 compact_order_action_buttons_2026-06-23 -->
 </head><body class="dark-mode"><script>
 (function(){
   window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
