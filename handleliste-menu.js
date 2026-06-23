@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v13-login-menu-toggle-fix-2026-06-23";
+  const MENU_VERSION = "handleliste-menu-v14-create-user-validation-2026-06-23";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -665,10 +665,13 @@
 
 
   async function createStandardUserApi(payload){
+    // text/plain unngår unødvendig CORS preflight mot Worker.
+    // Worker leser fortsatt innholdet som JSON.
     const res = await fetch(`${API_BASE}/shopping/users/create-standard`, {
       method:"POST",
+      mode:"cors",
       credentials:"include",
-      headers:{"Content-Type":"application/json"},
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
       body:JSON.stringify(payload)
     });
 
@@ -756,18 +759,70 @@
           </div>
           <div class="handleliste-create-user-field">
             <label for="handlelisteCreateUserPhone">Mobilnummer</label>
-            <input id="handlelisteCreateUserPhone" name="phone" type="tel" autocomplete="tel" placeholder="Valgfritt">
+            <input id="handlelisteCreateUserPhone" name="phone" type="tel" autocomplete="tel" required inputmode="tel" placeholder="+47 12345678">
           </div>
           <div class="handleliste-create-user-help"><strong>Rolle:</strong> Standard bruker</div>
           <div id="handlelisteCreateUserStatus" class="handleliste-create-user-status"></div>
           <div class="handleliste-create-user-actions">
             <button type="button" class="handleliste-create-user-button" onclick="HandlelisteMenu.closeCreateUserDialog()">Avbryt</button>
-            <button type="submit" class="handleliste-create-user-button primary">Opprett bruker</button>
+            <button id="handlelisteCreateUserSubmit" type="submit" class="handleliste-create-user-button primary" disabled>Opprett bruker</button>
           </div>
         </form>
       </div>
     `;
     document.body.appendChild(modal);
+  }
+
+
+
+  function isValidCreateUserName(value){
+    const text = String(value || "").trim().replace(/\s+/g, " ");
+    return text.length >= 2;
+  }
+
+  function isValidCreateUserEmail(value){
+    const text = String(value || "").trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text);
+  }
+
+  function isValidCreateUserPhone(value){
+    const text = String(value || "").trim();
+    if(!text) return false;
+    if(!/^\+?[0-9\s().-]+$/.test(text)) return false;
+    const digits = text.replace(/\D/g, "");
+    if(text.startsWith("+47")) return digits.length === 10;
+    if(text.startsWith("47") && digits.length === 10) return true;
+    return digits.length >= 8 && digits.length <= 15;
+  }
+
+  function updateCreateUserSubmitState(){
+    const nameInput = document.getElementById("handlelisteCreateUserName");
+    const emailInput = document.getElementById("handlelisteCreateUserEmail");
+    const phoneInput = document.getElementById("handlelisteCreateUserPhone");
+    const submitButton = document.getElementById("handlelisteCreateUserSubmit");
+
+    const valid = isValidCreateUserName(nameInput && nameInput.value) &&
+      isValidCreateUserEmail(emailInput && emailInput.value) &&
+      isValidCreateUserPhone(phoneInput && phoneInput.value);
+
+    if(submitButton){
+      submitButton.disabled = !valid;
+    }
+
+    return valid;
+  }
+
+  function setupCreateUserValidation(){
+    ["handlelisteCreateUserName", "handlelisteCreateUserEmail", "handlelisteCreateUserPhone"].forEach(id => {
+      const input = document.getElementById(id);
+      if(input && !input.dataset.validationBound){
+        input.dataset.validationBound = "1";
+        input.addEventListener("input", updateCreateUserSubmitState);
+        input.addEventListener("change", updateCreateUserSubmitState);
+      }
+    });
+
+    updateCreateUserSubmitState();
   }
 
   function setCreateUserStatus(message, type){
@@ -791,6 +846,7 @@
     const form = document.getElementById("handlelisteCreateUserForm");
     if(form) form.reset();
     setCreateUserStatus("", "");
+    setupCreateUserValidation();
     if(modal) modal.classList.add("open");
     setTimeout(function(){
       const nameInput = document.getElementById("handlelisteCreateUserName");
@@ -825,8 +881,21 @@
       userType:"standard"
     };
 
-    if(!payload.name || !payload.email){
-      setCreateUserStatus("Navn og e-post må fylles ut.", "error");
+    if(!isValidCreateUserName(payload.name)){
+      setCreateUserStatus("Fullt navn må fylles ut.", "error");
+      updateCreateUserSubmitState();
+      return false;
+    }
+
+    if(!isValidCreateUserEmail(payload.email)){
+      setCreateUserStatus("Gyldig e-postadresse må fylles ut.", "error");
+      updateCreateUserSubmitState();
+      return false;
+    }
+
+    if(!isValidCreateUserPhone(payload.phone)){
+      setCreateUserStatus("Gyldig mobilnummer må fylles ut.", "error");
+      updateCreateUserSubmitState();
       return false;
     }
 
