@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v15-create-user-display-name-2026-06-23";
+  const MENU_VERSION = "handleliste-menu-v16-normalize-norwegian-phone-2026-06-23";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -763,7 +763,7 @@
           </div>
           <div class="handleliste-create-user-field">
             <label for="handlelisteCreateUserPhone">Mobilnummer</label>
-            <input id="handlelisteCreateUserPhone" name="phone" type="tel" autocomplete="tel" required inputmode="tel" placeholder="+47 12345678">
+            <input id="handlelisteCreateUserPhone" name="phone" type="tel" autocomplete="tel" required inputmode="tel" placeholder="F.eks. 12345678">
           </div>
           <div class="handleliste-create-user-help"><strong>Rolle:</strong> Standard bruker</div>
           <div id="handlelisteCreateUserStatus" class="handleliste-create-user-status"></div>
@@ -792,6 +792,29 @@
   function isValidCreateUserEmail(value){
     const text = String(value || "").trim();
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text);
+  }
+
+  function normalizeNorwegianPhoneForSave(value){
+    const text = String(value || "").trim();
+    const digits = text.replace(/\D/g, "");
+
+    if(!digits){
+      return "";
+    }
+
+    if(text.startsWith("+")){
+      return "+" + digits;
+    }
+
+    if(digits.length === 8){
+      return "+47" + digits;
+    }
+
+    if(digits.length === 10 && digits.startsWith("47")){
+      return "+" + digits;
+    }
+
+    return text.replace(/\s+/g, " ");
   }
 
   function isValidCreateUserPhone(value){
@@ -889,7 +912,7 @@
       name:String((nameInput && nameInput.value) || "").trim(),
       displayName:String((displayNameInput && displayNameInput.value) || "").trim(),
       email:String((emailInput && emailInput.value) || "").trim(),
-      phone:String((phoneInput && phoneInput.value) || "").trim(),
+      phone:normalizeNorwegianPhoneForSave((phoneInput && phoneInput.value) || ""),
       role:"User",
       userType:"standard"
     };
