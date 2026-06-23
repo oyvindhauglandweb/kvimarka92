@@ -365,7 +365,7 @@ body:not(.dark-mode) .badge.area-bondekompaniet{background:rgba(22,163,74,.16) !
 
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: BESTILLE v46 ios12 load fix 2026-06-19 -->
-<!-- version: BESTILLE v49 remove_duplicate_allTypes_nonfood_options 2026-06-21 -->
+<!-- version: BESTILLE v50 hard_remove_deprecated_meieri_option 2026-06-23 -->
 </head><body class="dark-mode"><script>
 (function(){
   window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
@@ -438,12 +438,23 @@ document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 let SHOPPING_OWNERS=["Felles"];
 const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
-const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
+const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
 let typeOptions=[];
 const SHOPPING_AREA_DEFAULT="Matvarer";
-const SHOPPING_AREA_ORDER=["Matvarer","Normal","Europris","Frisør","Clas Ohlson","Sport","Bondekompaniet"];
-const NON_FOOD_SHOPPING_TYPES=["Bondekompaniet","Clas Ohlson","Europris","Frisør","Normal","Sport"];
-const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet"};
+const SHOPPING_AREA_ORDER=["Matvarer","Normal","Europris","Frisør","Clas Ohlson","Sport","Bondekompaniet","Apotek"];
+const NON_FOOD_SHOPPING_TYPES=["Bondekompaniet","Clas Ohlson","Europris","Frisør","Normal","Sport","Apotek"];
+const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet","apotek":"Apotek"};
+function canonicalShoppingType(value){
+  const text=String(value||"").replace(/[\u200B-\u200D\uFEFF]/g,"").trim();
+  if(!text)return "";
+  const key=text.toLowerCase().replace(/\s+/g," ");
+  if(key==="meieri")return "Meieri og egg";
+  return text;
+}
+function isDeprecatedShoppingType(value){
+  const key=String(value||"").replace(/[\u200B-\u200D\uFEFF]/g,"").trim().toLowerCase().replace(/\s+/g," ");
+  return key==="meieri";
+}
 function normalizeShoppingArea(value,type){
   const raw=String(value||"").trim();
   if(raw)return raw;
@@ -485,11 +496,24 @@ function compareShoppingTypes(a,b){
   if(oa!==ob)return oa-ob;
   return String(a||"").localeCompare(String(b||""),"no",{sensitivity:"base"});
 }
+function uniqueShoppingTypeValues(values){
+  const seen=new Set();
+  const result=[];
+  (Array.isArray(values)?values:[]).forEach(value=>{
+    const type=canonicalShoppingType(value);
+    if(!type||isDeprecatedShoppingType(type))return;
+    const key=type.toLowerCase().replace(/\s+/g," ");
+    if(seen.has(key))return;
+    seen.add(key);
+    result.push(type);
+  });
+  return result;
+}
 function allTypes(){
   const foodValues=[];
   const otherValues=[];
   function addType(value){
-    const type=String(value||"").trim();
+    const type=canonicalShoppingType(value);
     if(!type)return;
     const area=normalizeShoppingArea("",type);
     if(area===SHOPPING_AREA_DEFAULT){
@@ -499,12 +523,14 @@ function allTypes(){
     }
   }
 
-  (Array.isArray(typeOptions)?typeOptions:[]).forEach(addType);
-  (Array.isArray(typeOrder)?typeOrder:[]).forEach(addType);
-  DEFAULT_TYPES.forEach(addType);
-  (Array.isArray(items)?items:[]).forEach(item=>addType(item.type));
+  // Bruk listen fra API/Baserow som fasit. Ikke bland inn gamle varetyper fra eksisterende varer,
+  // for da kan utgåtte verdier som "Meieri" komme tilbake i nedtrekkslisten.
+  const serverTypes=Array.isArray(typeOptions)&&typeOptions.length
+    ? typeOptions
+    : (Array.isArray(typeOrder)&&typeOrder.length ? typeOrder : DEFAULT_TYPES);
+  serverTypes.forEach(addType);
 
-  // Viktig: disse skal alltid være valgbare som egne grove varegrupper/butikktyper.
+  // Fallback dersom API-et en dag mangler butikktypene.
   NON_FOOD_SHOPPING_TYPES.forEach(addType);
 
   const seen=new Set();
@@ -626,9 +652,16 @@ function updateNewItemDuplicateWarning(){
 
 function populateTypes(){
   const select=document.getElementById("newItemType");
-  const types=allTypes();
+  const types=allTypes().map(canonicalShoppingType).filter(type=>type&&!isDeprecatedShoppingType(type));
   select.innerHTML=types.map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");
-  select.value=types.indexOf("Annet")>=0?"Annet":(types[0]||"Annet");
+  // Ekstra sikkerhetsnett: fjern gammel "Meieri" selv om den kommer fra cachet/API-basert liste.
+  Array.from(select.options).forEach(option=>{
+    if(isDeprecatedShoppingType(option.value)||isDeprecatedShoppingType(option.textContent)){
+      option.remove();
+    }
+  });
+  const cleanTypes=Array.from(select.options).map(option=>option.value);
+  select.value=cleanTypes.indexOf("Annet")>=0?"Annet":(cleanTypes[0]||"Annet");
 }
 function populateOwners(){const select=document.getElementById("newItemOwner");select.innerHTML=SHOPPING_OWNERS.map(owner=>`<option value="${esc(owner)}">${esc(owner)}</option>`).join("");select.value=selectedOwner;}
 function renderOwnerButtons(){document.getElementById("ownerButtons").innerHTML=SHOPPING_OWNERS.map(owner=>`<button class="owner-button ${owner===selectedOwner?"active":""}" type="button" onclick="setOwnerFilter('${esc(owner)}')">${esc(owner)}</button>`).join("");}
@@ -644,7 +677,7 @@ function setOwnerFilter(owner){
 function filteredItems(){return items.filter(item=>normalizeOwner(item.owner)===selectedOwner);}
 function orderedGroups(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});return Object.keys(map).sort(compareShoppingTypes).map(type=>({type,items:map[type]}));}
 function render(){renderOwnerButtons();const visible=filteredItems();const list=document.getElementById("itemList");document.getElementById("totalValue").textContent=String(visible.length);document.getElementById("orderValue").textContent=String(visible.filter(item=>item.shouldBuy).length);document.getElementById("standardValue").textContent=String(visible.filter(item=>item.standardItem).length);if(!visible.length){list.innerHTML=`<div class="empty">Ingen varer er lagt inn for ${esc(selectedOwner)} ennå.</div>`;return;}list.innerHTML=orderedGroups(visible).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>`<div class="item-row"><input class="item-check" type="checkbox" ${item.shouldBuy?"checked":""} onchange="toggleShouldBuy(${item.id}, this.checked)" title="Skal handles"><div><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${shoppingAreaBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}</div></div>`).join("")}</div></div>`).join("");}
-async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=Array.isArray(data.typeOrder)&&data.typeOrder.length?data.typeOrder:DEFAULT_TYPES.slice();typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:[];setShoppingOwners(data.ownerOptions);render();updateOwnerStatus();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.type=canonicalShoppingType(item.type)||"Annet";item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=uniqueShoppingTypeValues(Array.isArray(data.typeOrder)&&data.typeOrder.length?data.typeOrder:DEFAULT_TYPES.slice());typeOptions=Array.isArray(data.typeOptions)?uniqueShoppingTypeValues(data.typeOptions):[];setShoppingOwners(data.ownerOptions);render();updateOwnerStatus();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 async function toggleShouldBuy(id,checked){try{await fetchJson(`${API_BASE}/shopping/item-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id,shouldBuy:checked})});const item=items.find(item=>Number(item.id)===Number(id));if(item)item.shouldBuy=checked;render();setStatus(checked?"Varen er lagt til i Handle-listen.":"Varen er fjernet fra Handle-listen.","success");}catch(error){setStatus(`Kunne ikke oppdatere varen.<br><br>${esc(error.message)}`,"error");await loadItems();}}
 function openNewItemModal(){document.getElementById("newItemForm").reset();hideNewItemSuggestions();populateOwners();populateTypes();document.getElementById("newItemShouldBuy").checked=true;applyStandardPermissionToModal();document.getElementById("newItemModal").classList.add("open");setTimeout(()=>document.getElementById("newItemName").focus(),80);}function closeNewItemModal(){document.getElementById("newItemModal").classList.remove("open");hideNewItemSuggestions();}function handleModalBackdrop(event){if(event.target.id==="newItemModal")closeNewItemModal();}
 function buildShoppingListText(){const ordered=items.filter(item=>item.shouldBuy);const lines=["Handleliste",""];orderedGroups(ordered).forEach(group=>{lines.push(group.type);group.items.forEach(item=>lines.push(`- ${normalizeOwner(item.owner)!=="Felles"?`(${normalizeOwner(item.owner)}) `:""}${item.name}`));lines.push("");});return lines.join("\n");}
