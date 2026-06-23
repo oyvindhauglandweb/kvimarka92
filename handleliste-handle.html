@@ -1097,6 +1097,10 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
         <div class="image-preview" id="addItemImagePreview"><img id="addItemImagePreviewImg" alt="Forhåndsvisning"><button class="action-button" type="button" onclick="clearAddItemImage()">Fjern bilde</button></div>
       </div>
       <div class="checkbox-row">
+        <input id="addItemStandard" type="checkbox">
+        <label for="addItemStandard">Standard vare</label>
+      </div>
+      <div class="checkbox-row">
         <input id="addItemShouldBuy" type="checkbox" checked>
         <label for="addItemShouldBuy">Legg direkte i handlelisten</label>
       </div>
@@ -1153,7 +1157,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v94";
+const HANDLELISTE_HANDLE_VERSION="v97";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -2148,6 +2152,11 @@ function uniqueShoppingTypesForForm(values){
   });
   return result.length?result:["Annet"];
 }
+function getShoppingAreaForNewItemType(type){
+  const key=String(type||"").trim().toLowerCase().replace(/\s+/g," ");
+  if(NON_FOOD_TYPE_AREAS[key])return NON_FOOD_TYPE_AREAS[key];
+  return selectedShoppingArea&&selectedShoppingArea!==SHOPPING_AREA_DEFAULT?selectedShoppingArea:SHOPPING_AREA_DEFAULT;
+}
 function fillAddItemSelects(){
   const typeSelect=document.getElementById("addItemType");
   const ownerSelect=document.getElementById("addItemOwner");
@@ -2155,9 +2164,12 @@ function fillAddItemSelects(){
     const serverTypes=Array.isArray(typeOptions)&&typeOptions.length
       ? typeOptions
       : (Array.isArray(typeOrder)&&typeOrder.length ? typeOrder : []);
-    const fallbackTypes=DEFAULT_TYPES.concat(SHOPPING_AREA_ORDER.filter(area=>area!==SHOPPING_AREA_DEFAULT));
-    const rawOptions=uniqueShoppingTypesForForm(serverTypes.length?serverTypes:fallbackTypes);
-    const options=rawOptions.filter(type=>getTypeShoppingArea(type)===selectedShoppingArea).sort(compareShoppingTypes);
+    const nonFoodAreaTypes=SHOPPING_AREA_ORDER.filter(area=>area!==SHOPPING_AREA_DEFAULT);
+    const fallbackTypes=DEFAULT_TYPES.concat(nonFoodAreaTypes);
+    const rawOptions=uniqueShoppingTypesForForm([].concat(serverTypes, typeOrder, fallbackTypes));
+    const options=selectedShoppingArea===SHOPPING_AREA_DEFAULT
+      ? rawOptions.sort(compareShoppingTypes)
+      : rawOptions.filter(type=>getTypeShoppingArea(type)===selectedShoppingArea).sort(compareShoppingTypes);
     const finalOptions=options.length?options:[selectedShoppingArea];
     typeSelect.innerHTML=finalOptions.map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");
     // Ekstra sikkerhetsnett: fjern gammel "Meieri" selv om den kommer fra gamle varer/API/cache.
@@ -2194,6 +2206,8 @@ async function createShoppingItemFromHandle(){
   const type=String((document.getElementById("addItemType") && document.getElementById("addItemType").value)||"Annet").trim()||"Annet";
   const owner=normalizeOwner((document.getElementById("addItemOwner") && document.getElementById("addItemOwner").value)||"Felles");
   const shouldBuy=!!(document.getElementById("addItemShouldBuy") && document.getElementById("addItemShouldBuy").checked);
+  const standardItem=!!(document.getElementById("addItemStandard") && document.getElementById("addItemStandard").checked);
+  const itemShoppingArea=getShoppingAreaForNewItemType(type);
   if(!name){
     alert("Skriv inn varenavn.");
     return;
@@ -2203,7 +2217,7 @@ async function createShoppingItemFromHandle(){
     const createdData=await fetchJson(`${API_BASE}/shopping/item-create`,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body:JSON.stringify({name,type,owner,shouldBuy,standardItem:false,shoppingArea:selectedShoppingArea,imageDataUrl:addItemImageDataUrl||undefined,imageFileName:addItemImageFileName||`${name}.jpg`})
+      body:JSON.stringify({name,type,owner,shouldBuy,standardItem,shoppingArea:itemShoppingArea,imageDataUrl:addItemImageDataUrl||undefined,imageFileName:addItemImageFileName||`${name}.jpg`})
     });
     const createdId=Number((createdData && createdData.item && createdData.item.id)||0);
     const createdAddedAt=(createdData && createdData.cartSync && createdData.cartSync.row && createdData.cartSync.row.addedAt) || (createdData && createdData.item && createdData.item.addedAt) || new Date().toISOString();
