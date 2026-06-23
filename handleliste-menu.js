@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v14-create-user-validation-2026-06-23";
+  const MENU_VERSION = "handleliste-menu-v15-create-user-display-name-2026-06-23";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -754,6 +754,10 @@
             <input id="handlelisteCreateUserName" name="name" type="text" autocomplete="name" required>
           </div>
           <div class="handleliste-create-user-field">
+            <label for="handlelisteCreateUserDisplayName">Navn i Handleliste</label>
+            <input id="handlelisteCreateUserDisplayName" name="displayName" type="text" autocomplete="nickname" required placeholder="F.eks. Per eller Ann Magret">
+          </div>
+          <div class="handleliste-create-user-field">
             <label for="handlelisteCreateUserEmail">E-post</label>
             <input id="handlelisteCreateUserEmail" name="email" type="email" autocomplete="email" required>
           </div>
@@ -780,6 +784,11 @@
     return text.length >= 2;
   }
 
+  function isValidCreateUserDisplayName(value){
+    const text = String(value || "").trim().replace(/\s+/g, " ");
+    return text.length >= 2;
+  }
+
   function isValidCreateUserEmail(value){
     const text = String(value || "").trim();
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text);
@@ -797,11 +806,13 @@
 
   function updateCreateUserSubmitState(){
     const nameInput = document.getElementById("handlelisteCreateUserName");
+    const displayNameInput = document.getElementById("handlelisteCreateUserDisplayName");
     const emailInput = document.getElementById("handlelisteCreateUserEmail");
     const phoneInput = document.getElementById("handlelisteCreateUserPhone");
     const submitButton = document.getElementById("handlelisteCreateUserSubmit");
 
     const valid = isValidCreateUserName(nameInput && nameInput.value) &&
+      isValidCreateUserDisplayName(displayNameInput && displayNameInput.value) &&
       isValidCreateUserEmail(emailInput && emailInput.value) &&
       isValidCreateUserPhone(phoneInput && phoneInput.value);
 
@@ -813,7 +824,7 @@
   }
 
   function setupCreateUserValidation(){
-    ["handlelisteCreateUserName", "handlelisteCreateUserEmail", "handlelisteCreateUserPhone"].forEach(id => {
+    ["handlelisteCreateUserName", "handlelisteCreateUserDisplayName", "handlelisteCreateUserEmail", "handlelisteCreateUserPhone"].forEach(id => {
       const input = document.getElementById(id);
       if(input && !input.dataset.validationBound){
         input.dataset.validationBound = "1";
@@ -869,12 +880,14 @@
     }
 
     const nameInput = document.getElementById("handlelisteCreateUserName");
+    const displayNameInput = document.getElementById("handlelisteCreateUserDisplayName");
     const emailInput = document.getElementById("handlelisteCreateUserEmail");
     const phoneInput = document.getElementById("handlelisteCreateUserPhone");
     const submitButton = document.querySelector("#handlelisteCreateUserForm button[type='submit']");
 
     const payload = {
       name:String((nameInput && nameInput.value) || "").trim(),
+      displayName:String((displayNameInput && displayNameInput.value) || "").trim(),
       email:String((emailInput && emailInput.value) || "").trim(),
       phone:String((phoneInput && phoneInput.value) || "").trim(),
       role:"User",
@@ -883,6 +896,12 @@
 
     if(!isValidCreateUserName(payload.name)){
       setCreateUserStatus("Fullt navn må fylles ut.", "error");
+      updateCreateUserSubmitState();
+      return false;
+    }
+
+    if(!isValidCreateUserDisplayName(payload.displayName)){
+      setCreateUserStatus("Navn i Handleliste må fylles ut.", "error");
       updateCreateUserSubmitState();
       return false;
     }
