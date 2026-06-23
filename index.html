@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Kvimarka 92</title>
-<!-- version: design-toggle-index-2026-06-08 -->
+<!-- version: index-v2-auth-menu-retry-2026-06-24 -->
 
 <style>
 :root{
@@ -668,8 +668,21 @@ function getInitials(nameOrEmail){
   return namePart.slice(0, 2).toUpperCase();
 }
 
+function sleepMs(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function fetchJson(url, options = {}){
-  const res = await fetch(url, options);
+  const fetchOptions = {
+    cache:"no-store",
+    ...options,
+    headers:{
+      "Cache-Control":"no-cache",
+      ...((options && options.headers) || {})
+    }
+  };
+
+  const res = await fetch(url, fetchOptions);
 
   if(!res.ok){
     const text = await res.text();
@@ -679,14 +692,29 @@ async function fetchJson(url, options = {}){
   return await res.json();
 }
 
-async function fetchCurrentUser(){
-  try{
-    return await fetchJson(`${API_BASE}/whoami`, {
-      credentials:"include"
-    });
-  }catch(error){
-    return null;
+async function fetchCurrentUserOnce(){
+  return await fetchJson(`${API_BASE}/whoami?ts=${Date.now()}`, {
+    credentials:"include"
+  });
+}
+
+async function fetchCurrentUser(options = {}){
+  const attempts = Math.max(1, Number(options.attempts || 1));
+  const delays = Array.isArray(options.delays) ? options.delays : [250, 700, 1200];
+
+  for(let attempt = 0; attempt < attempts; attempt += 1){
+    try{
+      return await fetchCurrentUserOnce();
+    }catch(error){
+      if(attempt >= attempts - 1){
+        return null;
+      }
+
+      await sleepMs(delays[Math.min(attempt, delays.length - 1)] || 500);
+    }
   }
+
+  return null;
 }
 
 async function performLogout(){
@@ -1449,20 +1477,15 @@ function renderPathMenu(){
   container.style.display = "block";
 }
 
-async function loadPage(){
-  const statusBox = document.getElementById("statusBox");
-
-  currentUser = await fetchCurrentUser();
-  setupLoginWidget();
-
+async function loadMenuForCurrentUser(){
   let menuData;
 
   if(currentUser){
-    menuData = await fetchJson(`${API_BASE}/menu`, {
+    menuData = await fetchJson(`${API_BASE}/menu?ts=${Date.now()}`, {
       credentials:"include"
     });
   }else{
-    menuData = await fetchJson(`${API_BASE}/menu-public`);
+    menuData = await fetchJson(`${API_BASE}/menu-public?ts=${Date.now()}`);
   }
 
   routeCases = await fetchRouteCases();
@@ -1470,7 +1493,45 @@ async function loadPage(){
 
   restoreMenuState();
   renderPathMenu();
+}
+
+async function retryAuthenticatedMenuAfterInitialPublicLoad(){
+  if(currentUser){
+    return;
+  }
+
+  const retryDelays = [400, 900, 1600, 2600];
+
+  for(const delay of retryDelays){
+    await sleepMs(delay);
+
+    if(currentUser){
+      return;
+    }
+
+    const user = await fetchCurrentUser({ attempts:1 });
+
+    if(user){
+      currentUser = user;
+      setupLoginWidget();
+      await loadMenuForCurrentUser();
+      return;
+    }
+  }
+}
+
+async function loadPage(){
+  const statusBox = document.getElementById("statusBox");
+
+  currentUser = await fetchCurrentUser({ attempts:2, delays:[350] });
+  setupLoginWidget();
+
+  await loadMenuForCurrentUser();
   statusBox.style.display = "none";
+
+  if(!currentUser){
+    retryAuthenticatedMenuAfterInitialPublicLoad();
+  }
 }
 
 
