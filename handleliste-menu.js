@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v12-user-menu-create-standard-for-all-2026-06-23";
+  const MENU_VERSION = "handleliste-menu-v13-login-menu-toggle-fix-2026-06-23";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -132,6 +132,15 @@
         position:relative !important;
         display:inline-flex !important;
       }
+      .handleliste-floating-controls .login-widget{
+        position:relative !important;
+        display:inline-flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+      }
+      .handleliste-floating-controls .login-widget.open .login-menu{
+        display:block !important;
+      }
       .handleliste-floating-controls .settings-menu{
         position:absolute !important;
         top:44px !important;
@@ -175,7 +184,8 @@
         color:var(--text,#eee) !important;
         box-shadow:0 8px 24px rgba(0,0,0,.25) !important;
         box-sizing:border-box !important;
-        display:none;
+        display:none !important;
+        z-index:100001 !important;
       }
       .handleliste-floating-controls .login-menu-name{
         display:block !important;
@@ -772,6 +782,10 @@
       event.preventDefault();
       event.stopPropagation();
     }
+    const loginWidget = document.getElementById("handlelisteLoginWidget");
+    const loginMenu = document.getElementById("handlelisteLoginMenu");
+    if(loginWidget) loginWidget.classList.remove("open");
+    if(loginMenu) loginMenu.style.display = "none";
     renderCreateUserDialog();
     const modal = document.getElementById("handlelisteCreateUserModal");
     const form = document.getElementById("handlelisteCreateUserForm");
@@ -862,8 +876,15 @@
       loginStatus.onclick = function(event){
         event.preventDefault();
         event.stopPropagation();
-        loginMenu.style.display = loginMenu.style.display === "block" ? "none" : "block";
+        const loginWidget = document.getElementById("handlelisteLoginWidget");
+        const willOpen = !(loginWidget && loginWidget.classList.contains("open"));
         closeSettings();
+        if(loginWidget){
+          loginWidget.classList.toggle("open", willOpen);
+        }
+        if(loginMenu){
+          loginMenu.style.display = willOpen ? "block" : "none";
+        }
         return false;
       };
 
@@ -881,6 +902,8 @@
       loginStatus.title = "Logg inn";
       loginStatus.onclick = null;
       loginMenu.style.display = "none";
+      const loginWidget = document.getElementById("handlelisteLoginWidget");
+      if(loginWidget) loginWidget.classList.remove("open");
       if(createUserLink){
         createUserLink.style.display = "none";
         createUserLink.onclick = null;
@@ -910,7 +933,12 @@
       }
     }
 
-    if(loginMenu && loginMenu.style.display === "block"){
+    if(loginWidget && loginWidget.classList.contains("open")){
+      if(!event || !loginWidget.contains(event.target)){
+        loginWidget.classList.remove("open");
+        if(loginMenu) loginMenu.style.display = "none";
+      }
+    }else if(loginMenu && loginMenu.style.display === "block"){
       if(!event || !loginWidget || !loginWidget.contains(event.target)){
         loginMenu.style.display = "none";
       }
