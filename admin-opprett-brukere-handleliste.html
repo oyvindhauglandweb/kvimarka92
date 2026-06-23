@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opprett Handleliste-bruker</title>
+<style>
+:root{color-scheme:dark;--bg:#111;--panel:#1f1f1f;--panel2:#292929;--text:#f4f4f4;--muted:#c8c8c8;--border:#3a3a3a;--accent:#2f6f83;--accent2:#3a8197;--error:#ff8585;--ok:#96e696}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;padding:16px}
+.wrap{max-width:900px;margin:0 auto}
+header{text-align:center;margin:4px 0 18px}
+h1{font-size:30px;margin:0}.subtitle{margin-top:6px;color:var(--muted)}
+.card{background:var(--panel);border-radius:12px;padding:18px;margin-bottom:14px;border:1px solid #242424}
+.card h2{margin:0 0 10px;font-size:20px}
+label{display:block;font-weight:bold;margin:12px 0 6px}
+input{width:100%;border:0;border-radius:8px;background:var(--panel2);color:var(--text);padding:12px;font-size:16px}
+input:focus{outline:2px solid var(--accent2)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.row.three{grid-template-columns:1fr 1fr 1fr}
+.hint{color:var(--muted);font-size:14px;line-height:1.45}.small{font-size:13px;color:var(--muted)}
+.actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}
+a.button,button{border:0;border-radius:8px;background:#2a2a2a;color:var(--text);padding:12px 16px;font-weight:bold;font-size:15px;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-height:44px}
+button.primary{background:var(--accent2)}button:disabled{opacity:.45;cursor:not-allowed}.msg{display:none;border-radius:10px;padding:13px;margin:12px 0;white-space:pre-wrap;line-height:1.4}.msg.ok{display:block;background:#172417;color:var(--ok)}.msg.err{display:block;background:#2a1818;color:var(--error)}
+.summary{background:#171717;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:12px;color:var(--muted);font-size:14px;line-height:1.5}
+@media(max-width:700px){body{padding:10px}.row,.row.three{grid-template-columns:1fr}h1{font-size:26px}.actions{justify-content:stretch}a.button,button{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Opprett brukere</h1>
+    <div class="subtitle">Admin · Opprett brukere · Handleliste</div>
+  </header>
+
+  <div id="message" class="msg"></div>
+
+  <form id="createHandlelisteFamilyForm" novalidate>
+    <section class="card">
+      <h2>Ny handlelistefamilie</h2>
+      <p class="hint">Oppretter en ny godkjent familie og én familieadministrator. Administratoren opprettes både i <strong>Kvimarka 92 / Users</strong> og i <strong>Shopping family members</strong>.</p>
+
+      <div class="row">
+        <div>
+          <label for="familyName">Familienavn</label>
+          <input id="familyName" name="familyName" autocomplete="organization" required placeholder="F.eks. Familien Hansen">
+        </div>
+        <div>
+          <label for="streetAddress">Gateadresse</label>
+          <input id="streetAddress" name="streetAddress" autocomplete="street-address" required placeholder="F.eks. Kvimarka 92">
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Familieadministrator</h2>
+      <div class="row">
+        <div>
+          <label for="adminName">Fullt navn</label>
+          <input id="adminName" name="adminName" autocomplete="name" required placeholder="F.eks. Per Hansen">
+        </div>
+        <div>
+          <label for="adminDisplayName">Navn i Handleliste</label>
+          <input id="adminDisplayName" name="adminDisplayName" required placeholder="F.eks. Per">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="adminEmail">E-post</label>
+          <input id="adminEmail" name="adminEmail" type="email" autocomplete="email" required placeholder="navn@example.com">
+        </div>
+        <div>
+          <label for="adminPhone">Mobilnummer</label>
+          <input id="adminPhone" name="adminPhone" type="tel" autocomplete="tel" required placeholder="+4799999999">
+        </div>
+      </div>
+
+      <div class="summary">
+        <strong>Resultat:</strong><br>
+        Users: Handleliste access = Family, Handleliste role = Administrator.<br>
+        Shopping family members: Role = Family admin, Status = Approved.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="actions">
+        <a class="button" href="index.html">Tilbake</a>
+        <button type="submit" class="primary" id="submitBtn" disabled>Opprett familie og administrator</button>
+      </div>
+    </section>
+  </form>
+</div>
+
+<script>
+const API_BASE = "https://api-kvimarka92.carstereogarage.com";
+const form = document.getElementById("createHandlelisteFamilyForm");
+const submitBtn = document.getElementById("submitBtn");
+const messageEl = document.getElementById("message");
+
+function value(id){ return document.getElementById(id).value.trim(); }
+function validEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+function validPhone(phone){
+  const text = String(phone || "").trim();
+  const digits = text.replace(/\D/g, "");
+  if(!text || !/^\+?[0-9\s().-]+$/.test(text)) return false;
+  if(text.startsWith("+47")) return digits.length === 10;
+  if(text.startsWith("47") && digits.length === 10) return true;
+  return digits.length >= 8 && digits.length <= 15;
+}
+function isFormValid(){
+  return !!(
+    value("familyName") &&
+    value("streetAddress") &&
+    value("adminName") &&
+    value("adminDisplayName") &&
+    validEmail(value("adminEmail")) &&
+    validPhone(value("adminPhone"))
+  );
+}
+function updateSubmitState(){ submitBtn.disabled = !isFormValid(); }
+function showMessage(type, text){
+  messageEl.className = "msg " + (type === "ok" ? "ok" : "err");
+  messageEl.textContent = text || "";
+  if(text) messageEl.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+form.addEventListener("input", updateSubmitState);
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  updateSubmitState();
+  showMessage("", "");
+
+  if(!isFormValid()){
+    showMessage("err", "Fyll ut alle feltene med gyldige verdier før du oppretter familien.");
+    return;
+  }
+
+  const payload = {
+    familyName:value("familyName"),
+    streetAddress:value("streetAddress"),
+    adminName:value("adminName"),
+    adminDisplayName:value("adminDisplayName"),
+    adminEmail:value("adminEmail"),
+    adminPhone:value("adminPhone")
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Oppretter...";
+
+  try{
+    const res = await fetch(`${API_BASE}/shopping/admin/create-family-admin`, {
+      method:"POST",
+      credentials:"include",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify(payload)
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if(!res.ok || !data.success){
+      throw new Error(data.error || `Oppretting feilet (${res.status}).`);
+    }
+
+    showMessage("ok",
+      "Handlelistefamilie og familieadministrator er opprettet.\n\n" +
+      "Familie: " + data.family.familyName + "\n" +
+      "Adresse: " + data.family.streetAddress + "\n" +
+      "Administrator: " + data.admin.name + " (" + data.admin.email + ")"
+    );
+
+    form.reset();
+    updateSubmitState();
+  }catch(error){
+    showMessage("err", "Kunne ikke opprette Handleliste-familie. " + (error && error.message ? error.message : String(error)));
+  }finally{
+    submitBtn.textContent = "Opprett familie og administrator";
+    updateSubmitState();
+  }
+});
+
+updateSubmitState();
+</script>
+</body>
+</html>

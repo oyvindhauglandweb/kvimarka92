@@ -778,6 +778,43 @@ function itemBelongsToArea(item, area){
   return false;
 }
 
+
+function ensureLocalAdminMenuItems(items){
+  const safeItems = Array.isArray(items) ? items.slice() : [];
+  const localAdminItems = [
+    {
+      id:"local-admin-create-users-handleliste",
+      buttonText:"Handleliste",
+      level1:"Opprett brukere",
+      level2:"",
+      level3:"",
+      url:"admin-opprett-brukere-handleliste.html",
+      public:false,
+      private:false,
+      administrator:true,
+      sortOrder:15,
+      openInNewTab:false
+    }
+  ];
+
+  localAdminItems.forEach(localItem => {
+    const alreadyExists = safeItems.some(item =>
+      String(item.url || "").trim() === localItem.url ||
+      (
+        String(item.level1 || "").trim() === localItem.level1 &&
+        String(item.buttonText || "").trim() === localItem.buttonText &&
+        !!item.administrator
+      )
+    );
+
+    if(!alreadyExists){
+      safeItems.push(localItem);
+    }
+  });
+
+  return safeItems;
+}
+
 function itemsForCurrentArea(){
   if(!menuState.area){
     return [];
@@ -1429,7 +1466,7 @@ async function loadPage(){
   }
 
   routeCases = await fetchRouteCases();
-  allMenuItems = buildDynamicRouteCaseMenu(menuData.items || [], routeCases);
+  allMenuItems = ensureLocalAdminMenuItems(buildDynamicRouteCaseMenu(menuData.items || [], routeCases));
 
   restoreMenuState();
   renderPathMenu();
