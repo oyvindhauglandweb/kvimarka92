@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v10-2026-06-17";
+  const MENU_VERSION = "handleliste-menu-v12-user-menu-create-standard-for-all-2026-06-23";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -178,11 +178,14 @@
         display:none;
       }
       .handleliste-floating-controls .login-menu-name{
+        display:block !important;
         font-weight:bold !important;
         font-size:13px !important;
+        line-height:1.25 !important;
         margin-bottom:8px !important;
         color:var(--text,#eee) !important;
-        white-space:nowrap !important;
+        white-space:normal !important;
+        overflow-wrap:anywhere !important;
       }
       .handleliste-floating-controls .login-menu-link{
         display:block !important;
@@ -197,6 +200,11 @@
       .handleliste-floating-controls .login-menu-link:hover{
         background:rgba(127,127,127,.14) !important;
       }
+      .handleliste-floating-controls .login-menu-logout{
+        margin-top:8px !important;
+        padding-top:10px !important;
+        border-top:1px solid rgba(127,127,127,.18) !important;
+      }
       .handleliste-floating-controls .login-status.is-signin{
         font-size:0 !important;
       }
@@ -205,6 +213,112 @@
         font-size:18px;
         font-weight:bold;
       }
+      .handleliste-create-user-modal{
+        display:none;
+        position:fixed;
+        inset:0;
+        z-index:100000;
+        background:rgba(0,0,0,.72);
+        padding:18px;
+        overflow:auto;
+        box-sizing:border-box;
+      }
+      .handleliste-create-user-modal.open{
+        display:block;
+      }
+      .handleliste-create-user-modal-content{
+        width:min(520px, calc(100vw - 36px));
+        margin:70px auto;
+        padding:18px;
+        border-radius:14px;
+        background:var(--card,#242424);
+        color:var(--text,#eee);
+        border:1px solid var(--border,#555);
+        box-shadow:0 18px 44px rgba(0,0,0,.35);
+      }
+      .handleliste-create-user-modal-header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        margin-bottom:14px;
+      }
+      .handleliste-create-user-modal-title{
+        font-size:22px;
+        font-weight:800;
+      }
+      .handleliste-create-user-modal-close{
+        width:40px;
+        height:40px;
+        min-width:40px;
+        border:0;
+        border-radius:8px;
+        background:rgba(127,127,127,.16);
+        color:var(--text,#eee);
+        font-size:24px;
+        font-weight:bold;
+        cursor:pointer;
+      }
+      .handleliste-create-user-field{
+        display:flex;
+        flex-direction:column;
+        gap:6px;
+        margin-bottom:12px;
+      }
+      .handleliste-create-user-field label{
+        font-size:14px;
+        font-weight:800;
+      }
+      .handleliste-create-user-field input{
+        width:100%;
+        min-height:40px;
+        padding:0 12px;
+        border:0;
+        border-radius:8px;
+        background:rgba(127,127,127,.14);
+        color:var(--text,#eee);
+        font-size:15px;
+        box-sizing:border-box;
+      }
+      .handleliste-create-user-help{
+        margin:0 0 14px;
+        color:var(--muted,#bbb);
+        font-size:13px;
+        line-height:1.35;
+      }
+      .handleliste-create-user-actions{
+        display:flex;
+        justify-content:flex-end;
+        gap:8px;
+        flex-wrap:wrap;
+        margin-top:14px;
+      }
+      .handleliste-create-user-button{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        min-height:36px;
+        padding:0 12px;
+        border:0;
+        border-radius:8px;
+        background:rgba(127,127,127,.16);
+        color:var(--text,#eee);
+        font-weight:800;
+        cursor:pointer;
+      }
+      .handleliste-create-user-button.primary{
+        background:var(--link,#7cc7e8);
+        color:#fff;
+      }
+      .handleliste-create-user-status{
+        min-height:18px;
+        margin-top:10px;
+        color:var(--muted,#bbb);
+        font-size:13px;
+        line-height:1.35;
+      }
+      .handleliste-create-user-status.error{color:#ff8b8b;}
+      .handleliste-create-user-status.success{color:#72c184;}
       @media(max-width:700px){
         .handleliste-floating-controls{
           top:10px !important;
@@ -504,6 +618,12 @@
     return cleaned.slice(0, 2).toUpperCase();
   }
 
+  function isAdminUser(user){
+    const role = String((user && user.role) || "").trim().toLowerCase();
+    const memberRole = String((user && user.family && user.family.memberRole) || "").trim().toLowerCase();
+    return role === "administrator" || role === "admin" || memberRole === "administrator" || memberRole === "admin";
+  }
+
   async function fetchCurrentUser(){
     try{
       const res = await fetch(`${API_BASE}/whoami`, {
@@ -531,6 +651,27 @@
     }catch(error){}
 
     window.location.href = "index.html?logout=" + Date.now();
+  }
+
+
+  async function createStandardUserApi(payload){
+    const res = await fetch(`${API_BASE}/shopping/users/create-standard`, {
+      method:"POST",
+      credentials:"include",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+
+    const text = await res.text();
+    let data = null;
+    try{ data = text ? JSON.parse(text) : null; }catch(error){}
+
+    if(!res.ok){
+      const message = (data && (data.error || data.message)) || text || `HTTP ${res.status}`;
+      throw new Error(message);
+    }
+
+    return data || {};
   }
 
   function settingsMenuHtml(){
@@ -569,12 +710,125 @@
         <a id="handlelisteLoginStatus" class="login-status is-signin" href="#" title="Logg inn">↗</a>
         <span id="handlelisteLoginMenu" class="login-menu">
           <span id="handlelisteLoginMenuName" class="login-menu-name"></span>
-          <a id="handlelisteLogoutLink" class="login-menu-link" href="#">Logg ut</a>
+          <a id="handlelisteCreateUserLink" class="login-menu-link" href="#">Opprett bruker</a>
+          <a id="handlelisteLogoutLink" class="login-menu-link login-menu-logout" href="#">Logge av</a>
         </span>
       </span>
     `;
 
+    renderCreateUserDialog();
     setupLoginWidget();
+  }
+
+  function renderCreateUserDialog(){
+    if(document.getElementById("handlelisteCreateUserModal")){
+      return;
+    }
+
+    const modal = document.createElement("div");
+    modal.id = "handlelisteCreateUserModal";
+    modal.className = "handleliste-create-user-modal";
+    modal.innerHTML = `
+      <div class="handleliste-create-user-modal-content" role="dialog" aria-modal="true" aria-labelledby="handlelisteCreateUserTitle">
+        <div class="handleliste-create-user-modal-header">
+          <div class="handleliste-create-user-modal-title" id="handlelisteCreateUserTitle">Opprett bruker</div>
+          <button type="button" class="handleliste-create-user-modal-close" onclick="HandlelisteMenu.closeCreateUserDialog()" aria-label="Lukk">×</button>
+        </div>
+        <p class="handleliste-create-user-help">Oppretter en ny standard bruker i Handleliste. Brukeren får ikke administratorrolle.</p>
+        <form id="handlelisteCreateUserForm" onsubmit="return HandlelisteMenu.submitCreateUserDialog(event)">
+          <div class="handleliste-create-user-field">
+            <label for="handlelisteCreateUserName">Fullt navn</label>
+            <input id="handlelisteCreateUserName" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="handleliste-create-user-field">
+            <label for="handlelisteCreateUserEmail">E-post</label>
+            <input id="handlelisteCreateUserEmail" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="handleliste-create-user-field">
+            <label for="handlelisteCreateUserPhone">Mobilnummer</label>
+            <input id="handlelisteCreateUserPhone" name="phone" type="tel" autocomplete="tel" placeholder="Valgfritt">
+          </div>
+          <div class="handleliste-create-user-help"><strong>Rolle:</strong> Standard bruker</div>
+          <div id="handlelisteCreateUserStatus" class="handleliste-create-user-status"></div>
+          <div class="handleliste-create-user-actions">
+            <button type="button" class="handleliste-create-user-button" onclick="HandlelisteMenu.closeCreateUserDialog()">Avbryt</button>
+            <button type="submit" class="handleliste-create-user-button primary">Opprett bruker</button>
+          </div>
+        </form>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  function setCreateUserStatus(message, type){
+    const status = document.getElementById("handlelisteCreateUserStatus");
+    if(!status) return;
+    status.className = "handleliste-create-user-status" + (type ? ` ${type}` : "");
+    status.textContent = message || "";
+  }
+
+  function openCreateUserDialog(event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    renderCreateUserDialog();
+    const modal = document.getElementById("handlelisteCreateUserModal");
+    const form = document.getElementById("handlelisteCreateUserForm");
+    if(form) form.reset();
+    setCreateUserStatus("", "");
+    if(modal) modal.classList.add("open");
+    setTimeout(function(){
+      const nameInput = document.getElementById("handlelisteCreateUserName");
+      if(nameInput) nameInput.focus();
+    }, 0);
+    closeSettings();
+    return false;
+  }
+
+  function closeCreateUserDialog(){
+    const modal = document.getElementById("handlelisteCreateUserModal");
+    if(modal) modal.classList.remove("open");
+    return false;
+  }
+
+  async function submitCreateUserDialog(event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const nameInput = document.getElementById("handlelisteCreateUserName");
+    const emailInput = document.getElementById("handlelisteCreateUserEmail");
+    const phoneInput = document.getElementById("handlelisteCreateUserPhone");
+    const submitButton = document.querySelector("#handlelisteCreateUserForm button[type='submit']");
+
+    const payload = {
+      name:String((nameInput && nameInput.value) || "").trim(),
+      email:String((emailInput && emailInput.value) || "").trim(),
+      phone:String((phoneInput && phoneInput.value) || "").trim(),
+      role:"User",
+      userType:"standard"
+    };
+
+    if(!payload.name || !payload.email){
+      setCreateUserStatus("Navn og e-post må fylles ut.", "error");
+      return false;
+    }
+
+    try{
+      if(submitButton) submitButton.disabled = true;
+      setCreateUserStatus("Oppretter bruker ...", "");
+      await createStandardUserApi(payload);
+      setCreateUserStatus("Brukeren er opprettet.", "success");
+      setTimeout(closeCreateUserDialog, 900);
+    }catch(error){
+      setCreateUserStatus(`Kunne ikke opprette bruker. ${error && error.message ? error.message : ""}`.trim(), "error");
+    }finally{
+      if(submitButton) submitButton.disabled = false;
+    }
+
+    return false;
   }
 
   async function setupLoginWidget(){
@@ -582,6 +836,7 @@
     const loginMenu = document.getElementById("handlelisteLoginMenu");
     const loginMenuName = document.getElementById("handlelisteLoginMenuName");
     const logoutLink = document.getElementById("handlelisteLogoutLink");
+    const createUserLink = document.getElementById("handlelisteCreateUserLink");
 
     if(!loginStatus || !loginMenu || !loginMenuName || !logoutLink){
       return;
@@ -597,6 +852,12 @@
       loginStatus.classList.add("signed-in");
       loginStatus.title = displayName;
       loginMenuName.textContent = displayName;
+      logoutLink.textContent = "Logge av";
+
+      if(createUserLink){
+        createUserLink.style.display = "block";
+        createUserLink.onclick = openCreateUserDialog;
+      }
 
       loginStatus.onclick = function(event){
         event.preventDefault();
@@ -620,6 +881,10 @@
       loginStatus.title = "Logg inn";
       loginStatus.onclick = null;
       loginMenu.style.display = "none";
+      if(createUserLink){
+        createUserLink.style.display = "none";
+        createUserLink.onclick = null;
+      }
     }
   }
 
@@ -741,7 +1006,10 @@
     toggleSize,
     toggleSettings,
     runPageAction,
-    renderFloatingControls
+    renderFloatingControls,
+    openCreateUserDialog,
+    closeCreateUserDialog,
+    submitCreateUserDialog
   };
 
   document.addEventListener("click", closeSettings);
