@@ -363,6 +363,27 @@ body:not(.dark-mode) .badge.area-sport{background:rgba(37,99,235,.16) !important
 .badge.area-bondekompaniet{background:rgba(22,163,74,.22) !important;color:#bbf7d0 !important;}
 body:not(.dark-mode) .badge.area-bondekompaniet{background:rgba(22,163,74,.16) !important;color:#166534 !important;}
 
+
+/* Bestille: hold Oppskrifter-knappen til høyre for eierknappene */
+.owner-recipe-toolbar{
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  flex-wrap:wrap !important;
+  width:100% !important;
+}
+.owner-recipe-toolbar .toolbar-left{
+  flex:1 1 auto !important;
+  width:auto !important;
+}
+.owner-recipe-toolbar .toolbar-right{
+  margin-left:auto !important;
+  flex:0 0 auto !important;
+  width:auto !important;
+}
+.owner-recipe-toolbar .recipes-shortcut-button{
+  flex:0 0 auto !important;
+}
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: BESTILLE v46 ios12 load fix 2026-06-19 -->
 <!-- version: BESTILLE v50 hard_remove_deprecated_meieri_option 2026-06-23 -->
@@ -430,7 +451,7 @@ window.toggleShoppingDesign = function(){
 document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
 </script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Bestille</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
 <div class="card"><div class="summary"><div class="summary-item"><div class="summary-label">Alle varer</div><div class="summary-value" id="totalValue">-</div></div><div class="summary-item"><div class="summary-label">Skal handles</div><div class="summary-value" id="orderValue">-</div></div><div class="summary-item"><div class="summary-label">Standard varer</div><div class="summary-value" id="standardValue">-</div></div></div></div>
-<div class="card"><div class="toolbar"><div class="toolbar-left" id="ownerButtons"></div><div class="toolbar-right"><a class="owner-button" href="handleliste-oppskrifter.html">Oppskrifter</a></div></div></div>
+<div class="card"><div class="toolbar owner-recipe-toolbar"><div class="toolbar-left" id="ownerButtons"></div><div class="toolbar-right"><a class="owner-button recipes-shortcut-button" href="handleliste-oppskrifter.html">Oppskrifter</a></div></div></div>
 <div class="card"><div class="toolbar space order-actions"><div class="toolbar-left"><button class="action-button primary equal-order" type="button" onclick="openNewItemModal()">Legg til ny vare</button><a class="action-button equal-order" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"></div></div></div>
 <div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="itemList"></div></div></div>
 <div class="modal" id="newItemModal" onclick="handleModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title">Legg til ny vare</div><button class="modal-close" type="button" onclick="closeNewItemModal()">×</button></div><form id="newItemForm"><div class="form-field"><label for="newItemName">Varenavn</label><input id="newItemName" type="text" autocomplete="off" required><div class="item-suggestions" id="newItemSuggestions"></div><div class="item-duplicate-warning" id="newItemDuplicateWarning"></div></div><div class="form-field"><label for="newItemOwner">Vareliste</label><select id="newItemOwner"></select></div><div class="form-field"><label for="newItemType">Varetype</label><select id="newItemType"></select></div><div class="form-field checkbox-row"><input id="newItemStandard" type="checkbox"><label for="newItemStandard">Standard vare</label></div><div class="form-field checkbox-row"><input id="newItemShouldBuy" type="checkbox" checked><label for="newItemShouldBuy">Skal handles nå</label></div><div class="toolbar"><button class="action-button" type="button" onclick="closeNewItemModal()">Avbryt</button><button class="action-button primary" type="submit" id="saveNewItemButton">Lagre vare</button></div></form></div></div>

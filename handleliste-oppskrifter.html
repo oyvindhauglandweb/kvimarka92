@@ -199,6 +199,22 @@ a.primary:hover,
   }
 }
 
+
+/* Oppskrifter: aktiv Oppskrifter-knapp skal ha samme blågrønne valgt-farge som aktive eierknapper */
+.owner-button.recipe-active-button.active,
+html:not(.classic-design-root) .owner-button.recipe-active-button.active,
+body:not(.dark-mode).soft-design .owner-button.recipe-active-button.active{
+  background:var(--handle-important-button, #245f73) !important;
+  border-color:var(--handle-important-button, #245f73) !important;
+  color:#fff !important;
+}
+.owner-button.recipe-active-button.active:hover,
+html:not(.classic-design-root) .owner-button.recipe-active-button.active:hover,
+body:not(.dark-mode).soft-design .owner-button.recipe-active-button.active:hover{
+  background:var(--handle-important-button-hover, #2d7188) !important;
+  border-color:var(--handle-important-button-hover, #2d7188) !important;
+  color:#fff !important;
+}
 </style><script>
 if(!String.prototype.replaceAll){
   String.prototype.replaceAll=function(search,replacement){
@@ -259,7 +275,7 @@ window.toggleShoppingTheme=function(){
 document.addEventListener("DOMContentLoaded", window.applyShoppingThemeState);
 </script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Oppskrifter</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
 <div class="card"><div class="summary"><div class="summary-item"><div class="summary-label">Alle varer</div><div class="summary-value" id="totalValue">-</div></div><div class="summary-item"><div class="summary-label">Skal handles</div><div class="summary-value" id="orderValue">-</div></div><div class="summary-item"><div class="summary-label">Standard varer</div><div class="summary-value" id="standardValue">-</div></div></div></div>
-<div class="card"><div class="toolbar space"><div class="toolbar-left" id="ownerButtons"></div><div class="toolbar-right"><a class="owner-button active" href="handleliste-oppskrifter.html">Oppskrifter</a></div></div></div>
+<div class="card"><div class="toolbar space"><div class="toolbar-left" id="ownerButtons"></div><div class="toolbar-right"><a class="owner-button active recipe-active-button" href="handleliste-oppskrifter.html">Oppskrifter</a></div></div></div>
 <div class="card"><div class="toolbar"><a class="action-button" href="handleliste-oppskrifter-rediger.html">Rediger oppskrifter</a></div></div>
 <div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="recipeList"></div></div></div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
