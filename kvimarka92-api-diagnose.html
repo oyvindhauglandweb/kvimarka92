@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kvimarka 92 API-diagnose</title>
+<style>
+body{font-family:Arial,sans-serif;background:#151515;color:#eee;margin:0;padding:20px}
+h1{margin-top:0}.card{background:#222;border-radius:10px;padding:14px;margin:12px 0}
+.ok{color:#78d27b}.fail{color:#ff7b7b}.warn{color:#ffd479}
+pre{white-space:pre-wrap;background:#111;padding:10px;border-radius:8px;max-height:220px;overflow:auto}
+button{padding:10px 14px;border:0;border-radius:8px;font-weight:bold;cursor:pointer}
+.small{opacity:.8;font-size:13px}
+</style>
+</head>
+<body>
+<h1>Kvimarka 92 API-diagnose</h1>
+<p>Denne siden tester begge aktuelle Worker-adresser fra nettleseren.</p>
+<button onclick="run()">Kjør test på nytt</button>
+<div id="out" class="card">Starter test...</div>
+<script>
+const BASES=[
+  "https://api-kvimarka92.carstereogarage.com",
+  "https://api.carstereogarage.com"
+];
+const PATHS=[
+  "/menu-public",
+  "/whoami",
+  "/menu"
+];
+
+function esc(s){
+  return String(s??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+}
+
+async function test(base,path){
+  const url=base+path+(path.includes("?")?"&":"?")+"ts="+Date.now();
+  const started=Date.now();
+  try{
+    const res=await fetch(url,{credentials:"include",cache:"no-store"});
+    const text=await res.text();
+    return {base,path,url,ok:res.ok,status:res.status,statusText:res.statusText,ms:Date.now()-started,body:text.slice(0,1500)};
+  }catch(error){
+    return {base,path,url,ok:false,status:"FETCH_FAILED",statusText:error.message||String(error),ms:Date.now()-started,body:""};
+  }
+}
+
+async function run(){
+  const out=document.getElementById("out");
+  out.innerHTML="Tester...";
+  const results=[];
+  for(const base of BASES){
+    for(const path of PATHS){
+      results.push(await test(base,path));
+    }
+  }
+  const anyOkByBase=BASES.map(base=>({
+    base,
+    ok:results.some(r=>r.base===base && r.ok)
+  }));
+  out.innerHTML=`
+    <div class="card">
+      <b>Oppsummering</b>
+      ${anyOkByBase.map(x=>`<div class="${x.ok?"ok":"fail"}">${esc(x.base)}: ${x.ok?"SVARER":"SVARER IKKE / BLOKKERT"}</div>`).join("")}
+      <p class="small">Hvis begge viser FETCH_FAILED, er dette ikke en HTML-sidefeil. Da er Worker/DNS/Cloudflare Access/CORS utilgjengelig fra nettleseren.</p>
+    </div>
+    ${results.map(r=>`
+      <div class="card">
+        <div class="${r.ok?"ok":"fail"}"><b>${r.ok?"OK":"FEIL"}</b> ${esc(r.status)} ${esc(r.statusText)} (${r.ms} ms)</div>
+        <div>${esc(r.url)}</div>
+        <pre>${esc(r.body)}</pre>
+      </div>
+    `).join("")}
+  `;
+}
+run();
+</script>
+</body>
+</html>
