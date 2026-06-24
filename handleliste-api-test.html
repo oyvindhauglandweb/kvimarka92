@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handleliste API-test</title>
+<style>
+body{font-family:Arial,sans-serif;background:#151515;color:#eee;padding:20px}
+.card{background:#242424;border-radius:10px;padding:14px;margin:10px 0}
+.ok{color:#72c184}.fail{color:#ff7777}pre{white-space:pre-wrap;background:#111;padding:10px;border-radius:8px}
+button{padding:10px 14px;border-radius:8px;border:0;font-weight:bold}
+</style>
+</head>
+<body>
+<h1>Handleliste API-test</h1>
+<p>Tester om nettleseren får kontakt med Worker fra samme domene/origin.</p>
+<button onclick="runTests()">Kjør test</button>
+<div id="out" class="card">Ikke kjørt.</div>
+<script>
+const API_BASE="https://api-kvimarka92.carstereogarage.com";
+async function test(url){
+  const started=Date.now();
+  try{
+    const res=await fetch(url,{credentials:"include"});
+    const text=await res.text();
+    return {
+      url,
+      ok:res.ok,
+      status:res.status,
+      statusText:res.statusText,
+      ms:Date.now()-started,
+      body:text.slice(0,1200)
+    };
+  }catch(error){
+    return {
+      url,
+      ok:false,
+      status:"FETCH_FAILED",
+      statusText:error.message || String(error),
+      ms:Date.now()-started,
+      body:""
+    };
+  }
+}
+async function runTests(){
+  const out=document.getElementById("out");
+  out.innerHTML="Tester...";
+  const urls=[
+    API_BASE+"/whoami",
+    API_BASE+"/shopping/items",
+    API_BASE+"/menu"
+  ];
+  const results=[];
+  for(const url of urls){
+    results.push(await test(url));
+  }
+  out.innerHTML=results.map(r=>`
+    <div class="card">
+      <div class="${r.ok?"ok":"fail"}"><b>${r.ok?"OK":"FEIL"}</b> ${r.status} ${r.statusText||""} (${r.ms} ms)</div>
+      <div>${r.url}</div>
+      <pre>${String(r.body||"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))}</pre>
+    </div>
+  `).join("");
+}
+runTests();
+</script>
+</body>
+</html>
