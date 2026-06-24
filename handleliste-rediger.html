@@ -342,7 +342,12 @@ function uniqueValues(values){const seen=new Set();const result=[];(Array.isArra
 function setShoppingTypes(typeOrder,rows,typeOptions){const options=Array.isArray(typeOptions)?typeOptions.map(value=>String(value||"").trim()).filter(Boolean):[];SHOPPING_TYPES=uniqueValues([...(options.length?options:[]),...(Array.isArray(typeOrder)?typeOrder:[]),...(Array.isArray(rows)?rows.map(item=>getEffectiveEditType(item)):[]),...DEFAULT_TYPES,...EXTRA_SHOPPING_AREA_TYPES]);}
 function isExternalShoppingAreaType(value){const key=String(value||"").trim().toLowerCase();return EXTRA_SHOPPING_AREA_TYPES.some(type=>type.toLowerCase()===key);}
 function getEffectiveEditType(item){const area=String(item&&item.shoppingArea||"").trim();if(isExternalShoppingAreaType(area))return area;return String(item&&item.type||"Annet").trim()||"Annet";}
-function buildTypeUpdatePayload(id,type){return isExternalShoppingAreaType(type)?{id,type,shoppingArea:type}:{id,type,shoppingArea:"Matvarer"};}
+function buildTypeUpdatePayload(id,type){
+  const cleanType=String(type||"Annet").trim()||"Annet";
+  return isExternalShoppingAreaType(cleanType)
+    ? {id,type:cleanType,shoppingArea:cleanType}
+    : {id,type:cleanType,shoppingArea:"Matvarer"};
+}
 function compareShoppingItemName(a,b){return String((a&&a.name)||(a&&a.itemName)||"").localeCompare(String((b&&b.name)||(b&&b.itemName)||""),"no",{numeric:true,sensitivity:"base"});}function shoppingTypeIndex(type){const key=String(type||"Annet").toLowerCase();const index=SHOPPING_TYPES.findIndex(value=>String(value||"").toLowerCase()===key);return index<0?9999:index;}function sortedEditItems(){return [...items].sort((a,b)=>shoppingTypeIndex(getEffectiveEditType(a))-shoppingTypeIndex(getEffectiveEditType(b))||compareShoppingItemName(a,b));}
 function canEditDetails(item){if(isSupervisorOrAdministrator())return true;const owner=normalizeOwner(item.owner);return owner!=="Felles"&&ownerMatchesCurrentUser(owner);}
 async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];setShoppingTypes(data.typeOrder||[],items,data.typeOptions||[]);render();setStatus("Klar. Egne varer kan slettes. Fellesvarer og standardvalg styres av supervisor/administrator.","success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
