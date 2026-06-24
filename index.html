@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Kvimarka 92</title>
-<!-- version: index-v3-defensive-menu-fallback-2026-06-24 -->
+<!-- version: index-v4-no-cache-control-header-2026-06-24 -->
 
 <style>
 :root{
@@ -528,9 +528,7 @@ document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
 <div class="login-widget">
   <a id="loginStatus"
      class="login-status is-signin"
-     href="https://api-kvimarka92.carstereogarage.com/login?returnUrl=https%3A%2F%2Fkvimarka92.carstereogarage.com%2F"
-     Sign in
-  </a>
+     href="https://api-kvimarka92.carstereogarage.com/login?returnUrl=https%3A%2F%2Fkvimarka92.carstereogarage.com%2F">Sign in</a>
 
   <div id="loginMenu" class="login-menu" style="display:none;">
     <div id="loginMenuName" class="login-menu-name"></div>
@@ -691,14 +689,17 @@ function sleepMs(ms){
 }
 
 async function fetchJson(url, options = {}){
+  // v4: Ikke send Cache-Control som request-header.
+  // Worker tillater bare Content-Type i CORS Allow-Headers. Cache-Control utløser
+  // preflight som blir avvist, og nettleseren viser da bare "Failed to fetch".
   const fetchOptions = {
-    cache:"no-store",
     ...options,
-    headers:{
-      "Cache-Control":"no-cache",
-      ...((options && options.headers) || {})
-    }
+    cache:"no-store"
   };
+
+  if(options && options.headers){
+    fetchOptions.headers = options.headers;
+  }
 
   const res = await fetch(url, fetchOptions);
 
