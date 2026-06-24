@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Kvimarka 92</title>
-<!-- version: index-v4-no-cache-control-header-2026-06-24 -->
+<!-- version: index-v5-hide-route-cases-from-admin-2026-06-25 -->
 
 <style>
 :root{
@@ -999,7 +999,13 @@ function getRouteCaseAccessFlags(routeCase){
   return {
     public: accessLevel === "Public",
     private: accessLevel === "Public" || accessLevel === "Private",
-    administrator: true
+
+    // v5:
+    // Feriedestinasjoner bygges dynamisk fra Route Cases, ikke fra Menu items-tabellen.
+    // De skal derfor vises under Privat > Feriereiser, men ikke dupliseres under
+    // Admin > Feriereiser. Admin-menyen skal bare ha adminhandlinger som
+    // "+ Ny feriedestinasjon" og "Opprett ny bruker".
+    administrator: false
   };
 }
 
