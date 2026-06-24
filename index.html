@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Kvimarka 92</title>
-<!-- version: index-v2-auth-menu-retry-2026-06-24 -->
+<!-- version: index-v3-defensive-menu-fallback-2026-06-24 -->
 
 <style>
 :root{
@@ -613,6 +613,24 @@ const menuState = {
 };
 
 const MENU_STATE_STORAGE_KEY = "kvimarka92MenuState";
+
+const LOCAL_FALLBACK_MENU_ITEMS = [
+  {id:"fallback-help",buttonText:"Hjelp",level1:"",level2:"",level3:"",url:"help.html",public:true,private:true,administrator:false,sortOrder:10,openInNewTab:false},
+  {id:"fallback-contact",buttonText:"Kontakt",level1:"",level2:"",level3:"",url:"kontakt.html",public:true,private:true,administrator:false,sortOrder:20,openInNewTab:false},
+  {id:"fallback-handleliste-bestille",buttonText:"Bestille",level1:"Handleliste",level2:"",level3:"",url:"handleliste-bestille.html",public:false,private:true,administrator:false,sortOrder:100,openInNewTab:false},
+  {id:"fallback-handleliste-handle",buttonText:"Handle",level1:"Handleliste",level2:"",level3:"",url:"handleliste-handle.html",public:false,private:true,administrator:false,sortOrder:110,openInNewTab:false},
+  {id:"fallback-handleliste-rediger",buttonText:"Rediger varer",level1:"Handleliste",level2:"Innstillinger",level3:"",url:"handleliste-rediger.html",public:false,private:true,administrator:false,sortOrder:120,openInNewTab:false},
+  {id:"fallback-handleliste-varetyper",buttonText:"Varetyper",level1:"Handleliste",level2:"Innstillinger",level3:"",url:"handleliste-varetyper.html",public:false,private:true,administrator:false,sortOrder:130,openInNewTab:false},
+  {id:"fallback-handleliste-rydde",buttonText:"Rydde i varer",level1:"Handleliste",level2:"Innstillinger",level3:"",url:"handleliste-rydde.html",public:false,private:true,administrator:false,sortOrder:140,openInNewTab:false},
+  {id:"fallback-handleliste-varsling",buttonText:"Varsling",level1:"Handleliste",level2:"Innstillinger",level3:"",url:"handleliste-varsling.html",public:false,private:true,administrator:false,sortOrder:150,openInNewTab:false},
+  {id:"fallback-handleliste-historikk",buttonText:"Historikk",level1:"Handleliste",level2:"Innstillinger",level3:"",url:"handleliste-historikk.html",public:false,private:true,administrator:false,sortOrder:160,openInNewTab:false},
+  {id:"fallback-admin-users-handleliste",buttonText:"Handleliste",level1:"Opprett brukere",level2:"",level3:"",url:"admin-opprett-brukere-handleliste.html",public:false,private:false,administrator:true,sortOrder:15,openInNewTab:false}
+];
+
+function getFallbackMenuItems(){
+  return LOCAL_FALLBACK_MENU_ITEMS.map(item => ({...item}));
+}
+
 
 
 const HOLIDAY_ROOT_LABELS = [
@@ -1478,18 +1496,35 @@ function renderPathMenu(){
 }
 
 async function loadMenuForCurrentUser(){
-  let menuData;
+  let menuItems = [];
 
-  if(currentUser){
-    menuData = await fetchJson(`${API_BASE}/menu?ts=${Date.now()}`, {
-      credentials:"include"
-    });
-  }else{
-    menuData = await fetchJson(`${API_BASE}/menu-public?ts=${Date.now()}`);
+  try{
+    let menuData;
+
+    if(currentUser){
+      menuData = await fetchJson(`${API_BASE}/menu?ts=${Date.now()}`, {
+        credentials:"include"
+      });
+    }else{
+      menuData = await fetchJson(`${API_BASE}/menu-public?ts=${Date.now()}`);
+    }
+
+    routeCases = await fetchRouteCases();
+    menuItems = menuData.items || [];
+  }catch(error){
+    console.warn("Could not load menu from Worker. Using local fallback menu.", error);
+    routeCases = [];
+    menuItems = getFallbackMenuItems();
+
+    const statusBox = document.getElementById("statusBox");
+    if(statusBox){
+      statusBox.className = "error-box";
+      statusBox.innerHTML = `Meny kunne ikke hentes fra Worker. Viser lokal nødmeny.<br><br>${esc(error.message || error)}`;
+      statusBox.style.display = "block";
+    }
   }
 
-  routeCases = await fetchRouteCases();
-  allMenuItems = ensureLocalAdminMenuItems(buildDynamicRouteCaseMenu(menuData.items || [], routeCases));
+  allMenuItems = ensureLocalAdminMenuItems(buildDynamicRouteCaseMenu(menuItems, routeCases));
 
   restoreMenuState();
   renderPathMenu();
@@ -1527,7 +1562,10 @@ async function loadPage(){
   setupLoginWidget();
 
   await loadMenuForCurrentUser();
-  statusBox.style.display = "none";
+
+  if(statusBox && statusBox.className !== "error-box"){
+    statusBox.style.display = "none";
+  }
 
   if(!currentUser){
     retryAuthenticatedMenuAfterInitialPublicLoad();
@@ -1559,9 +1597,15 @@ document.addEventListener("click", function(event){
 loadPage().catch(error => {
   console.error(error);
 
+  setupLoginWidget();
+
+  allMenuItems = ensureLocalAdminMenuItems(getFallbackMenuItems());
+  routeCases = [];
+  renderPathMenu();
+
   document.getElementById("statusBox").className = "error-box";
   document.getElementById("statusBox").innerHTML =
-    `Kunne ikke laste siden.<br><br>${esc(error.message)}`;
+    `Kunne ikke laste meny fra Worker. Viser lokal nødmeny.<br><br>${esc(error.message || error)}`;
 });
 </script>
 
