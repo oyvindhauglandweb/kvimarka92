@@ -602,7 +602,7 @@ if(!String.prototype.replaceAll){
 
 <script>
 const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-console.log("help.html version: kvimarka-help-v7-image-zoom-drag-pan-2026-06-06");
+console.log("help.html version: kvimarka-help-v8-back-to-referrer-2026-06-24");
 
 function esc(value){
   return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");
@@ -653,11 +653,19 @@ function getHelpBackTarget(){
 function goBackFromHelp(event){
   if(event){
     event.preventDefault();
+    if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+    if(event.stopPropagation) event.stopPropagation();
   }
 
   location.href = getHelpBackTarget();
   return false;
 }
+
+// Hjelp v8:
+// Den delte Handleliste-menyen bruker HandlelisteMenu.goBack(event) på tilbakeknappen.
+// Hvis siden ikke definerer window.goHandlelisteBackOrHome, faller den tilbake til hovedmenyen.
+// På Hjelp-siden skal tilbake derfor bruke back/from-parameter eller document.referrer.
+window.goHandlelisteBackOrHome = goBackFromHelp;
 
 let imageModalZoom = 1;
 const IMAGE_MODAL_MIN_ZOOM = 0.25;
