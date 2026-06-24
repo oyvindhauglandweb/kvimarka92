@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Rediger varer</title><!-- version: rediger-v7_admin_permissions_external_area_fix_2026_06_24 --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Rediger varer</title><!-- version: rediger-v160_stable_manual_save_syntax_checked_2026_06_24 --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;--active-button:#b8c0c7;--active-button-text:#222;--soft-card-bg:rgba(0,0,0,.035);--soft-row-bg:rgba(0,0,0,.055);--soft-button-bg:rgba(0,0,0,.075);--soft-button-hover:rgba(0,0,0,.11);--soft-empty-bg:rgba(0,0,0,.045);}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;--active-button:#5a5a5a;--active-button-text:#fff;--soft-card-bg:rgba(255,255,255,.038);--soft-row-bg:rgba(0,0,0,.18);--soft-button-bg:rgba(255,255,255,.055);--soft-button-hover:rgba(255,255,255,.09);--soft-empty-bg:rgba(0,0,0,.12);}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--active-button);border-color:var(--active-button);color:var(--active-button-text);}.primary{background:var(--active-button);border-color:var(--active-button);color:var(--active-button-text);}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--link);}.group{margin-bottom:10px;}.group-title{font-size:15px;font-weight:bold;margin:0 0 4px;color:var(--muted);}.item-list{display:flex;flex-direction:column;gap:3px;}.item-row{display:grid;grid-template-columns:26px 1fr auto;gap:6px;align-items:center;border:1px solid var(--border);border-radius:7px;padding:4px 6px;background:rgba(127,127,127,.04);min-height:32px;}.item-check{width:19px;height:19px;accent-color:var(--link);}.item-name{font-weight:bold;font-size:14px;line-height:1.1;}.item-meta{color:var(--muted);font-size:11px;margin-top:1px;line-height:1.15;}.badge{display:inline-flex;align-items:center;min-height:18px;padding:0 6px;border-radius:999px;background:rgba(124,199,232,.16);color:var(--link);font-size:10px;font-weight:bold;white-space:nowrap;}.badge-stack{display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap;}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}.modal{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.82);padding:18px;overflow:auto;}.modal.open{display:block;}.modal-content{max-width:560px;margin:50px auto;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;}.modal-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;}.modal-title{font-size:22px;font-weight:bold;}.modal-close{width:42px;height:42px;border:1px solid var(--border);border-radius:8px;background:var(--button);color:var(--text);font-size:24px;font-weight:bold;cursor:pointer;}.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}label{font-weight:bold;font-size:14px;}input,select{width:100%;min-height:40px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:15px;}.checkbox-row{display:flex;align-items:center;gap:10px;}.checkbox-row input{width:22px;height:22px;min-height:auto;}@media(max-width:700px){body{padding:6px;}.header{margin-bottom:12px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}.summary-item{padding:6px;}.summary-label{font-size:10px;}.summary-value{font-size:15px;}.toolbar,.toolbar-left,.toolbar-right{align-items:stretch;width:100%;}.action-button,.owner-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.group{margin-bottom:8px;}.group-title{font-size:13px;margin-bottom:3px;}.item-list{gap:2px;}.item-row{grid-template-columns:24px 1fr auto;padding:3px 5px;min-height:30px;gap:5px;border-radius:6px;}.item-check{width:18px;height:18px;}.item-name{font-size:13px;}.item-meta{font-size:10px;}.badge{min-height:16px;font-size:9px;padding:0 5px;}.modal-content{margin:30px auto;padding:14px;}}
 .edit-row{display:grid;grid-template-columns:minmax(170px,1fr) 128px 110px 98px 34px 86px 34px;gap:6px;align-items:center;border:1px solid var(--border);border-radius:7px;padding:4px 6px;background:rgba(127,127,127,.04);min-height:32px;margin-bottom:3px;}.standard-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:32px;padding:0 9px;border:1px solid var(--border);border-radius:7px;background:var(--button);color:var(--text);font-size:12px;cursor:pointer;}.standard-button input{width:16px;height:16px;min-height:auto;accent-color:var(--link);}.small-select{min-height:32px;font-size:12px;padding:0 8px;max-width:120px;} .type-select{max-width:150px;} .editable-name{display:inline;border:0;background:transparent;color:var(--text);font:inherit;font-weight:bold;padding:0;cursor:pointer;text-align:left;} .editable-name:hover{text-decoration:underline;} .editable-name:disabled{cursor:default;text-decoration:none;}.delete-button{display:inline-flex;align-items:center;justify-content:center;width:34px;height:32px;border:1px solid var(--border);border-radius:7px;background:var(--button);color:#ff8b8b;font-weight:bold;cursor:pointer;}.delete-button:disabled,.standard-button.disabled,.small-select:disabled{opacity:.45;cursor:not-allowed;}.standard-button.disabled{color:var(--muted);}@media(max-width:700px){.edit-row{grid-template-columns:1fr auto;align-items:center;}.edit-row .small-select,.edit-row .standard-button,.edit-row .delete-button{grid-column:auto;}.small-select{max-width:112px;}.type-select{max-width:130px;}.editable-name{font-size:13px;}}/* shopping-toolbar-cleanup-2026-06-05 */ .top-button.bestille-top-button{font-size:20px;} .top-button.handle-top-button{font-size:20px;} .toolbar-separator{display:inline-block;width:12px;flex:0 0 12px;} @media(max-width:700px){.toolbar-separator{width:100%;flex:0 0 100%;height:0;}}
 /* Designvelger: mykt design er standard. Klassisk design aktiveres med html.classic-design-root. */
@@ -301,7 +301,7 @@ window.toggleShoppingTheme=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger varer · v157</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-varetyper.html">Varetyper</a></div><div class="toolbar-right"><a class="action-button" href="handleliste-rydde.html">Rydde i varer</a></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="editList"></div></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger varer • v160</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-varetyper.html">Varetyper</a></div><div class="toolbar-right"><a class="action-button" href="handleliste-rydde.html">Rydde i varer</a></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="editList"></div></div></div>
 <div class="modal" id="itemImageModal" onclick="if(event.target===this) closeItemImageModal();"><div class="modal-content"><div class="modal-header"><div class="modal-title" id="itemImageModalTitle">Varebilde</div><button class="modal-close" type="button" onclick="closeItemImageModal()">×</button></div><img class="image-viewer-img" id="itemImageModalImg" alt="Varebilde"></div></div>
 <script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
@@ -342,31 +342,15 @@ function uniqueValues(values){const seen=new Set();const result=[];(Array.isArra
 function setShoppingTypes(typeOrder,rows,typeOptions){const options=Array.isArray(typeOptions)?typeOptions.map(value=>String(value||"").trim()).filter(Boolean):[];SHOPPING_TYPES=uniqueValues([...(options.length?options:[]),...(Array.isArray(typeOrder)?typeOrder:[]),...(Array.isArray(rows)?rows.map(item=>getEffectiveEditType(item)):[]),...DEFAULT_TYPES,...EXTRA_SHOPPING_AREA_TYPES]);}
 function isExternalShoppingAreaType(value){const key=String(value||"").trim().toLowerCase();return EXTRA_SHOPPING_AREA_TYPES.some(type=>type.toLowerCase()===key);}
 function getEffectiveEditType(item){const area=String(item&&item.shoppingArea||"").trim();if(isExternalShoppingAreaType(area))return area;return String(item&&item.type||"Annet").trim()||"Annet";}
-function buildTypeUpdatePayload(id,type){
-  const cleanType=String(type||"Annet").trim()||"Annet";
-  return isExternalShoppingAreaType(cleanType)
-    ? {id,type:cleanType,shoppingArea:cleanType}
-    : {id,type:cleanType,shoppingArea:"Matvarer"};
-}
-function compareShoppingItemName(a,b){return String((a&&a.name)||(a&&a.itemName)||"").localeCompare(String((b&&b.name)||(b&&b.itemName)||""),"no",{numeric:true,sensitivity:"base"});}
-function shoppingTypeIndex(type){const key=String(type||"Annet").toLowerCase();const index=SHOPPING_TYPES.findIndex(value=>String(value||"").toLowerCase()===key);return index<0?9999:index;}
-function sortedEditItems(){
-  // v159: Rediger-siden skal være stabil. Rader sorteres kun på navn her,
-  // ikke på varetype/handleområde, slik at valg på én rad aldri flytter raden før bruker lagrer.
-  return [...items].sort(compareShoppingItemName);
-}
+function buildTypeUpdatePayload(id,type){return isExternalShoppingAreaType(type)?{id,type,shoppingArea:type}:{id,type,shoppingArea:"Matvarer"};}
+function compareShoppingItemName(a,b){return String((a&&a.name)||(a&&a.itemName)||"").localeCompare(String((b&&b.name)||(b&&b.itemName)||""),"no",{numeric:true,sensitivity:"base"});}function shoppingTypeIndex(type){const key=String(type||"Annet").toLowerCase();const index=SHOPPING_TYPES.findIndex(value=>String(value||"").toLowerCase()===key);return index<0?9999:index;}function sortedEditItems(){return [...items].sort(compareShoppingItemName);}
 function canEditDetails(item){if(isSupervisorOrAdministrator())return true;const owner=normalizeOwner(item.owner);return owner!=="Felles"&&ownerMatchesCurrentUser(owner);}
-async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];setShoppingTypes(data.typeOrder||[],items,data.typeOptions||[]);render();setStatus("Klar. Egne varer kan slettes. Fellesvarer og standardvalg styres av supervisor/administrator. Versjon: v157 external type controlled save.","success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];setShoppingTypes(data.typeOrder||[],items,data.typeOptions||[]);render();setStatus("Klar. Endre en rad og trykk Lagre på samme rad. Egne varer kan slettes. Fellesvarer og standardvalg styres av supervisor/administrator. Versjon: v160.","success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
 function render(){
   const root=document.getElementById("editList");
-  if(!items.length){
-    root.innerHTML='<div class="empty">Ingen varer.</div>';
-    return;
-  }
-
+  if(!items.length){root.innerHTML='<div class="empty">Ingen varer.</div>';return;}
   const elevated=isSupervisorOrAdministrator();
   const standardAllowed=canChangeStandard();
-
   root.innerHTML=sortedEditItems().map(item=>{
     const canDelete=canDeleteItem(item);
     const canEditOwner=elevated;
@@ -374,13 +358,12 @@ function render(){
     const standardTitle=standardAllowed?"Endre standardvare":"Bare supervisor og administrator kan endre standardvare";
     const deleteTitle=canDelete?"Fjern vare":"Du kan bare slette egne varer. Fellesvarer slettes av supervisor/administrator.";
     const editTitle=canEditItem?"Klikk for å endre varenavn":"Du kan bare endre egne varer. Fellesvarer endres av supervisor/administrator.";
-
     return `<div class="edit-row" data-row-id="${item.id}">
       <div>
         <button class="editable-name" type="button" onclick="editItemName(${item.id})" title="${esc(editTitle)}" ${canEditItem?"":"disabled"}>${esc(item.name)}</button>
         <div class="item-meta">${esc(getEffectiveEditType(item))} • ${item.shouldBuy?"Skal handles":"Ikke bestilt"}</div>
       </div>
-      <select class="small-select type-select" data-field="type" onchange="markRowDirty(${item.id})" ${canEditItem?"":"disabled"} title="${canEditItem?"Endre varetype":"Du kan bare endre egne varer"}">
+      <select class="small-select" data-field="type" onchange="markRowDirty(${item.id})" ${canEditItem?"":"disabled"} title="${canEditItem?"Endre varetype":"Du kan bare endre egne varer"}">
         ${SHOPPING_TYPES.map(type=>`<option value="${esc(type)}" ${String(getEffectiveEditType(item)).toLowerCase()===String(type).toLowerCase()?"selected":""}>${esc(type)}</option>`).join("")}
       </select>
       <select class="small-select" data-field="owner" onchange="markRowDirty(${item.id})" ${canEditOwner?"":"disabled"} title="${canEditOwner?"Endre vareliste":"Bare supervisor og administrator kan endre vareliste"}">
@@ -396,83 +379,114 @@ function render(){
     </div>`;
   }).join("");
 }
+function getEditRow(id){return document.querySelector(`.edit-row[data-row-id="${String(id).replace(/"/g,'\\"')}"]`);}
+function markRowDirty(id){const row=getEditRow(id);if(!row)return;row.classList.add("dirty");const button=row.querySelector(".save-row-button");if(button)button.disabled=false;}
+function setRowSaving(id,saving){const row=getEditRow(id);if(!row)return;row.classList.toggle("saving",!!saving);row.querySelectorAll("select,input,button").forEach(el=>{if(el.classList.contains("delete-button"))return;el.disabled=!!saving;});const save=row.querySelector(".save-row-button");if(save)save.disabled=!!saving;}
+async function saveRow(id){const item=items.find(row=>Number(row.id)===Number(id));const row=getEditRow(id);if(!item||!row)return;if(!canEditDetails(item)){setStatus("Du kan bare endre egne varer. Fellesvarer kan bare endres av supervisor eller administrator.","error");await loadItems();return;}const typeEl=row.querySelector('[data-field="type"]');const ownerEl=row.querySelector('[data-field="owner"]');const standardEl=row.querySelector('[data-field="standardItem"]');const selectedType=typeEl?typeEl.value:getEffectiveEditType(item);const payload=buildTypeUpdatePayload(id,selectedType);if(ownerEl&&!ownerEl.disabled){payload.owner=ownerEl.value;}if(standardEl&&!standardEl.disabled){payload.standardItem=!!standardEl.checked;}setRowSaving(id,true);setStatus(`Lagrer «${esc(item.name||"vare")}» som «${esc(payload.type)}» / «${esc(payload.shoppingArea)}»...`);try{const data=await fetchJson(`${API_BASE}/shopping/item-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(payload)});if(data&&data.item&&Number(data.item.id)!==Number(id)){throw new Error(`Worker returnerte feil vare-ID (${data.item.id}) for oppdatert vare (${id}).`);}await loadItems();setStatus(`Varen «${esc(item.name||"vare")}» er lagret.`,"success");}catch(error){await loadItems();setStatus(`Kunne ikke lagre «${esc(item.name||"vare") }».<br><br>${esc(error.message)}`,"error");}}
+function updateType(id,type){markRowDirty(id);}
+async function editItemName(id){const item=items.find(item=>Number(item.id)===Number(id));if(!item)return;if(!canEditDetails(item)){setStatus("Du kan bare endre egne varer. Fellesvarer kan bare endres av supervisor eller administrator.","error");return;}const name=prompt("Nytt varenavn:",item.name||"");if(name===null)return;const cleanName=String(name||"").trim();if(!cleanName){setStatus("Varenavn kan ikke være tomt.","error");return;}if(cleanName===item.name)return;try{await fetchJson(`${API_BASE}/shopping/item-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id,name:cleanName})});item.name=cleanName;render();setStatus("Varenavnet er oppdatert.","success");}catch(error){setStatus(`Kunne ikke oppdatere varenavn.<br><br>${esc(error.message)}`,"error");await loadItems();}}
+function updateOwner(id,owner){markRowDirty(id);}
+function updateStandard(id,standardItem){markRowDirty(id);}
+async function deleteItem(id){const item=items.find(item=>Number(item.id)===Number(id));if(!item)return;if(!canDeleteItem(item)){setStatus("Du kan bare slette egne varer. Fellesvarer kan bare slettes av supervisor eller administrator.","error");return;}if(!confirm(`Fjerne varen fra handlelisten?\n\n${item.name}\n\nVaren slettes fra Shopping items. Historikk beholdes.`))return;try{await fetchJson(`${API_BASE}/shopping/item-delete`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id})});await loadItems();setStatus("Varen er fjernet.","success");}catch(error){setStatus(`Kunne ikke fjerne varen.<br><br>${esc(error.message)}`,"error");}}
+loadItems();</script>
+<script>
+(function(){
+  const APP_PAGE_RE = /^handleliste-[a-z0-9-]+\.html$/i;
+  const HOME_TARGET = 'index.html?restoreMenu=1';
 
-function getEditRow(id){
-  return document.querySelector(`.edit-row[data-row-id="${String(id).replace(/"/g,'\\"')}"]`);
-}
-
-function markRowDirty(id){
-  const row=getEditRow(id);
-  if(!row)return;
-  row.classList.add("dirty");
-  const button=row.querySelector(".save-row-button");
-  if(button)button.disabled=false;
-}
-
-function setRowSaving(id,saving){
-  const row=getEditRow(id);
-  if(!row)return;
-  row.classList.toggle("saving",!!saving);
-  row.querySelectorAll("select,input,button").forEach(el=>{
-    if(el.classList.contains("delete-button"))return;
-    el.disabled=!!saving;
-  });
-  const save=row.querySelector(".save-row-button");
-  if(save)save.disabled=!!saving;
-}
-
-async function saveRow(id){
-  const item=items.find(row=>Number(row.id)===Number(id));
-  const row=getEditRow(id);
-  if(!item || !row)return;
-
-  if(!canEditDetails(item)){
-    setStatus("Du kan bare endre egne varer. Fellesvarer kan bare endres av supervisor eller administrator.","error");
-    await loadItems();
-    return;
+  function currentPage(){
+    return location.pathname.split('/').pop() || 'handleliste-bestille.html';
   }
 
-  const typeEl=row.querySelector('[data-field="type"]');
-  const ownerEl=row.querySelector('[data-field="owner"]');
-  const standardEl=row.querySelector('[data-field="standardItem"]');
-  const selectedType=typeEl ? typeEl.value : getEffectiveEditType(item);
-  const payload=buildTypeUpdatePayload(id,selectedType);
-
-  if(ownerEl && !ownerEl.disabled){
-    payload.owner=ownerEl.value;
+  function isAppPage(page){
+    return APP_PAGE_RE.test(String(page || ''));
   }
 
-  if(standardEl && !standardEl.disabled){
-    payload.standardItem=!!standardEl.checked;
+  function safeAppTarget(value){
+    if(!value) return '';
+    try{
+      const url = new URL(value, location.href);
+      if(url.origin !== location.origin) return '';
+      const page = url.pathname.split('/').pop();
+      if(!isAppPage(page)) return '';
+      return page + url.search + url.hash;
+    }catch(e){
+      const clean = String(value).trim();
+      const page = clean.split('?')[0].split('#')[0];
+      return isAppPage(page) ? clean : '';
+    }
   }
 
-  setRowSaving(id,true);
-  setStatus(`Lagrer «${esc(item.name||"vare")}» som «${esc(payload.type)}» / «${esc(payload.shoppingArea)}»...`);
+  function currentTargetForBack(){
+    const url = new URL(location.href);
+    const page = currentPage();
+    const params = new URLSearchParams(url.search);
+    const legacyFrom = params.get('from');
+    const existingBack = params.get('back');
 
-  try{
-    const data=await fetchJson(`${API_BASE}/shopping/item-update`,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body:JSON.stringify(payload)
-    });
+    params.delete('from');
 
-    if(data&&data.item&&Number(data.item.id)!==Number(id)){
-      throw new Error(`Worker returnerte feil vare-ID (${data.item.id}) for oppdatert vare (${id}).`);
+    if(!existingBack && legacyFrom){
+      const safeLegacy = safeAppTarget(legacyFrom);
+      if(safeLegacy) params.set('back', safeLegacy);
     }
 
-    await loadItems();
-    setStatus(`Varen «${esc(item.name||"vare")}» er lagret.`,"success");
-  }catch(error){
-    await loadItems();
-    setStatus(`Kunne ikke lagre «${esc(item.name||"vare")}».<br><br>${esc(error.message)}`,"error");
+    const query = params.toString();
+    return page + (query ? '?' + query : '') + url.hash;
   }
-}
 
-async function updateType(id,type){ markRowDirty(id); }
+  function getBackTarget(){
+    const params = new URLSearchParams(location.search);
+    return safeAppTarget(params.get('back')) || safeAppTarget(params.get('from')) || HOME_TARGET;
+  }
 
-async function editItemName(id){const item=items.find(item=>Number(item.id)===Number(id));if(!item)return;if(!canEditDetails(item)){setStatus("Du kan bare endre egne varer. Fellesvarer kan bare endres av supervisor eller administrator.","error");return;}const name=prompt("Nytt varenavn:",item.name||"");if(name===null)return;const cleanName=String(name||"").trim();if(!cleanName){setStatus("Varenavn kan ikke være tomt.","error");return;}if(cleanName===item.name)return;try{await fetchJson(`${API_BASE}/shopping/item-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id,name:cleanName})});item.name=cleanName;render();setStatus("Varenavnet er oppdatert.","success");}catch(error){setStatus(`Kunne ikke oppdatere varenavn.<br><br>${esc(error.message)}`,"error");await loadItems();}}
-async function updateOwner(id,owner){ markRowDirty(id); }
-)();
+  function addBackToUrl(rawHref){
+    if(!rawHref) return rawHref;
+    if(/^#|^(mailto|sms|tel|javascript):/i.test(rawHref)) return rawHref;
+
+    try{
+      const url = new URL(rawHref, location.href);
+      if(url.origin !== location.origin) return rawHref;
+      const page = url.pathname.split('/').pop();
+      const here = currentPage();
+
+      if(isAppPage(page) && page !== here){
+        url.searchParams.delete('from');
+        if(!url.searchParams.has('back')){
+          url.searchParams.set('back', currentTargetForBack());
+        }
+        return page + url.search + url.hash;
+      }
+    }catch(e){}
+
+    return rawHref;
+  }
+
+  function appBack(event){
+    event.preventDefault();
+    location.href = getBackTarget();
+  }
+
+  function initAppNavigation(){
+    document.querySelectorAll('a[href]').forEach(function(anchor){
+      const href = anchor.getAttribute('href');
+      const nextHref = addBackToUrl(href);
+      if(nextHref !== href) anchor.setAttribute('href', nextHref);
+    });
+
+    document.querySelectorAll('.top-buttons .top-button').forEach(function(button){
+      if((button.textContent || '').trim() === '←'){
+        button.addEventListener('click', appBack);
+      }
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initAppNavigation);
+  }else{
+    initAppNavigation();
+  }
+})();
 </script>
 
 
