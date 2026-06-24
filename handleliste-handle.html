@@ -82,7 +82,7 @@ html:not(.classic-design-root) .empty{
 /* Handlevisning: 3 trinn for tekst og avkrysningsbokser. small = tidligere kompakt visning. */
 html.handle-size-small{--handle-row-height:30px;--handle-grid-check:21px;--handle-check-size:17px;--handle-name-size:13px;--handle-group-size:14px;}
 html.handle-size-medium{--handle-row-height:38px;--handle-grid-check:31px;--handle-check-size:25px;--handle-name-size:17px;--handle-group-size:16px;}
-html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handle-check-size:33px;--handle-name-size:21px;--handle-group-size:18px;}
+html.handle-size-large{--handle-row-height:46px;--handle-grid-check:34px;--handle-check-size:28px;--handle-name-size:21px;--handle-group-size:18px;}
 #shoppingList .item-row{
   height:var(--handle-row-height) !important;
   grid-template-columns:var(--handle-grid-check) minmax(0,1fr) auto !important;
@@ -103,7 +103,7 @@ body.dark-mode .modal{background:rgba(0,0,0,.82);}
 @media(max-width:700px){
   html.handle-size-small{--handle-row-height:29px;--handle-grid-check:20px;--handle-check-size:16px;--handle-name-size:12.5px;--handle-group-size:13px;}
   html.handle-size-medium{--handle-row-height:38px;--handle-grid-check:31px;--handle-check-size:25px;--handle-name-size:17px;--handle-group-size:16px;}
-  html.handle-size-large{--handle-row-height:46px;--handle-grid-check:39px;--handle-check-size:33px;--handle-name-size:21px;--handle-group-size:18px;}
+  html.handle-size-large{--handle-row-height:46px;--handle-grid-check:34px;--handle-check-size:28px;--handle-name-size:21px;--handle-group-size:18px;}
 }
 
 
@@ -1006,6 +1006,18 @@ body:not(.dark-mode) #activateStandardNotificationButton.standard-notification-a
 .modal .image-file-input{
   display:none !important;
 }
+
+/* Handle v98: A++ skal gi større tekst, men sjekkbokser begrenses litt.
+   33px ble for stort på mobil; 28px er maks i stor visning. */
+html.handle-size-large{
+  --handle-grid-check:34px !important;
+  --handle-check-size:28px !important;
+}
+#shoppingList .item-check{
+  max-width:28px !important;
+  max-height:28px !important;
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v88 visible_cancel_notification_button 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -1196,7 +1208,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v97";
+const HANDLELISTE_HANDLE_VERSION="v98";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
