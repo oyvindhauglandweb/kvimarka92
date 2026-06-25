@@ -1048,6 +1048,23 @@ html.handle-size-large #shoppingList .item-check{
   }
 }
 
+
+/* Handle v100: aktiv handel markeres separat fra valgt butikk.
+   Valgt butikk har fortsatt blå bakgrunn. Butikken som faktisk avsluttes ved
+   Avslutt handel får lys grønn tekst og ring. */
+.shopping-area-button.session-active{
+  color:#9cff9c !important;
+  border-color:rgba(156,255,156,.75) !important;
+  box-shadow:0 0 0 1px rgba(156,255,156,.28) inset !important;
+}
+body:not(.dark-mode) .shopping-area-button.session-active{
+  color:#137a13 !important;
+  border-color:rgba(19,122,19,.65) !important;
+}
+.shopping-area-button.active.session-active{
+  color:#b8ffb8 !important;
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v88 visible_cancel_notification_button 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -1238,7 +1255,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v99";
+const HANDLELISTE_HANDLE_VERSION="v100";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -1328,45 +1345,79 @@ function shoppingAreaBadge(item){
   if(isMatvarerArea(area))return "";
   return `<span class="badge area-badge ${areaClass(area)}" title="Butikkgruppe: ${esc(area)}">${esc(area)}</span>`;
 }
+function getActiveShoppingArea(){
+  return normalizeShoppingArea(readShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY),"");
+}
+function setActiveShoppingArea(area){
+  const normalized=normalizeShoppingArea(area,"");
+  if(normalized){
+    writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,normalized);
+  }else{
+    clearShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY);
+  }
+}
+function getItemById(id){
+  const numericId=Number(id);
+  return (Array.isArray(items)?items:[]).find(item=>Number(item.id)===numericId)||null;
+}
+function getBoughtIdsForArea(area){
+  const normalized=normalizeShoppingArea(area,"");
+  return Array.from(boughtIds||[])
+    .map(id=>Number(id))
+    .filter(id=>{
+      const item=getItemById(id);
+      return item && getItemShoppingArea(item)===normalized;
+    });
+}
+function getFirstBoughtShoppingArea(){
+  for(const id of Array.from(boughtIds||[])){
+    const item=getItemById(id);
+    if(item){
+      return getItemShoppingArea(item);
+    }
+  }
+  return "";
+}
 function isShoppingAreaLocked(){
-  return boughtIds&&boughtIds.size>0;
+  // v100: Butikkvalg låses ikke lenger av aktiv handel.
+  // Aktiv handel markeres separat og bestemmer bare hvilken butikk Avslutt handel gjelder.
+  return false;
 }
 function syncSelectedShoppingAreaFromActive(){
-  const active=readShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY);
-  if(active){
-    selectedShoppingArea=normalizeShoppingArea(active,"");
-    writeShoppingAreaStorage(SHOPPING_AREA_STORAGE_KEY,selectedShoppingArea);
-  }else if(!selectedShoppingArea){
+  // v100: Ikke tving valgt butikk til aktiv butikk.
+  // Bruker skal kunne se og krysse av varer i andre butikker mens én butikk er aktiv.
+  if(!selectedShoppingArea){
     selectedShoppingArea=SHOPPING_AREA_DEFAULT;
   }
 }
 function setShoppingArea(area){
   const next=normalizeShoppingArea(area,"");
-  if(isShoppingAreaLocked() && next!==selectedShoppingArea){
-    setStatus(`Handel er aktiv for <strong>${esc(selectedShoppingArea)}</strong>. Avslutt handelen før du bytter butikk.`, "error");
-    renderShoppingAreaButtons();
-    return;
-  }
   selectedShoppingArea=next;
   currentShoppingPlace="";
   currentShoppingNotificationMessage="";
   writeShoppingAreaStorage(SHOPPING_AREA_STORAGE_KEY,selectedShoppingArea);
-  if(isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);
   renderShoppingAreaButtons();
   render();
-  setStatus(`Viser handleliste for <strong>${esc(selectedShoppingArea)}</strong>.`, "success");
+  const activeArea=getActiveShoppingArea();
+  const activeText=activeArea ? ` Aktiv handel er fortsatt <strong>${esc(activeArea)}</strong>.` : "";
+  setStatus(`Viser handleliste for <strong>${esc(selectedShoppingArea)}</strong>.${activeText}`, "success");
   checkCurrentStore(true);
 }
 function renderShoppingAreaButtons(){
   const root=document.getElementById("shoppingAreaButtons");
   const note=document.getElementById("shoppingAreaLockNote");
   if(!root)return;
-  const locked=isShoppingAreaLocked();
+  const activeArea=getActiveShoppingArea();
   root.innerHTML=SHOPPING_AREA_ORDER.map(area=>{
     const label=area==="Bondekompaniet"?"Bondekomp.":area;
-    return `<button class="shopping-area-button ${area===selectedShoppingArea?"active":""} ${locked?"locked":""}" type="button" onclick="setShoppingArea('${escJs(area)}')" ${locked&&area!==selectedShoppingArea?'title="Handel er aktiv. Avslutt handel før bytte."':""}>${esc(label)}</button>`;
+    const isSelected=area===selectedShoppingArea;
+    const isSessionActive=area===activeArea;
+    const title=isSessionActive
+      ? "Aktiv handel. Det er denne butikken som avsluttes når du trykker Avslutt handel."
+      : "Vis handleliste for denne butikken";
+    return `<button class="shopping-area-button ${isSelected?"active":""} ${isSessionActive?"session-active":""}" type="button" onclick="setShoppingArea('${escJs(area)}')" title="${esc(title)}">${esc(label)}</button>`;
   }).join("");
-  if(note)note.innerHTML=locked?`Aktiv handel: <strong>${esc(selectedShoppingArea)}</strong>`:"";
+  if(note)note.innerHTML=activeArea?`Aktiv handel: <strong>${esc(activeArea)}</strong>. Du kan likevel se og krysse av varer i andre butikker.`:"";
 }
 function defaultShoppingPlaceForArea(area){
   const normalized=normalizeShoppingArea(area,"");
@@ -1883,7 +1934,13 @@ function setShoppingInProgressSince(value){
 function updateShoppingInProgressState(){
   if(boughtIds&&boughtIds.size>0){
     if(!getShoppingInProgressSince())setShoppingInProgressSince(new Date().toISOString());
-    if(!readShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY))writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);
+
+    const activeArea=getActiveShoppingArea();
+    const activeStillHasItems=activeArea && getBoughtIdsForArea(activeArea).length>0;
+
+    if(!activeStillHasItems){
+      setActiveShoppingArea(getFirstBoughtShoppingArea());
+    }
   }else{
     setShoppingInProgressSince("");
     clearShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY);
@@ -2212,12 +2269,17 @@ function clearRememberedBoughtIds(){
   boughtIds.clear();
   try{localStorage.removeItem(getBoughtStorageKey());}catch(error){}
 }
+function getAllOrderedItems(){
+  return items.filter(item=>item.shouldBuy);
+}
 function reconcileBoughtIdsWithItems(){
-  const validIds=new Set(getOrderedItems().map(item=>Number(item.id)));
+  // v100: Ikke kast avkrysninger i andre butikker når bruker står på én valgt butikk.
+  const validIds=new Set(getAllOrderedItems().map(item=>Number(item.id)));
   boughtIds=new Set(Array.from(boughtIds).map(id=>Number(id)).filter(id=>validIds.has(id)));
   saveRememberedBoughtIds();
+  updateShoppingInProgressState();
 }
-function getOrderedItems(){return items.filter(item=>item.shouldBuy).filter(areaMatchesSelected);}
+function getOrderedItems(){return getAllOrderedItems().filter(areaMatchesSelected);}
 function groupOrderedItems(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});return Object.keys(map).sort(compareShoppingTypes).map(type=>({type,items:map[type]}));}
 function uniqueShoppingTypesForForm(values){
   const seen=new Set();
@@ -2338,14 +2400,51 @@ function render(){
     return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
-function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked){if(!isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);boughtIds.add(numericId);}else{boughtIds.delete(numericId);}saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);renderShoppingAreaButtons();render();}
-function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));if(!allBought && !isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);renderShoppingAreaButtons();render();}
+function toggleBought(id,checked){
+  const numericId=Number(id);
+  if(!numericId)return;
+
+  if(checked){
+    if(!getActiveShoppingArea())setActiveShoppingArea(selectedShoppingArea);
+    boughtIds.add(numericId);
+  }else{
+    boughtIds.delete(numericId);
+  }
+
+  saveRememberedBoughtIds();
+  updateShoppingInProgressState();
+  flushDeferredNewItemPopupIfAllowed();
+  queueCurrentItemsAddedAfterActiveContext(items);
+  renderShoppingAreaButtons();
+  render();
+}
+function toggleAllBought(){
+  const ordered=getOrderedItems();
+  if(!ordered.length)return;
+
+  const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));
+
+  if(!allBought && !getActiveShoppingArea())setActiveShoppingArea(selectedShoppingArea);
+
+  ordered.forEach(item=>{
+    const id=Number(item.id);
+    if(allBought)boughtIds.delete(id);
+    else boughtIds.add(id);
+  });
+
+  saveRememberedBoughtIds();
+  updateShoppingInProgressState();
+  flushDeferredNewItemPopupIfAllowed();
+  queueCurrentItemsAddedAfterActiveContext(items);
+  renderShoppingAreaButtons();
+  render();
+}
 async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser && data.currentUser.name)||(data.currentUser && data.currentUser.email)||"";showAdminVersionInfoIfAllowed(data.currentUser).catch(function(error){console.warn("Versjonsvisning feilet", error);});items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.type=canonicalShoppingType(item.type)||"Annet";item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=uniqueShoppingTypesForForm(Array.isArray(data.typeOrder)?data.typeOrder:[]);typeOptions=Array.isArray(data.typeOptions)?uniqueShoppingTypesForForm(data.typeOptions):uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(item=>item.type)).concat(typeOrder));boughtIds=loadRememberedBoughtIds();syncSelectedShoppingAreaFromActive();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();renderShoppingAreaButtons();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
   if(shoppingNotificationActive){
     const when=shoppingNotificationData&&shoppingNotificationData.shoppingTime ? ` Tidspunkt for handling: ${esc(formatLocalDateTimeShort(new Date(shoppingNotificationData.shoppingTime)))}` : "";
     setStatus(`Varsling er aktivert.${when} Viser <strong>${esc(selectedShoppingArea)}</strong>.`,"success");
   }else{
-    setStatus(`Klar. Viser <strong>${esc(selectedShoppingArea)}</strong>. Kryss av varene etter hvert som de er handlet.`,"success");
+    setStatus(`Klar. Viser <strong>${esc(selectedShoppingArea)}</strong>. Kryss av varene etter hvert som de er handlet.${getActiveShoppingArea()?` Aktiv handel: <strong>${esc(getActiveShoppingArea())}</strong>.`:""}`,"success");
   }
 }
 updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
@@ -2615,7 +2714,17 @@ async function finishShopping(){
     return;
   }
 
-  if(!confirm(`Avslutte handel og lagre ${boughtIds.size} handlet vare${boughtIds.size===1?"":"r"}?`)){
+  updateShoppingInProgressState();
+
+  const finishArea=getActiveShoppingArea() || getFirstBoughtShoppingArea() || selectedShoppingArea;
+  const activeBoughtIds=getBoughtIdsForArea(finishArea);
+
+  if(!activeBoughtIds.length){
+    alert("Fant ingen avkryssede varer i aktiv butikk.");
+    return;
+  }
+
+  if(!confirm(`Avslutte handel for ${finishArea} og lagre ${activeBoughtIds.length} handlet vare${activeBoughtIds.length===1?"":"r"}?\n\nAvkryssede varer i andre butikker blir liggende klare og neste butikk blir aktiv etterpå.`)){
     return;
   }
 
@@ -2625,7 +2734,7 @@ async function finishShopping(){
   let location={status:"none"};
 
   try{
-    setStatus("Henter GPS-posisjon før handelen avsluttes...");
+    setStatus(`Henter GPS-posisjon før handelen for <strong>${esc(finishArea)}</strong> avsluttes...`);
     location=await getShoppingLocation();
 
     if(location.status !== "ok"){
@@ -2637,7 +2746,7 @@ async function finishShopping(){
       }
     }
 
-    const allBoughtIds=Array.from(boughtIds);
+    const allBoughtIds=activeBoughtIds;
     const chunkSize=8;
     const chunks=[];
 
@@ -2649,7 +2758,7 @@ async function finishShopping(){
     let lastData=null;
 
     for(let index=0; index<chunks.length; index+=1){
-      setStatus(`${formatGpsLocation(location)}<br>Sender avslutning til Worker... Del ${index+1} av ${chunks.length}.`, location.status === "ok" ? "success" : "error");
+      setStatus(`${formatGpsLocation(location)}<br>Sender avslutning for <strong>${esc(finishArea)}</strong> til Worker... Del ${index+1} av ${chunks.length}.`, location.status === "ok" ? "success" : "error");
 
       const data=await fetchJson(`${API_BASE}/shopping/finish`,{
         method:"POST",
@@ -2663,7 +2772,7 @@ async function finishShopping(){
           longitude:(location && location.longitude),
           accuracy:(location && location.accuracy),
           locationStatus:(location && location.status),
-          shoppingArea:selectedShoppingArea
+          shoppingArea:finishArea
         })
       });
 
@@ -2671,15 +2780,25 @@ async function finishShopping(){
       lastData=data;
     }
 
-    clearRememberedBoughtIds();
-    clearShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY);
+    activeBoughtIds.forEach(id=>boughtIds.delete(Number(id)));
+    saveRememberedBoughtIds();
+    updateShoppingInProgressState();
+
+    const nextActiveArea=getActiveShoppingArea();
+
     renderShoppingAreaButtons();
     await loadItems();
-    setStatus(`Handelen er avsluttet. ${totalBought} varer ble lagret som handlet.${shoppingSessionStatusText((lastData && lastData.session))}`,"success");
+
+    const nextText=nextActiveArea
+      ? ` Neste aktive butikk er <strong>${esc(nextActiveArea)}</strong>.`
+      : "";
+
+    setStatus(`Handelen for <strong>${esc(finishArea)}</strong> er avsluttet. ${totalBought} varer ble lagret som handlet.${shoppingSessionStatusText((lastData && lastData.session))}${nextText}`,"success");
   }catch(error){
-    setStatus(`Kunne ikke avslutte handelen.<br><br>${esc(error.message)}<br><br>${esc(formatGpsLocation(location))}`,"error");
+    setStatus(`Kunne ikke avslutte handelen for <strong>${esc(finishArea)}</strong>.<br><br>${esc(error.message)}<br><br>${esc(formatGpsLocation(location))}`,"error");
   }finally{
     button.disabled=false;
+    renderShoppingAreaButtons();
     render();
   }
 }
