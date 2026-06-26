@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Handleliste - GPS-historikk</title>
-<!-- version: gps-historikk-v1_2026_06_26 | requires worker-v173-gps-history -->
+<!-- version: gps-historikk-v2_fetch_credentials_2026_06_26 | requires worker-v175-or-newer -->
 <style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--success:#72c184;--danger:#d77;}
 body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--success:#72c184;--danger:#ff7777;}
@@ -86,7 +86,11 @@ function setStatus(message,type){
 }
 
 async function fetchJson(url,options){
-  const res=await fetch(url,options||{});
+  const fetchOptions={
+    credentials:"include",
+    ...(options||{})
+  };
+  const res=await fetch(url,fetchOptions);
   const text=await res.text();
   let data=null;
 
@@ -207,7 +211,7 @@ async function loadGpsHistory(){
 
     list.innerHTML=rows.map(rowHtml).join("");
   }catch(error){
-    setStatus(`Kunne ikke laste GPS-historikk.<br><br>${esc(error.message)}`,"error");
+    setStatus(`Kunne ikke laste GPS-historikk.<br><br>${esc(error.message)}<br><br>Test API direkte: ${esc(API_BASE)}/shopping/gps-history`,"error");
     list.innerHTML="";
   }
 }
