@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v124_preview_image_from_suggestion_2026_06_26 | based-on: handle-v123_copy_image_from_suggestion --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v125_use_item_suggestions_table_2026_06_26 | based-on: handle-v124_preview_image_from_suggestion --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -1762,7 +1762,7 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
     <form id="addItemForm" onsubmit="event.preventDefault(); createShoppingItemFromHandle();">
       <div class="form-field">
         <label for="addItemName">Varenavn</label>
-        <input id="addItemName" type="text" autocomplete="off" required oninput="addItemSourceItemId=0; updateAddItemSuggestions()" onfocus="updateAddItemSuggestions()">
+        <input id="addItemName" type="text" autocomplete="off" required oninput="addItemSourceItemId=0; addItemSourceSuggestionId=0; updateAddItemSuggestions()" onfocus="updateAddItemSuggestions()">
         <div class="add-item-suggestions" id="addItemSuggestions"></div>
       </div>
       <div class="form-field">
@@ -1840,7 +1840,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v124";
+const HANDLELISTE_HANDLE_VERSION="v125";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -2890,6 +2890,9 @@ const BOUGHT_STORAGE_KEY="kvimarka92ShoppingBoughtIds";
 let addItemImageDataUrl="";
 let addItemImageFileName="";
 let addItemSourceItemId=0;
+let addItemSourceSuggestionId=0;
+let shoppingItemSuggestions=[];
+let shoppingItemSuggestionsLoaded=false;
 function getItemImageUrl(item){return (item&&item.imageUrl)||((item&&item.image&&item.image.url)||"");}
 function itemImageButton(item){const url=getItemImageUrl(item);if(!url)return "";return `<button class="item-image-button" type="button" onclick="showItemImage(${Number(item.id)})" title="Vis bilde av varen">📷</button>`;}
 function showItemImage(id){const item=items.find(row=>Number(row.id)===Number(id));const url=getItemImageUrl(item);if(!url)return;document.getElementById("itemImageModalTitle").textContent=item.name||"Varebilde";document.getElementById("itemImageModalImg").src=url;document.getElementById("itemImageModal").classList.add("open");}
@@ -2920,7 +2923,7 @@ function showAddItemSourceImagePreview(item){
 }
 
 function clearAddItemImage(){addItemImageDataUrl="";addItemImageFileName="";const input=document.getElementById("addItemImage");const preview=document.getElementById("addItemImagePreview");const img=document.getElementById("addItemImagePreviewImg");if(input)input.value="";if(preview)preview.className="image-preview";if(img)img.removeAttribute("src");}
-async function handleAddItemImageChange(event){const file=event&&event.target&&event.target.files&&event.target.files[0];if(!file){clearAddItemImage();return;}try{addItemSourceItemId=0;addItemImageDataUrl=await resizeImageFileToDataUrl(file);addItemImageFileName=file.name||"varebilde.jpg";document.getElementById("addItemImagePreviewImg").src=addItemImageDataUrl;document.getElementById("addItemImagePreview").className="image-preview visible";}catch(error){alert(error.message||String(error));clearAddItemImage();}}
+async function handleAddItemImageChange(event){const file=event&&event.target&&event.target.files&&event.target.files[0];if(!file){clearAddItemImage();return;}try{addItemSourceItemId=0;addItemSourceSuggestionId=0;addItemImageDataUrl=await resizeImageFileToDataUrl(file);addItemImageFileName=file.name||"varebilde.jpg";document.getElementById("addItemImagePreviewImg").src=addItemImageDataUrl;document.getElementById("addItemImagePreview").className="image-preview visible";}catch(error){alert(error.message||String(error));clearAddItemImage();}}
 
 let items=[];let boughtIds=new Set();let typeOrder=[];let typeOptions=[];let currentStoreChain="Standard";let currentShoppingPlace="";let currentShoppingNotificationMessage="";
 function getBoughtStorageKey(){return BOUGHT_STORAGE_KEY;}
@@ -3115,6 +3118,47 @@ function normalizeAddItemSearchText(value){
     .replace(/[^a-z0-9]+/g," ")
     .trim();
 }
+
+async function loadShoppingItemSuggestions(){
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/item-suggestions`);
+    shoppingItemSuggestions=Array.isArray(data.suggestions)?data.suggestions:[];
+    shoppingItemSuggestionsLoaded=true;
+    return shoppingItemSuggestions;
+  }catch(error){
+    console.warn("Kunne ikke hente vareforslag.", error);
+    shoppingItemSuggestionsLoaded=true;
+    return [];
+  }
+}
+function ensureShoppingItemSuggestionsLoaded(){
+  if(shoppingItemSuggestionsLoaded)return Promise.resolve(shoppingItemSuggestions);
+  return loadShoppingItemSuggestions().then(result=>{
+    updateAddItemSuggestions();
+    return result;
+  });
+}
+function getCombinedAddItemSuggestionSource(){
+  const combined=[];
+  const seen=new Set();
+
+  (Array.isArray(shoppingItemSuggestions)?shoppingItemSuggestions:[]).forEach(item=>{
+    const key=normalizeAddItemSearchText(item.name);
+    if(!key||seen.has("s:"+key))return;
+    seen.add("s:"+key);
+    combined.push({...item, suggestionSource:"suggestion"});
+  });
+
+  getCombinedAddItemSuggestionSource().forEach(item=>{
+    const key=normalizeAddItemSearchText(item.name);
+    if(!key||seen.has("s:"+key)||seen.has("i:"+key))return;
+    seen.add("i:"+key);
+    combined.push({...item, suggestionSource:"item"});
+  });
+
+  return combined;
+}
+
 function getAddItemSuggestionMatches(query){
   const normalizedQuery=normalizeAddItemSearchText(query);
 
@@ -3174,12 +3218,13 @@ function updateAddItemSuggestions(){
     const owner=normalizeOwner(item.owner||"");
     const meta=[type, owner].filter(Boolean).join(" · ");
 
-    return `<button type="button" class="add-item-suggestion" onclick="selectAddItemSuggestion(${Number(item.id)})"><span>${esc(item.name)}</span>${meta?`<small>${esc(meta)}</small>`:""}</button>`;
+    return `<button type="button" class="add-item-suggestion" onclick="selectAddItemSuggestion(${Number(item.id)}, \'${escJs(item.suggestionSource||"item")}\')"><span>${esc(item.name)}</span>${meta?`<small>${esc(meta)}</small>`:""}</button>`;
   }).join("");
   root.classList.add("open");
 }
-function selectAddItemSuggestion(id){
-  const item=(Array.isArray(items)?items:[]).find(row=>Number(row.id)===Number(id));
+function selectAddItemSuggestion(id, source){
+  const list=String(source||"item")==="suggestion" ? shoppingItemSuggestions : items;
+  const item=(Array.isArray(list)?list:[]).find(row=>Number(row.id)===Number(id));
 
   if(!item)return;
 
@@ -3188,7 +3233,8 @@ function selectAddItemSuggestion(id){
   const ownerSelect=document.getElementById("addItemOwner");
   const suggestions=document.getElementById("addItemSuggestions");
 
-  addItemSourceItemId=Number(item.id||0);
+  addItemSourceItemId=String(source||"item")==="item" ? Number(item.id||0) : 0;
+  addItemSourceSuggestionId=String(source||"item")==="suggestion" ? Number(item.id||0) : 0;
   showAddItemSourceImagePreview(item);
   if(nameInput)nameInput.value=String(item.name||"");
 
@@ -3289,6 +3335,8 @@ function setStoreStatusText(html, mode){
 
 function openAddItemModal(){
   addItemSourceItemId=0;
+  addItemSourceSuggestionId=0;
+  ensureShoppingItemSuggestionsLoaded();
   fillAddItemSelects();
   const modal=document.getElementById("addItemModal");
   const name=document.getElementById("addItemName");
@@ -3304,6 +3352,7 @@ function openAddItemModal(){
 }
 function closeAddItemModal(){
   addItemSourceItemId=0;
+  addItemSourceSuggestionId=0;
   const modal=document.getElementById("addItemModal");
   if(modal)modal.classList.remove("open");
   clearAddItemImage();
@@ -3329,7 +3378,7 @@ async function createShoppingItemFromHandle(){
     const createdData=await fetchJson(`${API_BASE}/shopping/item-create`,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body:JSON.stringify({name,type,owner,shouldBuy,standardItem,shoppingArea:itemShoppingArea,imageDataUrl:addItemImageDataUrl||undefined,imageFileName:addItemImageFileName||`${name}.jpg`,sourceItemId:addItemSourceItemId||undefined})
+      body:JSON.stringify({name,type,owner,shouldBuy,standardItem,shoppingArea:itemShoppingArea,imageDataUrl:addItemImageDataUrl||undefined,imageFileName:addItemImageFileName||`${name}.jpg`,sourceItemId:addItemSourceItemId||undefined,sourceSuggestionId:addItemSourceSuggestionId||undefined})
     });
     const createdId=Number((createdData && createdData.item && createdData.item.id)||0);
     const createdAddedAt=(createdData && createdData.cartSync && createdData.cartSync.row && createdData.cartSync.row.addedAt) || (createdData && createdData.item && createdData.item.addedAt) || new Date().toISOString();
