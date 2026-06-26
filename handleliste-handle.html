@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v127_fix_suggestion_image_preview_2026_06_26 | based-on: handle-v126_fix_suggestions_source_search --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v128_thumbnail_view_toggle_2026_06_26 | based-on: handle-v127_fix_suggestion_image_preview --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -1623,6 +1623,20 @@ html.handle-size-large #shoppingList .item-check{
   }
 }
 
+
+/* Handle v128: alternativ bilde-/thumbnailvisning.
+   Ingen avkrysningsboks i bildevisning; handlet vare markeres med ramme rundt hele kortet. */
+.thumbnail-view-button.active{outline:2px solid var(--link);color:var(--link);}
+.item-thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;}
+.item-thumb-card{border:2px solid transparent;border-radius:12px;background:rgba(127,127,127,.06);color:var(--text);padding:7px;min-height:150px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px;}
+.item-thumb-card:hover{background:rgba(124,199,232,.10);}
+.item-thumb-card.selected{border-color:var(--link);background:rgba(124,199,232,.16);}
+.item-thumb-image{width:100%;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:28px;}
+.item-thumb-image img{width:100%;height:100%;object-fit:cover;display:block;}
+.item-thumb-name{font-weight:bold;font-size:14px;line-height:1.15;}
+.item-thumb-badges{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+@media(max-width:700px){.item-thumb-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:7px;}.item-thumb-card{min-height:138px;padding:6px;}.item-thumb-name{font-size:13px;}}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v88 visible_cancel_notification_button 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -1840,7 +1854,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v127";
+const HANDLELISTE_HANDLE_VERSION="v128";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -3399,7 +3413,47 @@ async function createShoppingItemFromHandle(){
   }
 }
 
+
+const HANDLE_VIEW_MODE_STORAGE_KEY="kvimarka92HandleViewModeV1";
+function getHandleViewMode(){return localStorage.getItem(HANDLE_VIEW_MODE_STORAGE_KEY)==="thumb"?"thumb":"list";}
+function setHandleViewMode(mode){localStorage.setItem(HANDLE_VIEW_MODE_STORAGE_KEY,mode==="thumb"?"thumb":"list");}
+function toggleHandleViewMode(){setHandleViewMode(getHandleViewMode()==="thumb"?"list":"thumb");updateHandleViewToggleButton();render();}
+function updateHandleViewToggleButton(){
+  const btn=document.getElementById("handleViewModeToggle");
+  if(!btn)return;
+  const thumb=getHandleViewMode()==="thumb";
+  btn.textContent=thumb?"☰":"▦";
+  btn.classList.toggle("active",thumb);
+  btn.title=thumb?"Vis som liste":"Vis som bilder";
+  btn.setAttribute("aria-label",btn.title);
+}
+function installHandleViewToggleButton(){
+  const menu=document.getElementById("handlelisteTopMenu");
+  if(!menu||document.getElementById("handleViewModeToggle"))return;
+  const btn=document.createElement("button");
+  btn.type="button";
+  btn.id="handleViewModeToggle";
+  btn.className="top-button thumbnail-view-button";
+  btn.onclick=toggleHandleViewMode;
+  menu.appendChild(btn);
+  updateHandleViewToggleButton();
+}
+document.addEventListener("DOMContentLoaded",function(){window.setTimeout(installHandleViewToggleButton,0);window.setTimeout(installHandleViewToggleButton,300);});
+function renderHandleThumbImage(item){
+  const url=getItemImageUrl(item);
+  return `<div class="item-thumb-image">${url?`<img src="${esc(url)}" alt="${esc(item.name||"Vare")}">`:"📷"}</div>`;
+}
+function renderHandleThumbnailView(groups){
+  return groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-thumb-grid">${group.items.map(item=>{
+    const id=Number(item.id);
+    const isBought=boughtIds.has(id);
+    const badges=`${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<span class="badge standard-badge">Standard</span>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    return `<button class="item-thumb-card ${isBought?"selected":""}" type="button" onclick="toggleBought(${id},${isBought?"false":"true"})" title="${isBought?"Marker som ikke handlet":"Marker som handlet"}">${renderHandleThumbImage(item)}<div class="item-thumb-name">${esc(item.name)}</div><div class="item-thumb-badges">${badges}</div></button>`;
+  }).join("")}</div></div>`).join("");
+}
+
 function render(){
+  updateHandleViewToggleButton();
   const root=document.getElementById("shoppingList");
   const ordered=getOrderedItems();
   const finishButton=document.getElementById("finishButton");
@@ -3410,7 +3464,12 @@ function render(){
     root.innerHTML=`<div class="empty">Ingen varer er bestilt handlet for ${esc(selectedShoppingArea)}.</div>`;
     return;
   }
-  root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
+  const groups=groupOrderedItems(ordered);
+  if(getHandleViewMode()==="thumb"){
+    root.innerHTML=renderHandleThumbnailView(groups);
+    return;
+  }
+  root.innerHTML=groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
     const isBought=boughtIds.has(Number(item.id));
     const badges=`${itemImageButton(item)}${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
     return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
