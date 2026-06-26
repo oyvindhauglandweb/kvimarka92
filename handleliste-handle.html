@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v120_status_class_preserve_height_fix_2026_06_25 | based-on: handle-v119_short_notification_button_text --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v121_short_new_item_status_2026_06_25 | based-on: handle-v120_status_class_preserve_height_fix --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -1816,7 +1816,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v120";
+const HANDLELISTE_HANDLE_VERSION="v121";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -2685,6 +2685,33 @@ function rememberDeferredNewItems(newItems){
     deferredNewItems.push(item);
   });
 }
+
+function getNewItemAddedByName(item){
+  return String(
+    (item && (
+      item.addedByName ||
+      item.addedBy ||
+      item.createdByName ||
+      item.createdBy ||
+      item.ownerName ||
+      item.owner ||
+      item.userName ||
+      item.user
+    )) ||
+    ""
+  ).trim();
+}
+function formatNewItemStatusMessage(items){
+  const relevant=(Array.isArray(items)?items:[]).filter(item=>item&&item.shouldBuy&&!item.standardItem);
+  if(!relevant.length)return "";
+  const first=relevant[0];
+  const name=String(first.name||"Vare").trim();
+  const addedBy=getNewItemAddedByName(first);
+  const more=relevant.length>1 ? ` + ${relevant.length-1} til` : "";
+
+  return `Ny vare lagt til${addedBy?` av ${esc(addedBy)}`:""}: ${esc(name)}${esc(more)}`;
+}
+
 function scheduleNewItemPopup(fresh){
   const relevant=(Array.isArray(fresh)?fresh:[]).filter(item=>item&&item.id);
   updateNewItemDebug({scheduleInputCount:relevant.length},`scheduleNewItemPopup kjørt med ${relevant.length} vare(r)`);
@@ -2699,9 +2726,8 @@ function scheduleNewItemPopup(fresh){
   const delay=delays.length?Math.min.apply(null,delays):60000;
   const seconds=Math.max(0,Math.ceil(delay/1000));
   updateNewItemDebug({pendingCount:(pendingNewItems||[]).length,timerText:`Popup om ca. ${seconds} sekunder`,freshCount:relevant.length},`Popup-timer satt: ${seconds} sekunder`);
-  const names=relevant.map(item=>String(item.name||"Vare")).filter(Boolean).slice(0,3).join(", ");
   newItemsStatusActive=true;
-  setStatus(`Nye varer er lagt til${names?`: ${esc(names)}`:""}. Varsel vises ${seconds>5?`om ca. ${seconds} sekunder`:"nå"}.`,"success");
+  setStatus(formatNewItemStatusMessage(relevant),"success");
   if(pendingNewItemTimer)window.clearTimeout(pendingNewItemTimer);
   pendingNewItemTimer=window.setTimeout(showPendingNewItemsPopup,delay);
 }
@@ -2739,20 +2765,8 @@ function queueNewItemPopup(newItems){
 function setNewItemsStatusForCandidates(candidates){
   const relevant=(Array.isArray(candidates)?candidates:[]).filter(item=>item&&item.shouldBuy&&!item.standardItem);
   if(!relevant.length)return;
-  const names=relevant.map(item=>String(item.name||"Vare")).filter(Boolean).slice(0,5).join(", ");
-  const extra=relevant.length>5?` + ${relevant.length-5} til`:"";
-
-  const now=Date.now();
-  const delays=relevant.map(item=>{
-    const addedAt=normalizeIsoDateTime(getItemAddedAt(item)||"");
-    const time=addedAt?new Date(addedAt).getTime():now;
-    return Math.max(0,time+60000-now);
-  }).filter(value=>Number.isFinite(value));
-  const delay=delays.length?Math.min.apply(null,delays):0;
-  const seconds=Math.max(0,Math.ceil(delay/1000));
-
   newItemsStatusActive=true;
-  setStatus(`Nye varer er lagt til etter at varsling/handel ble aktiv${names?`: ${esc(names)}${esc(extra)}`:""}. ${seconds>5?`Popup vises om ca. ${seconds} sekunder.`:"Popup vises nå."}`,"success");
+  setStatus(formatNewItemStatusMessage(relevant),"success");
 }
 
 function queueCurrentItemsAddedAfterActiveContext(loadedItems){
