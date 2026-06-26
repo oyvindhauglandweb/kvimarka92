@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Handleliste - Masterbilder</title>
-<!-- version: handleliste-admin-varebilder_v1_2026_06_26 | requires worker-v178-master-image-admin -->
+<!-- version: handleliste-admin-varebilder_v2_fetch_credentials_2026_06_26 | requires worker-v179-or-newer -->
 <style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#222;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#eef3f6;--accent:#2f7d8f;--danger:#d86363;--success:#278c48;}
 body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#2b2b2b;--button-hover:#3a3a3a;--accent:#2f6f80;--danger:#ff7777;--success:#72c184;}
@@ -163,7 +163,11 @@ function setStatus(message,type){
 }
 
 async function fetchJson(url,options){
-  const res=await fetch(url,options||{});
+  const fetchOptions={
+    credentials:"include",
+    ...(options||{})
+  };
+  const res=await fetch(url,fetchOptions);
   const text=await res.text();
   let data=null;
   try{data=text?JSON.parse(text):null;}catch(error){throw new Error(text||`HTTP ${res.status}`);}
@@ -247,7 +251,7 @@ async function loadItems(){
       : "Du kan legge til nye mastervarer med bilde. Bytte/sletting av eksisterende bilder er låst til Øyvind.";
     setStatus(`Klar. Viser ${items.length} mastervarer.`, "success");
   }catch(error){
-    setStatus(`Kunne ikke laste masterbilder.<br><br>${esc(error.message)}`,"error");
+    setStatus(`Kunne ikke laste masterbilder.<br><br>${esc(error.message)}<br><br>Test API direkte: ${esc(API_BASE)}/shopping/admin/master-images`,"error");
   }
 }
 
