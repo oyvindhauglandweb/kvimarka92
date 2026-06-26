@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v113_mobile_status_max_two_lines_2026_06_25 | based-on: handle-v112_add_item_suggestions_no_default_type --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v114_mobile_clean_status_and_version_2026_06_25 | based-on: handle-v113_mobile_status_max_two_lines --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -1403,6 +1403,21 @@ html.handle-size-large #shoppingList .item-check{
   }
 }
 
+
+/* Handle v114: renere mobilstatus.
+   - Versjonsboks viser bare versjonsnummer.
+   - GPS-koordinater skjules i brukerstatus.
+   - Vanlig infotekst er kun instruksjonsteksten og maks 2 linjer på mobil. */
+@media(max-width:700px){
+  #adminVersionInfo{
+    font-size:13px !important;
+    line-height:1.25 !important;
+  }
+  #status.handle-status-text{
+    text-align:left !important;
+  }
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v88 visible_cancel_notification_button 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -1620,7 +1635,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v113";
+const HANDLELISTE_HANDLE_VERSION="v114";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -1761,8 +1776,7 @@ function setShoppingArea(area){
   renderShoppingAreaButtons();
   render();
   const active=getActiveShoppingArea();
-  const activeText=active&&active!==selectedShoppingArea ? ` Aktiv handel: <strong>${esc(active)}</strong>.` : "";
-  setStatus(`Viser handleliste for <strong>${esc(selectedShoppingArea)}</strong>.${activeText}`, "success");
+  setStatus("Kryss av varene etter hvert som de er handlet.","success");
   checkCurrentStore(true);
 }
 function renderShoppingAreaButtons(){
@@ -1999,7 +2013,7 @@ async function showAdminVersionInfoIfAllowed(user){
     workerVersion="v132";
   }
 
-  box.innerHTML=`HTML: ${esc(HANDLELISTE_HANDLE_VERSION)}<br>Worker: ${esc(workerVersion)}`;
+  box.innerHTML=`${esc(htmlVersion)}<br>${esc(workerVersion)}`;
   box.style.display="block";
 }
 
@@ -2911,12 +2925,31 @@ function selectAddItemSuggestion(id){
 }
 
 
+
+function normalizeAdminVersionInfoDisplay(){
+  const el=document.getElementById("adminVersionInfo");
+  if(!el)return;
+
+  const html=(window.HANDLELISTE_HANDLE_VERSION || "").toString().trim();
+  const worker=(window.HANDLELISTE_WORKER_VERSION || window.workerVersion || "").toString().trim();
+
+  // Hvis siden allerede har satt tekst, hent versjonsverdier derfra.
+  const current=String(el.innerText||el.textContent||"");
+  const htmlMatch=current.match(/HTML:\s*([^\n]+)/i);
+  const workerMatch=current.match(/Worker:\s*([^\n]+)/i);
+  const htmlValue=(html || (htmlMatch&&htmlMatch[1]) || "").replace(/^HTML:\s*/i,"").trim();
+  const workerValue=(worker || (workerMatch&&workerMatch[1]) || "").replace(/^Worker:\s*/i,"").trim();
+
+  if(htmlValue || workerValue){
+    el.innerHTML=[htmlValue, workerValue].filter(Boolean).map(esc).join("<br>");
+  }
+}
+
 function shortenMobileStatusText(html){
   const raw=String(html||"");
   const text=raw.replace(/<br\s*\/?>/gi,". ").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();
   const isMobile=window.matchMedia&&window.matchMedia("(max-width:700px)").matches;
 
-  if(!isMobile)return raw;
   if(!text)return "";
 
   if(/load failed/i.test(text)){
@@ -2927,16 +2960,28 @@ function shortenMobileStatusText(html){
     return "GPS avslått.";
   }
 
-  if(/koordinat|latitude|longitude|nøyaktighet|accuracy/i.test(text)){
-    const cleaned=text
-      .replace(/\b(lat|latitude|lng|lon|longitude|koordinater?|nøyaktighet|accuracy)\b[^.]*\.?/gi,"")
-      .replace(/\s+/g," ")
-      .trim();
-
-    return cleaned || "Butikk sjekket.";
+  if(/fant ingen kjent butikk/i.test(text)){
+    return "Fant ingen kjent butikk her.";
   }
 
-  return text.length>70 ? text.slice(0,67).trim()+"..." : text;
+  // Koordinater/nøyaktighet skal ikke vises i brukerstatus.
+  let cleaned=text
+    .replace(/GPS:\s*[-0-9.,\s]+(?:·|-)?\s*/gi,"")
+    .replace(/\bnøyaktighet:\s*[^.]+/gi,"")
+    .replace(/\baccuracy:\s*[^.]+/gi,"")
+    .replace(/\b(lat|latitude|lng|lon|longitude|koordinater?)\b[^.]*\.?/gi,"")
+    .replace(/\s+/g," ")
+    .trim();
+
+  if(!cleaned){
+    cleaned="Butikk sjekket.";
+  }
+
+  if(isMobile && cleaned.length>70){
+    return cleaned.slice(0,67).trim()+"...";
+  }
+
+  return cleaned;
 }
 function setStoreStatusText(html, mode){
   const el=document.getElementById("storeMatchStatus");
@@ -3095,12 +3140,12 @@ function toggleAllBought(){
   renderShoppingAreaButtons();
   render();
 }
-async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser && data.currentUser.name)||(data.currentUser && data.currentUser.email)||"";showAdminVersionInfoIfAllowed(data.currentUser).catch(function(error){console.warn("Versjonsvisning feilet", error);});items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.type=canonicalShoppingType(item.type)||"Annet";item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=uniqueShoppingTypesForForm(Array.isArray(data.typeOrder)?data.typeOrder:[]);typeOptions=Array.isArray(data.typeOptions)?uniqueShoppingTypesForForm(data.typeOptions):uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(item=>item.type)).concat(typeOrder));boughtIds=loadRememberedBoughtIds();syncSelectedShoppingAreaFromActive();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();renderShoppingAreaButtons();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
+async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser && data.currentUser.name)||(data.currentUser && data.currentUser.email)||"";showAdminVersionInfoIfAllowed(data.currentUser).then(normalizeAdminVersionInfoDisplay).catch(function(error){console.warn("Versjonsvisning feilet", error);});items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.type=canonicalShoppingType(item.type)||"Annet";item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=uniqueShoppingTypesForForm(Array.isArray(data.typeOrder)?data.typeOrder:[]);typeOptions=Array.isArray(data.typeOptions)?uniqueShoppingTypesForForm(data.typeOptions):uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(item=>item.type)).concat(typeOrder));boughtIds=loadRememberedBoughtIds();syncSelectedShoppingAreaFromActive();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();renderShoppingAreaButtons();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
   if(shoppingNotificationActive){
     const when=shoppingNotificationData&&shoppingNotificationData.shoppingTime ? ` Tidspunkt for handling: ${esc(formatLocalDateTimeShort(new Date(shoppingNotificationData.shoppingTime)))}` : "";
     setStatus(`Varsling er aktivert.${when} Viser <strong>${esc(selectedShoppingArea)}</strong>.`,"success");
   }else{
-    setStatus(`Klar. Viser <strong>${esc(selectedShoppingArea)}</strong>. Kryss av varene etter hvert som de er handlet.`,"success");
+    setStatus("Kryss av varene etter hvert som de er handlet.","success");
   }
 }
 updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
