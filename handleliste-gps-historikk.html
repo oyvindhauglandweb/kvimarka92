@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handleliste - GPS-historikk</title>
+<!-- version: gps-historikk-v1_2026_06_26 | requires worker-v173-gps-history -->
+<style>
+:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--success:#72c184;--danger:#d77;}
+body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--success:#72c184;--danger:#ff7777;}
+*{box-sizing:border-box;}
+body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}
+.container{max-width:980px;margin:auto;}
+.header{text-align:center;margin-bottom:20px;}
+.site-title{margin:0;font-size:30px;}
+.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}
+.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}
+.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}
+.top-button:hover,.action-button:hover{background:var(--button-hover);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}
+.status{color:var(--link);line-height:1.35;font-size:14px;}
+.status.error{color:var(--danger);}
+.status.success{color:var(--success);}
+.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:space-between;}
+.action-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}
+.primary{background:var(--link);border-color:var(--link);color:#fff;}
+.gps-list{display:flex;flex-direction:column;gap:10px;}
+.gps-row{border:1px solid var(--border);border-radius:10px;background:rgba(127,127,127,.05);padding:10px;}
+.gps-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px;}
+.gps-time{font-weight:bold;font-size:16px;}
+.gps-source{color:var(--muted);font-size:12px;margin-top:2px;}
+.gps-place{font-weight:bold;color:var(--text);}
+.gps-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.gps-field{background:rgba(0,0,0,.08);border-radius:8px;padding:8px;min-width:0;}
+body:not(.dark-mode) .gps-field{background:rgba(127,127,127,.08);}
+.gps-label{font-size:11px;color:var(--muted);margin-bottom:3px;}
+.gps-value{font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gps-link{color:var(--link);font-weight:bold;text-decoration:none;}
+.gps-link:hover{text-decoration:underline;}
+.empty{padding:20px;text-align:center;color:var(--muted);}
+@media(max-width:700px){
+  body{padding:12px;}
+  .site-title{font-size:28px;}
+  .gps-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .gps-head{flex-direction:column;}
+}
+</style>
+<script src="handleliste-menu.js?v=11"></script>
+</head>
+<body>
+<div class="container">
+  <div class="header page-icon-spacer-title">
+    <h1 class="site-title">Handleliste</h1>
+    <div class="subtitle">GPS-historikk</div>
+    <div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <div id="status" class="status">Laster GPS-historikk...</div>
+      <button class="action-button primary" type="button" onclick="loadGpsHistory()">Oppdater</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="gpsList" class="gps-list"></div>
+  </div>
+</div>
+
+<script>
+const API_BASE="https://api-kvimarka92.carstereogarage.com";
+
+function esc(value){
+  return String(value == null ? "" : value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function setStatus(message,type){
+  const el=document.getElementById("status");
+  el.className="status"+(type?` ${type}`:"");
+  el.innerHTML=message||"";
+}
+
+async function fetchJson(url,options){
+  const res=await fetch(url,options||{});
+  const text=await res.text();
+  let data=null;
+
+  try{
+    data=text?JSON.parse(text):null;
+  }catch(error){
+    throw new Error(text||`HTTP ${res.status}`);
+  }
+
+  if(!res.ok || data && data.error){
+    throw new Error(data && (data.detail||data.error) || `HTTP ${res.status}`);
+  }
+
+  return data;
+}
+
+function formatDateTime(value){
+  if(!value)return "";
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime()))return value;
+  return new Intl.DateTimeFormat("no-NO",{
+    dateStyle:"medium",
+    timeStyle:"short",
+    timeZone:"Europe/Oslo"
+  }).format(date);
+}
+
+function formatNumber(value,decimals){
+  const number=Number(value);
+  if(!Number.isFinite(number))return "";
+  return number.toFixed(decimals);
+}
+
+function formatAccuracy(value){
+  const number=Number(value);
+  if(!Number.isFinite(number))return "";
+  return `${Math.round(number)} m`;
+}
+
+function formatDistance(value){
+  const number=Number(value);
+  if(!Number.isFinite(number))return "";
+  return `${Math.round(number)} m`;
+}
+
+function rowHtml(row){
+  const lat=formatNumber(row.latitude,6);
+  const lon=formatNumber(row.longitude,6);
+  const coords=lat&&lon?`${lat}, ${lon}`:"";
+  const place=String(row.place||row.storeName||row.shoppingArea||"GPS-posisjon").trim();
+  const source=row.source==="shopping-session"?"Fra avsluttet handel":"GPS-registrering";
+  const maps=row.googleMapsUrl || (coords?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coords)}`:"");
+
+  return `<div class="gps-row">
+    <div class="gps-head">
+      <div>
+        <div class="gps-time">${esc(formatDateTime(row.checkedAt)||"Ukjent tidspunkt")}</div>
+        <div class="gps-source">${esc(source)}${row.user?` · ${esc(row.user)}`:""}</div>
+      </div>
+      <div class="gps-place">${esc(place)}</div>
+    </div>
+    <div class="gps-grid">
+      <div class="gps-field">
+        <div class="gps-label">Nøyaktighet</div>
+        <div class="gps-value">${esc(formatAccuracy(row.accuracy)||"-")}</div>
+      </div>
+      <div class="gps-field">
+        <div class="gps-label">Koordinater</div>
+        <div class="gps-value" title="${esc(coords)}">${esc(coords||"-")}</div>
+      </div>
+      <div class="gps-field">
+        <div class="gps-label">Butikk / sted</div>
+        <div class="gps-value" title="${esc(place)}">${esc(place)}</div>
+      </div>
+      <div class="gps-field">
+        <div class="gps-label">Kart</div>
+        <div class="gps-value">${maps?`<a class="gps-link" href="${esc(maps)}" target="_blank" rel="noopener">Åpne kart</a>`:"-"}</div>
+      </div>
+      <div class="gps-field">
+        <div class="gps-label">Butikkstatus</div>
+        <div class="gps-value">${esc(row.storeMatchStatus||row.locationStatus||"-")}</div>
+      </div>
+      <div class="gps-field">
+        <div class="gps-label">Avstand butikk</div>
+        <div class="gps-value">${esc(formatDistance(row.storeDistance)||"-")}</div>
+      </div>
+      <div class="gps-field">
+        <div class="gps-label">Område</div>
+        <div class="gps-value">${esc(row.shoppingArea||"-")}</div>
+      </div>
+      <div class="gps-field">
+        <div class="gps-label">Kilde</div>
+        <div class="gps-value">${esc(row.source||"-")}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function loadGpsHistory(){
+  const list=document.getElementById("gpsList");
+  list.innerHTML="";
+  setStatus("Laster GPS-historikk...");
+
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/gps-history?limit=500`);
+    const rows=Array.isArray(data.rows)?data.rows:[];
+
+    if(data.warning){
+      setStatus(esc(data.warning),"error");
+    }else{
+      setStatus(`Klar. Viser ${rows.length} GPS-registreringer, nyeste øverst.`,"success");
+    }
+
+    if(!rows.length){
+      list.innerHTML='<div class="empty">Ingen GPS-registreringer funnet.</div>';
+      return;
+    }
+
+    list.innerHTML=rows.map(rowHtml).join("");
+  }catch(error){
+    setStatus(`Kunne ikke laste GPS-historikk.<br><br>${esc(error.message)}`,"error");
+    list.innerHTML="";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadGpsHistory);
+</script>
+</body>
+</html>
