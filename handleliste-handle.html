@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v114_mobile_clean_status_and_version_2026_06_25 | based-on: handle-v113_mobile_status_max_two_lines --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v115_hide_gps_coords_compact_status_2026_06_25 | based-on: handle-v114_mobile_clean_status_and_version --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -1418,6 +1418,40 @@ html.handle-size-large #shoppingList .item-check{
   }
 }
 
+
+/* Handle v115: fjern GPS-koordinater og kompakt statusrad.
+   Høyre statusfelt skal ha samme kompakte høyde som knappfeltet til venstre
+   og maks 2 linjer tekst. */
+@media(max-width:700px){
+  #storeStatusRow.handle-status-row,
+  .handle-status-row{
+    grid-template-columns:130px minmax(0,1fr) !important;
+    align-items:center !important;
+    gap:8px !important;
+  }
+  .handle-status-action{
+    min-height:50px !important;
+    height:50px !important;
+    padding:6px !important;
+  }
+  .handle-status-text,
+  #status.handle-status-text,
+  #storeMatchStatus.handle-status-text{
+    min-height:50px !important;
+    height:50px !important;
+    max-height:50px !important;
+    padding:8px 12px !important;
+    line-height:1.2 !important;
+    overflow:hidden !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+    align-items:center !important;
+    word-break:normal !important;
+    overflow-wrap:break-word !important;
+  }
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v88 visible_cancel_notification_button 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -1635,7 +1669,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v114";
+const HANDLELISTE_HANDLE_VERSION="v115";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -2947,10 +2981,21 @@ function normalizeAdminVersionInfoDisplay(){
 
 function shortenMobileStatusText(html){
   const raw=String(html||"");
-  const text=raw.replace(/<br\s*\/?>/gi,". ").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();
+  let text=raw.replace(/<br\s*\/?>/gi,". ").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();
   const isMobile=window.matchMedia&&window.matchMedia("(max-width:700px)").matches;
 
   if(!text)return "";
+
+  // Fjern koordinater/nøyaktighet først, uansett hvor meldingen kommer fra.
+  text=text
+    .replace(/GPS:\s*[-0-9.,\s]+(?:·|-)?\s*/gi,"")
+    .replace(/\bnøyaktighet:\s*[^.]+/gi,"")
+    .replace(/\bGPS-nøyaktighet:\s*[^.]+/gi,"")
+    .replace(/\baccuracy:\s*[^.]+/gi,"")
+    .replace(/\b(lat|latitude|lng|lon|longitude|koordinater?)\b[^.]*\.?/gi,"")
+    .replace(/\s+\./g,".")
+    .replace(/\s+/g," ")
+    .trim();
 
   if(/load failed/i.test(text)){
     return "Kunne ikke sjekke butikk.";
@@ -2964,24 +3009,15 @@ function shortenMobileStatusText(html){
     return "Fant ingen kjent butikk her.";
   }
 
-  // Koordinater/nøyaktighet skal ikke vises i brukerstatus.
-  let cleaned=text
-    .replace(/GPS:\s*[-0-9.,\s]+(?:·|-)?\s*/gi,"")
-    .replace(/\bnøyaktighet:\s*[^.]+/gi,"")
-    .replace(/\baccuracy:\s*[^.]+/gi,"")
-    .replace(/\b(lat|latitude|lng|lon|longitude|koordinater?)\b[^.]*\.?/gi,"")
-    .replace(/\s+/g," ")
-    .trim();
-
-  if(!cleaned){
-    cleaned="Butikk sjekket.";
+  if(!text){
+    text="Butikk sjekket.";
   }
 
-  if(isMobile && cleaned.length>70){
-    return cleaned.slice(0,67).trim()+"...";
+  if(isMobile && text.length>70){
+    return text.slice(0,67).trim()+"...";
   }
 
-  return cleaned;
+  return text;
 }
 function setStoreStatusText(html, mode){
   const el=document.getElementById("storeMatchStatus");
@@ -3254,13 +3290,14 @@ function setStoreMatchStatus(message, type){
   if(!message){
     card.style.display="none";
     status.innerHTML="";
-    status.className="status";
+    status.className="handle-status-text store-status-text";
     return;
   }
 
-  card.style.display="block";
-  status.className="status" + (type ? ` ${type}` : "");
-  status.innerHTML=message;
+  // Ikke bruk display=block her. Raden er CSS-grid og må beholde to kolonner.
+  card.style.display="";
+  status.className="handle-status-text store-status-text" + (type ? ` ${type}` : "");
+  status.innerHTML=shortenMobileStatusText(message);
 }
 
 function formatStoreMatchResult(data){
@@ -3279,7 +3316,7 @@ function formatStoreMatchResult(data){
     const distanceText=distance !== null && distance !== undefined ? ` · ${Math.round(Number(distance))} m unna` : "";
     const prefix=matchStatus === "Uncertain" ? "Mulig butikk" : "Du ser ut til å være hos";
     const suffix=matchStatus === "Uncertain" ? " · usikkert treff" : "";
-    const text=`${prefix}: <strong>${esc(label)}</strong>${distanceText}${suffix}<br>GPS-nøyaktighet: ${esc(accuracy)}`;
+    const text=`${prefix}: <strong>${esc(label)}</strong>${distanceText}${suffix}`;
     const logo=logoUrl ? `<img class="store-logo" src="${esc(logoUrl)}" alt="${esc(storeChain || storeName)} logo" loading="lazy" decoding="async" onerror="this.style.display='none'">` : "";
     return `<div class="store-match-line"><div class="store-match-text">${text}</div>${logo}</div>`;
   }
