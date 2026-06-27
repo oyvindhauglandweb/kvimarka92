@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Handleliste - Masterbilder</title>
-<!-- version: handleliste-admin-varebilder_v2_fetch_credentials_2026_06_26 | requires worker-v179-or-newer -->
+<!-- version: handleliste-admin-varebilder_v3_sync_items_from_master_2026_06_27 | requires worker-v182-sync-item-images-from-master -->
 <style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#222;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#eef3f6;--accent:#2f7d8f;--danger:#d86363;--success:#278c48;}
 body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#2b2b2b;--button-hover:#3a3a3a;--accent:#2f6f80;--danger:#ff7777;--success:#72c184;}
@@ -85,6 +85,8 @@ input,select{min-height:38px;border:1px solid var(--border);border-radius:8px;ba
       <div class="right-tools">
         <button type="button" class="primary" onclick="openAddModal()">+ Ny mastervare</button>
         <button type="button" onclick="loadItems()">Oppdater</button>
+        <button type="button" onclick="syncMasterImages(true)">Test synk</button>
+        <button type="button" class="primary" onclick="syncMasterImages(false)">Synk til handlelister</button>
       </div>
     </div>
   </div>
@@ -93,6 +95,8 @@ input,select{min-height:38px;border:1px solid var(--border);border-radius:8px;ba
     <div id="status" class="status">Laster...</div>
     <div id="permissionInfo" class="info" style="margin-top:6px;"></div>
   </div>
+
+  <div id="syncResult" class="card hidden"></div>
 
   <div id="itemsGrid" class="grid"></div>
 </div>
@@ -372,6 +376,43 @@ document.getElementById("addForm").addEventListener("submit",async event=>{
     button.disabled=false;
   }
 });
+
+
+function renderSyncResult(data){
+  const box=document.getElementById("syncResult");
+  const samples=Array.isArray(data.samples)?data.samples:[];
+  box.classList.remove("hidden");
+  box.innerHTML=`<div class="status ${data.dryRun?"":"success"}">${esc(data.note||"Synk ferdig.")}</div>
+    <div class="info" style="margin-top:8px;">
+      Skannet: <b>${esc(data.scanned)}</b> ·
+      Masterbilder: <b>${esc(data.masterWithImages)}</b> ·
+      Matchet: <b>${esc(data.matched)}</b> ·
+      Kan oppdateres: <b>${esc(data.eligible)}</b> ·
+      ${data.dryRun?"Ville oppdatert":"Oppdatert"}: <b>${esc(data.updated)}</b> ·
+      Gjenstår: <b>${esc(data.remaining)}</b> ·
+      Feil: <b>${esc(data.failed)}</b>
+    </div>
+    ${samples.length?`<div class="info" style="margin-top:8px;">Eksempler: ${samples.map(row=>`${esc(row.itemName)} ← ${esc(row.masterName)}`).join(", ")}</div>`:""}`;
+}
+
+async function syncMasterImages(dryRun){
+  const action=dryRun?"testkjøre synk":"oppdatere bildene i handlelistene fra master";
+  if(!dryRun && !confirm("Dette oppdaterer bilder/thumbnail på eksisterende Shopping items der varenavn matcher mastervaren. Fortsette?"))return;
+
+  setStatus(`Starter ${action}...`);
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/admin/sync-item-images-from-master`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({dryRun,limit:500})
+    });
+    renderSyncResult(data);
+    setStatus(dryRun?"Testsynk er ferdig. Ingen rader er endret.":"Bilder er synkronisert til handlelistene.", dryRun?"":"success");
+  }catch(error){
+    setStatus(`Kunne ikke synkronisere bilder.<br><br>${esc(error.message)}`,"error");
+  }
+}
+
 
 document.addEventListener("DOMContentLoaded",loadItems);
 </script>
