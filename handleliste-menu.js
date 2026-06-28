@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v13-no-view-toggle-border-2026-06-28";
+  const MENU_VERSION = "handleliste-menu-v14-single-source-view-toggle-2026-06-28";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -391,34 +391,6 @@
         font-family:Arial, sans-serif !important;
         font-weight:700 !important;
       }
-
-      /* v12:
-         Gammel designknapp skjules fra felles meny, men funksjonen beholdes i JS.
-         Visningsknapp for liste/bilde skal alltid se ut som standard toppmenyknapp,
-         også når siden legger på .active. */
-      .handleliste-shared-top-menu .design-toggle-button,
-      .handleliste-shared-top-menu #handlelisteDesignToggle{
-        display:none !important;
-      }
-      .handleliste-shared-top-menu .thumbnail-view-button,
-      .handleliste-shared-top-menu .thumbnail-view-button.active,
-      .handleliste-shared-top-menu #handleViewModeToggle,
-      .handleliste-shared-top-menu #handleViewModeToggle.active{
-        outline:none !important;
-        box-shadow:none !important;
-        background:var(--card,#242424) !important;
-        color:var(--text,#eee) !important;
-        border:0 !important;
-      }
-      body:not(.dark-mode) .handleliste-shared-top-menu .thumbnail-view-button,
-      body:not(.dark-mode) .handleliste-shared-top-menu .thumbnail-view-button.active,
-      body:not(.dark-mode) .handleliste-shared-top-menu #handleViewModeToggle,
-      body:not(.dark-mode) .handleliste-shared-top-menu #handleViewModeToggle.active{
-        background:#ffffff !important;
-        color:#111827 !important;
-        border:0 !important;
-      }
-
       html.handleliste-size-medium body{font-size:calc(16px * 1.08) !important;}
       html.handleliste-size-large body{font-size:calc(16px * 1.18) !important;}
       html.handleliste-size-medium .item-name,
@@ -553,6 +525,8 @@
       localStorage.setItem("brochureTheme", isDark ? "dark" : "light");
     }catch(error){}
     updateThemeButton();
+    setTimeout(updateViewToggleButton, 0);
+    setTimeout(updateViewToggleButton, 150);
   }
 
   function toggleTheme(){
@@ -998,6 +972,66 @@
     document.body.appendChild(corner);
   }
 
+
+  function pageHasViewToggle(){
+    const page = currentBasePage();
+    return page === "handleliste-bestille.html" || page === "handleliste-handle.html";
+  }
+
+  function getPageViewMode(){
+    try{
+      if(typeof window.handlelisteGetViewMode === "function"){
+        return window.handlelisteGetViewMode() === "thumb" ? "thumb" : "list";
+      }
+      if(currentBasePage() === "handleliste-bestille.html" && typeof window.getOrderViewMode === "function"){
+        return window.getOrderViewMode() === "thumb" ? "thumb" : "list";
+      }
+      if(currentBasePage() === "handleliste-handle.html" && typeof window.getHandleViewMode === "function"){
+        return window.getHandleViewMode() === "thumb" ? "thumb" : "list";
+      }
+    }catch(error){}
+    return "list";
+  }
+
+  function updateViewToggleButton(){
+    const btn = document.getElementById("handlelisteViewModeToggle");
+    if(!btn) return;
+
+    const thumb = getPageViewMode() === "thumb";
+    btn.textContent = thumb ? "☰" : "▦";
+    btn.classList.remove("active");
+    btn.title = thumb ? "Vis som liste" : "Vis som bilder";
+    btn.setAttribute("aria-label", btn.title);
+  }
+
+  function toggleViewMode(event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    try{
+      if(typeof window.handlelisteToggleViewMode === "function"){
+        window.handlelisteToggleViewMode();
+      }else if(currentBasePage() === "handleliste-bestille.html" && typeof window.toggleOrderViewMode === "function"){
+        window.toggleOrderViewMode();
+      }else if(currentBasePage() === "handleliste-handle.html" && typeof window.toggleHandleViewMode === "function"){
+        window.toggleHandleViewMode();
+      }
+    }catch(error){}
+
+    updateViewToggleButton();
+    return false;
+  }
+
+  function viewToggleButtonHtml(){
+    if(!pageHasViewToggle()){
+      return "";
+    }
+
+    return `<button type="button" class="top-button menu-view-toggle-button" id="handlelisteViewModeToggle" onclick="return HandlelisteMenu.toggleViewMode(event)" title="Vis som bilder" aria-label="Vis som bilder">▦</button>`;
+  }
+
   function render(){
     if(!shouldRenderOnThisPage()) return;
     addCss();
@@ -1014,6 +1048,7 @@
       <a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a>
       <button type="button" class="top-button" id="handlelisteSizeToggle" onclick="HandlelisteMenu.toggleSize()" title="Endre tekststørrelse" aria-label="Endre tekststørrelse">A</button>
       <button type="button" class="top-button" id="handlelisteThemeToggle" onclick="HandlelisteMenu.toggleTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus"><span class="theme-text-symbol">✱</span></button>
+      ${viewToggleButtonHtml()}
     `;
 
     renderCornerIcon();
@@ -1031,6 +1066,8 @@
     toggleDesign,
     toggleSize,
     toggleSettings,
+    toggleViewMode,
+    updateViewToggleButton,
     runPageAction,
     renderFloatingControls,
     openCreateUserDialog,

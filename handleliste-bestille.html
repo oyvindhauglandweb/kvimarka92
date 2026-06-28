@@ -78,10 +78,7 @@ html:not(.classic-design-root) .primary{
 html:not(.classic-design-root) .empty{
   border:0 !important;
   background:rgba(0,0,0,.12) !important;
-}
-.design-toggle-button{font-size:21px;}
-
-.item-suggestions{
+}.item-suggestions{
   display:none;
   margin-top:6px;
   border:1px solid var(--border);
@@ -503,13 +500,7 @@ html.handleliste-size-large{
     --bestille-name-size:21px;
     --bestille-group-size:18px;
   }
-}
-
-
-/* Bestille v55: alternativ bilde-/thumbnailvisning.
-   Ingen avkrysningsboks i bildevisning; valgt vare markeres med ramme rundt hele kortet. */
-.thumbnail-view-button.active{outline:2px solid var(--link);color:var(--link);}
-.item-thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;}
+}.item-thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;}
 .item-thumb-card{border:2px solid transparent;border-radius:12px;background:rgba(127,127,127,.06);color:var(--text);padding:7px;min-height:150px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px;}
 .item-thumb-card:hover{background:rgba(124,199,232,.10);}
 .item-thumb-card.selected{border-color:var(--link);background:rgba(124,199,232,.16);}
@@ -552,15 +543,6 @@ html.handleliste-size-large{
     height:92px !important;
     flex-basis:92px !important;
   }
-}
-
-
-/* Bestille v57:
-   Skjul design-toggle midlertidig uten å fjerne funksjonen fra koden.
-   Knappen skal ikke ta plass i toppmenyen. */
-#shoppingDesignToggle,
-.design-toggle-button{
-  display:none !important;
 }
 
 
@@ -999,26 +981,19 @@ function getOrderViewMode(){return localStorage.getItem(ORDER_VIEW_MODE_STORAGE_
 function setOrderViewMode(mode){localStorage.setItem(ORDER_VIEW_MODE_STORAGE_KEY,mode==="thumb"?"thumb":"list");}
 function toggleOrderViewMode(){setOrderViewMode(getOrderViewMode()==="thumb"?"list":"thumb");updateOrderViewToggleButton();render();}
 function updateOrderViewToggleButton(){
-  const btn=document.getElementById("orderViewModeToggle");
+  const btn=document.getElementById("handlelisteViewModeToggle");
   if(!btn)return;
   const thumb=getOrderViewMode()==="thumb";
   btn.textContent=thumb?"☰":"▦";
-  btn.classList.toggle("active",thumb);
+  btn.classList.remove("active");
   btn.title=thumb?"Vis som liste":"Vis som bilder";
   btn.setAttribute("aria-label",btn.title);
 }
-function installOrderViewToggleButton(){
-  const menu=document.getElementById("handlelisteTopMenu");
-  if(!menu||document.getElementById("orderViewModeToggle"))return;
-  const btn=document.createElement("button");
-  btn.type="button";
-  btn.id="orderViewModeToggle";
-  btn.className="top-button thumbnail-view-button";
-  btn.onclick=toggleOrderViewMode;
-  menu.appendChild(btn);
-  updateOrderViewToggleButton();
-}
-document.addEventListener("DOMContentLoaded",function(){window.setTimeout(installOrderViewToggleButton,0);window.setTimeout(installOrderViewToggleButton,300);});
+
+window.handlelisteGetViewMode=getOrderViewMode;
+window.handlelisteToggleViewMode=toggleOrderViewMode;
+window.handlelisteUpdateViewModeButton=updateOrderViewToggleButton;
+
 function renderOrderThumbImage(item){
   const thumbUrl=getItemThumbnailUrl(item);
   const fullUrl=getItemImageUrl(item);
@@ -1299,4 +1274,4 @@ loadItems();
 </script>
 
 <script>document.getElementById("newItemImage").addEventListener("change",handleNewItemImageChange);</script>
-<script src="handleliste-menu.js?v=11"></script></body></html>
+<script src="handleliste-menu.js?v=14"></script></body></html>
