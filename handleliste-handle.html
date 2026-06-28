@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v148_stable_admin_version_indicator_2026_06_28 | based-on: handle-v147_log_actual_geolocation_only --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v149_gps_html_vars_existing_api_2026_06_28 | based-on: handle-v148_stable_admin_version_indicator --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -2054,7 +2054,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v148";
+const HANDLELISTE_HANDLE_VERSION="v149";
 window.HANDLELISTE_HANDLE_VERSION=HANDLELISTE_HANDLE_VERSION;
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
@@ -2454,7 +2454,7 @@ function extractPlainVersionNumber(value){
 
 function getExpectedWorkerVersionNumber(){
   // Oppdateres manuelt når Worker-fil byttes. Brukes som fallback hvis /shopping/version ikke finnes.
-  return "193";
+  return "195";
 }
 
 
@@ -2465,7 +2465,7 @@ function extractPlainVersionNumber(value){
 }
 
 function getExpectedWorkerVersionNumber(){
-  return "193";
+  return "195";
 }
 
 function placeAdminVersionInfoUnderTopMenu(){
@@ -4163,27 +4163,54 @@ async function logGpsHistoryClickStarted(){
   }
 }
 
+function roundGpsForBaserow(value, decimals){
+  const n=Number(value);
+  if(!Number.isFinite(n)){
+    return null;
+  }
+
+  const factor=Math.pow(10, Number(decimals || 0));
+  return Math.round(n * factor) / factor;
+}
+
 async function logGpsHistoryOnly(location, matchStatus){
+  // H149: ren variabellagring fra HTML.
+  // GPS-verdiene som finnes i location-variabelen sendes direkte til eksisterende API-domene.
+  // Ingen startlogg, ingen 0,0-rader, ingen /api-rute.
+  if(!location || location.status !== "ok"){
+    return {logged:false, skipped:true, error:"Ingen GPS-koordinater å lagre."};
+  }
+
+  const latitude=roundGpsForBaserow(location.latitude,4);
+  const longitude=roundGpsForBaserow(location.longitude,4);
+  const accuracy=roundGpsForBaserow(location.accuracy,0);
+
+  if(latitude === null || longitude === null){
+    return {logged:false, error:"GPS-koordinater mangler i HTML-variabler."};
+  }
+
   try{
     const data=await fetchJson(`${API_BASE}/shopping/gps-history-log`,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
       body:JSON.stringify({
-        location,
-        latitude:location && location.latitude,
-        longitude:location && location.longitude,
-        accuracy:location && location.accuracy,
-        locationStatus:location && location.status,
-        locationMessage:location && location.message,
-        locationSource:location && location.source,
-        firstLocationError:location && location.firstError,
-        secondLocationError:location && location.secondError,
+        latitude,
+        longitude,
+        accuracy,
+        locationStatus:location.status,
+        locationSource:location.source || "",
+        locationMessage:location.message || "",
         shoppingArea:selectedShoppingArea,
-        storeMatchStatus:matchStatus || (location && location.status === "denied" ? "Location denied" : "Location error")
+        storeMatchStatus:matchStatus || "GPS position received"
       })
     });
 
-    return data && data.gpsHistoryLog ? data.gpsHistoryLog : {logged:false,error:"Ukjent respons fra GPS-logg."};
+    return data && data.gpsHistoryLog ? data.gpsHistoryLog : {
+      logged:!!(data && data.success),
+      mode:data && data.gpsHistoryLog && data.gpsHistoryLog.mode || "html-vars",
+      rowId:data && data.gpsHistoryLog && data.gpsHistoryLog.rowId || null,
+      error:data && data.error || ""
+    };
   }catch(error){
     return {logged:false,error:error && error.message ? error.message : String(error)};
   }
@@ -4217,8 +4244,6 @@ function setFindStoreButtonBusy(isBusy){
 async function checkCurrentStore(silent, options){
   const force=!!(options && options.force);
 
-  // H141: Manuelt trykk skal aldri oppleves som død knapp.
-  // Tidligere kunne stille autosjekk/geolocation blokkere manuell Finn butikk.
   if(storeMatchRunning && !force){
     return;
   }
@@ -4232,8 +4257,6 @@ async function checkCurrentStore(silent, options){
   }
 
   try{
-    // H147: Ikke lag startlogg uten koordinater.
-    // Logg først når nettleseren faktisk har gitt et GPS-resultat.
     const location=await getShoppingLocation();
 
     if(runId !== storeMatchRunId){
@@ -4241,12 +4264,7 @@ async function checkCurrentStore(silent, options){
     }
 
     if(location.status !== "ok"){
-      const gpsLog=await logGpsHistoryOnly(
-        location,
-        location.status === "denied" ? "Location denied" : "Location error"
-      );
-      const logInfo=gpsLog && gpsLog.logged ? "" : `<br>GPS-logg feilet: ${esc(gpsLog && gpsLog.error || "ukjent feil")}`;
-      setStoreMatchStatus(`${formatGpsLocationRaw(location)}${logInfo}`, "error");
+      setStoreMatchStatus(formatGpsLocationRaw(location), "error");
       return;
     }
 
@@ -4254,10 +4272,12 @@ async function checkCurrentStore(silent, options){
       setStoreMatchStatus(formatGpsLocationRaw(location), "success");
     }
 
-    const rawGpsLog=await logGpsHistoryOnly(location, "GPS position received");
+    // H149: Først lagres GPS-koordinatene som rene HTML-variabler.
+    const gpsLog=await logGpsHistoryOnly(location, "GPS position received");
 
-    if(!rawGpsLog || !rawGpsLog.logged){
-      setStoreMatchStatus(`${formatGpsLocationRaw(location)}<br>GPS-logg feilet: ${esc(rawGpsLog && rawGpsLog.error || "ukjent feil")}`, "error");
+    if(!gpsLog || !gpsLog.logged){
+      setStoreMatchStatus(`${formatGpsLocationRaw(location)}<br>GPS-logg feilet: ${esc(gpsLog && gpsLog.error || "ukjent feil")}`, "error");
+      // Fortsett likevel til butikkmatch, slik at Finn butikk ikke stopper helt.
     }
 
     const data=await fetchJson(`${API_BASE}/shopping/store-match`,{
@@ -4265,9 +4285,9 @@ async function checkCurrentStore(silent, options){
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
       body:JSON.stringify({
         location,
-        latitude:location.latitude,
-        longitude:location.longitude,
-        accuracy:location.accuracy,
+        latitude:roundGpsForBaserow(location.latitude,4),
+        longitude:roundGpsForBaserow(location.longitude,4),
+        accuracy:roundGpsForBaserow(location.accuracy,0),
         locationStatus:location.status,
         shoppingArea:selectedShoppingArea
       })
@@ -4276,8 +4296,6 @@ async function checkCurrentStore(silent, options){
     if(runId !== storeMatchRunId){
       return;
     }
-
-    const gpsLog=await ensureGpsHistoryLoggedFromStoreMatch(location,data);
 
     const matched=!!(data.storeName || (data.store && data.store.name));
     const uncertain=String(data.storeMatchStatus || "") === "Uncertain";
@@ -4295,12 +4313,8 @@ async function checkCurrentStore(silent, options){
       render();
     }
 
-    setStoreMatchStatus(formatStoreMatchResult(data), matched && !uncertain ? "success" : "");
-
-    if(!gpsLog || !gpsLog.logged){
-      console.warn("GPS-historikk ble ikke logget.", gpsLog);
-      setStoreMatchStatus(`${formatStoreMatchResult(data)}<br>GPS-logg feilet: ${esc(gpsLog && gpsLog.error || "ukjent feil")}`, "error");
-    }
+    const logSuffix=gpsLog && gpsLog.logged ? "<br>GPS-logg: lagret." : "";
+    setStoreMatchStatus(`${formatStoreMatchResult(data)}${logSuffix}`, matched && !uncertain ? "success" : "");
   }catch(error){
     if(runId === storeMatchRunId){
       setStoreMatchStatus(`Kunne ikke sjekke butikk.<br><br>${esc(error.message)}`, "error");
