@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v16-normalize-norwegian-phone-2026-06-23";
+  const MENU_VERSION = "handleliste-menu-v12-hide-design-neutral-view-toggle-2026-06-28";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -132,15 +132,6 @@
         position:relative !important;
         display:inline-flex !important;
       }
-      .handleliste-floating-controls .login-widget{
-        position:relative !important;
-        display:inline-flex !important;
-        align-items:center !important;
-        justify-content:center !important;
-      }
-      .handleliste-floating-controls .login-widget.open .login-menu{
-        display:block !important;
-      }
       .handleliste-floating-controls .settings-menu{
         position:absolute !important;
         top:44px !important;
@@ -184,8 +175,7 @@
         color:var(--text,#eee) !important;
         box-shadow:0 8px 24px rgba(0,0,0,.25) !important;
         box-sizing:border-box !important;
-        display:none !important;
-        z-index:100001 !important;
+        display:none;
       }
       .handleliste-floating-controls .login-menu-name{
         display:block !important;
@@ -209,11 +199,6 @@
       }
       .handleliste-floating-controls .login-menu-link:hover{
         background:rgba(127,127,127,.14) !important;
-      }
-      .handleliste-floating-controls .login-menu-logout{
-        margin-top:8px !important;
-        padding-top:10px !important;
-        border-top:1px solid rgba(127,127,127,.18) !important;
       }
       .handleliste-floating-controls .login-status.is-signin{
         font-size:0 !important;
@@ -405,6 +390,33 @@
         font-size:22px !important;
         font-family:Arial, sans-serif !important;
         font-weight:700 !important;
+      }
+
+      /* v12:
+         Gammel designknapp skjules fra felles meny, men funksjonen beholdes i JS.
+         Visningsknapp for liste/bilde skal alltid se ut som standard toppmenyknapp,
+         også når siden legger på .active. */
+      .handleliste-shared-top-menu .design-toggle-button,
+      .handleliste-shared-top-menu #handlelisteDesignToggle{
+        display:none !important;
+      }
+      .handleliste-shared-top-menu .thumbnail-view-button,
+      .handleliste-shared-top-menu .thumbnail-view-button.active,
+      .handleliste-shared-top-menu #handleViewModeToggle,
+      .handleliste-shared-top-menu #handleViewModeToggle.active{
+        outline:none !important;
+        box-shadow:none !important;
+        background:var(--card,#242424) !important;
+        color:var(--text,#eee) !important;
+        border:1px solid var(--border,#555) !important;
+      }
+      body:not(.dark-mode) .handleliste-shared-top-menu .thumbnail-view-button,
+      body:not(.dark-mode) .handleliste-shared-top-menu .thumbnail-view-button.active,
+      body:not(.dark-mode) .handleliste-shared-top-menu #handleViewModeToggle,
+      body:not(.dark-mode) .handleliste-shared-top-menu #handleViewModeToggle.active{
+        background:#ffffff !important;
+        color:#111827 !important;
+        border-color:#d1d5db !important;
       }
 
       html.handleliste-size-medium body{font-size:calc(16px * 1.08) !important;}
@@ -665,13 +677,10 @@
 
 
   async function createStandardUserApi(payload){
-    // text/plain unngår unødvendig CORS preflight mot Worker.
-    // Worker leser fortsatt innholdet som JSON.
     const res = await fetch(`${API_BASE}/shopping/users/create-standard`, {
       method:"POST",
-      mode:"cors",
       credentials:"include",
-      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      headers:{"Content-Type":"application/json"},
       body:JSON.stringify(payload)
     });
 
@@ -723,8 +732,8 @@
         <a id="handlelisteLoginStatus" class="login-status is-signin" href="#" title="Logg inn">↗</a>
         <span id="handlelisteLoginMenu" class="login-menu">
           <span id="handlelisteLoginMenuName" class="login-menu-name"></span>
-          <a id="handlelisteCreateUserLink" class="login-menu-link" href="#">Opprett bruker</a>
-          <a id="handlelisteLogoutLink" class="login-menu-link login-menu-logout" href="#">Logge av</a>
+          <a id="handlelisteLogoutLink" class="login-menu-link" href="#">Logge av</a>
+          <a id="handlelisteCreateUserLink" class="login-menu-link" href="#" style="display:none;">Opprett bruker</a>
         </span>
       </span>
     `;
@@ -754,109 +763,23 @@
             <input id="handlelisteCreateUserName" name="name" type="text" autocomplete="name" required>
           </div>
           <div class="handleliste-create-user-field">
-            <label for="handlelisteCreateUserDisplayName">Navn i Handleliste</label>
-            <input id="handlelisteCreateUserDisplayName" name="displayName" type="text" autocomplete="nickname" required placeholder="F.eks. Per eller Ann Magret">
-          </div>
-          <div class="handleliste-create-user-field">
             <label for="handlelisteCreateUserEmail">E-post</label>
             <input id="handlelisteCreateUserEmail" name="email" type="email" autocomplete="email" required>
           </div>
           <div class="handleliste-create-user-field">
             <label for="handlelisteCreateUserPhone">Mobilnummer</label>
-            <input id="handlelisteCreateUserPhone" name="phone" type="tel" autocomplete="tel" required inputmode="tel" placeholder="F.eks. 12345678">
+            <input id="handlelisteCreateUserPhone" name="phone" type="tel" autocomplete="tel" placeholder="Valgfritt">
           </div>
           <div class="handleliste-create-user-help"><strong>Rolle:</strong> Standard bruker</div>
           <div id="handlelisteCreateUserStatus" class="handleliste-create-user-status"></div>
           <div class="handleliste-create-user-actions">
             <button type="button" class="handleliste-create-user-button" onclick="HandlelisteMenu.closeCreateUserDialog()">Avbryt</button>
-            <button id="handlelisteCreateUserSubmit" type="submit" class="handleliste-create-user-button primary" disabled>Opprett bruker</button>
+            <button type="submit" class="handleliste-create-user-button primary">Opprett bruker</button>
           </div>
         </form>
       </div>
     `;
     document.body.appendChild(modal);
-  }
-
-
-
-  function isValidCreateUserName(value){
-    const text = String(value || "").trim().replace(/\s+/g, " ");
-    return text.length >= 2;
-  }
-
-  function isValidCreateUserDisplayName(value){
-    const text = String(value || "").trim().replace(/\s+/g, " ");
-    return text.length >= 2;
-  }
-
-  function isValidCreateUserEmail(value){
-    const text = String(value || "").trim();
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text);
-  }
-
-  function normalizeNorwegianPhoneForSave(value){
-    const text = String(value || "").trim();
-    const digits = text.replace(/\D/g, "");
-
-    if(!digits){
-      return "";
-    }
-
-    if(text.startsWith("+")){
-      return "+" + digits;
-    }
-
-    if(digits.length === 8){
-      return "+47" + digits;
-    }
-
-    if(digits.length === 10 && digits.startsWith("47")){
-      return "+" + digits;
-    }
-
-    return text.replace(/\s+/g, " ");
-  }
-
-  function isValidCreateUserPhone(value){
-    const text = String(value || "").trim();
-    if(!text) return false;
-    if(!/^\+?[0-9\s().-]+$/.test(text)) return false;
-    const digits = text.replace(/\D/g, "");
-    if(text.startsWith("+47")) return digits.length === 10;
-    if(text.startsWith("47") && digits.length === 10) return true;
-    return digits.length >= 8 && digits.length <= 15;
-  }
-
-  function updateCreateUserSubmitState(){
-    const nameInput = document.getElementById("handlelisteCreateUserName");
-    const displayNameInput = document.getElementById("handlelisteCreateUserDisplayName");
-    const emailInput = document.getElementById("handlelisteCreateUserEmail");
-    const phoneInput = document.getElementById("handlelisteCreateUserPhone");
-    const submitButton = document.getElementById("handlelisteCreateUserSubmit");
-
-    const valid = isValidCreateUserName(nameInput && nameInput.value) &&
-      isValidCreateUserDisplayName(displayNameInput && displayNameInput.value) &&
-      isValidCreateUserEmail(emailInput && emailInput.value) &&
-      isValidCreateUserPhone(phoneInput && phoneInput.value);
-
-    if(submitButton){
-      submitButton.disabled = !valid;
-    }
-
-    return valid;
-  }
-
-  function setupCreateUserValidation(){
-    ["handlelisteCreateUserName", "handlelisteCreateUserDisplayName", "handlelisteCreateUserEmail", "handlelisteCreateUserPhone"].forEach(id => {
-      const input = document.getElementById(id);
-      if(input && !input.dataset.validationBound){
-        input.dataset.validationBound = "1";
-        input.addEventListener("input", updateCreateUserSubmitState);
-        input.addEventListener("change", updateCreateUserSubmitState);
-      }
-    });
-
-    updateCreateUserSubmitState();
   }
 
   function setCreateUserStatus(message, type){
@@ -871,16 +794,11 @@
       event.preventDefault();
       event.stopPropagation();
     }
-    const loginWidget = document.getElementById("handlelisteLoginWidget");
-    const loginMenu = document.getElementById("handlelisteLoginMenu");
-    if(loginWidget) loginWidget.classList.remove("open");
-    if(loginMenu) loginMenu.style.display = "none";
     renderCreateUserDialog();
     const modal = document.getElementById("handlelisteCreateUserModal");
     const form = document.getElementById("handlelisteCreateUserForm");
     if(form) form.reset();
     setCreateUserStatus("", "");
-    setupCreateUserValidation();
     if(modal) modal.classList.add("open");
     setTimeout(function(){
       const nameInput = document.getElementById("handlelisteCreateUserName");
@@ -903,41 +821,20 @@
     }
 
     const nameInput = document.getElementById("handlelisteCreateUserName");
-    const displayNameInput = document.getElementById("handlelisteCreateUserDisplayName");
     const emailInput = document.getElementById("handlelisteCreateUserEmail");
     const phoneInput = document.getElementById("handlelisteCreateUserPhone");
     const submitButton = document.querySelector("#handlelisteCreateUserForm button[type='submit']");
 
     const payload = {
       name:String((nameInput && nameInput.value) || "").trim(),
-      displayName:String((displayNameInput && displayNameInput.value) || "").trim(),
       email:String((emailInput && emailInput.value) || "").trim(),
-      phone:normalizeNorwegianPhoneForSave((phoneInput && phoneInput.value) || ""),
+      phone:String((phoneInput && phoneInput.value) || "").trim(),
       role:"User",
       userType:"standard"
     };
 
-    if(!isValidCreateUserName(payload.name)){
-      setCreateUserStatus("Fullt navn må fylles ut.", "error");
-      updateCreateUserSubmitState();
-      return false;
-    }
-
-    if(!isValidCreateUserDisplayName(payload.displayName)){
-      setCreateUserStatus("Navn i Handleliste må fylles ut.", "error");
-      updateCreateUserSubmitState();
-      return false;
-    }
-
-    if(!isValidCreateUserEmail(payload.email)){
-      setCreateUserStatus("Gyldig e-postadresse må fylles ut.", "error");
-      updateCreateUserSubmitState();
-      return false;
-    }
-
-    if(!isValidCreateUserPhone(payload.phone)){
-      setCreateUserStatus("Gyldig mobilnummer må fylles ut.", "error");
-      updateCreateUserSubmitState();
+    if(!payload.name || !payload.email){
+      setCreateUserStatus("Navn og e-post må fylles ut.", "error");
       return false;
     }
 
@@ -980,22 +877,20 @@
       logoutLink.textContent = "Logge av";
 
       if(createUserLink){
-        createUserLink.style.display = "block";
-        createUserLink.onclick = openCreateUserDialog;
+        if(isAdminUser(currentUser)){
+          createUserLink.style.display = "block";
+          createUserLink.onclick = openCreateUserDialog;
+        }else{
+          createUserLink.style.display = "none";
+          createUserLink.onclick = null;
+        }
       }
 
       loginStatus.onclick = function(event){
         event.preventDefault();
         event.stopPropagation();
-        const loginWidget = document.getElementById("handlelisteLoginWidget");
-        const willOpen = !(loginWidget && loginWidget.classList.contains("open"));
+        loginMenu.style.display = loginMenu.style.display === "block" ? "none" : "block";
         closeSettings();
-        if(loginWidget){
-          loginWidget.classList.toggle("open", willOpen);
-        }
-        if(loginMenu){
-          loginMenu.style.display = willOpen ? "block" : "none";
-        }
         return false;
       };
 
@@ -1013,8 +908,6 @@
       loginStatus.title = "Logg inn";
       loginStatus.onclick = null;
       loginMenu.style.display = "none";
-      const loginWidget = document.getElementById("handlelisteLoginWidget");
-      if(loginWidget) loginWidget.classList.remove("open");
       if(createUserLink){
         createUserLink.style.display = "none";
         createUserLink.onclick = null;
@@ -1044,12 +937,7 @@
       }
     }
 
-    if(loginWidget && loginWidget.classList.contains("open")){
-      if(!event || !loginWidget.contains(event.target)){
-        loginWidget.classList.remove("open");
-        if(loginMenu) loginMenu.style.display = "none";
-      }
-    }else if(loginMenu && loginMenu.style.display === "block"){
+    if(loginMenu && loginMenu.style.display === "block"){
       if(!event || !loginWidget || !loginWidget.contains(event.target)){
         loginMenu.style.display = "none";
       }
@@ -1126,7 +1014,6 @@
       <a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a>
       <button type="button" class="top-button" id="handlelisteSizeToggle" onclick="HandlelisteMenu.toggleSize()" title="Endre tekststørrelse" aria-label="Endre tekststørrelse">A</button>
       <button type="button" class="top-button" id="handlelisteThemeToggle" onclick="HandlelisteMenu.toggleTheme()" title="Bytt lys/mørk modus" aria-label="Bytt lys/mørk modus"><span class="theme-text-symbol">✱</span></button>
-      <button type="button" class="top-button design-toggle-button" id="handlelisteDesignToggle" onclick="HandlelisteMenu.toggleDesign()" title="Bytt design" aria-label="Bytt design">◫</button>
     `;
 
     renderCornerIcon();
