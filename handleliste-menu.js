@@ -2,7 +2,7 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v12-hide-design-neutral-view-toggle-2026-06-28";
+  const MENU_VERSION = "handleliste-menu-v13-no-view-toggle-border-2026-06-28";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -408,7 +408,7 @@
         box-shadow:none !important;
         background:var(--card,#242424) !important;
         color:var(--text,#eee) !important;
-        border:1px solid var(--border,#555) !important;
+        border:0 !important;
       }
       body:not(.dark-mode) .handleliste-shared-top-menu .thumbnail-view-button,
       body:not(.dark-mode) .handleliste-shared-top-menu .thumbnail-view-button.active,
@@ -416,7 +416,7 @@
       body:not(.dark-mode) .handleliste-shared-top-menu #handleViewModeToggle.active{
         background:#ffffff !important;
         color:#111827 !important;
-        border-color:#d1d5db !important;
+        border:0 !important;
       }
 
       html.handleliste-size-medium body{font-size:calc(16px * 1.08) !important;}
