@@ -35,9 +35,10 @@ pre{white-space:pre-wrap;word-break:break-word;background:#111;border:1px solid 
       <button class="secondary" type="button" onclick="getAndLogGps()">Test + logg</button>
     </div>
     <p class="small">
-      Denne siden gjør kun to ting: henter rå <code>navigator.geolocation</code> og sender resultatet direkte til <code>/shopping/gps-history-log</code>.
+      Denne siden gjør kun to ting: henter rå <code>navigator.geolocation</code> og sender resultatet direkte til <code>/api/shopping/gps-history-log</code> på samme domene.
       Ingen handleliste-rendering, ingen butikkmatching, ingen autosjekk.
     </p>
+    <p class="small"><strong>API_BASE:</strong> <code id="apiBaseText"></code></p>
   </div>
 
   <div class="card">
@@ -56,8 +57,9 @@ pre{white-space:pre-wrap;word-break:break-word;background:#111;border:1px solid 
 </div>
 
 <script>
-const API_BASE="https://api-kvimarka92.carstereogarage.com";
+const API_BASE=location.origin + "/api";
 let lastLocation=null;
+document.addEventListener("DOMContentLoaded",()=>{ const el=document.getElementById("apiBaseText"); if(el) el.textContent=API_BASE; });
 
 function setStatus(text,type){
   const el=document.getElementById("status");
