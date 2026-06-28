@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Handleliste - GPS-historikk</title>
-<!-- version: gps-historikk-v3_assign_nearest_store_2026_06_27 | requires worker-v188-gps-history-assign-store -->
+<title>Handleliste - GPS-historikk v4</title>
+<!-- version: gps-historikk-v4_update_store_coords_create_store_2026_06_28 | requires worker-v197-gps-history-update-store-coords -->
 <style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--success:#72c184;--danger:#d77;}
 body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--success:#72c184;--danger:#ff7777;}
@@ -57,6 +57,17 @@ body:not(.dark-mode) .gps-field{background:rgba(127,127,127,.08);}
 .store-meta{color:var(--muted);font-size:13px;margin-top:3px;}
 @media(max-width:700px){.store-choice{grid-template-columns:1fr;}.store-choice button{width:100%;}}
 
+
+.store-modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+.store-form{display:none;border:1px solid var(--border);border-radius:10px;padding:10px;margin:10px 0;background:rgba(127,127,127,.06);}
+.store-form.open{display:block;}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.form-field{display:flex;flex-direction:column;gap:4px;}
+.form-label{font-size:12px;color:var(--muted);font-weight:bold;}
+.form-input{width:100%;min-height:34px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);padding:6px 8px;font:inherit;}
+.form-help{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.3;}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr;}}
+
 </style>
 <script src="handleliste-menu.js?v=11"></script>
 </head>
@@ -88,6 +99,34 @@ body:not(.dark-mode) .gps-field{background:rgba(127,127,127,.08);}
         <div class="info" id="storeModalInfo"></div>
       </div>
       <button class="action-button" type="button" onclick="closeStoreModal()">Lukk</button>
+    </div>
+    <div class="store-modal-actions">
+      <button class="action-button primary" type="button" onclick="showNewStoreForm()">Legg til ny butikk</button>
+    </div>
+    <div id="newStoreForm" class="store-form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label" for="newStoreChain">Kjede</label>
+          <select class="form-input" id="newStoreChain"></select>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="newStoreName">Butikknavn</label>
+          <input class="form-input" id="newStoreName" placeholder="F.eks. Extra Nærbø">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="newStoreAddress">Adresse</label>
+          <input class="form-input" id="newStoreAddress" placeholder="Gateadresse, poststed">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="newStoreRadius">Match-radius meter</label>
+          <input class="form-input" id="newStoreRadius" type="number" min="10" max="1000" step="10" value="50">
+        </div>
+      </div>
+      <div class="form-help" id="newStoreHelp"></div>
+      <div class="store-modal-actions">
+        <button class="action-button primary" type="button" onclick="createStoreFromGps()">Opprett butikk med denne GPS-posisjonen</button>
+        <button class="action-button" type="button" onclick="hideNewStoreForm()">Avbryt</button>
+      </div>
     </div>
     <div id="storeList" class="store-list"></div>
   </div>
@@ -218,14 +257,70 @@ function rowHtml(row){
 
 
 let currentGpsIdForStoreChoice=null;
+let currentGpsForStoreChoice=null;
+let currentStoreChoices=[];
+let currentChainChoices=[];
+let currentGpsArea="";
 
 function closeStoreModal(){
   document.getElementById("storeModal").classList.remove("open");
+  hideNewStoreForm();
   currentGpsIdForStoreChoice=null;
+  currentGpsForStoreChoice=null;
+  currentStoreChoices=[];
+  currentChainChoices=[];
+  currentGpsArea="";
 }
 
 function handleStoreModalBackdrop(event){
   if(event.target.id==="storeModal")closeStoreModal();
+}
+
+function populateNewStoreChains(){
+  const select=document.getElementById("newStoreChain");
+  const chains=currentChainChoices.length
+    ? currentChainChoices
+    : currentStoreChoices
+        .filter(store=>store.chain)
+        .map(store=>({name:store.chain,shoppingArea:store.shoppingArea}));
+
+  const unique=[];
+  const seen=new Set();
+
+  chains.forEach(chain=>{
+    const name=String(chain && chain.name || chain && chain.chain || "").trim();
+    if(!name)return;
+    const key=name.toLowerCase();
+    if(seen.has(key))return;
+    seen.add(key);
+    unique.push({name,shoppingArea:chain.shoppingArea || currentGpsArea});
+  });
+
+  select.innerHTML=unique.map(chain=>`<option value="${esc(chain.name)}">${esc(chain.name)}</option>`).join("");
+
+  if(!select.innerHTML){
+    select.innerHTML='<option value="">Skriv kjede mangler</option>';
+  }
+}
+
+function showNewStoreForm(){
+  const form=document.getElementById("newStoreForm");
+  const help=document.getElementById("newStoreHelp");
+  populateNewStoreChains();
+  document.getElementById("newStoreName").value="";
+  document.getElementById("newStoreAddress").value="";
+  document.getElementById("newStoreRadius").value="50";
+  const gps=currentGpsForStoreChoice || {};
+  const coords=(gps.latitude!==null&&gps.longitude!==null&&gps.latitude!==undefined&&gps.longitude!==undefined)
+    ? `${formatNumber(gps.latitude,6)}, ${formatNumber(gps.longitude,6)}`
+    : "ukjent";
+  help.textContent=`Ny butikk opprettes i område ${currentGpsArea || "ukjent"} med GPS-koordinater ${coords}.`;
+  form.classList.add("open");
+}
+
+function hideNewStoreForm(){
+  const form=document.getElementById("newStoreForm");
+  if(form)form.classList.remove("open");
 }
 
 async function openNearbyStores(gpsId){
@@ -233,6 +328,7 @@ async function openNearbyStores(gpsId){
   const modal=document.getElementById("storeModal");
   const list=document.getElementById("storeList");
   const info=document.getElementById("storeModalInfo");
+  hideNewStoreForm();
   list.innerHTML='<div class="status">Henter nærmeste butikker...</div>';
   info.textContent=`GPS-rad ${gpsId}`;
   modal.classList.add("open");
@@ -240,9 +336,13 @@ async function openNearbyStores(gpsId){
   try{
     const data=await fetchJson(`${API_BASE}/shopping/admin/gps-history-nearby-stores?id=${encodeURIComponent(gpsId)}&limit=10`);
     const stores=Array.isArray(data.stores)?data.stores:[];
-    info.textContent=`${stores.length} nærmeste butikker til logget posisjon.`;
+    currentStoreChoices=stores;
+    currentChainChoices=Array.isArray(data.chains)?data.chains:[];
+    currentGpsForStoreChoice=data.gps || null;
+    currentGpsArea=data.gpsArea || data.gps && data.gps.shoppingArea || "";
+    info.textContent=`${stores.length} nærmeste butikker i området ${currentGpsArea || "ukjent"} til logget posisjon.`;
     if(!stores.length){
-      list.innerHTML='<div class="empty">Fant ingen butikker med koordinater.</div>';
+      list.innerHTML='<div class="empty">Fant ingen butikker med koordinater i dette området.</div>';
       return;
     }
     list.innerHTML=stores.map(store=>`<div class="store-choice">
@@ -250,29 +350,72 @@ async function openNearbyStores(gpsId){
         <div class="store-name">${esc([store.chain,store.name].filter(Boolean).join(" "))}</div>
         <div class="store-meta">${esc(store.address||"")} ${store.shoppingArea?`· ${esc(store.shoppingArea)}`:""} · ${esc(Math.round(Number(store.distance||0)))} m unna</div>
       </div>
-      <button class="action-button primary" type="button" onclick="assignStoreToGps(${Number(gpsId)},${Number(store.id)})">Velg denne</button>
+      <button class="action-button primary" type="button" onclick="updateStorePositionFromGps(${Number(gpsId)},${Number(store.id)})">Oppdater</button>
     </div>`).join("");
   }catch(error){
     list.innerHTML=`<div class="status error">Kunne ikke hente nærmeste butikker.<br><br>${esc(error.message)}</div>`;
   }
 }
 
-async function assignStoreToGps(gpsId,storeId){
-  if(!confirm("Koble denne GPS-posisjonen til valgt butikk?"))return;
+async function updateStorePositionFromGps(gpsId,storeId){
+  if(!confirm("Oppdatere GPS-koordinatene for valgt butikk med denne posisjonen?"))return;
   const list=document.getElementById("storeList");
-  list.innerHTML='<div class="status">Oppdaterer GPS-logg...</div>';
+  list.innerHTML='<div class="status">Oppdaterer butikkens GPS-koordinater...</div>';
 
   try{
-    const data=await fetchJson(`${API_BASE}/shopping/admin/gps-history-assign-store`,{
+    const data=await fetchJson(`${API_BASE}/shopping/admin/gps-history-update-store-position`,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
       body:JSON.stringify({gpsId,storeId})
     });
     closeStoreModal();
-    setStatus(`GPS-posisjonen er koblet til ${esc([data.assigned&&data.assigned.storeChain,data.assigned&&data.assigned.storeName].filter(Boolean).join(" "))}.`,"success");
+    const store=[data.updated&&data.updated.storeChain,data.updated&&data.updated.storeName].filter(Boolean).join(" ");
+    setStatus(`Butikkens GPS-koordinater er oppdatert: ${esc(store)}.`,"success");
     await loadGpsHistory();
   }catch(error){
-    list.innerHTML=`<div class="status error">Kunne ikke koble GPS-posisjon til butikk.<br><br>${esc(error.message)}</div>`;
+    list.innerHTML=`<div class="status error">Kunne ikke oppdatere butikkens GPS-koordinater.<br><br>${esc(error.message)}</div>`;
+  }
+}
+
+async function createStoreFromGps(){
+  const gpsId=currentGpsIdForStoreChoice;
+  const chain=String(document.getElementById("newStoreChain").value||"").trim();
+  const name=String(document.getElementById("newStoreName").value||"").trim();
+  const address=String(document.getElementById("newStoreAddress").value||"").trim();
+  const matchRadius=Number(document.getElementById("newStoreRadius").value||50) || 50;
+
+  if(!gpsId){
+    alert("GPS-rad mangler.");
+    return;
+  }
+
+  if(!chain){
+    alert("Velg kjede.");
+    return;
+  }
+
+  if(!name){
+    alert("Skriv butikknavn.");
+    return;
+  }
+
+  if(!confirm(`Opprette ny butikk "${name}" i kjeden "${chain}" med denne GPS-posisjonen?`))return;
+
+  const list=document.getElementById("storeList");
+  list.innerHTML='<div class="status">Oppretter ny butikk...</div>';
+
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/admin/gps-history-create-store`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({gpsId,chain,name,address,matchRadius})
+    });
+    closeStoreModal();
+    const store=[data.created&&data.created.storeChain,data.created&&data.created.storeName].filter(Boolean).join(" ");
+    setStatus(`Ny butikk er opprettet: ${esc(store)}.`,"success");
+    await loadGpsHistory();
+  }catch(error){
+    list.innerHTML=`<div class="status error">Kunne ikke opprette ny butikk.<br><br>${esc(error.message)}</div>`;
   }
 }
 
