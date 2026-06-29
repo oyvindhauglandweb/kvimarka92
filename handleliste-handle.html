@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v159_nutrition_desktop_only_thumbnail_fix_2026_06_29 | based-on: handle-v158_nutrition_thumbnail_no_help_cursor --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v161_custom_nutrition_tooltip_2026_06_29 | based-on: handle-v160_thumbnail_image_nutrition_title --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -1728,7 +1728,7 @@ html.handle-size-large #shoppingList .item-check{
 
 
 /* Handle v137: admin-only kompakt versjonsindikator oppe til venstre.
-   Kun versjonsnummer: W:202, H:159 */
+   Kun versjonsnummer: W:202, H:161 */
 #adminVersionInfo{
   display:none;
   position:fixed !important;
@@ -1865,6 +1865,31 @@ body:not(.dark-mode) .admin-version-stable{
 }
 
 .nutrition-badge,.item-name[title],.item-thumb-name[title]{cursor:default;}
+
+.nutrition-tooltip-floating{
+  position:fixed;
+  z-index:99999;
+  max-width:280px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:rgba(34,34,34,.97);
+  color:#fff;
+  font-size:13px;
+  line-height:1.35;
+  white-space:pre-line;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);
+  pointer-events:none;
+  display:none;
+}
+body:not(.dark-mode) .nutrition-tooltip-floating{
+  background:rgba(255,255,255,.98);
+  color:#111827;
+}
+@media(max-width:700px){
+  .nutrition-tooltip-floating{display:none !important;}
+}
+
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v88 visible_cancel_notification_button 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -2088,7 +2113,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v159";
+const HANDLELISTE_HANDLE_VERSION="v161";
 window.HANDLELISTE_HANDLE_VERSION=HANDLELISTE_HANDLE_VERSION;
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
@@ -2314,25 +2339,72 @@ function isNutritionTooltipEnabled(){
   // Mouseover/title fungerer ikke nyttig på mobil/touch.
   return !(window.matchMedia && window.matchMedia("(max-width:700px)").matches);
 }
-function nutritionTitleAttr(item){
+function nutritionDataAttr(item){
   if(!isNutritionTooltipEnabled())return "";
   const text=formatNutritionTooltip(item);
-  return text ? ` title="${esc(text)}"` : "";
+  return text ? ` data-nutrition-tooltip="${esc(text)}"` : "";
+}
+function nutritionTitleAttr(item){
+  return nutritionDataAttr(item);
 }
 function nutritionActionTitleAttr(item, actionText){
   const action=String(actionText||"").trim();
-  if(!isNutritionTooltipEnabled()){
-    return action ? ` title="${esc(action)}"` : "";
-  }
-  const nutrition=formatNutritionTooltip(item);
-  const text=[action,nutrition].filter(Boolean).join("\n\n");
-  return text ? ` title="${esc(text)}"` : "";
+  const nutritionAttr=nutritionDataAttr(item);
+  return `${action ? ` aria-label="${esc(action)}"` : ""}${nutritionAttr}`;
 }
 function nutritionBadge(item){
   if(!isNutritionTooltipEnabled())return "";
   const text=formatNutritionTooltip(item);
-  return text ? `<span class="badge nutrition-badge" title="${esc(text)}">Næring</span>` : "";
+  return text ? `<span class="badge nutrition-badge" data-nutrition-tooltip="${esc(text)}">Næring</span>` : "";
 }
+function getNutritionTooltipElement(){
+  let el=document.getElementById("nutritionTooltipFloating");
+  if(!el){
+    el=document.createElement("div");
+    el.id="nutritionTooltipFloating";
+    el.className="nutrition-tooltip-floating";
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function showNutritionTooltip(event,target){
+  if(!isNutritionTooltipEnabled())return;
+  const text=target && target.getAttribute && target.getAttribute("data-nutrition-tooltip");
+  if(!text)return;
+  const el=getNutritionTooltipElement();
+  el.textContent=text;
+  el.style.display="block";
+  moveNutritionTooltip(event);
+}
+function moveNutritionTooltip(event){
+  const el=document.getElementById("nutritionTooltipFloating");
+  if(!el || el.style.display==="none")return;
+  const margin=14;
+  const width=el.offsetWidth || 260;
+  const height=el.offsetHeight || 120;
+  let left=(event && event.clientX || 0)+margin;
+  let top=(event && event.clientY || 0)+margin;
+  if(left+width+margin>window.innerWidth)left=Math.max(margin,(event && event.clientX || 0)-width-margin);
+  if(top+height+margin>window.innerHeight)top=Math.max(margin,(event && event.clientY || 0)-height-margin);
+  el.style.left=left+"px";
+  el.style.top=top+"px";
+}
+function hideNutritionTooltip(){
+  const el=document.getElementById("nutritionTooltipFloating");
+  if(el)el.style.display="none";
+}
+function installNutritionTooltipHandlers(){
+  document.addEventListener("mouseover",event=>{
+    const target=event.target && event.target.closest ? event.target.closest("[data-nutrition-tooltip]") : null;
+    if(target)showNutritionTooltip(event,target);
+  });
+  document.addEventListener("mousemove",event=>moveNutritionTooltip(event));
+  document.addEventListener("mouseout",event=>{
+    const target=event.target && event.target.closest ? event.target.closest("[data-nutrition-tooltip]") : null;
+    if(target && (!event.relatedTarget || !target.contains(event.relatedTarget)))hideNutritionTooltip();
+  });
+}
+document.addEventListener("DOMContentLoaded", installNutritionTooltipHandlers);
 const NEW_ITEM_DEBUG_ENABLED=false;
 let newItemDebugState={
   scriptLoadedAt:new Date().toLocaleTimeString("no-NO"),
@@ -3939,8 +4011,9 @@ function renderHandleThumbImage(item){
   const thumbUrl=getItemThumbnailUrl(item);
   const fullUrl=getItemImageUrl(item);
   const safeAlt=esc(item&&item.name||"Vare");
+  const imageTitle=nutritionTitleAttr(item);
   const fallbackAttr=fullUrl&&fullUrl!==thumbUrl?` data-full-src="${esc(fullUrl)}" onerror="this.onerror=null;this.src=this.dataset.fullSrc;"`:` onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('image-missing');"`;
-  return `<div class="item-thumb-image">${thumbUrl?`<img src="${esc(thumbUrl)}" alt="" title="${safeAlt}"${fallbackAttr}>`:"📷"}</div>`;
+  return `<div class="item-thumb-image">${thumbUrl?`<img src="${esc(thumbUrl)}" alt=""${imageTitle}${fallbackAttr}>`:"📷"}</div>`;
 }
 
 function renderHandleThumbOwnerBadge(item){
@@ -3952,7 +4025,7 @@ function renderHandleThumbBadges(item,isBought){
   // Ikke bruk button/a inne i thumbnail-kortet.
   // Hele kortet er én knapp, og nested buttons/links gjør at Safari flytter
   // merkene ut av kortet når det er ledig plass til høyre.
-  return `${item && item.standardItem?'<span class="badge standard-badge">Standard</span>':""}${item && !item.standardItem && getItemAddedAt(item)?'<span class="added-time-button thumb-static-badge">Lagt til</span>':""}${renderHandleThumbOwnerBadge(item)}${recipeBadge(item).replace(/<span/g,"<span").replace(/ onclick=\"[^\"]*\"/g,"")}${isBought?'<span class="badge thumb-static-badge">Handlet</span>':""}`;
+  return `${nutritionBadge(item)}${item && item.standardItem?'<span class="badge standard-badge">Standard</span>':""}${item && !item.standardItem && getItemAddedAt(item)?'<span class="added-time-button thumb-static-badge">Lagt til</span>':""}${renderHandleThumbOwnerBadge(item)}${recipeBadge(item).replace(/<span/g,"<span").replace(/ onclick=\"[^\"]*\"/g,"")}${isBought?'<span class="badge thumb-static-badge">Handlet</span>':""}`;
 }
 
 function renderHandleThumbnailView(groups){
