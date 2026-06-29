@@ -1,0 +1,1408 @@
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Bestille</title><!-- version: bestille-v72_thumbnail_image_nutrition_title-2026-06-29 -->
+<!-- version: bestille-v60_thumbnail_error_fallback_2026_06_26 | previous: bestille-v59_thumbnail_contain_white_bg --><style>
+:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.action-button.equal-order{min-width:128px;min-height:42px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.group{margin-bottom:10px;}.group-title{font-size:15px;font-weight:bold;margin:0 0 4px;color:var(--muted);}.item-list{display:flex;flex-direction:column;gap:3px;}.item-row{display:grid;grid-template-columns:26px 1fr auto;gap:6px;align-items:center;border:1px solid var(--border);border-radius:7px;padding:4px 6px;background:rgba(127,127,127,.04);min-height:32px;}.item-check{width:19px;height:19px;accent-color:var(--link);}.item-name{font-weight:bold;font-size:14px;line-height:1.1;}.item-meta{color:var(--muted);font-size:11px;margin-top:1px;line-height:1.15;}.badge{display:inline-flex;align-items:center;min-height:18px;padding:0 6px;border-radius:999px;background:rgba(124,199,232,.16);color:var(--link);font-size:10px;font-weight:bold;white-space:nowrap;}.badge-stack{display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap;}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}.modal{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.82);padding:18px;overflow:auto;}.modal.open{display:block;}.modal-content{max-width:560px;margin:50px auto;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;}.modal-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;}.modal-title{font-size:22px;font-weight:bold;}.modal-close{width:42px;height:42px;border:1px solid var(--border);border-radius:8px;background:var(--button);color:var(--text);font-size:24px;font-weight:bold;cursor:pointer;}.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}label{font-weight:bold;font-size:14px;}input,select{width:100%;min-height:40px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:15px;}.checkbox-row{display:flex;align-items:center;gap:10px;}.checkbox-row input{width:22px;height:22px;min-height:auto;}@media(max-width:700px){body{padding:6px;}.header{margin-bottom:12px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}.summary-item{padding:6px;}.summary-label{font-size:10px;}.summary-value{font-size:15px;}.toolbar,.toolbar-left,.toolbar-right{align-items:stretch;width:100%;}.toolbar.order-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;align-items:stretch;justify-content:stretch;}.toolbar.order-actions .toolbar-left,.toolbar.order-actions .toolbar-right{display:contents;}.toolbar.order-actions .action-button{width:100%;min-width:0;min-height:58px;padding:0 7px;font-size:18px;text-align:center;line-height:1.12;}.toolbar.order-actions .action-button.equal-order{min-width:0;min-height:58px;}.action-button,.owner-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.group{margin-bottom:8px;}.group-title{font-size:13px;margin-bottom:3px;}.item-list{gap:2px;}.item-row{grid-template-columns:24px 1fr auto;padding:3px 5px;min-height:30px;gap:5px;border-radius:6px;}.item-check{width:18px;height:18px;}.item-name{font-size:13px;}.item-meta{font-size:10px;}.badge{min-height:16px;font-size:9px;padding:0 5px;}.modal-content{margin:30px auto;padding:14px;}}
+
+/* v11: force Bestille rows to the same compact visual height as Handle */
+#itemList .group{margin-bottom:7px !important;}
+#itemList .group-title{margin:0 0 2px !important;font-size:14px !important;line-height:1.05 !important;}
+#itemList .item-list{gap:1px !important;}
+#itemList .item-row{
+  min-height:0 !important;
+  height:32px !important;
+  padding:2px 7px !important;
+  gap:6px !important;
+  grid-template-columns:22px minmax(0,1fr) auto !important;
+  align-items:center !important;
+  overflow:hidden !important;
+}
+#itemList .item-check{
+  width:17px !important;
+  height:17px !important;
+  min-width:17px !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+#itemList .item-name{font-size:14px !important;line-height:1 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}
+#itemList .badge{min-height:16px !important;font-size:9px !important;padding:0 5px !important;}
+@media(max-width:700px){
+  #itemList .group{margin-bottom:6px !important;}
+  #itemList .group-title{font-size:13px !important;margin-bottom:2px !important;}
+  #itemList .item-row{height:30px !important;padding:2px 6px !important;grid-template-columns:21px minmax(0,1fr) auto !important;}
+  #itemList .item-check{width:16px !important;height:16px !important;min-width:16px !important;}
+  #itemList .item-name{font-size:13px !important;}
+}
+ .top-button.handle-top-button{font-size:20px;} .toolbar-separator{display:inline-block;width:12px;flex:0 0 12px;} @media(max-width:700px){.toolbar-separator{display:none !important;}}
+/* Designvelger: mykt design er standard. Klassisk design aktiveres med html.classic-design-root. */
+html:not(.classic-design-root) .card,
+html:not(.classic-design-root) .summary-item,
+html:not(.classic-design-root) .recipe-card,
+html:not(.classic-design-root) .history-group,
+html:not(.classic-design-root) .modal-content{
+  border:0 !important;
+  background:rgba(255,255,255,.038) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .status.card,
+html:not(.classic-design-root) .card .status{
+  border:0 !important;
+}
+html:not(.classic-design-root) .item-row,
+html:not(.classic-design-root) .history-row,
+html:not(.classic-design-root) .recipe-row,
+html:not(.classic-design-root) .ingredient-row,
+html:not(.classic-design-root) .edit-row,
+html:not(.classic-design-root) .type-row{
+  border:0 !important;
+  background:rgba(0,0,0,.18) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .top-button,
+html:not(.classic-design-root) .action-button,
+html:not(.classic-design-root) .owner-button,
+html:not(.classic-design-root) .chain-button,
+html:not(.classic-design-root) .type-button,
+html:not(.classic-design-root) .small-button,
+html:not(.classic-design-root) .delete-button,
+html:not(.classic-design-root) .standard-button{
+  border:0 !important;
+  background:rgba(255,255,255,.055) !important;
+  box-shadow:none !important;
+}
+html:not(.classic-design-root) .owner-button.active,
+html:not(.classic-design-root) .chain-button.active,
+html:not(.classic-design-root) .primary{
+  background:var(--link) !important;
+  color:#fff !important;
+}
+html:not(.classic-design-root) .empty{
+  border:0 !important;
+  background:rgba(0,0,0,.12) !important;
+}.item-suggestions{
+  display:none;
+  margin-top:6px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  overflow:hidden;
+  max-height:230px;
+  overflow-y:auto;
+}
+
+.item-suggestions.visible{
+  display:block;
+}
+
+.item-suggestion-button{
+  width:100%;
+  display:block;
+  border:0;
+  border-bottom:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  text-align:left;
+  padding:9px 11px;
+  cursor:pointer;
+  font:inherit;
+}
+
+.item-suggestion-button:last-child{
+  border-bottom:0;
+}
+
+.item-suggestion-button:hover{
+  background:rgba(124,199,232,.12);
+}
+
+.item-suggestion-name{
+  font-weight:bold;
+}
+
+.item-suggestion-meta{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:2px;
+}
+
+.item-duplicate-warning{
+  display:none;
+  margin-top:7px;
+  color:#ffb0b0;
+  font-size:13px;
+  line-height:1.35;
+}
+
+.item-duplicate-warning.visible{
+  display:block;
+}
+
+
+/* Handleliste Bestille v33: synlige nøytrale knapper i light mode
+   Beholder primary/aktiv eier blå, men gir alle andre knapper tydelig lys grå bakgrunn. */
+body:not(.dark-mode) .top-button,
+body:not(.dark-mode) .action-button:not(.primary),
+body:not(.dark-mode) .owner-button:not(.active),
+body:not(.dark-mode) .chain-button:not(.active),
+body:not(.dark-mode) .type-button:not(.active),
+body:not(.dark-mode) .small-button:not(.primary),
+body:not(.dark-mode) .delete-button,
+body:not(.dark-mode) .standard-button,
+body:not(.dark-mode) .modal-close,
+body:not(.dark-mode) .item-suggestion-button{
+  background:#e5e7eb !important;
+  color:#111827 !important;
+  border:1px solid #d1d5db !important;
+  box-shadow:none !important;
+}
+
+body:not(.dark-mode) .top-button:hover,
+body:not(.dark-mode) .action-button:not(.primary):hover,
+body:not(.dark-mode) .owner-button:not(.active):hover,
+body:not(.dark-mode) .chain-button:not(.active):hover,
+body:not(.dark-mode) .type-button:not(.active):hover,
+body:not(.dark-mode) .small-button:not(.primary):hover,
+body:not(.dark-mode) .delete-button:hover,
+body:not(.dark-mode) .standard-button:hover,
+body:not(.dark-mode) .modal-close:hover,
+body:not(.dark-mode) .item-suggestion-button:hover{
+  background:#d1d5db !important;
+  color:#111827 !important;
+}
+
+body:not(.dark-mode) .action-button.primary,
+body:not(.dark-mode) .primary,
+body:not(.dark-mode) .owner-button.active{
+  background:var(--link) !important;
+  border-color:var(--link) !important;
+  color:#fff !important;
+}
+
+
+/* Handleliste ikonpakke v1 */
+.header{position:relative;}
+.page-icon-panel{position:absolute;left:0;top:-2px;width:74px;height:74px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.page-icon-panel svg{width:54px;height:54px;fill:none;stroke:var(--page-icon-color,var(--link));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.top-button.top-icon-link{font-size:0;padding:0;}
+.top-button.top-icon-link svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.top-button.bestille-top-button,.top-button.handle-top-button,.top-button.varsling-top-button,.top-button.history-top-button,.top-button.recipe-top-button,.top-button.edit-top-button,.top-button.type-top-button{color:var(--link);}
+.action-button .btn-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:7px;vertical-align:middle;}
+.action-button .btn-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.action-button.gps-button{color:#ff7a9a;}
+.action-button.finish-icon-button .btn-icon{color:inherit;}
+.action-button.finish-icon-button .btn-icon svg{stroke:currentColor;}
+body.dark-mode .action-button.gps-button{color:#ff8aa8;}
+.page-icon-spacer-title .site-title,
+.page-icon-spacer-title .subtitle{padding-left:0;}
+@media(max-width:700px){
+  .page-icon-panel{left:2px;top:-6px;width:52px;height:52px;}
+  .page-icon-panel svg{width:38px;height:38px;}
+}
+
+
+/* Handleliste v62: felles roligere primær-/meldingsfarge */
+body.dark-mode{
+  --handle-important-button:#2f5f6f;
+  --handle-important-button-hover:#376f82;
+  --handle-important-text:#7fb4c2;
+}
+body:not(.dark-mode){
+  --handle-important-button:#245f73;
+  --handle-important-button-hover:#2d7188;
+  --handle-important-text:#245f73;
+}
+.primary,
+.action-button.primary,
+.option-button.active,
+html:not(.classic-design-root) .primary,
+html:not(.classic-design-root) .action-button.primary,
+html:not(.classic-design-root) .option-button.active{
+  background:var(--handle-important-button) !important;
+  border-color:var(--handle-important-button) !important;
+  color:#fff !important;
+}
+.primary:hover,
+.action-button.primary:hover,
+.option-button.active:hover,
+html:not(.classic-design-root) .primary:hover,
+html:not(.classic-design-root) .action-button.primary:hover,
+html:not(.classic-design-root) .option-button.active:hover{
+  background:var(--handle-important-button-hover) !important;
+  border-color:var(--handle-important-button-hover) !important;
+  color:#fff !important;
+}
+.status.success,
+.status.ok,
+#status.success,
+#status.ok{
+  color:var(--handle-important-text) !important;
+}
+
+
+/* Handleliste v63: resten av viktige knapper og valgknapper samme rolige farge */
+.owner-button.active,
+.owner-button.selected,
+.owner-button.current,
+.owner-button[aria-pressed="true"],
+.filter-button.active,
+.filter-button.selected,
+.list-button.active,
+.list-button.selected,
+#saveDefaultButton.primary,
+#saveDefaultButton.action-button.primary,
+button.primary,
+a.primary,
+.action-button.primary,
+.option-button.active{
+  background:var(--handle-important-button) !important;
+  border-color:var(--handle-important-button) !important;
+  color:#fff !important;
+}
+.owner-button.active:hover,
+.owner-button.selected:hover,
+.owner-button.current:hover,
+.owner-button[aria-pressed="true"]:hover,
+.filter-button.active:hover,
+.filter-button.selected:hover,
+.list-button.active:hover,
+.list-button.selected:hover,
+#saveDefaultButton.primary:hover,
+#saveDefaultButton.action-button.primary:hover,
+button.primary:hover,
+a.primary:hover,
+.action-button.primary:hover,
+.option-button.active:hover{
+  background:var(--handle-important-button-hover) !important;
+  border-color:var(--handle-important-button-hover) !important;
+  color:#fff !important;
+}
+
+/* Varsling v63: avkrysningsbokser for e-post/SMS skal ikke vokse med A++ */
+.recipient-row{
+  grid-template-columns:1fr minmax(72px,82px) minmax(72px,82px) !important;
+}
+.recipient-check{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:6px !important;
+  min-height:24px !important;
+  line-height:1.1 !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+}
+.recipient-check input[type="checkbox"]{
+  width:18px !important;
+  height:18px !important;
+  min-width:18px !important;
+  min-height:18px !important;
+  max-width:18px !important;
+  max-height:18px !important;
+  transform:none !important;
+  margin:0 !important;
+  flex:0 0 18px !important;
+}
+@media(max-width:700px){
+  .recipient-row{
+    grid-template-columns:1fr 74px 74px !important;
+  }
+}
+
+
+/* Bestille v45: valgt vareliste skal bruke samme rolige primærfarge */
+#ownerButtons .owner-button.active,
+#ownerButtons .owner-button.selected,
+#ownerButtons .owner-button[aria-pressed="true"],
+.toolbar-left#ownerButtons .owner-button.active,
+.card #ownerButtons .owner-button.active{
+  background:var(--handle-important-button, #2f5f6f) !important;
+  border-color:var(--handle-important-button, #2f5f6f) !important;
+  color:#fff !important;
+}
+#ownerButtons .owner-button.active:hover,
+#ownerButtons .owner-button.selected:hover,
+#ownerButtons .owner-button[aria-pressed="true"]:hover,
+.toolbar-left#ownerButtons .owner-button.active:hover,
+.card #ownerButtons .owner-button.active:hover{
+  background:var(--handle-important-button-hover, #376f82) !important;
+  border-color:var(--handle-important-button-hover, #376f82) !important;
+  color:#fff !important;
+}
+body:not(.dark-mode) #ownerButtons .owner-button.active,
+body:not(.dark-mode) #ownerButtons .owner-button.selected,
+body:not(.dark-mode) #ownerButtons .owner-button[aria-pressed="true"]{
+  background:var(--handle-important-button, #245f73) !important;
+  border-color:var(--handle-important-button, #245f73) !important;
+  color:#fff !important;
+}
+
+
+/* Handleliste bestille v47: Shopping area-merker for butikktyper utenom matvarer */
+.badge.area-badge{
+  background:rgba(59,130,246,.18) !important;
+  color:#93c5fd !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+body:not(.dark-mode) .badge.area-badge{
+  background:rgba(59,130,246,.16) !important;
+  color:#1d4ed8 !important;
+}
+.badge.area-normal{background:rgba(251,191,36,.20) !important;color:#fde68a !important;}
+body:not(.dark-mode) .badge.area-normal{background:rgba(251,191,36,.28) !important;color:#92400e !important;}
+.badge.area-europris{background:rgba(34,197,94,.18) !important;color:#86efac !important;}
+body:not(.dark-mode) .badge.area-europris{background:rgba(34,197,94,.16) !important;color:#15803d !important;}
+.badge.area-frisor{background:rgba(251,146,60,.20) !important;color:#fdba74 !important;}
+body:not(.dark-mode) .badge.area-frisor{background:rgba(251,146,60,.18) !important;color:#c2410c !important;}
+.badge.area-clas-ohlson{background:rgba(96,165,250,.20) !important;color:#bfdbfe !important;}
+body:not(.dark-mode) .badge.area-clas-ohlson{background:rgba(96,165,250,.18) !important;color:#1d4ed8 !important;}
+.badge.area-sport{background:rgba(37,99,235,.22) !important;color:#bfdbfe !important;}
+body:not(.dark-mode) .badge.area-sport{background:rgba(37,99,235,.16) !important;color:#1e40af !important;}
+.badge.area-bondekompaniet{background:rgba(22,163,74,.22) !important;color:#bbf7d0 !important;}
+body:not(.dark-mode) .badge.area-bondekompaniet{background:rgba(22,163,74,.16) !important;color:#166534 !important;}
+
+
+/* Bestille: hold Oppskrifter-knappen til høyre for eierknappene */
+.owner-recipe-toolbar{
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  flex-wrap:wrap !important;
+  width:100% !important;
+}
+.owner-recipe-toolbar .toolbar-left{
+  flex:1 1 auto !important;
+  width:auto !important;
+}
+.owner-recipe-toolbar .toolbar-right{
+  margin-left:auto !important;
+  flex:0 0 auto !important;
+  width:auto !important;
+}
+.owner-recipe-toolbar .recipes-shortcut-button{
+  flex:0 0 auto !important;
+}
+
+/* Bestille v51: Legg til ny vare / Rediger varer skal ha samme høyde som eierknappene på desktop */
+@media(min-width:701px){
+  .toolbar.order-actions .action-button,
+  .toolbar.order-actions .action-button.equal-order{
+    height:34px !important;
+    min-height:34px !important;
+    padding-top:0 !important;
+    padding-bottom:0 !important;
+  }
+}
+
+.item-image-button{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:0;border-radius:8px;background:rgba(124,199,232,.16);color:var(--link);font-size:13px;cursor:pointer;padding:0;}
+.item-image-button:hover{background:rgba(124,199,232,.28);}
+.image-preview{display:none;align-items:center;gap:10px;margin-top:6px;}
+.image-preview.visible{display:flex;}
+.image-preview img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--border);}.image-file-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}.image-picker-button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 14px;border:0;border-radius:8px;background:var(--button);color:var(--text);font-weight:bold;cursor:pointer;}.image-picker-button:hover{filter:brightness(1.08);}.image-picker-button.primary{background:var(--accent);color:#fff;}.image-preview.visible+.image-picker-button{display:none;}
+.image-viewer-img{max-width:100%;max-height:70vh;border-radius:12px;border:1px solid var(--border);display:block;margin:0 auto;}
+@media(max-width:700px){.item-image-button{width:20px;height:20px;font-size:12px;}}
+
+/* modal-form-clean-v1: skjul gamle rammer og bruk samme avkryssingsstil som listene */
+.modal .form-field input:not([type="checkbox"]):not([type="file"]),
+.modal .form-field select{
+  border:0 !important;
+  box-shadow:none !important;
+  background:var(--button) !important;
+  color:var(--text) !important;
+  border-radius:8px !important;
+}
+.modal .form-field input:not([type="checkbox"]):not([type="file"]):focus,
+.modal .form-field select:focus{
+  outline:2px solid rgba(124,199,232,.45);
+  outline-offset:2px;
+}
+.modal .checkbox-row{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  gap:8px !important;
+  margin-bottom:8px !important;
+}
+.modal .checkbox-row input[type="checkbox"]{
+  width:18px !important;
+  height:18px !important;
+  min-height:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  flex:0 0 auto !important;
+  accent-color:var(--link);
+}
+.modal .checkbox-row label{
+  margin:0 !important;
+  line-height:1.2 !important;
+}
+.modal .image-file-input{
+  display:none !important;
+}
+
+/* Bestille v52: samme A/A+/A++-skalering som Handlelisten.
+   Shared menu setter html.handleliste-size-small/medium/large.
+   Bestille hadde tidligere fast kompakt radstil, derfor vokste bare knappene. */
+html.handleliste-size-small{
+  --bestille-row-height:30px;
+  --bestille-grid-check:21px;
+  --bestille-check-size:16px;
+  --bestille-name-size:13px;
+  --bestille-group-size:13px;
+}
+html.handleliste-size-medium{
+  --bestille-row-height:38px;
+  --bestille-grid-check:30px;
+  --bestille-check-size:24px;
+  --bestille-name-size:17px;
+  --bestille-group-size:16px;
+}
+html.handleliste-size-large{
+  --bestille-row-height:46px;
+  --bestille-grid-check:34px;
+  --bestille-check-size:28px;
+  --bestille-name-size:21px;
+  --bestille-group-size:18px;
+}
+#itemList .item-row{
+  height:var(--bestille-row-height) !important;
+  grid-template-columns:var(--bestille-grid-check) minmax(0,1fr) auto !important;
+}
+#itemList .item-check{
+  width:var(--bestille-check-size) !important;
+  height:var(--bestille-check-size) !important;
+  min-width:var(--bestille-check-size) !important;
+}
+#itemList .item-name{
+  font-size:var(--bestille-name-size) !important;
+}
+#itemList .group-title{
+  font-size:var(--bestille-group-size) !important;
+}
+@media(max-width:700px){
+  html.handleliste-size-small{
+    --bestille-row-height:30px;
+    --bestille-grid-check:21px;
+    --bestille-check-size:16px;
+    --bestille-name-size:13px;
+    --bestille-group-size:13px;
+  }
+  html.handleliste-size-medium{
+    --bestille-row-height:38px;
+    --bestille-grid-check:30px;
+    --bestille-check-size:24px;
+    --bestille-name-size:17px;
+    --bestille-group-size:16px;
+  }
+  html.handleliste-size-large{
+    --bestille-row-height:46px;
+    --bestille-grid-check:34px;
+    --bestille-check-size:28px;
+    --bestille-name-size:21px;
+    --bestille-group-size:18px;
+  }
+}.item-thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;}
+.item-thumb-card{border:2px solid transparent;border-radius:12px;background:rgba(127,127,127,.06);color:var(--text);padding:7px;min-height:150px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px;}
+.item-thumb-card:hover{background:rgba(124,199,232,.10);}
+.item-thumb-card.selected{border-color:var(--link);background:rgba(124,199,232,.16);}
+.item-thumb-image{width:100%;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:28px;}
+.item-thumb-image img{width:100%;height:100%;object-fit:cover;display:block;}
+.item-thumb-name{font-weight:bold;font-size:14px;line-height:1.15;}
+.item-thumb-badges{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+@media(max-width:700px){.item-thumb-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:7px;}.item-thumb-card{min-height:138px;padding:6px;}.item-thumb-name{font-size:13px;}}
+
+
+/* Bestille v56:
+   Thumbnail-kort skal ikke strekke seg når det er ledig plass.
+   Alle bildeflater låses til samme størrelse. */
+.item-thumb-grid{
+  grid-template-columns:repeat(auto-fill,118px) !important;
+  justify-content:start !important;
+  align-items:start !important;
+}
+.item-thumb-card{
+  width:118px !important;
+  max-width:118px !important;
+  min-width:118px !important;
+}
+.item-thumb-image{
+  width:100% !important;
+  height:104px !important;
+  aspect-ratio:auto !important;
+  flex:0 0 104px !important;
+}
+@media(max-width:700px){
+  .item-thumb-grid{
+    grid-template-columns:repeat(auto-fill,104px) !important;
+  }
+  .item-thumb-card{
+    width:104px !important;
+    max-width:104px !important;
+    min-width:104px !important;
+  }
+  .item-thumb-image{
+    height:92px !important;
+    flex-basis:92px !important;
+  }
+}
+
+
+/* Bestille v59:
+   Thumbnailbilder skal vise hele bildet.
+   Transparent bakgrunn vises på hvitt felt, ikke sort/mørk bakgrunn. */
+.item-thumb-image{
+  background:#fff !important;
+}
+.item-thumb-image img{
+  object-fit:contain !important;
+  background:#fff !important;
+}
+.image-preview img,
+.image-viewer-img{
+  background:#fff !important;
+}
+
+
+/* Thumbnail fallback:
+   Ikke vis stor alt-tekst i bildefelt hvis gammel Safari ikke klarer bildet. */
+.item-thumb-image.image-missing::after{
+  content:"📷";
+  color:var(--muted);
+  font-size:26px;
+}
+.item-thumb-image img[alt=""]{
+  color:transparent;
+}
+
+
+/* Bestille v65: teknisk vare-søk og bildevalgknapper i ny vare-dialog. */
+.modal .image-choice-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.modal .image-picker-button{
+  text-decoration:none;
+}
+
+.modal .image-preview + .image-picker-button,
+.modal .image-picker-button + .image-picker-button{
+  margin-right:6px;
+  margin-top:6px;
+}
+
+
+.nutrition-badge,
+.item-name[title],
+.item-thumb-name[title]{
+  cursor:default;
+}
+
+</style><!-- lightdark-restore-2026-06-16 -->
+<!-- version: BESTILLE v46 ios12 load fix 2026-06-19 -->
+<!-- version: BESTILLE v53 final_local_item_types_2026-06-25 -->
+</head><body class="dark-mode"><script>
+(function(){
+  window.applyShoppingThemeState = window.applyShoppingThemeState || function(){
+    try{
+      const saved = localStorage.getItem("shoppingTheme") || localStorage.getItem("brochureTheme") || "dark";
+      const isDark = saved !== "light";
+      if(document.body){
+        document.body.classList.toggle("dark-mode", isDark);
+      }
+      localStorage.setItem("shoppingTheme", isDark ? "dark" : "light");
+      localStorage.setItem("brochureTheme", isDark ? "dark" : "light");
+
+      const btn = document.getElementById("shoppingThemeToggle");
+      if(btn){
+        btn.textContent = isDark ? "☀" : "☾";
+        btn.title = isDark ? "Bytt til lys modus" : "Bytt til mørk modus";
+        btn.setAttribute("aria-label", btn.title);
+      }
+    }catch(e){}
+  };
+
+  window.toggleShoppingTheme = window.toggleShoppingTheme || function(){
+    try{
+      const isDark = document.body ? document.body.classList.contains("dark-mode") : true;
+      localStorage.setItem("shoppingTheme", isDark ? "light" : "dark");
+      localStorage.setItem("brochureTheme", isDark ? "light" : "dark");
+      window.applyShoppingThemeState();
+    }catch(e){}
+  };
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", window.applyShoppingThemeState);
+  }else{
+    window.applyShoppingThemeState();
+  }
+})();
+</script><script>
+(function(){
+  try{
+    const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
+    document.documentElement.classList.toggle("classic-design-root", savedDesign === "classic");
+  }catch(e){}
+})();
+window.applyShoppingDesignState = function(){
+  try{
+    const isClassic = document.documentElement.classList.contains("classic-design-root");
+    const btn = document.getElementById("shoppingDesignToggle");
+    if(btn){
+      btn.textContent = isClassic ? "◩" : "◫";
+      btn.title = isClassic ? "Bytt til mykt design" : "Bytt til klassisk design";
+      btn.setAttribute("aria-label", btn.title);
+    }
+  }catch(e){}
+};
+window.toggleShoppingDesign = function(){
+  try{
+    const isClassic = document.documentElement.classList.toggle("classic-design-root");
+    localStorage.setItem("shoppingDesign", isClassic ? "classic" : "soft");
+    window.applyShoppingDesignState();
+  }catch(e){}
+};
+document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Bestille</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
+<div class="card"><div class="summary"><div class="summary-item"><div class="summary-label">Alle varer</div><div class="summary-value" id="totalValue">-</div></div><div class="summary-item"><div class="summary-label">Skal handles</div><div class="summary-value" id="orderValue">-</div></div><div class="summary-item"><div class="summary-label">Standard varer</div><div class="summary-value" id="standardValue">-</div></div></div></div>
+<div class="card"><div class="toolbar owner-recipe-toolbar"><div class="toolbar-left" id="ownerButtons"></div><div class="toolbar-right"><a class="owner-button recipes-shortcut-button" href="handleliste-oppskrifter.html">Oppskrifter</a></div></div></div>
+<div class="card"><div class="toolbar space order-actions"><div class="toolbar-left"><button class="action-button primary equal-order" type="button" onclick="openNewItemModal()">Legg til ny vare</button><a class="action-button equal-order" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"></div></div></div>
+<div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="itemList"></div></div></div>
+<div class="modal" id="newItemModal" onclick="handleModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title">Legg til ny vare</div><button class="modal-close" type="button" onclick="closeNewItemModal()">×</button></div><form id="newItemForm"><div class="form-field"><label for="newItemTechnicalName">Teknisk vare</label><input id="newItemTechnicalName" type="text" autocomplete="off" placeholder="Søk i Teknisk navn / Matvaretabellen" oninput="handleNewItemTechnicalInput()" onfocus="ensureShoppingItemSuggestionsLoaded();renderNewItemSuggestions();"><div class="item-suggestions" id="newItemSuggestions"></div></div><div class="form-field"><label for="newItemName">Varenavn</label><input id="newItemName" type="text" autocomplete="off" required oninput="handleNewItemNameInput()" onfocus="updateNewItemDuplicateWarning();"><div class="item-duplicate-warning" id="newItemDuplicateWarning"></div></div><div class="form-field"><label for="newItemOwner">Vareliste</label><select id="newItemOwner"></select></div><div class="form-field"><label for="newItemType">Varetype</label><select id="newItemType"></select></div><div class="form-field"><label>Bilde av vare</label><input id="newItemImage" class="image-file-input" type="file" accept="image/*" style="position:absolute;left:-10000px;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;"><div class="image-preview" id="newItemImagePreview"><img id="newItemImagePreviewImg" alt="Forhåndsvisning"><button class="action-button" type="button" onclick="clearNewItemImage()">Fjern bilde</button></div><label class="image-picker-button" for="newItemImage">📷 Velg bilde lokalt</label><button class="image-picker-button" type="button" onclick="openGoogleImageSearchForNewItem()">🔎 Velg bilde i Google</button></div><div class="form-field checkbox-row"><input id="newItemStandard" type="checkbox"><label for="newItemStandard">Standard vare</label></div><div class="form-field checkbox-row"><input id="newItemShouldBuy" type="checkbox" checked><label for="newItemShouldBuy">Skal handles nå</label></div><div class="toolbar"><button class="action-button" type="button" onclick="closeNewItemModal()">Avbryt</button><button class="action-button primary" type="submit" id="saveNewItemButton">Lagre vare</button></div></form></div></div>
+
+<div class="modal" id="itemImageModal" onclick="handleImageModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title" id="itemImageModalTitle">Varebilde</div><button class="modal-close" type="button" onclick="closeItemImageModal()">×</button></div><img class="image-viewer-img" id="itemImageModalImg" alt="Varebilde"></div></div>
+<script>
+const API_BASE="https://api-kvimarka92.carstereogarage.com";
+let SHOPPING_OWNERS=["Felles"];
+const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
+const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
+let typeOptions=[];
+const SHOPPING_AREA_DEFAULT="Matvarer";
+const SHOPPING_AREA_ORDER=["Matvarer","Normal","Europris","Frisør","Clas Ohlson","Sport","Bondekompaniet","Apotek"];
+const NON_FOOD_SHOPPING_TYPES=["Bondekompaniet","Clas Ohlson","Europris","Frisør","Normal","Sport","Apotek"];
+const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet","apotek":"Apotek"};
+function canonicalShoppingType(value){
+  const text=String(value||"").replace(/[\u200B-\u200D\uFEFF]/g,"").trim();
+  if(!text)return "";
+  const key=text.toLowerCase().replace(/\s+/g," ");
+  if(key==="meieri")return "Meieri og egg";
+  return text;
+}
+function isDeprecatedShoppingType(value){
+  const key=String(value||"").replace(/[\u200B-\u200D\uFEFF]/g,"").trim().toLowerCase().replace(/\s+/g," ");
+  return key==="meieri";
+}
+function normalizeShoppingArea(value,type){
+  const raw=String(value||"").trim();
+  if(raw)return raw;
+  const key=String(type||"").trim().toLowerCase();
+  return NON_FOOD_TYPE_AREAS[key]||SHOPPING_AREA_DEFAULT;
+}
+function getTypeShoppingArea(type){
+  const target=String(type||"").trim().toLowerCase();
+  const fromItems=(Array.isArray(items)?items:[]).find(item=>String(item.type||"").trim().toLowerCase()===target && item.shoppingArea);
+  if(fromItems)return normalizeShoppingArea(fromItems.shoppingArea,type);
+  return normalizeShoppingArea("",type);
+}
+function getItemShoppingArea(item){
+  return normalizeShoppingArea(item&&item.shoppingArea,item&&item.type);
+}
+function isMatvarerArea(area){
+  return normalizeShoppingArea(area,"")===SHOPPING_AREA_DEFAULT;
+}
+function areaClass(area){
+  return "area-"+String(area||"").toLowerCase().replace(/ø/g,"o").replace(/æ/g,"ae").replace(/å/g,"a").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+function shoppingAreaBadge(item){
+  const area=getItemShoppingArea(item);
+  if(isMatvarerArea(area))return "";
+  return `<span class="badge area-badge ${areaClass(area)}" title="Butikkgruppe: ${esc(area)}">${esc(area)}</span>`;
+}
+function compareShoppingTypes(a,b){
+  const areaA=getTypeShoppingArea(a);
+  const areaB=getTypeShoppingArea(b);
+  const ai=SHOPPING_AREA_ORDER.indexOf(areaA);
+  const bi=SHOPPING_AREA_ORDER.indexOf(areaB);
+  const ia=ai<0?999:ai;
+  const ib=bi<0?999:bi;
+  if(ia!==ib)return ia-ib;
+  const orderA=typeOrder.indexOf(a);
+  const orderB=typeOrder.indexOf(b);
+  const oa=orderA<0?9999:orderA;
+  const ob=orderB<0?9999:orderB;
+  if(oa!==ob)return oa-ob;
+  return String(a||"").localeCompare(String(b||""),"no",{sensitivity:"base"});
+}
+function uniqueShoppingTypeValues(values){
+  const seen=new Set();
+  const result=[];
+  (Array.isArray(values)?values:[]).forEach(value=>{
+    const type=canonicalShoppingType(value);
+    if(!type||isDeprecatedShoppingType(type))return;
+    const key=type.toLowerCase().replace(/\s+/g," ");
+    if(seen.has(key))return;
+    seen.add(key);
+    result.push(type);
+  });
+  return result;
+}
+function allTypes(){
+  const foodValues=[];
+  const otherValues=[];
+  function addType(value){
+    const type=canonicalShoppingType(value);
+    if(!type)return;
+    const area=normalizeShoppingArea("",type);
+    if(area===SHOPPING_AREA_DEFAULT){
+      foodValues.push(type);
+    }else{
+      otherValues.push(type);
+    }
+  }
+
+  // Bruk listen fra API/Baserow som fasit. Ikke bland inn gamle varetyper fra eksisterende varer,
+  // for da kan utgåtte verdier som "Meieri" komme tilbake i nedtrekkslisten.
+  const serverTypes=Array.isArray(typeOptions)&&typeOptions.length
+    ? typeOptions
+    : (Array.isArray(typeOrder)&&typeOrder.length ? typeOrder : DEFAULT_TYPES);
+  serverTypes.forEach(addType);
+
+  // Fallback dersom API-et en dag mangler butikktypene.
+  NON_FOOD_SHOPPING_TYPES.forEach(addType);
+
+  const seen=new Set();
+  function unique(list){
+    return list.map(type=>String(type||"").trim()).filter(Boolean).filter(type=>{
+      const key=type.toLowerCase();
+      if(seen.has(key))return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  return unique(foodValues).sort(compareShoppingTypes)
+    .concat(unique(otherValues).sort(compareShoppingTypes));
+}
+
+function esc(value){
+  return String(value == null ? "" : value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function formatNutritionTooltip(item){
+  const n=item && item.nutrition;
+  if(!n)return "";
+  const lines=[];
+  function add(label,value,unit){
+    const text=String(value||"").trim();
+    if(text)lines.push(`${label}: ${text}${unit||""}`);
+  }
+  add("Spiselig del", n.ediblePart, n.ediblePart && String(n.ediblePart).includes("%") ? "" : " %");
+  add("Vann", n.water, " g");
+  add("Energi", n.kilojoules, " kJ");
+  add("Kalorier", n.kilocalories, " kcal");
+  add("Fett", n.fat, " g");
+  add("Karbohydrat", n.carbohydrate, " g");
+  add("Kostfiber", n.fiber, " g");
+  add("Protein", n.protein, " g");
+  add("Alkohol", n.alcohol, " g");
+  return lines.length ? lines.join("\n") : "";
+}
+function isNutritionTooltipEnabled(){
+  // Mouseover/title fungerer ikke nyttig på mobil/touch.
+  return !(window.matchMedia && window.matchMedia("(max-width:700px)").matches);
+}
+function nutritionTitleAttr(item){
+  if(!isNutritionTooltipEnabled())return "";
+  const text=formatNutritionTooltip(item);
+  return text ? ` title="${esc(text)}"` : "";
+}
+function nutritionActionTitleAttr(item, actionText){
+  const action=String(actionText||"").trim();
+  if(!isNutritionTooltipEnabled()){
+    return action ? ` title="${esc(action)}"` : "";
+  }
+  const nutrition=formatNutritionTooltip(item);
+  const text=[action,nutrition].filter(Boolean).join("\n\n");
+  return text ? ` title="${esc(text)}"` : "";
+}
+function nutritionBadge(item){
+  if(!isNutritionTooltipEnabled())return "";
+  const text=formatNutritionTooltip(item);
+  return text ? `<span class="badge nutrition-badge" title="${esc(text)}">Næring</span>` : "";
+}
+async function fetchJson(url,options){
+  const fetchOptions = Object.assign({credentials:"include"}, options || {});
+  const res = await fetch(url, fetchOptions);
+  const data = await res.json().catch(()=>null);
+
+  if(!res.ok || (data && data.error)){
+    throw new Error((data && (data.error || data.detail)) || `HTTP ${res.status}`);
+  }
+
+  return data;
+}
+function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
+function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
+function getInitialOwner(){const saved=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");return SHOPPING_OWNERS.includes(saved)?saved:"Felles";}function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}selectedOwner=normalizeOwner(selectedOwner);if(!SHOPPING_OWNERS.includes(selectedOwner)){selectedOwner=SHOPPING_OWNERS[0]||"Felles";}localStorage.setItem(OWNER_STORAGE_KEY,selectedOwner);}
+function ownerBadge(item){const owner=normalizeOwner(item.owner);return owner&&owner!=="Felles"?`<span class="badge">${esc(owner)}</span>`:"";}
+function normalizePermissionText(value){return String(value||"").trim().toLowerCase();}
+function isSupervisorOrAdministrator(){
+  const role = normalizePermissionText(currentUser && currentUser.role);
+  return role === "administrator" || role === "supervisor";
+}
+function applyStandardPermissionToModal(){const input=document.getElementById("newItemStandard");if(!input)return;const allowed=isSupervisorOrAdministrator();input.disabled=!allowed;if(!allowed)input.checked=false;const row=input.closest(".checkbox-row");if(row){row.style.opacity=allowed?"1":".45";row.title=allowed?"":"Bare supervisor og administrator kan sette standardvare";}}
+
+
+let newItemImageDataUrl="";
+let newItemImageFileName="";
+let newItemSourceItemId=0;
+let newItemSourceSuggestionId=0;
+let newItemSelectedTechnicalName="";
+let shoppingItemSuggestions=[];
+let shoppingItemSuggestionsLoaded=false;
+function getItemImageUrl(item){return (item&&item.imageUrl)||((item&&item.image&&item.image.url)||"");}
+function getItemThumbnailUrl(item){return (item&&item.thumbnailImageUrl)||((item&&item.thumbnailImage&&item.thumbnailImage.url)||getItemImageUrl(item)||"");}
+function showNewItemSourceImagePreview(item){
+  const url=getItemThumbnailUrl(item);
+  const preview=document.getElementById("newItemImagePreview");
+  const img=document.getElementById("newItemImagePreviewImg");
+
+  newItemImageDataUrl="";
+  newItemImageFileName="";
+
+  if(!preview||!img)return;
+
+  if(url){
+    img.src=url;
+    preview.className="image-preview visible";
+  }else{
+    img.removeAttribute("src");
+    preview.className="image-preview";
+  }
+}
+function itemImageButton(item){const url=getItemImageUrl(item);if(!url)return "";return `<button class="item-image-button" type="button" onclick="showItemImage(${Number(item.id)})" title="Vis bilde av varen">📷</button>`;}
+function showItemImage(id){const item=items.find(row=>Number(row.id)===Number(id));const url=getItemImageUrl(item);if(!url)return;document.getElementById("itemImageModalTitle").textContent=item.name||"Varebilde";document.getElementById("itemImageModalImg").src=url;document.getElementById("itemImageModal").classList.add("open");}
+function closeItemImageModal(){const modal=document.getElementById("itemImageModal");const img=document.getElementById("itemImageModalImg");if(modal)modal.classList.remove("open");if(img)img.removeAttribute("src");}
+function handleImageModalBackdrop(event){if(event.target&&event.target.id==="itemImageModal")closeItemImageModal();}
+function resizeImageFileToDataUrl(file,maxSize=1200,quality=.82){return new Promise((resolve,reject)=>{if(!file){resolve("");return;}if(!/^image\//i.test(file.type||"")){reject(new Error("Velg en bildefil."));return;}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxSize/Math.max(img.width,img.height));const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL("image/jpeg",quality));};img.onerror=()=>reject(new Error("Kunne ikke lese bildet."));img.src=reader.result;};reader.onerror=()=>reject(new Error("Kunne ikke lese bildet."));reader.readAsDataURL(file);});}
+function clearNewItemImage(){newItemImageDataUrl="";newItemImageFileName="";const input=document.getElementById("newItemImage");const preview=document.getElementById("newItemImagePreview");const img=document.getElementById("newItemImagePreviewImg");if(input)input.value="";if(preview)preview.className="image-preview";if(img)img.removeAttribute("src");}
+async function handleNewItemImageChange(event){const file=event&&event.target&&event.target.files&&event.target.files[0];if(!file){clearNewItemImage();return;}try{newItemImageDataUrl=await resizeImageFileToDataUrl(file);newItemImageFileName=file.name||"varebilde.jpg";document.getElementById("newItemImagePreviewImg").src=newItemImageDataUrl;document.getElementById("newItemImagePreview").className="image-preview visible";}catch(error){alert(error.message||String(error));clearNewItemImage();}}
+
+let items=[];let currentUser=null;let typeOrder=[...DEFAULT_TYPES];let selectedOwner=getInitialOwner();
+
+function normalizeItemNameKey(value){return String(value||"").trim().replace(/\s+/g," ").toLowerCase();}
+
+function getSuggestionTechnicalName(item){
+  return String(
+    item && (
+      item.technicalName ||
+      item.technical_name ||
+      item["Teknisk navn"] ||
+      item.technical ||
+      ""
+    ) || ""
+  ).trim();
+}
+function getSuggestionSearchText(item){
+  // Bestille v66:
+  // Feltet "Teknisk vare" skal kun søke i Teknisk navn (9265188).
+  // Ikke søk i Name, Varetype, Vareliste eller Baserow-gruppe.
+  return getSuggestionTechnicalName(item);
+}
+function handleNewItemTechnicalInput(){
+  newItemSourceItemId=0;
+  newItemSourceSuggestionId=0;
+  newItemSelectedTechnicalName="";
+  clearNewItemImage();
+  renderNewItemSuggestions();
+}
+function handleNewItemNameInput(){
+  updateNewItemDuplicateWarning();
+}
+function getNewItemGoogleSearchText(){
+  const name=String(document.getElementById("newItemName") && document.getElementById("newItemName").value || "").trim();
+  const technical=String(document.getElementById("newItemTechnicalName") && document.getElementById("newItemTechnicalName").value || "").trim();
+  return technical || name || "";
+}
+function openGoogleImageSearchForNewItem(){
+  const query=getNewItemGoogleSearchText();
+  if(!query){
+    alert("Skriv eller velg en vare først.");
+    return;
+  }
+  const url="https://www.google.com/search?tbm=isch&q="+encodeURIComponent(query+" matvare hvit bakgrunn");
+  window.open(url,"_blank","noopener,noreferrer");
+}
+async function loadShoppingItemSuggestions(){
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/item-suggestions`);
+    shoppingItemSuggestions=Array.isArray(data.suggestions)?data.suggestions:[];
+    shoppingItemSuggestionsLoaded=true;
+    return shoppingItemSuggestions;
+  }catch(error){
+    console.warn("Kunne ikke hente vareforslag.", error);
+    shoppingItemSuggestions=[];
+    shoppingItemSuggestionsLoaded=true;
+    return [];
+  }
+}
+function ensureShoppingItemSuggestionsLoaded(){
+  if(shoppingItemSuggestionsLoaded)return Promise.resolve(shoppingItemSuggestions);
+  return loadShoppingItemSuggestions().then(result=>{
+    renderNewItemSuggestions();
+    return result;
+  });
+}
+function getCombinedNewItemSuggestionSource(){
+  const combined=[];
+  const seen=new Set();
+
+  (Array.isArray(shoppingItemSuggestions)?shoppingItemSuggestions:[]).forEach(item=>{
+    const technical=getSuggestionTechnicalName(item);
+    const key=String(item.id ? "suggestion-id-"+item.id : normalizeItemNameKey([item.name,technical].filter(Boolean).join(" | ")));
+    if(!key||seen.has(key))return;
+    seen.add(key);
+    combined.push({...item,suggestionSource:"suggestion"});
+  });
+
+  (Array.isArray(items)?items:[]).forEach(item=>{
+    const key=normalizeItemNameKey(item.name);
+    if(!key||seen.has(key))return;
+    seen.add(key);
+    combined.push({...item,suggestionSource:"item"});
+  });
+
+  return combined;
+}
+function getAllFamilyItemSuggestions(query){
+  const text=normalizeItemNameKey(query);
+  if(!text||text.length<2)return [];
+  const seen=new Set();
+  return getCombinedNewItemSuggestionSource()
+    .filter(item=>item&&getSuggestionTechnicalName(item))
+    .filter(item=>{
+      const technicalKey=normalizeItemNameKey(getSuggestionTechnicalName(item));
+      return technicalKey.includes(text);
+    })
+    .sort((a,b)=>{
+      const aText=normalizeItemNameKey(getSuggestionTechnicalName(a));
+      const bText=normalizeItemNameKey(getSuggestionTechnicalName(b));
+      const aStarts=aText.startsWith(text)?0:1;
+      const bStarts=bText.startsWith(text)?0:1;
+      if(aStarts!==bStarts)return aStarts-bStarts;
+      return String(getSuggestionTechnicalName(a)||"").localeCompare(String(getSuggestionTechnicalName(b)||""),"no");
+    })
+    .filter(item=>{
+      const key=String(item.suggestionSource||"item")+"-"+String(item.id||normalizeItemNameKey(getSuggestionTechnicalName(item)));
+      if(seen.has(key))return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0,15);
+}
+function getExactExistingItemByName(name){
+  const key=normalizeItemNameKey(name);
+  if(!key)return null;
+  return items.find(item=>normalizeItemNameKey(item.name)===key)||null;
+}
+function getExactExistingItemByNameAndOwner(name,owner){
+  const key=normalizeItemNameKey(name);
+  const ownerKey=normalizeOwner(owner).toLowerCase();
+  if(!key)return null;
+  return items.find(item=>normalizeItemNameKey(item.name)===key && normalizeOwner(item.owner).toLowerCase()===ownerKey)||null;
+}
+function selectExistingItemSuggestion(itemId, source){
+  const sourceType=String(source||"item");
+  const list=sourceType==="suggestion" ? shoppingItemSuggestions : items;
+  const item=(Array.isArray(list)?list:[]).find(row=>String(row.id)===String(itemId));
+  if(!item)return;
+
+  const technicalName=getSuggestionTechnicalName(item);
+  const selectedName=technicalName || item.name || "";
+
+  newItemSourceItemId=sourceType==="item" ? Number(item.id||0) : 0;
+  newItemSourceSuggestionId=sourceType==="suggestion" ? Number(item.id||0) : 0;
+  newItemSelectedTechnicalName=selectedName;
+
+  const technicalInput=document.getElementById("newItemTechnicalName");
+  if(technicalInput)technicalInput.value=selectedName;
+  document.getElementById("newItemName").value=selectedName;
+
+  if(item.owner){document.getElementById("newItemOwner").value=normalizeOwner(item.owner);}
+  if(item.type){document.getElementById("newItemType").value=item.type;}
+  document.getElementById("newItemStandard").checked=!!item.standardItem;
+  document.getElementById("newItemShouldBuy").checked=true;
+  showNewItemSourceImagePreview(item);
+  hideNewItemSuggestions();
+  updateNewItemDuplicateWarning();
+}
+function hideNewItemSuggestions(){
+  const box=document.getElementById("newItemSuggestions");
+  if(box){box.className="item-suggestions";box.innerHTML="";}
+}
+function renderNewItemSuggestions(){
+  const input=document.getElementById("newItemTechnicalName") || document.getElementById("newItemName");
+  const box=document.getElementById("newItemSuggestions");
+  if(!input||!box)return;
+  const suggestions=getAllFamilyItemSuggestions(input.value);
+  if(!suggestions.length){hideNewItemSuggestions();updateNewItemDuplicateWarning();return;}
+  box.innerHTML=suggestions.map(item=>{
+    const area=getItemShoppingArea(item);
+    const owner=normalizeOwner(item.owner||"");
+    const technical=getSuggestionTechnicalName(item);
+    const shownName=technical || item.name || "";
+    const meta=[item.name && technical && item.name!==technical ? `Name: ${item.name}` : "", owner&&owner!=="Felles"?owner:"Felles", item.type||"Annet", !isMatvarerArea(area)?area:""].filter(Boolean).join(" · ");
+    return `<button class="item-suggestion-button" type="button" onclick="selectExistingItemSuggestion('${esc(item.id)}','${esc(item.suggestionSource||"item")}')"><div class="item-suggestion-name">${esc(shownName)}</div><div class="item-suggestion-meta">${esc(meta)}${item.standardItem?" · Standard":""}${item.shouldBuy?" · Skal handles":""}</div></button>`;
+  }).join("");
+  box.className="item-suggestions visible";
+  updateNewItemDuplicateWarning();
+}
+
+function updateNewItemDuplicateWarning(){
+  const warning=document.getElementById("newItemDuplicateWarning");
+  const input=document.getElementById("newItemName");
+  if(!warning||!input)return;
+  const owner=document.getElementById("newItemOwner") ? document.getElementById("newItemOwner").value : selectedOwner;
+  const existing=getExactExistingItemByNameAndOwner(input.value, owner);
+  if(existing){
+    warning.innerHTML=`Det finnes allerede en vare med dette varenavnet i samme bestillingsliste: <strong>${esc(existing.name)}</strong> (${esc(normalizeOwner(existing.owner))} · ${esc(existing.type||"Annet")}). Endre varenavnet hvis dette skal være en egen vare, eller lagre likevel hvis du bevisst vil ha samme navn.`;
+    warning.className="item-duplicate-warning visible";
+  }else{
+    warning.innerHTML="";
+    warning.className="item-duplicate-warning";
+  }
+}
+
+function populateTypes(){
+  const select=document.getElementById("newItemType");
+  const types=allTypes().map(canonicalShoppingType).filter(type=>type&&!isDeprecatedShoppingType(type));
+  select.innerHTML=types.map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");
+  // Ekstra sikkerhetsnett: fjern gammel "Meieri" selv om den kommer fra cachet/API-basert liste.
+  Array.from(select.options).forEach(option=>{
+    if(isDeprecatedShoppingType(option.value)||isDeprecatedShoppingType(option.textContent)){
+      option.remove();
+    }
+  });
+  const cleanTypes=Array.from(select.options).map(option=>option.value);
+  select.value=cleanTypes.indexOf("Annet")>=0?"Annet":(cleanTypes[0]||"Annet");
+}
+function populateOwners(){const select=document.getElementById("newItemOwner");select.innerHTML=SHOPPING_OWNERS.map(owner=>`<option value="${esc(owner)}">${esc(owner)}</option>`).join("");select.value=selectedOwner;}
+function renderOwnerButtons(){document.getElementById("ownerButtons").innerHTML=SHOPPING_OWNERS.map(owner=>`<button class="owner-button ${owner===selectedOwner?"active":""}" type="button" onclick="setOwnerFilter('${esc(owner)}')">${esc(owner)}</button>`).join("");}
+function updateOwnerStatus(){
+  setStatus(`Klar. Viser varelisten for <strong>${esc(selectedOwner)}</strong>. Kryss av varene som skal handles.`, "success");
+}
+function setOwnerFilter(owner){
+  selectedOwner=normalizeOwner(owner);
+  localStorage.setItem(OWNER_STORAGE_KEY,selectedOwner);
+  render();
+  updateOwnerStatus();
+}
+function filteredItems(){return items.filter(item=>normalizeOwner(item.owner)===selectedOwner);}
+function orderedGroups(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});return Object.keys(map).sort(compareShoppingTypes).map(type=>({type,items:map[type]}));}
+
+const ORDER_VIEW_MODE_STORAGE_KEY="kvimarka92BestilleViewModeV1";
+function getOrderViewMode(){return localStorage.getItem(ORDER_VIEW_MODE_STORAGE_KEY)==="thumb"?"thumb":"list";}
+function setOrderViewMode(mode){localStorage.setItem(ORDER_VIEW_MODE_STORAGE_KEY,mode==="thumb"?"thumb":"list");}
+function toggleOrderViewMode(){setOrderViewMode(getOrderViewMode()==="thumb"?"list":"thumb");updateOrderViewToggleButton();render();}
+function updateOrderViewToggleButton(){
+  const btn=document.getElementById("handlelisteViewModeToggle");
+  if(!btn)return;
+  const thumb=getOrderViewMode()==="thumb";
+  btn.textContent=thumb?"☰":"▦";
+  btn.classList.remove("active");
+  btn.title=thumb?"Vis som liste":"Vis som bilder";
+  btn.setAttribute("aria-label",btn.title);
+}
+
+window.handlelisteGetViewMode=getOrderViewMode;
+window.handlelisteToggleViewMode=toggleOrderViewMode;
+window.handlelisteUpdateViewModeButton=updateOrderViewToggleButton;
+
+function renderOrderThumbImage(item){
+  const thumbUrl=getItemThumbnailUrl(item);
+  const fullUrl=getItemImageUrl(item);
+  const safeAlt=esc(item&&item.name||"Vare");
+  const imageTitle=nutritionTitleAttr(item) || ` title="${safeAlt}"`;
+  const fallbackAttr=fullUrl&&fullUrl!==thumbUrl?` data-full-src="${esc(fullUrl)}" onerror="this.onerror=null;this.src=this.dataset.fullSrc;"`:` onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('image-missing');"`;
+  return `<div class="item-thumb-image">${thumbUrl?`<img src="${esc(thumbUrl)}" alt=""${imageTitle}${fallbackAttr}>`:"📷"}</div>`;
+}
+function renderOrderThumbnailView(groups){
+  return groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-thumb-grid">${group.items.map(item=>{
+    const selected=!!item.shouldBuy;
+    const badges=`${nutritionBadge(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}`;
+    return `<button class="item-thumb-card ${selected?"selected":""}" type="button" onclick="toggleShouldBuy(${Number(item.id)},${selected?"false":"true"})"${nutritionActionTitleAttr(item, selected?"Fjern fra Handle-listen":"Legg til i Handle-listen")}>${renderOrderThumbImage(item)}<div class="item-thumb-name"${nutritionTitleAttr(item)}>${esc(item.name)}</div><div class="item-thumb-badges">${badges}</div></button>`;
+  }).join("")}</div></div>`).join("");
+}
+
+function render(){
+  renderOwnerButtons();
+  updateOrderViewToggleButton();
+  const visible=filteredItems();
+  const list=document.getElementById("itemList");
+  document.getElementById("totalValue").textContent=String(visible.length);
+  document.getElementById("orderValue").textContent=String(visible.filter(item=>item.shouldBuy).length);
+  document.getElementById("standardValue").textContent=String(visible.filter(item=>item.standardItem).length);
+  if(!visible.length){
+    list.innerHTML=`<div class="empty">Ingen varer er lagt inn for ${esc(selectedOwner)} ennå.</div>`;
+    return;
+  }
+  const groups=orderedGroups(visible);
+  if(getOrderViewMode()==="thumb"){
+    list.innerHTML=renderOrderThumbnailView(groups);
+    return;
+  }
+  list.innerHTML=groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>`<div class="item-row"><input class="item-check" type="checkbox" ${item.shouldBuy?"checked":""} onchange="toggleShouldBuy(${item.id}, this.checked)" title="Skal handles"><div><div class="item-name"${nutritionTitleAttr(item)}>${esc(item.name)}</div></div><div class="badge-stack">${itemImageButton(item)}${shoppingAreaBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}</div></div>`).join("")}</div></div>`).join("");
+}
+async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.type=canonicalShoppingType(item.type)||"Annet";item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=uniqueShoppingTypeValues(Array.isArray(data.typeOrder)&&data.typeOrder.length?data.typeOrder:DEFAULT_TYPES.slice());typeOptions=Array.isArray(data.typeOptions)?uniqueShoppingTypeValues(data.typeOptions):[];setShoppingOwners(data.ownerOptions);render();updateOwnerStatus();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+async function toggleShouldBuy(id,checked){try{await fetchJson(`${API_BASE}/shopping/item-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id,shouldBuy:checked})});const item=items.find(item=>Number(item.id)===Number(id));if(item)item.shouldBuy=checked;render();setStatus(checked?"Varen er lagt til i Handle-listen.":"Varen er fjernet fra Handle-listen.","success");}catch(error){setStatus(`Kunne ikke oppdatere varen.<br><br>${esc(error.message)}`,"error");await loadItems();}}
+function openNewItemModal(){clearNewItemImage();newItemSourceItemId=0;newItemSourceSuggestionId=0;newItemSelectedTechnicalName="";document.getElementById("newItemForm").reset();hideNewItemSuggestions();populateOwners();populateTypes();ensureShoppingItemSuggestionsLoaded();document.getElementById("newItemShouldBuy").checked=true;applyStandardPermissionToModal();document.getElementById("newItemModal").classList.add("open");setTimeout(()=>document.getElementById("newItemTechnicalName").focus(),80);}function closeNewItemModal(){newItemSourceItemId=0;newItemSourceSuggestionId=0;newItemSelectedTechnicalName="";document.getElementById("newItemModal").classList.remove("open");hideNewItemSuggestions();}function handleModalBackdrop(event){if(event.target.id==="newItemModal")closeNewItemModal();}
+function buildShoppingListText(){const ordered=items.filter(item=>item.shouldBuy);const lines=["Handleliste",""];orderedGroups(ordered).forEach(group=>{lines.push(group.type);group.items.forEach(item=>lines.push(`- ${normalizeOwner(item.owner)!=="Felles"?`(${normalizeOwner(item.owner)}) `:""}${item.name}`));lines.push("");});return lines.join("\n");}
+function sendShoppingListEmail(){const ordered=items.filter(item=>item.shouldBuy);if(!ordered.length){alert("Ingen varer er krysset av for handling.");return;}window.location.href=`mailto:?subject=${encodeURIComponent("Handleliste")}&body=${encodeURIComponent(buildShoppingListText())}`;}
+function sendShoppingListSms(){const ordered=items.filter(item=>item.shouldBuy);if(!ordered.length){alert("Ingen varer er krysset av for handling.");return;}window.location.href=`sms:?&body=${encodeURIComponent(buildShoppingListText())}`;}
+document.getElementById("newItemTechnicalName").addEventListener("input",renderNewItemSuggestions);
+document.getElementById("newItemTechnicalName").addEventListener("blur",()=>setTimeout(hideNewItemSuggestions,180));
+document.getElementById("newItemTechnicalName").addEventListener("focus",renderNewItemSuggestions);
+document.getElementById("newItemName").addEventListener("input",updateNewItemDuplicateWarning);
+document.getElementById("newItemForm").addEventListener("submit",async event=>{event.preventDefault();const button=document.getElementById("saveNewItemButton");const typedName=document.getElementById("newItemName").value.trim();const ownerForDuplicateCheck=document.getElementById("newItemOwner").value;const existing=getExactExistingItemByNameAndOwner(typedName, ownerForDuplicateCheck);if(existing&&!confirm(`Varen "${existing.name}" finnes allerede i ${ownerForDuplicateCheck}. Vil du likevel opprette en ny vare med samme navn i samme bestillingsliste?`)){return;}button.disabled=true;try{const body={name:typedName,owner:document.getElementById("newItemOwner").value,type:document.getElementById("newItemType").value,standardItem:document.getElementById("newItemStandard").checked,shouldBuy:document.getElementById("newItemShouldBuy").checked,sourceItemId:newItemSourceItemId||undefined,sourceSuggestionId:newItemSourceSuggestionId||undefined};if(newItemImageDataUrl){body.imageDataUrl=newItemImageDataUrl;body.imageFileName=newItemImageFileName||`${typedName}.jpg`;}await fetchJson(`${API_BASE}/shopping/item-create`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(body)});closeNewItemModal();await loadItems();setStatus("Varen er lagt til.","success");}catch(error){setStatus(`Kunne ikke lagre varen.<br><br>${esc(error.message)}`,"error");}finally{button.disabled=false;}});
+loadItems();
+</script>
+<script>
+(function(){
+  const APP_PAGE_RE = /^handleliste-[a-z0-9-]+\.html$/i;
+  const HOME_TARGET = 'index.html?restoreMenu=1';
+
+  function currentPage(){
+    return location.pathname.split('/').pop() || 'handleliste-bestille.html';
+  }
+
+  function isAppPage(page){
+    return APP_PAGE_RE.test(String(page || ''));
+  }
+
+  function safeAppTarget(value){
+    if(!value) return '';
+    try{
+      const url = new URL(value, location.href);
+      if(url.origin !== location.origin) return '';
+      const page = url.pathname.split('/').pop();
+      if(!isAppPage(page)) return '';
+      return page + url.search + url.hash;
+    }catch(e){
+      const clean = String(value).trim();
+      const page = clean.split('?')[0].split('#')[0];
+      return isAppPage(page) ? clean : '';
+    }
+  }
+
+  function currentTargetForBack(){
+    const url = new URL(location.href);
+    const page = currentPage();
+    const params = new URLSearchParams(url.search);
+    const legacyFrom = params.get('from');
+    const existingBack = params.get('back');
+
+    params.delete('from');
+
+    if(!existingBack && legacyFrom){
+      const safeLegacy = safeAppTarget(legacyFrom);
+      if(safeLegacy) params.set('back', safeLegacy);
+    }
+
+    const query = params.toString();
+    return page + (query ? '?' + query : '') + url.hash;
+  }
+
+  function getBackTarget(){
+    const params = new URLSearchParams(location.search);
+    return safeAppTarget(params.get('back')) || safeAppTarget(params.get('from')) || HOME_TARGET;
+  }
+
+  function addBackToUrl(rawHref){
+    if(!rawHref) return rawHref;
+    if(/^#|^(mailto|sms|tel|javascript):/i.test(rawHref)) return rawHref;
+
+    try{
+      const url = new URL(rawHref, location.href);
+      if(url.origin !== location.origin) return rawHref;
+      const page = url.pathname.split('/').pop();
+      const here = currentPage();
+
+      if(isAppPage(page) && page !== here){
+        url.searchParams.delete('from');
+        if(!url.searchParams.has('back')){
+          url.searchParams.set('back', currentTargetForBack());
+        }
+        return page + url.search + url.hash;
+      }
+    }catch(e){}
+
+    return rawHref;
+  }
+
+  function appBack(event){
+    event.preventDefault();
+    location.href = getBackTarget();
+  }
+
+  function initAppNavigation(){
+    document.querySelectorAll('a[href]').forEach(function(anchor){
+      const href = anchor.getAttribute('href');
+      const nextHref = addBackToUrl(href);
+      if(nextHref !== href) anchor.setAttribute('href', nextHref);
+    });
+
+    document.querySelectorAll('.top-buttons .top-button').forEach(function(button){
+      if((button.textContent || '').trim() === '←'){
+        button.addEventListener('click', appBack);
+      }
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initAppNavigation);
+  }else{
+    initAppNavigation();
+  }
+})();
+</script>
+
+
+<script>
+/* Handleliste v51: lokal navigasjonsstack for tilbakeknapp innen Handleliste */
+(function(){
+  const STACK_KEY = "kvimarka92HandlelisteBackStack";
+  const HOME_TARGET = "index.html?restoreMenu=1";
+  const HANDLE_PAGE_RE = /^handleliste-[a-z0-9-]+\.html$/i;
+  const MAX_STACK = 30;
+
+  function pageFromUrl(value){
+    try{
+      const url = new URL(value, location.href);
+      return url.pathname.split("/").pop() || "";
+    }catch(error){
+      return String(value || "").split("?")[0].split("#")[0].split("/").pop() || "";
+    }
+  }
+
+  function isHandlelisteUrl(value){
+    return HANDLE_PAGE_RE.test(pageFromUrl(value));
+  }
+
+  function relativeUrl(value){
+    try{
+      const url = new URL(value, location.href);
+      if(url.origin !== location.origin) return "";
+      const page = url.pathname.split("/").pop() || "";
+      if(!HANDLE_PAGE_RE.test(page)) return "";
+      return page + url.search + url.hash;
+    }catch(error){
+      const text = String(value || "").trim();
+      return isHandlelisteUrl(text) ? text : "";
+    }
+  }
+
+  function currentRelativeUrl(){
+    const page = location.pathname.split("/").pop() || "";
+    return page + location.search + location.hash;
+  }
+
+  function readStack(){
+    try{
+      const parsed = JSON.parse(sessionStorage.getItem(STACK_KEY) || "[]");
+      return Array.isArray(parsed) ? parsed.filter(isHandlelisteUrl) : [];
+    }catch(error){
+      return [];
+    }
+  }
+
+  function writeStack(stack){
+    try{
+      sessionStorage.setItem(STACK_KEY, JSON.stringify(stack.slice(-MAX_STACK)));
+    }catch(error){}
+  }
+
+  function pushCurrentToHandlelisteStack(){
+    const current = currentRelativeUrl();
+    if(!isHandlelisteUrl(current)) return;
+    const stack = readStack();
+    if(stack[stack.length - 1] !== current){
+      stack.push(current);
+      writeStack(stack);
+    }
+  }
+
+  function popPreviousFromHandlelisteStack(){
+    const current = currentRelativeUrl();
+    const stack = readStack();
+    let target = "";
+    while(stack.length){
+      const candidate = stack.pop();
+      if(candidate && candidate !== current){
+        target = candidate;
+        break;
+      }
+    }
+    writeStack(stack);
+    return target;
+  }
+
+  window.pushHandlelisteBackUrl = pushCurrentToHandlelisteStack;
+  window.goHandlelisteBackOrHome = function(event){
+    if(event){
+      event.preventDefault();
+      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+      event.stopPropagation();
+    }
+    location.href = popPreviousFromHandlelisteStack() || HOME_TARGET;
+    return false;
+  };
+
+  function shouldIgnoreClick(event, anchor){
+    if(event.defaultPrevented) return true;
+    if(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return true;
+    if(anchor.target && anchor.target !== "_self") return true;
+    if(anchor.hasAttribute("download")) return true;
+    const href = anchor.getAttribute("href") || "";
+    if(!href || href === "#" || href.startsWith("#")) return true;
+    if(/^(mailto|sms|tel|javascript):/i.test(href)) return true;
+    return false;
+  }
+
+  document.addEventListener("click", function(event){
+    const anchor = event.target && event.target.closest ? event.target.closest("a[href]") : null;
+    if(!anchor) return;
+
+    const isBackButton = anchor.hasAttribute("data-handleliste-back") ||
+      (anchor.classList && anchor.classList.contains("top-button") && (anchor.textContent || "").trim() === "←");
+
+    if(isBackButton){
+      window.goHandlelisteBackOrHome(event);
+      return;
+    }
+
+    const href = anchor.getAttribute("href") || "";
+
+    if(/^(index\.html|\/index\.html)/i.test(href)){
+      try{ sessionStorage.removeItem(STACK_KEY); }catch(error){}
+      return;
+    }
+
+    if(shouldIgnoreClick(event, anchor)) return;
+
+    if(isHandlelisteUrl(href)){
+      const target = relativeUrl(href);
+      if(target && target !== currentRelativeUrl()){
+        pushCurrentToHandlelisteStack();
+      }
+    }
+  }, true);
+})();
+</script>
+
+<script>document.getElementById("newItemImage").addEventListener("change",handleNewItemImageChange);</script>
+<script src="handleliste-menu.js?v=14"></script></body></html>
