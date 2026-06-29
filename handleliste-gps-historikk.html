@@ -68,6 +68,27 @@ body:not(.dark-mode) .gps-field{background:rgba(127,127,127,.08);}
 .form-help{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.3;}
 @media(max-width:700px){.form-grid{grid-template-columns:1fr;}}
 
+
+/* GPS-historikk v5: områdevalg og Finn butikk på selve GPS-historikk-siden. */
+.gps-find-card{display:flex;flex-direction:column;gap:8px;}
+.gps-find-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.gps-area-select{
+  min-height:34px;
+  min-width:220px;
+  padding:0 10px;
+  background:var(--button);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  font-weight:bold;
+  font-size:14px;
+}
+.gps-find-help{font-size:12px;color:var(--muted);line-height:1.3;}
+@media(max-width:700px){
+  .gps-find-row{display:grid;grid-template-columns:1fr auto;}
+  .gps-area-select{min-width:0;width:100%;}
+}
+
 </style>
 <script src="handleliste-menu.js?v=14"></script>
 </head>
@@ -77,6 +98,14 @@ body:not(.dark-mode) .gps-field{background:rgba(127,127,127,.08);}
     <h1 class="site-title">Handleliste</h1>
     <div class="subtitle">GPS-historikk</div>
     <div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div>
+  </div>
+
+  <div class="card gps-find-card">
+    <div class="gps-find-row">
+      <select id="gpsShoppingAreaSelect" class="gps-area-select" title="Velg butikk / handelstype" aria-label="Velg butikk / handelstype"></select>
+      <button id="gpsFindStoreButton" class="action-button" type="button" onclick="findStoreFromGpsHistoryPage()">Finn butikk</button>
+    </div>
+    <div class="gps-find-help">Velg butikk-/handelstype og trykk Finn butikk for å lagre ny GPS-posisjon i historikken.</div>
   </div>
 
   <div class="card">
@@ -134,6 +163,243 @@ body:not(.dark-mode) .gps-field{background:rgba(127,127,127,.08);}
 
 <script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
+
+const GPS_HISTORY_VERSION="v5";
+const SHOPPING_AREA_DEFAULT="Matvarer";
+const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
+const SHOPPING_AREA_ORDER=["Matvarer","Apotek","Bondekompaniet","Clas Ohlson","Europris","Frisør","Normal","Sport"];
+let selectedShoppingArea=getInitialSelectedShoppingArea();
+
+function normalizeShoppingArea(value){
+  const raw=String(value||"").trim();
+  return raw || SHOPPING_AREA_DEFAULT;
+}
+
+function getShoppingAreaFromUrl(){
+  try{
+    const params=new URLSearchParams(window.location.search||"");
+    const value=String(params.get("shoppingArea")||params.get("area")||"").trim();
+    if(value)return normalizeShoppingArea(value);
+  }catch(error){}
+  return "";
+}
+
+function readShoppingAreaStorage(){
+  try{
+    return String(localStorage.getItem(SHOPPING_AREA_STORAGE_KEY)||"").trim();
+  }catch(error){
+    return "";
+  }
+}
+
+function writeShoppingAreaStorage(value){
+  try{localStorage.setItem(SHOPPING_AREA_STORAGE_KEY,normalizeShoppingArea(value));}catch(error){}
+}
+
+function getInitialSelectedShoppingArea(){
+  return getShoppingAreaFromUrl() || readShoppingAreaStorage() || SHOPPING_AREA_DEFAULT;
+}
+
+function renderGpsShoppingAreaSelect(){
+  const select=document.getElementById("gpsShoppingAreaSelect");
+  if(!select)return;
+  select.innerHTML=SHOPPING_AREA_ORDER.map(area=>{
+    const label=area==="Bondekompaniet"?"Bondekomp.":area;
+    return `<option value="${esc(area)}"${area===selectedShoppingArea?" selected":""}>${esc(label)}</option>`;
+  }).join("");
+  select.onchange=function(){
+    selectedShoppingArea=normalizeShoppingArea(select.value);
+    writeShoppingAreaStorage(selectedShoppingArea);
+  };
+}
+
+function roundGpsForBaserow(value, decimals){
+  const n=Number(value);
+  if(!Number.isFinite(n)){
+    return null;
+  }
+  const factor=Math.pow(10, Number(decimals || 0));
+  return Math.round(n * factor) / factor;
+}
+
+function getPositionOnce(options){
+  return new Promise(resolve=>{
+    if(!navigator.geolocation){
+      resolve({status:"error",message:"Nettleseren støtter ikke GPS.",source:"geolocation"});
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      position=>{
+        resolve({
+          status:"ok",
+          latitude:position.coords.latitude,
+          longitude:position.coords.longitude,
+          accuracy:position.coords.accuracy,
+          source:"browser"
+        });
+      },
+      error=>{
+        const code=Number(error && error.code || 0);
+        const status=code===1?"denied":"error";
+        resolve({
+          status,
+          message:error && error.message ? error.message : "Kunne ikke hente GPS-posisjon.",
+          source:"browser",
+          code
+        });
+      },
+      options || {enableHighAccuracy:true,timeout:12000,maximumAge:0}
+    );
+  });
+}
+
+async function getShoppingLocation(){
+  const first=await getPositionOnce({enableHighAccuracy:true,timeout:12000,maximumAge:0});
+  if(first.status==="ok" || first.status==="denied"){
+    return first;
+  }
+
+  const second=await getPositionOnce({enableHighAccuracy:false,timeout:18000,maximumAge:30000});
+  if(second.status==="ok"){
+    second.retriedAfter=true;
+    second.firstError=first.message || "";
+    return second;
+  }
+
+  second.firstError=first.message || "";
+  return second;
+}
+
+function formatGpsLocationRaw(location){
+  if(!location){
+    return "Ingen GPS-respons.";
+  }
+
+  if(location.status==="ok"){
+    const lat=Number(location.latitude).toFixed(6);
+    const lon=Number(location.longitude).toFixed(6);
+    const acc=location.accuracy !== null && location.accuracy !== undefined ? `${Math.round(Number(location.accuracy))} m` : "ukjent";
+    const retry=location.retriedAfter ? " Fallback brukt." : "";
+    return `GPS OK: ${lat}, ${lon}. Nøyaktighet: ${acc}.${retry}`;
+  }
+
+  if(location.status==="denied"){
+    return `GPS avslått av bruker/nettleser${location.message ? `: ${esc(location.message)}` : "."}`;
+  }
+
+  const first=location.firstError ? ` Første forsøk: ${esc(location.firstError)}.` : "";
+  return `Kunne ikke hente GPS-posisjon${location.message ? `: ${esc(location.message)}` : "."}${first}`;
+}
+
+function setGpsFindButtonBusy(isBusy){
+  const button=document.getElementById("gpsFindStoreButton");
+  if(!button)return;
+  button.disabled=!!isBusy;
+  button.textContent=isBusy ? "Sjekker..." : "Finn butikk";
+}
+
+async function logGpsHistoryOnly(location, matchStatus){
+  if(!location || location.status !== "ok"){
+    return {logged:false, skipped:true, error:"Ingen GPS-koordinater å lagre."};
+  }
+
+  const latitude=roundGpsForBaserow(location.latitude,4);
+  const longitude=roundGpsForBaserow(location.longitude,4);
+  const accuracy=roundGpsForBaserow(location.accuracy,0);
+
+  if(latitude === null || longitude === null){
+    return {logged:false, error:"GPS-koordinater mangler i HTML-variabler."};
+  }
+
+  const data=await fetchJson(`${API_BASE}/shopping/gps-history-log`,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=UTF-8"},
+    body:JSON.stringify({
+      latitude,
+      longitude,
+      accuracy,
+      locationStatus:location.status,
+      locationSource:location.source || "",
+      locationMessage:location.message || "",
+      shoppingArea:selectedShoppingArea,
+      storeMatchStatus:matchStatus || "GPS position received"
+    })
+  });
+
+  return data && data.gpsHistoryLog ? data.gpsHistoryLog : {
+    logged:!!(data && data.success),
+    mode:data && data.gpsHistoryLog && data.gpsHistoryLog.mode || "html-vars",
+    rowId:data && data.gpsHistoryLog && data.gpsHistoryLog.rowId || null,
+    error:data && data.error || ""
+  };
+}
+
+function formatStoreMatchResult(data){
+  if(!data){
+    return "Ingen butikkrespons.";
+  }
+
+  const matchStatus=String(data.storeMatchStatus || "").trim();
+  const store=data.store || {};
+  const chain=String(data.storeChain || store.chain || "").trim();
+  const name=String(data.storeName || store.name || "").trim();
+  const distance=data.storeDistance || store.distance;
+  const matched=!!(chain || name);
+
+  if(matched){
+    const storeText=[chain,name].filter(Boolean).join(" ");
+    const distanceText=Number.isFinite(Number(distance)) ? ` · ${Math.round(Number(distance))} m` : "";
+    return `Fant butikk: ${esc(storeText)}${distanceText}`;
+  }
+
+  if(matchStatus==="Uncertain" || matchStatus==="No nearby store"){
+    return "Fant ingen kjent butikk her.";
+  }
+
+  return "Butikk kunne ikke foreslås automatisk.";
+}
+
+async function findStoreFromGpsHistoryPage(){
+  selectedShoppingArea=normalizeShoppingArea(document.getElementById("gpsShoppingAreaSelect") && document.getElementById("gpsShoppingAreaSelect").value || selectedShoppingArea);
+  writeShoppingAreaStorage(selectedShoppingArea);
+  setGpsFindButtonBusy(true);
+  setStatus(`Henter GPS-posisjon for ${esc(selectedShoppingArea)}...`);
+
+  try{
+    const location=await getShoppingLocation();
+
+    if(location.status !== "ok"){
+      setStatus(formatGpsLocationRaw(location),"error");
+      return;
+    }
+
+    const gpsLog=await logGpsHistoryOnly(location,"GPS position received");
+
+    const data=await fetchJson(`${API_BASE}/shopping/store-match`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({
+        location,
+        latitude:roundGpsForBaserow(location.latitude,4),
+        longitude:roundGpsForBaserow(location.longitude,4),
+        accuracy:roundGpsForBaserow(location.accuracy,0),
+        locationStatus:location.status,
+        shoppingArea:selectedShoppingArea
+      })
+    });
+
+    const logText=gpsLog && gpsLog.logged ? "GPS-logg: lagret." : `GPS-logg feilet: ${esc(gpsLog && gpsLog.error || "ukjent feil")}`;
+    setStatus(`${formatGpsLocationRaw(location)}<br>${formatStoreMatchResult(data)}<br>${logText}`,"success");
+    await loadGpsHistory();
+  }catch(error){
+    setStatus(`Kunne ikke finne butikk.<br><br>${esc(error.message)}`,"error");
+  }finally{
+    setGpsFindButtonBusy(false);
+  }
+}
+
+
 
 function esc(value){
   return String(value == null ? "" : value)
@@ -447,7 +713,7 @@ async function loadGpsHistory(){
   }
 }
 
-document.addEventListener("DOMContentLoaded", loadGpsHistory);
+document.addEventListener("DOMContentLoaded", function(){renderGpsShoppingAreaSelect();loadGpsHistory();});
 </script>
 </body>
 </html>
