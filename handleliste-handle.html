@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v155_aggregate_same_name_across_owner_and_type_2026_06_29 | based-on: handle-v154_aggregate_same_name_owner_lists --><style>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Handle</title><!-- version: handle-v157_nutrition_tooltip_2026_06_29 | based-on: handle-v156_add_item_modal_matches_bestille --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:980px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.owner-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}.summary-item{border:1px solid var(--border);border-radius:8px;padding:8px;background:rgba(127,127,127,.05);text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:54px;}.summary-label{color:var(--muted);font-size:12px;margin-bottom:3px;}.summary-value{font-size:18px;font-weight:bold;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.toolbar.space{justify-content:space-between;}.toolbar-left,.toolbar-right{display:flex;gap:7px;flex-wrap:wrap;}.action-button,.owner-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.owner-button.active{background:var(--link);border-color:var(--link);color:#fff;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.action-button:disabled{opacity:.55;cursor:not-allowed;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.store-match-line{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
@@ -1728,7 +1728,7 @@ html.handle-size-large #shoppingList .item-check{
 
 
 /* Handle v137: admin-only kompakt versjonsindikator oppe til venstre.
-   Kun versjonsnummer: W:200, H:155 */
+   Kun versjonsnummer: W:201, H:157 */
 #adminVersionInfo{
   display:none;
   position:fixed !important;
@@ -1822,7 +1822,50 @@ body:not(.dark-mode) #adminVersionInfo{
 body:not(.dark-mode) .admin-version-stable{
   background:rgba(255,255,255,.96);
   color:#065f46;
-}</style><!-- lightdark-restore-2026-06-16 -->
+}
+/* Handle H156: Legg til vare-dialogen bruker samme teknisk-vareflyt som Bestille. */
+.add-item-suggestions{
+  display:none;
+  margin-top:6px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  overflow:hidden;
+  max-height:230px;
+  overflow-y:auto;
+}
+.add-item-suggestions.visible{display:block;}
+.add-item-suggestion-button{
+  width:100%;
+  display:block;
+  border:0;
+  border-bottom:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  text-align:left;
+  padding:9px 11px;
+  cursor:pointer;
+  font:inherit;
+}
+.add-item-suggestion-button:last-child{border-bottom:0;}
+.add-item-suggestion-button:hover{background:rgba(124,199,232,.12);}
+.add-item-suggestion-name{font-weight:bold;}
+.add-item-suggestion-meta{color:var(--muted);font-size:13px;margin-top:2px;}
+.add-item-duplicate-warning{
+  display:none;
+  margin-top:7px;
+  color:#ffb0b0;
+  font-size:13px;
+  line-height:1.35;
+}
+.add-item-duplicate-warning.visible{display:block;}
+.add-item-modal-actions .image-picker-button,
+.form-field .image-picker-button + .image-picker-button{
+  margin-top:6px;
+}
+
+.nutrition-badge{cursor:help;}.item-name[title],.item-thumb-name[title]{cursor:help;}
+</style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v88 visible_cancel_notification_button 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
 </head><body class="dark-mode"><div id="adminVersionInfo" aria-live="polite"></div><script>
@@ -1960,23 +2003,29 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
     </div>
     <form id="addItemForm" onsubmit="event.preventDefault(); createShoppingItemFromHandle();">
       <div class="form-field">
-        <label for="addItemName">Varenavn</label>
-        <input id="addItemName" type="text" autocomplete="off" required oninput="addItemSourceItemId=0; addItemSourceSuggestionId=0; updateAddItemSuggestions()" onfocus="updateAddItemSuggestions()">
+        <label for="addItemTechnicalName">Teknisk vare</label>
+        <input id="addItemTechnicalName" type="text" autocomplete="off" placeholder="Søk i Teknisk navn / Matvaretabellen" oninput="handleAddItemTechnicalInput()" onfocus="ensureShoppingItemSuggestionsLoaded();updateAddItemSuggestions()">
         <div class="add-item-suggestions" id="addItemSuggestions"></div>
+      </div>
+      <div class="form-field">
+        <label for="addItemName">Varenavn</label>
+        <input id="addItemName" type="text" autocomplete="off" required oninput="handleAddItemNameInput()">
+        <div class="add-item-duplicate-warning" id="addItemDuplicateWarning"></div>
+      </div>
+      <div class="form-field">
+        <label for="addItemOwner">Vareliste</label>
+        <select id="addItemOwner"></select>
       </div>
       <div class="form-field">
         <label for="addItemType">Varetype</label>
         <select id="addItemType"></select>
       </div>
       <div class="form-field">
-        <label for="addItemOwner">Vareliste/eier</label>
-        <select id="addItemOwner"></select>
-      </div>
-      <div class="form-field">
         <label>Bilde av vare</label>
         <input id="addItemImage" class="image-file-input" type="file" accept="image/*" style="position:absolute;left:-10000px;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;">
         <div class="image-preview" id="addItemImagePreview"><img id="addItemImagePreviewImg" alt="Forhåndsvisning"><button class="action-button" type="button" onclick="clearAddItemImage()">Fjern bilde</button></div>
-        <label class="image-picker-button" for="addItemImage">📷 Velg bilde</label>
+        <label class="image-picker-button" for="addItemImage">📷 Velg bilde lokalt</label>
+        <button class="image-picker-button" type="button" onclick="openGoogleImageSearchForAddItem()">🔎 Velg bilde i Google</button>
       </div>
       <div class="checkbox-row">
         <input id="addItemStandard" type="checkbox">
@@ -1984,7 +2033,7 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
       </div>
       <div class="checkbox-row">
         <input id="addItemShouldBuy" type="checkbox" checked>
-        <label for="addItemShouldBuy">Legg direkte i handlelisten</label>
+        <label for="addItemShouldBuy">Skal handles nå</label>
       </div>
       <div class="add-item-modal-actions">
         <button class="action-button" type="button" onclick="closeAddItemModal()">Avbryt</button>
@@ -2039,7 +2088,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v155";
+const HANDLELISTE_HANDLE_VERSION="v157";
 window.HANDLELISTE_HANDLE_VERSION=HANDLELISTE_HANDLE_VERSION;
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
@@ -2240,6 +2289,34 @@ function esc(value){
     .replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
+}
+
+function formatNutritionTooltip(item){
+  const n=item && item.nutrition;
+  if(!n)return "";
+  const lines=[];
+  function add(label,value,unit){
+    const text=String(value||"").trim();
+    if(text)lines.push(`${label}: ${text}${unit||""}`);
+  }
+  add("Spiselig del", n.ediblePart, n.ediblePart && String(n.ediblePart).includes("%") ? "" : " %");
+  add("Vann", n.water, " g");
+  add("Energi", n.kilojoules, " kJ");
+  add("Kalorier", n.kilocalories, " kcal");
+  add("Fett", n.fat, " g");
+  add("Karbohydrat", n.carbohydrate, " g");
+  add("Kostfiber", n.fiber, " g");
+  add("Protein", n.protein, " g");
+  add("Alkohol", n.alcohol, " g");
+  return lines.length ? lines.join("\n") : "";
+}
+function nutritionTitleAttr(item){
+  const text=formatNutritionTooltip(item);
+  return text ? ` title="${esc(text)}"` : "";
+}
+function nutritionBadge(item){
+  const text=formatNutritionTooltip(item);
+  return text ? `<span class="badge nutrition-badge" title="${esc(text)}">Næring</span>` : "";
 }
 const NEW_ITEM_DEBUG_ENABLED=false;
 let newItemDebugState={
@@ -2460,7 +2537,7 @@ function extractPlainVersionNumber(value){
 
 function getExpectedWorkerVersionNumber(){
   // Oppdateres manuelt når Worker-fil byttes. Brukes som fallback hvis /shopping/version ikke finnes.
-  return "200";
+  return "201";
 }
 
 
@@ -2471,7 +2548,7 @@ function extractPlainVersionNumber(value){
 }
 
 function getExpectedWorkerVersionNumber(){
-  return "200";
+  return "201";
 }
 
 function placeAdminVersionInfoUnderTopMenu(){
@@ -3145,6 +3222,7 @@ let addItemImageDataUrl="";
 let addItemImageFileName="";
 let addItemSourceItemId=0;
 let addItemSourceSuggestionId=0;
+let addItemSelectedTechnicalName="";
 let shoppingItemSuggestions=[];
 let shoppingItemSuggestionsLoaded=false;
 function getItemImageUrl(item){return (item&&item.imageUrl)||((item&&item.image&&item.image.url)||"");}
@@ -3445,6 +3523,66 @@ function normalizeAddItemSearchText(value){
     .trim();
 }
 
+function getSuggestionTechnicalName(item){
+  return String(
+    item && (
+      item.technicalName ||
+      item.technical_name ||
+      item["Teknisk navn"] ||
+      item.technical ||
+      ""
+    ) || ""
+  ).trim();
+}
+function getSuggestionSearchText(item){
+  return getSuggestionTechnicalName(item);
+}
+function handleAddItemTechnicalInput(){
+  addItemSourceItemId=0;
+  addItemSourceSuggestionId=0;
+  addItemSelectedTechnicalName="";
+  clearAddItemImage();
+  updateAddItemSuggestions();
+}
+function handleAddItemNameInput(){
+  updateAddItemDuplicateWarning();
+}
+function getAddItemGoogleSearchText(){
+  const name=String(document.getElementById("addItemName") && document.getElementById("addItemName").value || "").trim();
+  const technical=String(document.getElementById("addItemTechnicalName") && document.getElementById("addItemTechnicalName").value || "").trim();
+  return technical || name || "";
+}
+function openGoogleImageSearchForAddItem(){
+  const query=getAddItemGoogleSearchText();
+  if(!query){
+    alert("Skriv eller velg en vare først.");
+    return;
+  }
+  const url="https://www.google.com/search?tbm=isch&q="+encodeURIComponent(query+" matvare hvit bakgrunn");
+  window.open(url,"_blank","noopener,noreferrer");
+}
+function getExactExistingItemByNameAndOwner(name,owner){
+  const key=normalizeAddItemSearchText(name);
+  const ownerKey=normalizeOwner(owner).toLowerCase();
+  if(!key)return null;
+  return items.find(item=>normalizeAddItemSearchText(item.name)===key && normalizeOwner(item.owner).toLowerCase()===ownerKey)||null;
+}
+function updateAddItemDuplicateWarning(){
+  const warning=document.getElementById("addItemDuplicateWarning");
+  const input=document.getElementById("addItemName");
+  if(!warning||!input)return;
+  const owner=document.getElementById("addItemOwner") ? document.getElementById("addItemOwner").value : "Felles";
+  const existing=getExactExistingItemByNameAndOwner(input.value, owner);
+  if(existing){
+    warning.innerHTML=`Det finnes allerede en vare med dette varenavnet i samme bestillingsliste: <strong>${esc(existing.name)}</strong> (${esc(normalizeOwner(existing.owner))} · ${esc(existing.type||"Annet")}). Endre varenavnet hvis dette skal være en egen vare, eller lagre likevel hvis du bevisst vil ha samme navn.`;
+    warning.className="add-item-duplicate-warning visible";
+  }else{
+    warning.innerHTML="";
+    warning.className="add-item-duplicate-warning";
+  }
+}
+
+
 async function loadShoppingItemSuggestions(){
   try{
     const data=await fetchJson(`${API_BASE}/shopping/item-suggestions`);
@@ -3468,17 +3606,18 @@ function getCombinedAddItemSuggestionSource(){
   const combined=[];
   const seen=new Set();
 
-  // Primær kilde: egen forslagstabell i varegruppe-workspace.
+  // Primær kilde: Shopping item suggestions / Teknisk navn.
   (Array.isArray(shoppingItemSuggestions)?shoppingItemSuggestions:[]).forEach(item=>{
-    const key=normalizeAddItemSearchText(item.name);
+    const technical=getSuggestionTechnicalName(item);
+    const key=String(item.id ? "suggestion-id-"+item.id : normalizeAddItemSearchText([item.name,technical].filter(Boolean).join(" | ")));
     if(!key||seen.has(key))return;
     seen.add(key);
     combined.push({...item, suggestionSource:"suggestion"});
   });
 
-  // Fallback: eksisterende aktive varer som allerede er lastet på Handle-siden.
+  // Fallback beholdes, men teknisk-varefeltet filtrerer bort vanlige varer uten technicalName.
   (Array.isArray(items)?items:[]).forEach(item=>{
-    const key=normalizeAddItemSearchText(item.name);
+    const key=String(item.id ? "item-id-"+item.id : normalizeAddItemSearchText(item.name));
     if(!key||seen.has(key))return;
     seen.add(key);
     combined.push({...item, suggestionSource:"item"});
@@ -3497,39 +3636,38 @@ function getAddItemSuggestionMatches(query){
   const seen=new Set();
   const matches=[];
 
-  getCombinedAddItemSuggestionSource().forEach(item=>{
-    const name=String(item&&item.name||"").trim();
+  getCombinedAddItemSuggestionSource()
+    .filter(item=>item&&getSuggestionTechnicalName(item))
+    .forEach(item=>{
+      const technical=getSuggestionTechnicalName(item);
+      const normalizedTechnical=normalizeAddItemSearchText(technical);
 
-    if(!name)return;
+      if(!normalizedTechnical.includes(normalizedQuery))return;
 
-    const normalizedName=normalizeAddItemSearchText(name);
+      const key=String(item.suggestionSource||"item")+"-"+String(item.id||normalizedTechnical);
 
-    if(!normalizedName.includes(normalizedQuery))return;
+      if(seen.has(key))return;
 
-    const key=normalizedName;
-
-    if(seen.has(key))return;
-
-    seen.add(key);
-    matches.push(item);
-  });
+      seen.add(key);
+      matches.push(item);
+    });
 
   return matches
     .sort((a,b)=>{
-      const an=normalizeAddItemSearchText(a.name);
-      const bn=normalizeAddItemSearchText(b.name);
+      const an=normalizeAddItemSearchText(getSuggestionTechnicalName(a));
+      const bn=normalizeAddItemSearchText(getSuggestionTechnicalName(b));
       const aStarts=an.startsWith(normalizedQuery)?0:1;
       const bStarts=bn.startsWith(normalizedQuery)?0:1;
 
       if(aStarts!==bStarts)return aStarts-bStarts;
 
-      return String(a.name||"").localeCompare(String(b.name||""),"no",{sensitivity:"base"});
+      return String(getSuggestionTechnicalName(a)||"").localeCompare(String(getSuggestionTechnicalName(b)||""),"no",{sensitivity:"base"});
     })
-    .slice(0,8);
+    .slice(0,15);
 }
 
 function updateAddItemSuggestions(){
-  const input=document.getElementById("addItemName");
+  const input=document.getElementById("addItemTechnicalName");
   const root=document.getElementById("addItemSuggestions");
 
   if(!input||!root)return;
@@ -3538,34 +3676,46 @@ function updateAddItemSuggestions(){
 
   if(!matches.length){
     root.innerHTML="";
-    root.classList.remove("open");
+    root.className="add-item-suggestions";
+    updateAddItemDuplicateWarning();
     return;
   }
 
   root.innerHTML=matches.map(item=>{
-    const type=String(item.type||"").trim();
+    const technical=getSuggestionTechnicalName(item);
+    const shownName=technical || item.name || "";
     const owner=normalizeOwner(item.owner||"");
-    const meta=[type, owner].filter(Boolean).join(" · ");
+    const area=getItemShoppingArea(item);
+    const meta=[item.name && technical && item.name!==technical ? `Name: ${item.name}` : "", owner&&owner!=="Felles"?owner:"Felles", item.type||"Annet", !isMatvarerArea(area)?area:""].filter(Boolean).join(" · ");
 
-    return `<button type="button" class="add-item-suggestion" onclick="selectAddItemSuggestion(${Number(item.id)}, \'${escJs(item.suggestionSource||"item")}\')"><span>${esc(item.name)}</span>${meta?`<small>${esc(meta)}</small>`:""}</button>`;
+    return `<button type="button" class="add-item-suggestion-button" onclick="selectAddItemSuggestion('${esc(item.id)}','${esc(item.suggestionSource||"item")}')"><div class="add-item-suggestion-name">${esc(shownName)}</div><div class="add-item-suggestion-meta">${esc(meta)}${item.standardItem?" · Standard":""}${item.shouldBuy?" · Skal handles":""}</div></button>`;
   }).join("");
-  root.classList.add("open");
+  root.className="add-item-suggestions visible";
+  updateAddItemDuplicateWarning();
 }
 function selectAddItemSuggestion(id, source){
-  const list=String(source||"item")==="suggestion" ? shoppingItemSuggestions : items;
-  const item=(Array.isArray(list)?list:[]).find(row=>Number(row.id)===Number(id));
+  const sourceType=String(source||"item");
+  const list=sourceType==="suggestion" ? shoppingItemSuggestions : items;
+  const item=(Array.isArray(list)?list:[]).find(row=>String(row.id)===String(id));
 
   if(!item)return;
 
+  const technicalName=getSuggestionTechnicalName(item);
+  const selectedName=technicalName || item.name || "";
+
+  const technicalInput=document.getElementById("addItemTechnicalName");
   const nameInput=document.getElementById("addItemName");
   const typeSelect=document.getElementById("addItemType");
   const ownerSelect=document.getElementById("addItemOwner");
   const suggestions=document.getElementById("addItemSuggestions");
 
-  addItemSourceItemId=String(source||"item")==="item" ? Number(item.id||0) : 0;
-  addItemSourceSuggestionId=String(source||"item")==="suggestion" ? Number(item.id||0) : 0;
+  addItemSourceItemId=sourceType==="item" ? Number(item.id||0) : 0;
+  addItemSourceSuggestionId=sourceType==="suggestion" ? Number(item.id||0) : 0;
+  addItemSelectedTechnicalName=selectedName;
+
   showAddItemSourceImagePreview(item);
-  if(nameInput)nameInput.value=String(item.name||"");
+  if(technicalInput)technicalInput.value=selectedName;
+  if(nameInput)nameInput.value=selectedName;
 
   if(typeSelect && item.type){
     const value=String(item.type||"").trim();
@@ -3577,15 +3727,19 @@ function selectAddItemSuggestion(id, source){
     typeSelect.value=value;
   }
 
-  if(ownerSelect && item.owner){
+  // Eier beholdes fra valgt vareliste. Teknisk forslag skal ikke overstyre brukerens varelistevalg.
+  if(ownerSelect && item.owner && sourceType==="item"){
     ownerSelect.value=normalizeOwner(item.owner);
   }
 
   if(suggestions){
     suggestions.innerHTML="";
-    suggestions.classList.remove("open");
+    suggestions.className="add-item-suggestions";
   }
+
+  updateAddItemDuplicateWarning();
 }
+
 
 
 
@@ -3661,24 +3815,42 @@ function setStoreStatusText(html, mode){
 function openAddItemModal(){
   addItemSourceItemId=0;
   addItemSourceSuggestionId=0;
+  addItemSelectedTechnicalName="";
   ensureShoppingItemSuggestionsLoaded();
   fillAddItemSelects();
   const modal=document.getElementById("addItemModal");
-  const name=document.getElementById("addItemName");
+  const technical=document.getElementById("addItemTechnicalName");
   const suggestions=document.getElementById("addItemSuggestions");
+  const warning=document.getElementById("addItemDuplicateWarning");
   const shouldBuy=document.getElementById("addItemShouldBuy");
+  clearAddItemImage();
+
   if(suggestions){
     suggestions.innerHTML="";
-    suggestions.classList.remove("open");
+    suggestions.className="add-item-suggestions";
+  }
+  if(warning){
+    warning.innerHTML="";
+    warning.className="add-item-duplicate-warning";
   }
   if(shouldBuy)shouldBuy.checked=true;
+  const form=document.getElementById("addItemForm");
+  if(form)form.reset();
+  fillAddItemSelects();
+  if(shouldBuy)shouldBuy.checked=true;
   if(modal)modal.classList.add("open");
-  window.setTimeout(()=>{if(name){name.focus();name.select();}},50);
+  window.setTimeout(()=>{if(technical){technical.focus();technical.select();}},50);
 }
 function closeAddItemModal(){
   addItemSourceItemId=0;
   addItemSourceSuggestionId=0;
+  addItemSelectedTechnicalName="";
   const modal=document.getElementById("addItemModal");
+  const suggestions=document.getElementById("addItemSuggestions");
+  if(suggestions){
+    suggestions.innerHTML="";
+    suggestions.className="add-item-suggestions";
+  }
   if(modal)modal.classList.remove("open");
   clearAddItemImage();
 }
@@ -3689,7 +3861,9 @@ async function createShoppingItemFromHandle(){
   const owner=normalizeOwner((document.getElementById("addItemOwner") && document.getElementById("addItemOwner").value)||"Felles");
   const shouldBuy=!!(document.getElementById("addItemShouldBuy") && document.getElementById("addItemShouldBuy").checked);
   const standardItem=!!(document.getElementById("addItemStandard") && document.getElementById("addItemStandard").checked);
+  const existing=getExactExistingItemByNameAndOwner(name, owner);
   const itemShoppingArea=getShoppingAreaForNewItemType(type);
+
   if(!name){
     alert("Skriv inn varenavn.");
     return;
@@ -3698,6 +3872,10 @@ async function createShoppingItemFromHandle(){
     alert("Velg varetype.");
     return;
   }
+  if(existing&&!confirm(`Varen "${existing.name}" finnes allerede i ${owner}. Vil du likevel opprette en ny vare med samme navn i samme bestillingsliste?`)){
+    return;
+  }
+
   if(button)button.disabled=true;
   try{
     const createdData=await fetchJson(`${API_BASE}/shopping/item-create`,{
@@ -3720,6 +3898,8 @@ async function createShoppingItemFromHandle(){
     if(button)button.disabled=false;
   }
 }
+
+
 
 
 const HANDLE_VIEW_MODE_STORAGE_KEY="kvimarka92HandleViewModeV1";
@@ -3766,7 +3946,7 @@ function renderHandleThumbnailView(groups){
     const idText=ids.join(",");
     const isBought=ids.length>0&&ids.every(id=>boughtIds.has(id));
     const badges=renderHandleThumbBadges(item,isBought);
-    return `<button class="item-thumb-card ${isBought?"selected":""}" type="button" onclick="toggleBought('${escJs(idText)}',${isBought?"false":"true"})" title="${isBought?"Marker som ikke handlet":"Marker som handlet"}">${renderHandleThumbImage(item)}<div class="item-thumb-name">${esc(item.name)}</div><div class="item-thumb-badges">${badges}</div></button>`;
+    return `<button class="item-thumb-card ${isBought?"selected":""}" type="button" onclick="toggleBought('${escJs(idText)}',${isBought?"false":"true"})" title="${isBought?"Marker som ikke handlet":"Marker som handlet"}">${renderHandleThumbImage(item)}<div class="item-thumb-name"${nutritionTitleAttr(item)}>${esc(item.name)}</div><div class="item-thumb-badges">${badges}</div></button>`;
   }).join("")}</div></div>`).join("");
 }
 
@@ -3791,8 +3971,8 @@ function render(){
     const ids=getItemIdsForBoughtState(item);
     const idText=ids.join(",");
     const isBought=ids.length>0&&ids.every(id=>boughtIds.has(id));
-    const badges=`${itemImageButton(item)}${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
-    return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought('${escJs(idText)}', this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
+    const badges=`${itemImageButton(item)}${addedAtButton(item)}${nutritionBadge(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought('${escJs(idText)}', this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name"${nutritionTitleAttr(item)}>${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
 function updateActiveAreaAfterSelectionChange(previousActive){
