@@ -483,6 +483,148 @@ html:not(.classic-design-root) .create-route-field textarea{
   }
 }
 
+
+/* Innloggingsstatus for mobilfeilsøking */
+.login-menu-link.login-diagnostics-link{
+  cursor:pointer;
+}
+.login-diagnostics-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:none;
+  align-items:flex-start;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.58);
+  overflow:auto;
+}
+.login-diagnostics-backdrop.is-open{
+  display:flex;
+}
+.login-diagnostics-panel{
+  width:min(760px, 100%);
+  margin:22px auto;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--card);
+  color:var(--text);
+  box-shadow:0 18px 48px rgba(0,0,0,.42);
+  padding:16px;
+  box-sizing:border-box;
+}
+.login-diagnostics-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.login-diagnostics-title{
+  margin:0;
+  font-size:1.1rem;
+  font-weight:800;
+}
+.login-diagnostics-close{
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--bg);
+  color:var(--text);
+  cursor:pointer;
+  font-size:1.15rem;
+  line-height:1;
+}
+.login-diagnostics-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:12px 0 0;
+}
+.login-diagnostics-button{
+  min-height:34px;
+  border:0;
+  border-radius:10px;
+  padding:0 12px;
+  background:#2f6f80;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+.login-diagnostics-button.secondary{
+  background:#516173;
+}
+.login-diagnostics-status{
+  margin:8px 0 12px;
+  font-size:.92rem;
+  opacity:.92;
+}
+.login-diagnostics-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.9rem;
+  margin-top:8px;
+}
+.login-diagnostics-table th,
+.login-diagnostics-table td{
+  text-align:left;
+  vertical-align:top;
+  border-bottom:1px solid var(--border);
+  padding:8px 6px;
+}
+.login-diagnostics-table th{
+  width:34%;
+  opacity:.8;
+  font-weight:700;
+}
+.login-diagnostics-code{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  font-family:ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size:.82rem;
+}
+.login-diagnostics-ok{
+  color:#8be28b;
+  font-weight:800;
+}
+.login-diagnostics-warn{
+  color:#ffd166;
+  font-weight:800;
+}
+.login-diagnostics-error{
+  color:#ff8f8f;
+  font-weight:800;
+}
+body.light-mode .login-diagnostics-ok{ color:#136c13; }
+body.light-mode .login-diagnostics-warn{ color:#8a5a00; }
+body.light-mode .login-diagnostics-error{ color:#b00020; }
+@media(max-width:800px){
+  .login-diagnostics-backdrop{
+    padding:10px;
+  }
+  .login-diagnostics-panel{
+    margin:8px auto;
+    border-radius:14px;
+    padding:12px;
+  }
+  .login-diagnostics-table,
+  .login-diagnostics-table tbody,
+  .login-diagnostics-table tr,
+  .login-diagnostics-table th,
+  .login-diagnostics-table td{
+    display:block;
+    width:100%;
+  }
+  .login-diagnostics-table th{
+    padding-bottom:2px;
+    border-bottom:0;
+  }
+  .login-diagnostics-table td{
+    padding-top:2px;
+  }
+}
+
 </style>
 <script>
 if(!String.prototype.replaceAll){
@@ -532,6 +674,8 @@ document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
 
   <div id="loginMenu" class="login-menu" style="display:none;">
     <div id="loginMenuName" class="login-menu-name"></div>
+    <a id="loginSigninLink" class="login-menu-link" href="#">Logg inn</a>
+    <a id="loginDiagnosticsLink" class="login-menu-link login-diagnostics-link" href="#">Innloggingsstatus</a>
     <a id="logoutLink" class="login-menu-link" href="#">Logg ut</a>
   </div>
 </div>
@@ -750,11 +894,317 @@ async function performLogout(){
   window.location.href = "index.html?logout=" + Date.now();
 }
 
+let lastLoginDiagnosticsText = "";
+
+const LOGIN_DIAGNOSTICS_ENDPOINTS = [
+  {name:"whoami", description:"Bekrefter Cloudflare Access-bruker mot Worker", path:"/whoami?diagnostics=1"},
+  {name:"menu-public", description:"Tester åpen meny fra API", path:"/menu-public?diagnostics=1"},
+  {name:"menu", description:"Tester privat meny fra API", path:"/menu?diagnostics=1"},
+  {name:"experience-list", description:"Tester Opplevelser-tilgang", path:"/experience-list?limit=1&diagnostics=1"}
+];
+
+function ensureLoginDiagnosticsDialog(){
+  let backdrop = document.getElementById("loginDiagnosticsBackdrop");
+
+  if(backdrop){
+    return backdrop;
+  }
+
+  backdrop = document.createElement("div");
+  backdrop.id = "loginDiagnosticsBackdrop";
+  backdrop.className = "login-diagnostics-backdrop";
+  backdrop.innerHTML = `
+    <div class="login-diagnostics-panel" role="dialog" aria-modal="true" aria-labelledby="loginDiagnosticsTitle">
+      <div class="login-diagnostics-header">
+        <h2 id="loginDiagnosticsTitle" class="login-diagnostics-title">Innloggingsstatus</h2>
+        <button type="button" id="loginDiagnosticsClose" class="login-diagnostics-close" title="Lukk" aria-label="Lukk">×</button>
+      </div>
+      <div id="loginDiagnosticsStatus" class="login-diagnostics-status">Klar.</div>
+      <div id="loginDiagnosticsContent"></div>
+      <div class="login-diagnostics-actions">
+        <button type="button" id="loginDiagnosticsRun" class="login-diagnostics-button">Kjør test på nytt</button>
+        <button type="button" id="loginDiagnosticsCopy" class="login-diagnostics-button secondary">Kopier diagnose</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(backdrop);
+
+  const closeButton = backdrop.querySelector("#loginDiagnosticsClose");
+  const runButton = backdrop.querySelector("#loginDiagnosticsRun");
+  const copyButton = backdrop.querySelector("#loginDiagnosticsCopy");
+
+  closeButton.addEventListener("click", closeLoginDiagnostics);
+  runButton.addEventListener("click", runLoginDiagnostics);
+  copyButton.addEventListener("click", copyLoginDiagnostics);
+
+  backdrop.addEventListener("click", function(event){
+    if(event.target === backdrop){
+      closeLoginDiagnostics();
+    }
+  });
+
+  return backdrop;
+}
+
+function closeLoginDiagnostics(){
+  const backdrop = document.getElementById("loginDiagnosticsBackdrop");
+  if(backdrop){
+    backdrop.classList.remove("is-open");
+  }
+}
+
+function valueToText(value){
+  if(value === null || value === undefined || value === ""){
+    return "-";
+  }
+
+  if(typeof value === "string"){
+    return value;
+  }
+
+  try{
+    return JSON.stringify(value, null, 2);
+  }catch(error){
+    return String(value);
+  }
+}
+
+function statusClassForResult(result){
+  if(result.ok && result.status >= 200 && result.status < 300){
+    return "login-diagnostics-ok";
+  }
+
+  if(result.status === 401 || result.status === 403 || result.status === 0){
+    return "login-diagnostics-error";
+  }
+
+  return "login-diagnostics-warn";
+}
+
+function explainDiagnostics(results){
+  const whoami = results.find(item => item.name === "whoami");
+
+  if(!whoami){
+    return "Ingen whoami-test ble kjørt.";
+  }
+
+  if(whoami.error){
+    return "API-kallet feilet i nettleseren. Dette tyder ofte på CORS, nettverk, Access-cookie eller at API-et ikke nås fra denne enheten.";
+  }
+
+  if(whoami.status === 200 && whoami.json && (whoami.json.email || whoami.json.name)){
+    return "API-et bekrefter innlogget bruker. Hvis ikonet likevel viser utlogget, ligger feilen trolig i frontend-tolkningen av API-svaret.";
+  }
+
+  if(whoami.status === 401){
+    return "Worker svarer 401. Det betyr vanligvis at Cloudflare Access-identiteten ikke kommer frem til Worker, typisk manglende/utløpt Access-cookie eller at API-kallet går uten gyldig Access-header.";
+  }
+
+  if(whoami.status === 403){
+    return "Worker svarer 403. Det betyr vanligvis at brukeren ble funnet, men ikke er godkjent i brukertabell eller policy.";
+  }
+
+  if(whoami.contentType && whoami.contentType.includes("text/html")){
+    return "API-et returnerte HTML i stedet for JSON. Det kan bety at kallet havner på innloggingsside eller feil rute.";
+  }
+
+  return "Se statuskodene under. Ta skjermbilde av denne boksen når feilen oppstår.";
+}
+
+async function testLoginDiagnosticEndpoint(endpoint){
+  const separator = endpoint.path.includes("?") ? "&" : "?";
+  const url = API_BASE + endpoint.path + separator + "ts=" + Date.now();
+  const startedAt = new Date();
+
+  try{
+    const response = await fetch(url, {
+      method:"GET",
+      credentials:"include",
+      cache:"no-store",
+      headers:{
+        Accept:"application/json"
+      }
+    });
+
+    const contentType = response.headers.get("content-type") || "";
+    let bodyText = "";
+    let jsonBody = null;
+
+    try{
+      bodyText = await response.clone().text();
+    }catch(error){
+      bodyText = "";
+    }
+
+    try{
+      jsonBody = bodyText ? JSON.parse(bodyText) : null;
+    }catch(error){
+      jsonBody = null;
+    }
+
+    return {
+      name:endpoint.name,
+      description:endpoint.description,
+      url,
+      ok:response.ok,
+      status:response.status,
+      statusText:response.statusText || "",
+      contentType,
+      json:jsonBody,
+      bodyPreview:bodyText.slice(0, 600),
+      durationMs:Date.now() - startedAt.getTime()
+    };
+  }catch(error){
+    return {
+      name:endpoint.name,
+      description:endpoint.description,
+      url,
+      ok:false,
+      status:0,
+      statusText:"Fetch failed",
+      contentType:"",
+      error:error && error.message ? error.message : String(error),
+      durationMs:Date.now() - startedAt.getTime()
+    };
+  }
+}
+
+function renderLoginDiagnostics(results){
+  const content = document.getElementById("loginDiagnosticsContent");
+  const status = document.getElementById("loginDiagnosticsStatus");
+
+  if(!content || !status){
+    return;
+  }
+
+  const now = new Date();
+  const rows = [
+    ["Tidspunkt", now.toLocaleString("no-NO")],
+    ["Side", window.location.href],
+    ["API", API_BASE],
+    ["Nettleser", navigator.userAgent || "-"]
+  ];
+
+  results.forEach(result => {
+    const cls = statusClassForResult(result);
+    const payload = result.json || result.error || result.bodyPreview || "";
+    rows.push([
+      `${result.name} status`,
+      `<span class="${cls}">${result.status || "feil"} ${result.statusText || ""}</span>`
+    ]);
+    rows.push([
+      `${result.name} svar`,
+      `<div class="login-diagnostics-code">${esc(valueToText(payload))}</div>`
+    ]);
+    rows.push([
+      `${result.name} detaljer`,
+      `<div class="login-diagnostics-code">${esc(result.contentType || "-")}\n${esc(result.url)}\n${Number(result.durationMs || 0)} ms</div>`
+    ]);
+  });
+
+  const explanation = explainDiagnostics(results);
+  status.textContent = explanation;
+
+  content.innerHTML = `
+    <table class="login-diagnostics-table">
+      <tbody>
+        ${rows.map(row => `<tr><th>${esc(row[0])}</th><td>${row[1]}</td></tr>`).join("")}
+      </tbody>
+    </table>`;
+
+  lastLoginDiagnosticsText = [
+    "Innloggingsstatus",
+    `Tidspunkt: ${now.toLocaleString("no-NO")}`,
+    `Side: ${window.location.href}`,
+    `API: ${API_BASE}`,
+    `Nettleser: ${navigator.userAgent || "-"}`,
+    `Tolkning: ${explanation}`,
+    "",
+    ...results.flatMap(result => [
+      `${result.name}: ${result.status || "feil"} ${result.statusText || ""}`,
+      `Content-Type: ${result.contentType || "-"}`,
+      `URL: ${result.url}`,
+      `Varighet: ${Number(result.durationMs || 0)} ms`,
+      `Svar: ${valueToText(result.json || result.error || result.bodyPreview || "-")}`,
+      ""
+    ])
+  ].join("\n");
+}
+
+async function runLoginDiagnostics(){
+  ensureLoginDiagnosticsDialog();
+  const status = document.getElementById("loginDiagnosticsStatus");
+  const content = document.getElementById("loginDiagnosticsContent");
+
+  if(status){
+    status.textContent = "Tester innlogging og API ...";
+  }
+  if(content){
+    content.innerHTML = "";
+  }
+
+  const results = [];
+
+  for(const endpoint of LOGIN_DIAGNOSTICS_ENDPOINTS){
+    results.push(await testLoginDiagnosticEndpoint(endpoint));
+  }
+
+  renderLoginDiagnostics(results);
+}
+
+async function copyLoginDiagnostics(){
+  const status = document.getElementById("loginDiagnosticsStatus");
+  const text = lastLoginDiagnosticsText || "Ingen diagnose er kjørt ennå.";
+
+  try{
+    await navigator.clipboard.writeText(text);
+    if(status){
+      status.textContent = "Diagnose kopiert til utklippstavlen.";
+    }
+  }catch(error){
+    if(status){
+      status.textContent = "Kunne ikke kopiere automatisk. Marker teksten i tabellen og kopier manuelt.";
+    }
+  }
+}
+
+function openLoginDiagnostics(){
+  const backdrop = ensureLoginDiagnosticsDialog();
+  backdrop.classList.add("is-open");
+  runLoginDiagnostics();
+}
+
 function setupLoginWidget(){
   const loginStatus = document.getElementById("loginStatus");
   const loginMenu = document.getElementById("loginMenu");
   const loginMenuName = document.getElementById("loginMenuName");
+  const loginSigninLink = document.getElementById("loginSigninLink");
+  const loginDiagnosticsLink = document.getElementById("loginDiagnosticsLink");
   const logoutLink = document.getElementById("logoutLink");
+
+  if(!loginStatus || !loginMenu){
+    return;
+  }
+
+  const returnUrl =
+    window.location.origin +
+    window.location.pathname +
+    window.location.search;
+  const loginUrl = `${API_BASE}/login?returnUrl=${encodeURIComponent(returnUrl)}`;
+
+  function toggleLoginMenu(event){
+    event.preventDefault();
+    loginMenu.style.display =
+      loginMenu.style.display === "block" ? "none" : "block";
+  }
+
+  if(loginDiagnosticsLink){
+    loginDiagnosticsLink.onclick = function(event){
+      event.preventDefault();
+      loginMenu.style.display = "none";
+      openLoginDiagnostics();
+    };
+  }
 
   if(currentUser){
     const displayName =
@@ -768,31 +1218,40 @@ function setupLoginWidget(){
 
     loginMenuName.textContent = displayName;
 
-    loginStatus.onclick = function(event){
-      event.preventDefault();
-      loginMenu.style.display =
-        loginMenu.style.display === "block" ? "none" : "block";
-    };
+    if(loginSigninLink){
+      loginSigninLink.style.display = "none";
+    }
+    if(logoutLink){
+      logoutLink.style.display = "block";
+      logoutLink.onclick = function(event){
+        event.preventDefault();
+        performLogout();
+      };
+    }
 
-    logoutLink.onclick = function(event){
-      event.preventDefault();
-      performLogout();
-    };
+    loginStatus.onclick = toggleLoginMenu;
   }else{
-  const returnUrl =
-    window.location.origin +
-    window.location.pathname +
-    window.location.search;
+    loginStatus.textContent = "Sign in";
+    loginStatus.href = loginUrl;
+    loginStatus.classList.add("is-signin");
+    loginStatus.classList.remove("signed-in");
+    loginStatus.title = "Logg inn / innloggingsstatus";
 
-  loginStatus.textContent = "Sign in";
-  loginStatus.href =
-    `${API_BASE}/login?returnUrl=${encodeURIComponent(returnUrl)}`;
+    loginMenuName.textContent = "Ikke innlogget";
 
-  loginStatus.classList.add("is-signin");
-  loginStatus.classList.remove("signed-in");
-  loginStatus.title = "Logg inn";
-  loginStatus.onclick = null;
-  loginMenu.style.display = "none";
+    if(loginSigninLink){
+      loginSigninLink.style.display = "block";
+      loginSigninLink.href = loginUrl;
+      loginSigninLink.onclick = null;
+    }
+    if(logoutLink){
+      logoutLink.style.display = "none";
+      logoutLink.onclick = null;
+    }
+
+    // Når brukeren ser utlogget ut på mobil, må menyen fortsatt kunne åpnes
+    // slik at Innloggingsstatus kan kjøres uten F12/Developer Tools.
+    loginStatus.onclick = toggleLoginMenu;
   }
 }
 
