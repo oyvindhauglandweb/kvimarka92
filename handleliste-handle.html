@@ -874,6 +874,21 @@ body.dark-mode select option:checked{
   #shoppingList .item-row.with-image{grid-template-columns:var(--handle-grid-check,24px) 40px minmax(0,1fr) auto !important;}
 }
 
+
+
+/* V0005: felles toppmeny liste-/bildevisning for Handle */
+.item-thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,118px);gap:8px;justify-content:start;align-items:start;}
+.item-thumb-card{width:118px;max-width:118px;min-width:118px;border:2px solid transparent;border-radius:12px;background:rgba(127,127,127,.06);color:var(--text);padding:7px;min-height:150px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px;}
+.item-thumb-card:hover{background:rgba(124,199,232,.10);}
+.item-thumb-card.selected{border-color:var(--link);background:rgba(124,199,232,.16);}
+.item-thumb-image{width:100%;height:104px;flex:0 0 104px;border-radius:10px;overflow:hidden;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:28px;}
+.item-thumb-image img{width:100%;height:100%;object-fit:contain;display:block;background:#fff;}
+.item-thumb-image.image-missing::after{content:"📷";color:var(--muted);font-size:26px;}
+.item-thumb-image img[alt=""]{color:transparent;}
+.item-thumb-name{font-weight:bold;font-size:14px;line-height:1.15;}
+.item-thumb-badges{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+@media(max-width:700px){.item-thumb-grid{grid-template-columns:repeat(auto-fill,104px);gap:7px;}.item-thumb-card{width:104px;max-width:104px;min-width:104px;min-height:138px;padding:6px;}.item-thumb-image{height:92px;flex-basis:92px;}.item-thumb-name{font-size:13px;}}
+
 </style><script src="shared/kvimarka-client-state.js"></script><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v81 admin_version_info 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -2152,7 +2167,68 @@ async function createShoppingItemFromHandle(){
   }
 }
 
+
+
+/* V0005: felles toppmenyknapp for liste-/bildevisning.
+   Dette er knappen i felles toppmeny (handlelisteViewModeToggle), ikke den lokale Vis/Skjul bilder-knappen. */
+const HANDLELISTE_VIEW_MODE_STORAGE_KEY="kvimarka.handleliste.viewMode";
+const HANDLELISTE_OLD_BESTILLE_VIEW_MODE_STORAGE_KEY="kvimarka92BestilleViewModeV1";
+function getHandleViewMode(){
+  try{
+    const value=localStorage.getItem(HANDLELISTE_VIEW_MODE_STORAGE_KEY) || localStorage.getItem(HANDLELISTE_OLD_BESTILLE_VIEW_MODE_STORAGE_KEY) || "list";
+    return value==="thumb"?"thumb":"list";
+  }catch(error){
+    return "list";
+  }
+}
+function setHandleViewMode(mode){
+  const value=mode==="thumb"?"thumb":"list";
+  try{
+    localStorage.setItem(HANDLELISTE_VIEW_MODE_STORAGE_KEY,value);
+    localStorage.setItem(HANDLELISTE_OLD_BESTILLE_VIEW_MODE_STORAGE_KEY,value);
+  }catch(error){}
+}
+function toggleHandleViewMode(){
+  setHandleViewMode(getHandleViewMode()==="thumb"?"list":"thumb");
+  updateHandleViewToggleButton();
+  render();
+  return false;
+}
+function updateHandleViewToggleButton(){
+  const btn=document.getElementById("handlelisteViewModeToggle");
+  if(!btn)return;
+  const thumb=getHandleViewMode()==="thumb";
+  btn.textContent=thumb?"☰":"▦";
+  btn.classList.remove("active");
+  btn.title=thumb?"Vis som liste":"Vis som bilder";
+  btn.setAttribute("aria-label",btn.title);
+}
+window.getHandleViewMode=getHandleViewMode;
+window.toggleHandleViewMode=toggleHandleViewMode;
+window.updateHandleViewToggleButton=updateHandleViewToggleButton;
+window.handlelisteGetViewMode=getHandleViewMode;
+window.handlelisteToggleViewMode=toggleHandleViewMode;
+window.handlelisteUpdateViewModeButton=updateHandleViewToggleButton;
+
+function renderHandleThumbImage(item){
+  const url=getItemImageUrl(item);
+  const safeAlt=esc(item&&item.name||"Vare");
+  if(!url){
+    return `<div class="item-thumb-image image-missing" title="${safeAlt}"></div>`;
+  }
+  return `<div class="item-thumb-image"><img src="${esc(url)}" alt="" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('image-missing');"></div>`;
+}
+function renderHandleThumbnailView(groups){
+  return groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-thumb-grid">${group.items.map(item=>{
+    const id=Number(item.id);
+    const isBought=boughtIds.has(id);
+    const badges=`${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    return `<button class="item-thumb-card ${isBought?"selected":""}" type="button" onclick="toggleBought(${id}, ${isBought?"false":"true"})" title="${isBought?"Merk som ikke handlet":"Merk som handlet"}">${renderHandleThumbImage(item)}<div class="item-thumb-name">${esc(item.name)}</div><div class="item-thumb-badges">${badges}</div></button>`;
+  }).join("")}</div></div>`).join("");
+}
+
 function render(){
+  updateHandleViewToggleButton();
   const root=document.getElementById("shoppingList");
   const ordered=getOrderedItems();
   const finishButton=document.getElementById("finishButton");
@@ -2168,7 +2244,12 @@ function render(){
     root.innerHTML=`<div class="empty">Ingen varer er bestilt handlet for ${esc(selectedShoppingArea)}.</div>`;
     return;
   }
-  root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
+  const groups=groupOrderedItems(ordered);
+  if(getHandleViewMode()==="thumb"){
+    root.innerHTML=renderHandleThumbnailView(groups);
+    return;
+  }
+  root.innerHTML=groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
     const isBought=boughtIds.has(Number(item.id));
     const badges=`${itemImageButton(item)}${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
     return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
@@ -2794,5 +2875,5 @@ loadItems();</script>
 })();
 </script>
 
-<div>V0004</div>
+<div>V0005</div>
 </body></html>

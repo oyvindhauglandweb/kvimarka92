@@ -1208,9 +1208,23 @@ function setOwnerFilter(owner){
 function filteredItems(){return items.filter(item=>normalizeOwner(item.owner)===selectedOwner);}
 function orderedGroups(list){const map={};list.forEach(item=>{const key=item.type||"Annet";(map[key]=map[key]||[]).push(item);});return Object.keys(map).sort(compareShoppingTypes).map(type=>({type,items:map[type]}));}
 
-const ORDER_VIEW_MODE_STORAGE_KEY="kvimarka92BestilleViewModeV1";
-function getOrderViewMode(){return localStorage.getItem(ORDER_VIEW_MODE_STORAGE_KEY)==="thumb"?"thumb":"list";}
-function setOrderViewMode(mode){localStorage.setItem(ORDER_VIEW_MODE_STORAGE_KEY,mode==="thumb"?"thumb":"list");}
+const ORDER_VIEW_MODE_STORAGE_KEY="kvimarka.handleliste.viewMode";
+const ORDER_OLD_VIEW_MODE_STORAGE_KEY="kvimarka92BestilleViewModeV1";
+function getOrderViewMode(){
+  try{
+    const value=localStorage.getItem(ORDER_VIEW_MODE_STORAGE_KEY) || localStorage.getItem(ORDER_OLD_VIEW_MODE_STORAGE_KEY) || "list";
+    return value==="thumb"?"thumb":"list";
+  }catch(error){
+    return "list";
+  }
+}
+function setOrderViewMode(mode){
+  const value=mode==="thumb"?"thumb":"list";
+  try{
+    localStorage.setItem(ORDER_VIEW_MODE_STORAGE_KEY,value);
+    localStorage.setItem(ORDER_OLD_VIEW_MODE_STORAGE_KEY,value);
+  }catch(error){}
+}
 function toggleOrderViewMode(){setOrderViewMode(getOrderViewMode()==="thumb"?"list":"thumb");updateOrderViewToggleButton();render();}
 function updateOrderViewToggleButton(){
   const btn=document.getElementById("handlelisteViewModeToggle");
@@ -1509,5 +1523,6 @@ loadItems();
 </script>
 
 <script>document.getElementById("newItemImage").addEventListener("change",handleNewItemImageChange);</script>
-<script src="handleliste-menu.js?v=14"></script><div>V0004</div>
+<script src="handleliste-menu.js?v=14"></script>
+<div>V0005</div>
 </body></html>
