@@ -691,7 +691,7 @@ document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
 </script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Bestille</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
 <div class="card"><div class="summary"><div class="summary-item"><div class="summary-label">Alle varer</div><div class="summary-value" id="totalValue">-</div></div><div class="summary-item"><div class="summary-label">Skal handles</div><div class="summary-value" id="orderValue">-</div></div><div class="summary-item"><div class="summary-label">Standard varer</div><div class="summary-value" id="standardValue">-</div></div></div></div>
 <div class="card"><div class="toolbar owner-recipe-toolbar"><div class="toolbar-left" id="ownerButtons"></div><div class="toolbar-right"><a class="owner-button recipes-shortcut-button" href="handleliste-oppskrifter.html">Oppskrifter</a></div></div></div>
-<div class="card"><div class="toolbar space order-actions"><div class="toolbar-left"><button class="action-button primary equal-order" type="button" onclick="openNewItemModal()">Legg til ny vare</button><a class="action-button equal-order" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"></div></div></div>
+<div class="card"><div class="toolbar space order-actions"><div class="toolbar-left"><button class="action-button primary equal-order" type="button" onclick="openNewItemModal()">Legg til ny vare</button><a class="action-button equal-order" href="handleliste-rediger.html">Rediger varer</a><button class="action-button equal-order" id="toggleOrderImagesButton" type="button" onclick="toggleOrderImages()" title="Vis bilder i bestillingslisten">Vis bilder</button></div><div class="toolbar-right"></div></div></div>
 <div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="itemList"></div></div></div>
 <div class="modal" id="newItemModal" onclick="handleModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title">Legg til ny vare</div><button class="modal-close" type="button" onclick="closeNewItemModal()">×</button></div><form id="newItemForm"><div class="form-field"><label for="newItemTechnicalName">Teknisk vare</label><input id="newItemTechnicalName" type="text" autocomplete="off" placeholder="Søk i Teknisk navn / Matvaretabellen" oninput="handleNewItemTechnicalInput()" onfocus="ensureShoppingItemSuggestionsLoaded();renderNewItemSuggestions();"><div class="item-suggestions" id="newItemSuggestions"></div></div><div class="form-field"><label for="newItemName">Varenavn</label><input id="newItemName" type="text" autocomplete="off" required oninput="handleNewItemNameInput()" onfocus="updateNewItemDuplicateWarning();"><div class="item-duplicate-warning" id="newItemDuplicateWarning"></div></div><div class="form-field"><label for="newItemOwner">Vareliste</label><select id="newItemOwner"></select></div><div class="form-field"><label for="newItemType">Varetype</label><select id="newItemType"></select></div><div class="form-field"><label>Bilde av vare</label><input id="newItemImage" class="image-file-input" type="file" accept="image/*" style="position:absolute;left:-10000px;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;"><div class="image-preview" id="newItemImagePreview"><img id="newItemImagePreviewImg" alt="Forhåndsvisning"><button class="action-button" type="button" onclick="clearNewItemImage()">Fjern bilde</button></div><label class="image-picker-button" for="newItemImage">📷 Velg bilde lokalt</label><button class="image-picker-button" type="button" onclick="openGoogleImageSearchForNewItem()">🔎 Velg bilde i Google</button></div><div class="form-field checkbox-row"><input id="newItemStandard" type="checkbox"><label for="newItemStandard">Standard vare</label></div><div class="form-field checkbox-row"><input id="newItemShouldBuy" type="checkbox" checked><label for="newItemShouldBuy">Skal handles nå</label></div><div class="toolbar"><button class="action-button" type="button" onclick="closeNewItemModal()">Avbryt</button><button class="action-button primary" type="submit" id="saveNewItemButton">Lagre vare</button></div></form></div></div>
 
@@ -937,6 +937,37 @@ let newItemSourceSuggestionId=0;
 let newItemSelectedTechnicalName="";
 let shoppingItemSuggestions=[];
 let shoppingItemSuggestionsLoaded=false;
+const SHOPPING_SHOW_IMAGES_STORAGE_KEY="shoppingShowImages";
+const SHOPPING_SHOW_IMAGES_LEGACY_KEYS=[SHOPPING_SHOW_IMAGES_STORAGE_KEY,"shoppingHandleShowImages","handlelisteShowImages","shoppingHandleImages","showShoppingImages"];
+function readShoppingShowImages(defaultValue){
+  try{
+    for(const key of SHOPPING_SHOW_IMAGES_LEGACY_KEYS){
+      const raw=localStorage.getItem(key);
+      if(raw===null || raw===undefined)continue;
+      const value=String(raw).trim().toLowerCase();
+      if(["true","1","yes","ja","on"].includes(value))return true;
+      if(["false","0","no","nei","off"].includes(value))return false;
+    }
+  }catch(error){}
+  return !!defaultValue;
+}
+function writeShoppingShowImages(value){
+  try{
+    const stringValue=value ? "true" : "false";
+    SHOPPING_SHOW_IMAGES_LEGACY_KEYS.forEach(key=>localStorage.setItem(key,stringValue));
+  }catch(error){}
+}
+function getOrderShowImages(){return readShoppingShowImages(false);}
+function setOrderShowImages(value){writeShoppingShowImages(!!value);updateOrderImageToggleButton();render();}
+function toggleOrderImages(){setOrderShowImages(!getOrderShowImages());}
+function updateOrderImageToggleButton(){
+  const button=document.getElementById("toggleOrderImagesButton");
+  if(!button)return;
+  const enabled=getOrderShowImages();
+  button.classList.toggle("active", enabled);
+  button.textContent=enabled ? "Skjul bilder" : "Vis bilder";
+  button.title=enabled ? "Skjul bilder i bestillingslisten" : "Vis bilder i bestillingslisten";
+}
 function getItemImageUrl(item){return (item&&item.imageUrl)||((item&&item.image&&item.image.url)||"");}
 function getItemThumbnailUrl(item){return (item&&item.thumbnailImageUrl)||((item&&item.thumbnailImage&&item.thumbnailImage.url)||getItemImageUrl(item)||"");}
 function showNewItemSourceImagePreview(item){
@@ -957,7 +988,7 @@ function showNewItemSourceImagePreview(item){
     preview.className="image-preview";
   }
 }
-function itemImageButton(item){const url=getItemImageUrl(item);if(!url)return "";return `<button class="item-image-button" type="button" onclick="showItemImage(${Number(item.id)})" title="Vis bilde av varen">📷</button>`;}
+function itemImageButton(item){if(!getOrderShowImages())return "";const url=getItemImageUrl(item);if(!url)return "";return `<button class="item-image-button" type="button" onclick="showItemImage(${Number(item.id)})" title="Vis bilde av varen">📷</button>`;}
 function showItemImage(id){const item=items.find(row=>Number(row.id)===Number(id));const url=getItemImageUrl(item);if(!url)return;document.getElementById("itemImageModalTitle").textContent=item.name||"Varebilde";document.getElementById("itemImageModalImg").src=url;document.getElementById("itemImageModal").classList.add("open");}
 function closeItemImageModal(){const modal=document.getElementById("itemImageModal");const img=document.getElementById("itemImageModalImg");if(modal)modal.classList.remove("open");if(img)img.removeAttribute("src");}
 function handleImageModalBackdrop(event){if(event.target&&event.target.id==="itemImageModal")closeItemImageModal();}
@@ -1214,6 +1245,7 @@ function renderOrderThumbnailView(groups){
 function render(){
   renderOwnerButtons();
   updateOrderViewToggleButton();
+  updateOrderImageToggleButton();
   const visible=filteredItems();
   const list=document.getElementById("itemList");
   document.getElementById("totalValue").textContent=String(visible.length);

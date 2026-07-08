@@ -842,6 +842,13 @@ body.dark-mode select option:checked{
 
 
 
+
+/* Handle V0003: bildevisning samme prinsipp som Bestille */
+.item-image-button{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:0;border-radius:8px;background:rgba(124,199,232,.16);color:var(--link);font-size:13px;cursor:pointer;padding:0;}
+.item-image-button:hover{background:rgba(124,199,232,.28);}
+.image-viewer-img{max-width:100%;max-height:70vh;border-radius:12px;border:1px solid var(--border);display:block;margin:0 auto;}
+@media(max-width:700px){.item-image-button{width:20px;height:20px;font-size:12px;}}
+
 /* Handle v92: reversibel client-state trinn 1 - bildevisning */
 #shoppingList .item-image-wrap{
   width:44px !important;
@@ -971,6 +978,8 @@ window.toggleHandleSize=function(){
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
 </script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><button class="action-button" id="toggleHandleImagesButton" type="button" onclick="toggleHandleImages()" title="Vis bilder i handlelisten">Vis bilder</button></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
+<div class="modal" id="itemImageModal" onclick="handleImageModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title" id="itemImageModalTitle">Varebilde</div><button class="modal-close" type="button" onclick="closeItemImageModal()">×</button></div><img class="image-viewer-img" id="itemImageModalImg" alt="Varebilde"></div></div>
+
 <div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
   <div class="modal-content">
     <div class="modal-header">
@@ -1043,7 +1052,8 @@ const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
 const SHOPPING_AREA_ORDER=["Matvarer","Normal","Europris","Frisør","Clas Ohlson","Sport","Bondekompaniet"];
 const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet"};
-const HANDLE_SHOW_IMAGES_LEGACY_KEYS=["shoppingHandleShowImages","handlelisteShowImages","shoppingShowImages","showShoppingImages"];
+const HANDLE_SHOW_IMAGES_STORAGE_KEY="shoppingShowImages";
+const HANDLE_SHOW_IMAGES_LEGACY_KEYS=[HANDLE_SHOW_IMAGES_STORAGE_KEY,"shoppingHandleShowImages","handlelisteShowImages","shoppingHandleImages","showShoppingImages"];
 function clientStateEnabled(){
   try{
     return !!(window.KvimarkaClientState && window.KvimarkaClientState.isEnabled && window.KvimarkaClientState.isEnabled());
@@ -1070,16 +1080,14 @@ function writeLegacyBool(keys,value){
   }catch(error){}
 }
 function getHandleShowImages(){
-  if(clientStateEnabled()){
-    try{return window.KvimarkaClientState.getBool("handle.showImages", false);}catch(error){}
-  }
   return readLegacyBool(HANDLE_SHOW_IMAGES_LEGACY_KEYS,false);
 }
 function setHandleShowImages(value){
+  const enabled=!!value;
+  writeLegacyBool(HANDLE_SHOW_IMAGES_LEGACY_KEYS,enabled);
   if(clientStateEnabled()){
-    try{window.KvimarkaClientState.setBool("handle.showImages", !!value);updateImageToggleButton();render();return;}catch(error){console.warn("Client-state feilet for bildevisning, bruker gammel lagring", error);}
+    try{window.KvimarkaClientState.setBool("handle.showImages", enabled);}catch(error){}
   }
-  writeLegacyBool(HANDLE_SHOW_IMAGES_LEGACY_KEYS,!!value);
   updateImageToggleButton();
   render();
 }
@@ -1094,24 +1102,28 @@ function updateImageToggleButton(){
   button.textContent=enabled ? "Skjul bilder" : "Vis bilder";
   button.title=enabled ? "Skjul bilder i handlelisten" : "Vis bilder i handlelisten";
 }
-function getItemImageUrl(item){
-  if(!item)return "";
-  const candidates=[
-    item.imageUrl,item.imageURL,item.image_url,item.image,item.photoUrl,item.photoURL,item.photo_url,item.pictureUrl,item.pictureURL,item.picture_url,
-    item.itemImageUrl,item.itemImageURL,item.item_image_url,item.thumbnailUrl,item.thumbnailURL,item.thumbnail_url,item.logoUrl,item.logoURL,item.logo_url
-  ];
-  for(const value of candidates){
-    const text=String(value||"").trim();
-    if(text)return text;
-  }
-  return "";
-}
-function itemImageHtml(item){
+function getItemImageUrl(item){return (item&&item.imageUrl)||((item&&item.image&&item.image.url)||"");}
+function itemImageButton(item){
   if(!getHandleShowImages())return "";
   const url=getItemImageUrl(item);
   if(!url)return "";
-  return `<div class="item-image-wrap"><img class="item-image" src="${esc(url)}" alt="${esc(item && item.name ? item.name : "Varebilde")}" loading="lazy" decoding="async" onerror="this.closest('.item-image-wrap').style.display='none'"></div>`;
+  return `<button class="item-image-button" type="button" onclick="showItemImage(${Number(item.id)})" title="Vis bilde av varen">📷</button>`;
 }
+function showItemImage(id){
+  const item=items.find(row=>Number(row.id)===Number(id));
+  const url=getItemImageUrl(item);
+  if(!url)return;
+  document.getElementById("itemImageModalTitle").textContent=item.name||"Varebilde";
+  document.getElementById("itemImageModalImg").src=url;
+  document.getElementById("itemImageModal").classList.add("open");
+}
+function closeItemImageModal(){
+  const modal=document.getElementById("itemImageModal");
+  const img=document.getElementById("itemImageModalImg");
+  if(modal)modal.classList.remove("open");
+  if(img)img.removeAttribute("src");
+}
+function handleImageModalBackdrop(event){if(event.target&&event.target.id==="itemImageModal")closeItemImageModal();}
 function gpsClientStateEnabled(){return clientStateEnabled();}
 function getGpsEnabled(){
   if(!gpsClientStateEnabled())return true;
@@ -2154,9 +2166,8 @@ function render(){
   }
   root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
     const isBought=boughtIds.has(Number(item.id));
-    const imageHtml=itemImageHtml(item);
-    const badges=`${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
-    return `<div class="item-row ${imageHtml?"with-image":""}"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet">${imageHtml}<div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
+    const badges=`${itemImageButton(item)}${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked){if(!isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);boughtIds.add(numericId);}else{boughtIds.delete(numericId);}saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);renderShoppingAreaButtons();render();}
@@ -2858,4 +2869,5 @@ loadItems();</script>
 })();
 </script>
 <div id="kvimarkaPlainVersion">V0002</div>
+<div>V0003</div>
 </body></html>
