@@ -2779,5 +2779,83 @@ loadItems();</script>
 })();
 </script>
 
-<div>V0001</div>
+<script>
+/* V0002 bildeknapp robust toggle */
+(function(){
+  "use strict";
+  const IMAGE_KEYS = [
+    "kvimarka.handle.showImages",
+    "handleliste.showImages",
+    "shoppingHandleShowImages",
+    "shoppingShowImages",
+    "handleShowImages"
+  ];
+
+  function readBool(defaultValue){
+    try{
+      for(const key of IMAGE_KEYS){
+        const raw = localStorage.getItem(key);
+        if(raw === null || raw === undefined) continue;
+        const value = String(raw).trim().toLowerCase();
+        if(["true","1","yes","ja","on"].includes(value)) return true;
+        if(["false","0","no","nei","off"].includes(value)) return false;
+      }
+    }catch(error){}
+    return !!defaultValue;
+  }
+
+  function writeBool(value){
+    try{
+      const text = value ? "true" : "false";
+      IMAGE_KEYS.forEach(function(key){ localStorage.setItem(key, text); });
+      if(window.KvimarkaClientState && typeof window.KvimarkaClientState.setBool === "function" && window.KvimarkaClientState.isEnabled && window.KvimarkaClientState.isEnabled()){
+        window.KvimarkaClientState.setBool("handle.showImages", !!value);
+      }
+    }catch(error){}
+  }
+
+  function updateButton(){
+    const button = document.getElementById("toggleHandleImagesButton");
+    if(!button) return;
+    const enabled = readBool(false);
+    button.classList.toggle("active", enabled);
+    button.textContent = enabled ? "Skjul bilder" : "Vis bilder";
+    button.title = enabled ? "Skjul bilder i handlelisten" : "Vis bilder i handlelisten";
+  }
+
+  window.getHandleShowImages = function(){
+    return readBool(false);
+  };
+
+  window.setHandleShowImages = function(value){
+    writeBool(!!value);
+    updateButton();
+    if(typeof window.render === "function"){
+      try{ window.render(); }catch(error){ console.warn("render feilet etter bildevalg", error); }
+    }
+    return false;
+  };
+
+  window.toggleHandleImages = function(event){
+    if(event && event.preventDefault) event.preventDefault();
+    if(event && event.stopPropagation) event.stopPropagation();
+    return window.setHandleShowImages(!readBool(false));
+  };
+
+  function bindButton(){
+    const button = document.getElementById("toggleHandleImagesButton");
+    if(!button) return;
+    button.onclick = window.toggleHandleImages;
+    updateButton();
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bindButton);
+  }else{
+    bindButton();
+  }
+  setTimeout(bindButton, 0);
+})();
+</script>
+<div id="kvimarkaPlainVersion">V0002</div>
 </body></html>
