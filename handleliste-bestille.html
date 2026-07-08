@@ -966,6 +966,10 @@ function toggleOrderImages(event){if(event&&event.preventDefault)event.preventDe
 function updateOrderImageToggleButton(){
   const button=document.getElementById("toggleOrderImagesButton");
   if(!button)return;
+  const thumbMode=(typeof getOrderViewMode==="function" && getOrderViewMode()==="thumb");
+  button.hidden=thumbMode;
+  button.style.display=thumbMode ? "none" : "";
+  if(thumbMode)return;
   const enabled=getOrderShowImages();
   button.classList.toggle("active", enabled);
   button.textContent=enabled ? "Skjul bilder" : "Vis bilder";
@@ -1228,7 +1232,7 @@ function setOrderViewMode(mode){
     localStorage.setItem(ORDER_OLD_VIEW_MODE_STORAGE_KEY,value);
   }catch(error){}
 }
-function toggleOrderViewMode(){setOrderViewMode(getOrderViewMode()==="thumb"?"list":"thumb");updateOrderViewToggleButton();render();}
+function toggleOrderViewMode(){setOrderViewMode(getOrderViewMode()==="thumb"?"list":"thumb");updateOrderViewToggleButton();updateOrderImageToggleButton();render();}
 function updateOrderViewToggleButton(){
   const btn=document.getElementById("handlelisteViewModeToggle");
   if(!btn)return;
@@ -1527,4 +1531,4 @@ loadItems();
 
 <script>document.getElementById("newItemImage").addEventListener("change",handleNewItemImageChange);</script>
 <script src="handleliste-menu.js?v=14"></script>
-<div>V0006</div></body></html>
+<div>V0008</div></body></html>
