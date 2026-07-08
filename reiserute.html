@@ -1218,10 +1218,6 @@ body.dark-mode .stop-gallery-admin-link:hover{
     }
   </style>
 <!-- version: REISERUTE v1 ios12 load fix 2026-06-19 -->
-
-<meta name="kvimarka-page-version" content="route-case-edit-period-fix-v8-round-case-edit-button-2026-06-14">
-<meta name="kvimarka-area" content="Reiserute">
-<script src="shared/kvimarka-version-footer.js"></script>
 </head>
 
 <body class="dark-mode">
@@ -3041,7 +3037,7 @@ async function fetchCurrentUser(){
         throw new Error("Mangler route case i URL-en.");
       }
 
-      currentUser = await fetchCurrentUser(); if(window.KvimarkaVersionFooter){try{window.KvimarkaVersionFooter.setUser(currentUser);}catch(error){}}
+      currentUser = await fetchCurrentUser();
 
       try{
         const data = await fetchJson(`${API_BASE}/route?case=${encodeURIComponent(caseName)}`);
