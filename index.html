@@ -634,6 +634,10 @@ if(!String.prototype.replaceAll){
 }
 </script>
 
+
+<meta name="kvimarka-page-version" content="index-v5-hide-route-cases-from-admin-2026-06-25">
+<meta name="kvimarka-area" content="Kvimarka 92">
+<script src="shared/kvimarka-version-footer.js"></script>
 </head>
 
 <body class="dark-mode">
@@ -2013,7 +2017,7 @@ async function retryAuthenticatedMenuAfterInitialPublicLoad(){
     const user = await fetchCurrentUser({ attempts:1 });
 
     if(user){
-      currentUser = user;
+      currentUser = user; if(window.KvimarkaVersionFooter){try{window.KvimarkaVersionFooter.setUser(currentUser);}catch(error){}}
       setupLoginWidget();
       await loadMenuForCurrentUser();
       return;
@@ -2024,7 +2028,7 @@ async function retryAuthenticatedMenuAfterInitialPublicLoad(){
 async function loadPage(){
   const statusBox = document.getElementById("statusBox");
 
-  currentUser = await fetchCurrentUser({ attempts:2, delays:[350] });
+  currentUser = await fetchCurrentUser({ attempts:2, delays:[350] }); if(window.KvimarkaVersionFooter){try{window.KvimarkaVersionFooter.setUser(currentUser);}catch(error){}}
   setupLoginWidget();
 
   await loadMenuForCurrentUser();

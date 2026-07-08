@@ -201,6 +201,10 @@ if(!String.prototype.replaceAll){
 }
 </script>
 
+
+<meta name="kvimarka-page-version" content="theme-gray-lightfix-theme-gray-lightfix-2026-06-08+mobile-toolbar-polish-2026-06-09+status-blue-2026-06-09+lightmode-buttons-2026-06-09">
+<meta name="kvimarka-area" content="Handleliste">
+<script src="shared/kvimarka-version-footer.js"></script>
 </head><body class="dark-mode"><script>
 (function(){
   try{
@@ -271,7 +275,7 @@ function sourceBadge(item){const source=String(item.source||"").trim();if(item.r
 function badgesForItem(item){const badges=[];if(item.standardItem)badges.push('<span class="badge">Standard</span>');const owner=normalizeOwner(item.owner);if(owner&&owner!=="Felles")badges.push(`<span class="badge">${esc(owner)}</span>`);const source=sourceBadge(item);if(source)badges.push(source);return badges.join("");}
 function sortForCleanup(a,b){const ta=lastBoughtTimestamp(a);const tb=lastBoughtTimestamp(b);if(ta!==tb)return ta-tb;return String(a.name||"").localeCompare(String(b.name||""),"no",{sensitivity:"base"});}
 function render(){const root=document.getElementById("cleanupList");const sorted=[...items].sort(sortForCleanup);if(!sorted.length){root.innerHTML='<div class="empty">Ingen varer.</div>';return;}root.innerHTML=sorted.map(item=>{const canDelete=canDeleteItem(item);const deleteTitle=canDelete?"Slett vare fra systemet":"Du kan bare slette egne varer. Fellesvarer slettes av supervisor/administrator.";return `<div class="cleanup-row"><div><div class="cleanup-title">${esc(item.name)}</div><div class="cleanup-meta">${esc(item.type||"Annet")} • ${esc(normalizeOwner(item.owner))} • Sist handlet: <strong>${esc(formatLastBought(item.lastBoughtAt))}</strong></div></div><div class="cleanup-badges">${badgesForItem(item)}</div><button class="delete-button" type="button" onclick="deleteItem(${item.id})" title="${esc(deleteTitle)}" ${canDelete?"":"disabled"}>🗑</button></div>`;}).join("");}
-async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];render();setStatus(`Klar. Viser ${items.length} varer sortert etter sist handlet, eldste øverst. Varer som aldri er handlet vises først.`,"success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null; if(window.KvimarkaVersionFooter){try{window.KvimarkaVersionFooter.setUser(currentUser,{workerVersion:(data&&(data.workerVersion||data.version))||""});}catch(error){}}items=Array.isArray(data.items)?data.items:[];render();setStatus(`Klar. Viser ${items.length} varer sortert etter sist handlet, eldste øverst. Varer som aldri er handlet vises først.`,"success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
 async function deleteItem(id){const item=items.find(item=>Number(item.id)===Number(id));if(!item)return;if(!canDeleteItem(item)){setStatus("Du kan bare slette egne varer. Fellesvarer kan bare slettes av supervisor eller administrator.","error");return;}if(!confirm(`Slette varen fra systemet?\n\n${item.name}\n\nHistorikk beholdes.`))return;try{await fetchJson(`${API_BASE}/shopping/item-delete`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id})});await loadItems();setStatus("Varen er slettet.","success");}catch(error){setStatus(`Kunne ikke slette varen.<br><br>${esc(error.message)}`,"error");}}
 loadItems();
 </script>

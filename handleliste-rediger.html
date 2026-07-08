@@ -528,6 +528,10 @@ if(!String.prototype.replaceAll){
 }
 </script>
 
+
+<meta name="kvimarka-page-version" content="rediger-v171_mobile_two_row_edit_items_2026_06_26">
+<meta name="kvimarka-area" content="Handleliste">
+<script src="shared/kvimarka-version-footer.js"></script>
 </head><body class="dark-mode"><script>
 (function(){
   try{
@@ -681,7 +685,7 @@ function getEffectiveEditType(item){const area=String(item&&item.shoppingArea||"
 function buildTypeUpdatePayload(id,type){return isExternalShoppingAreaType(type)?{id,type,shoppingArea:type}:{id,type,shoppingArea:"Matvarer"};}
 function compareShoppingItemName(a,b){return String((a&&a.name)||(a&&a.itemName)||"").localeCompare(String((b&&b.name)||(b&&b.itemName)||""),"no",{numeric:true,sensitivity:"base"});}function shoppingTypeIndex(type){const key=String(type||"Annet").toLowerCase();const index=SHOPPING_TYPES.findIndex(value=>String(value||"").toLowerCase()===key);return index<0?9999:index;}function sortedEditItems(){return [...items].sort(compareShoppingItemName);}
 function canEditDetails(item){if(isSupervisorOrAdministrator())return true;const owner=normalizeOwner(item.owner);return owner!=="Felles"&&ownerMatchesCurrentUser(owner);}
-async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];setShoppingTypes(data.typeOrder||[],items,data.typeOptions||[]);render();dirtyRows.clear();updateGlobalSaveButton();setStatus("Klar. Endre én eller flere rader og trykk Lagre endringer. Egne varer kan slettes. Fellesvarer og standardvalg styres av supervisor/administrator. Versjon: v171.","success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
+async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null; if(window.KvimarkaVersionFooter){try{window.KvimarkaVersionFooter.setUser(currentUser,{workerVersion:(data&&(data.workerVersion||data.version))||""});}catch(error){}}items=Array.isArray(data.items)?data.items:[];setShoppingTypes(data.typeOrder||[],items,data.typeOptions||[]);render();dirtyRows.clear();updateGlobalSaveButton();setStatus("Klar. Endre én eller flere rader og trykk Lagre endringer. Egne varer kan slettes. Fellesvarer og standardvalg styres av supervisor/administrator. Versjon: v171.","success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
 function render(){
   const root=document.getElementById("editList");
   if(!items.length){root.innerHTML='<div class="empty">Ingen varer.</div>';return;}
