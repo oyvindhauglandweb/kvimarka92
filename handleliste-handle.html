@@ -868,6 +868,7 @@ body.dark-mode select option:checked{
 }
 
 </style><script src="shared/kvimarka-client-state.js"></script><!-- lightdark-restore-2026-06-16 -->
+<!-- version: HANDLE v93 simple_image_url_fix_from_bestille_2026-07-08 -->
 <!-- version: HANDLE v81 admin_version_info 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
 </head><body class="dark-mode"><script>
@@ -1095,16 +1096,9 @@ function updateImageToggleButton(){
   button.title=enabled ? "Skjul bilder i handlelisten" : "Vis bilder i handlelisten";
 }
 function getItemImageUrl(item){
-  if(!item)return "";
-  const candidates=[
-    item.imageUrl,item.imageURL,item.image_url,item.image,item.photoUrl,item.photoURL,item.photo_url,item.pictureUrl,item.pictureURL,item.picture_url,
-    item.itemImageUrl,item.itemImageURL,item.item_image_url,item.thumbnailUrl,item.thumbnailURL,item.thumbnail_url,item.logoUrl,item.logoURL,item.logo_url
-  ];
-  for(const value of candidates){
-    const text=String(value||"").trim();
-    if(text)return text;
-  }
-  return "";
+  // Samme enkle bilde-fasit som i handleliste-bestille.html.
+  // Ikke bruk String(item.image), fordi objekt blir "[object Object]" og gir skjult/feilet bilde.
+  return (item && item.imageUrl) || ((item && item.image && item.image.url) || "");
 }
 function itemImageHtml(item){
   if(!getHandleShowImages())return "";
