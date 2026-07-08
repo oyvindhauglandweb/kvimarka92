@@ -840,7 +840,34 @@ body.dark-mode select option:checked{
   color:#ffffff;
 }
 
-</style><!-- lightdark-restore-2026-06-16 -->
+
+
+/* Handle v92: reversibel client-state trinn 1 - bildevisning */
+#shoppingList .item-image-wrap{
+  width:44px !important;
+  height:44px !important;
+  border-radius:8px !important;
+  overflow:hidden !important;
+  background:rgba(127,127,127,.12) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#shoppingList .item-image{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  display:block !important;
+}
+#shoppingList .item-row.with-image{
+  grid-template-columns:var(--handle-grid-check,26px) 48px minmax(0,1fr) auto !important;
+}
+@media(max-width:700px){
+  #shoppingList .item-image-wrap{width:36px !important;height:36px !important;border-radius:7px !important;}
+  #shoppingList .item-row.with-image{grid-template-columns:var(--handle-grid-check,24px) 40px minmax(0,1fr) auto !important;}
+}
+
+</style><script src="kvimarka-client-state.js"></script><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v81 admin_version_info 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
 </head><body class="dark-mode"><script>
@@ -943,7 +970,7 @@ window.toggleHandleSize=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><button class="action-button" id="toggleHandleImagesButton" type="button" onclick="toggleHandleImages()" title="Vis bilder i handlelisten">Vis bilder</button></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
   <div class="modal-content">
     <div class="modal-header">
@@ -1016,6 +1043,106 @@ const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
 const SHOPPING_AREA_ORDER=["Matvarer","Normal","Europris","Frisør","Clas Ohlson","Sport","Bondekompaniet"];
 const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet"};
+const HANDLE_SHOW_IMAGES_LEGACY_KEYS=["shoppingHandleShowImages","handlelisteShowImages","shoppingShowImages","showShoppingImages"];
+function clientStateEnabled(){
+  try{
+    return !!(window.KvimarkaClientState && window.KvimarkaClientState.isEnabled && window.KvimarkaClientState.isEnabled());
+  }catch(error){
+    return false;
+  }
+}
+function readLegacyBool(keys,defaultValue){
+  try{
+    for(const key of keys){
+      const raw=localStorage.getItem(key);
+      if(raw===null || raw===undefined)continue;
+      const value=String(raw).trim().toLowerCase();
+      if(["true","1","yes","ja","on"].includes(value))return true;
+      if(["false","0","no","nei","off"].includes(value))return false;
+    }
+  }catch(error){}
+  return !!defaultValue;
+}
+function writeLegacyBool(keys,value){
+  try{
+    const stringValue=value ? "true" : "false";
+    keys.forEach(key=>localStorage.setItem(key,stringValue));
+  }catch(error){}
+}
+function getHandleShowImages(){
+  if(clientStateEnabled()){
+    try{return window.KvimarkaClientState.getBool("handle.showImages", false);}catch(error){}
+  }
+  return readLegacyBool(HANDLE_SHOW_IMAGES_LEGACY_KEYS,false);
+}
+function setHandleShowImages(value){
+  if(clientStateEnabled()){
+    try{window.KvimarkaClientState.setBool("handle.showImages", !!value);updateImageToggleButton();render();return;}catch(error){console.warn("Client-state feilet for bildevisning, bruker gammel lagring", error);}
+  }
+  writeLegacyBool(HANDLE_SHOW_IMAGES_LEGACY_KEYS,!!value);
+  updateImageToggleButton();
+  render();
+}
+function toggleHandleImages(){
+  setHandleShowImages(!getHandleShowImages());
+}
+function updateImageToggleButton(){
+  const button=document.getElementById("toggleHandleImagesButton");
+  if(!button)return;
+  const enabled=getHandleShowImages();
+  button.classList.toggle("active", enabled);
+  button.textContent=enabled ? "Skjul bilder" : "Vis bilder";
+  button.title=enabled ? "Skjul bilder i handlelisten" : "Vis bilder i handlelisten";
+}
+function getItemImageUrl(item){
+  if(!item)return "";
+  const candidates=[
+    item.imageUrl,item.imageURL,item.image_url,item.image,item.photoUrl,item.photoURL,item.photo_url,item.pictureUrl,item.pictureURL,item.picture_url,
+    item.itemImageUrl,item.itemImageURL,item.item_image_url,item.thumbnailUrl,item.thumbnailURL,item.thumbnail_url,item.logoUrl,item.logoURL,item.logo_url
+  ];
+  for(const value of candidates){
+    const text=String(value||"").trim();
+    if(text)return text;
+  }
+  return "";
+}
+function itemImageHtml(item){
+  if(!getHandleShowImages())return "";
+  const url=getItemImageUrl(item);
+  if(!url)return "";
+  return `<div class="item-image-wrap"><img class="item-image" src="${esc(url)}" alt="${esc(item && item.name ? item.name : "Varebilde")}" loading="lazy" decoding="async" onerror="this.closest('.item-image-wrap').style.display='none'"></div>`;
+}
+function gpsClientStateEnabled(){return clientStateEnabled();}
+function getGpsEnabled(){
+  if(!gpsClientStateEnabled())return true;
+  try{return window.KvimarkaClientState.getBool("gps.enabled", false);}catch(error){return false;}
+}
+function setGpsEnabled(value){
+  if(!gpsClientStateEnabled())return;
+  try{window.KvimarkaClientState.setBool("gps.enabled", !!value);}catch(error){}
+}
+function saveLastGpsPosition(location){
+  if(!gpsClientStateEnabled() || !location || location.status!=="ok")return;
+  try{
+    window.KvimarkaClientState.set("gps.lastPosition", {
+      latitude:location.latitude,
+      longitude:location.longitude,
+      accuracy:location.accuracy,
+      savedAt:new Date().toISOString()
+    });
+  }catch(error){}
+}
+async function canAutoUseGpsWithoutPrompt(){
+  if(!gpsClientStateEnabled())return true;
+  if(!getGpsEnabled())return false;
+  if(!navigator.permissions || !navigator.permissions.query)return true;
+  try{
+    const result=await navigator.permissions.query({name:"geolocation"});
+    if(result && result.state === "prompt")return false;
+    if(result && result.state === "denied"){setGpsEnabled(false);return false;}
+  }catch(error){}
+  return true;
+}
 let selectedShoppingArea=getInitialSelectedShoppingArea();
 function normalizeShoppingArea(value,type){
   const raw=String(value||"").trim();
@@ -2027,8 +2154,9 @@ function render(){
   }
   root.innerHTML=groupOrderedItems(ordered).map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
     const isBought=boughtIds.has(Number(item.id));
+    const imageHtml=itemImageHtml(item);
     const badges=`${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
-    return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
+    return `<div class="item-row ${imageHtml?"with-image":""}"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet">${imageHtml}<div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked){if(!isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);boughtIds.add(numericId);}else{boughtIds.delete(numericId);}saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);renderShoppingAreaButtons();render();}
@@ -2041,7 +2169,7 @@ async function loadItems(options){const silent=!!(options&&options.silent);updat
     setStatus(`Klar. Viser <strong>${esc(selectedShoppingArea)}</strong>. Kryss av varene etter hvert som de er handlet.`,"success");
   }
 }
-updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+updateActivateStandardNotificationButtonState();updateImageToggleButton();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
@@ -2076,16 +2204,19 @@ function getShoppingLocation(){
 
     navigator.geolocation.getCurrentPosition(
       position=>{
-        resolve({
+        const location={
           status:"ok",
           latitude:position.coords.latitude,
           longitude:position.coords.longitude,
           accuracy:position.coords.accuracy
-        });
+        };
+        saveLastGpsPosition(location);
+        resolve(location);
       },
       error=>{
         const code=error && error.code;
         const message=error && error.message ? error.message : "Ukjent GPS-feil";
+        if(code === 1)setGpsEnabled(false);
         resolve({
           status:code === 1 ? "denied" : "error",
           code,
@@ -2117,6 +2248,10 @@ function formatGpsLocation(location){
 
   if(location.status === "denied"){
     return `GPS avslått av bruker/nettleser${location.message ? `: ${esc(location.message)}` : "."}`;
+  }
+
+  if(location.status === "disabled"){
+    return "GPS er deaktivert i appen.";
   }
 
   return `GPS-feil${location.message ? `: ${esc(location.message)}` : "."}`;
@@ -2200,6 +2335,14 @@ async function checkCurrentStore(silent){
     return;
   }
 
+  if(gpsClientStateEnabled()){
+    if(!silent){
+      setGpsEnabled(true);
+    }else if(!(await canAutoUseGpsWithoutPrompt())){
+      return;
+    }
+  }
+
   storeMatchRunning=true;
 
   try{
@@ -2254,7 +2397,10 @@ function autoCheckStoreOnMobile(){
     return;
   }
 
-  window.setTimeout(() => {
+  window.setTimeout(async () => {
+    if(gpsClientStateEnabled() && !(await canAutoUseGpsWithoutPrompt())){
+      return;
+    }
     checkCurrentStore(true);
   }, 800);
 }
@@ -2316,10 +2462,14 @@ async function finishShopping(){
   let location={status:"none"};
 
   try{
-    setStatus("Henter GPS-posisjon før handelen avsluttes...");
-    location=await getShoppingLocation();
+    if(gpsClientStateEnabled() && !getGpsEnabled()){
+      location={status:"disabled", message:"GPS er deaktivert i appen."};
+    }else{
+      setStatus("Henter GPS-posisjon før handelen avsluttes...");
+      location=await getShoppingLocation();
+    }
 
-    if(location.status !== "ok"){
+    if(location.status !== "ok" && location.status !== "disabled"){
       const continueWithoutGps=confirm(`${formatGpsLocation(location).replace(/<[^>]+>/g, "")}\n\nFortsette og avslutte handelen uten GPS?`);
 
       if(!continueWithoutGps){
