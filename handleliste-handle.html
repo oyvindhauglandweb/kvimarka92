@@ -1094,15 +1094,58 @@ function updateImageToggleButton(){
   button.textContent=enabled ? "Skjul bilder" : "Vis bilder";
   button.title=enabled ? "Skjul bilder i handlelisten" : "Vis bilder i handlelisten";
 }
+function extractImageUrlCandidate(value){
+  if(value === null || value === undefined)return "";
+
+  if(typeof value === "string"){
+    const text=value.trim();
+    if(!text)return "";
+    if(text === "[object Object]")return "";
+    return text;
+  }
+
+  if(Array.isArray(value)){
+    for(const entry of value){
+      const found=extractImageUrlCandidate(entry);
+      if(found)return found;
+    }
+    return "";
+  }
+
+  if(typeof value === "object"){
+    const directKeys=[
+      "url","URL","href","src","download_url","downloadUrl","public_url","publicUrl",
+      "imageUrl","imageURL","image_url","photoUrl","photoURL","photo_url",
+      "thumbnailUrl","thumbnailURL","thumbnail_url","smallUrl","smallURL","small_url"
+    ];
+    for(const key of directKeys){
+      const found=extractImageUrlCandidate(value[key]);
+      if(found)return found;
+    }
+
+    const nestedKeys=["thumbnails","thumbnail","image","photo","file","files","value"];
+    for(const key of nestedKeys){
+      const found=extractImageUrlCandidate(value[key]);
+      if(found)return found;
+    }
+  }
+
+  return "";
+}
 function getItemImageUrl(item){
   if(!item)return "";
   const candidates=[
-    item.imageUrl,item.imageURL,item.image_url,item.image,item.photoUrl,item.photoURL,item.photo_url,item.pictureUrl,item.pictureURL,item.picture_url,
-    item.itemImageUrl,item.itemImageURL,item.item_image_url,item.thumbnailUrl,item.thumbnailURL,item.thumbnail_url,item.logoUrl,item.logoURL,item.logo_url
+    item.imageUrl,item.imageURL,item.image_url,item.image,item.images,item.imageFile,item.image_file,item.imageFiles,item.image_files,
+    item.photoUrl,item.photoURL,item.photo_url,item.photo,item.photos,
+    item.pictureUrl,item.pictureURL,item.picture_url,item.picture,item.pictures,
+    item.itemImage,item.itemImages,item.itemImageUrl,item.itemImageURL,item.item_image_url,item.item_image,item.item_images,
+    item.thumbnailUrl,item.thumbnailURL,item.thumbnail_url,item.thumbnail,item.thumbnails,
+    item.logoUrl,item.logoURL,item.logo_url,item.logo,
+    item.attachments,item.files
   ];
   for(const value of candidates){
-    const text=String(value||"").trim();
-    if(text)return text;
+    const found=extractImageUrlCandidate(value);
+    if(found)return found;
   }
   return "";
 }
