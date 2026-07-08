@@ -843,7 +843,7 @@ body.dark-mode select option:checked{
 
 
 
-/* Handle V0003: bildevisning samme prinsipp som Bestille */
+/* Handle V0004: bildevisning samme prinsipp som Bestille */
 .item-image-button{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:0;border-radius:8px;background:rgba(124,199,232,.16);color:var(--link);font-size:13px;cursor:pointer;padding:0;}
 .item-image-button:hover{background:rgba(124,199,232,.28);}
 .image-viewer-img{max-width:100%;max-height:70vh;border-radius:12px;border:1px solid var(--border);display:block;margin:0 auto;}
@@ -977,7 +977,7 @@ window.toggleHandleSize=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><button class="action-button" id="toggleHandleImagesButton" type="button" onclick="toggleHandleImages()" title="Vis bilder i handlelisten">Vis bilder</button></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><button class="action-button" id="toggleHandleImagesButton" type="button" onclick="return toggleHandleImages(event)" title="Vis bilder i handlelisten">Vis bilder</button></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="itemImageModal" onclick="handleImageModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title" id="itemImageModalTitle">Varebilde</div><button class="modal-close" type="button" onclick="closeItemImageModal()">×</button></div><img class="image-viewer-img" id="itemImageModalImg" alt="Varebilde"></div></div>
 
 <div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
@@ -1089,10 +1089,14 @@ function setHandleShowImages(value){
     try{window.KvimarkaClientState.setBool("handle.showImages", enabled);}catch(error){}
   }
   updateImageToggleButton();
-  render();
+  if(typeof render === "function")render();
+  return false;
 }
-function toggleHandleImages(){
+function toggleHandleImages(event){
+  if(event && event.preventDefault)event.preventDefault();
+  if(event && event.stopPropagation)event.stopPropagation();
   setHandleShowImages(!getHandleShowImages());
+  return false;
 }
 function updateImageToggleButton(){
   const button=document.getElementById("toggleHandleImagesButton");
@@ -2790,84 +2794,5 @@ loadItems();</script>
 })();
 </script>
 
-<script>
-/* V0002 bildeknapp robust toggle */
-(function(){
-  "use strict";
-  const IMAGE_KEYS = [
-    "kvimarka.handle.showImages",
-    "handleliste.showImages",
-    "shoppingHandleShowImages",
-    "shoppingShowImages",
-    "handleShowImages"
-  ];
-
-  function readBool(defaultValue){
-    try{
-      for(const key of IMAGE_KEYS){
-        const raw = localStorage.getItem(key);
-        if(raw === null || raw === undefined) continue;
-        const value = String(raw).trim().toLowerCase();
-        if(["true","1","yes","ja","on"].includes(value)) return true;
-        if(["false","0","no","nei","off"].includes(value)) return false;
-      }
-    }catch(error){}
-    return !!defaultValue;
-  }
-
-  function writeBool(value){
-    try{
-      const text = value ? "true" : "false";
-      IMAGE_KEYS.forEach(function(key){ localStorage.setItem(key, text); });
-      if(window.KvimarkaClientState && typeof window.KvimarkaClientState.setBool === "function" && window.KvimarkaClientState.isEnabled && window.KvimarkaClientState.isEnabled()){
-        window.KvimarkaClientState.setBool("handle.showImages", !!value);
-      }
-    }catch(error){}
-  }
-
-  function updateButton(){
-    const button = document.getElementById("toggleHandleImagesButton");
-    if(!button) return;
-    const enabled = readBool(false);
-    button.classList.toggle("active", enabled);
-    button.textContent = enabled ? "Skjul bilder" : "Vis bilder";
-    button.title = enabled ? "Skjul bilder i handlelisten" : "Vis bilder i handlelisten";
-  }
-
-  window.getHandleShowImages = function(){
-    return readBool(false);
-  };
-
-  window.setHandleShowImages = function(value){
-    writeBool(!!value);
-    updateButton();
-    if(typeof window.render === "function"){
-      try{ window.render(); }catch(error){ console.warn("render feilet etter bildevalg", error); }
-    }
-    return false;
-  };
-
-  window.toggleHandleImages = function(event){
-    if(event && event.preventDefault) event.preventDefault();
-    if(event && event.stopPropagation) event.stopPropagation();
-    return window.setHandleShowImages(!readBool(false));
-  };
-
-  function bindButton(){
-    const button = document.getElementById("toggleHandleImagesButton");
-    if(!button) return;
-    button.onclick = window.toggleHandleImages;
-    updateButton();
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", bindButton);
-  }else{
-    bindButton();
-  }
-  setTimeout(bindButton, 0);
-})();
-</script>
-<div id="kvimarkaPlainVersion">V0002</div>
-<div>V0003</div>
+<div>V0004</div>
 </body></html>
