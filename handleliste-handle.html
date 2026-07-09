@@ -2502,11 +2502,19 @@ async function checkCurrentStore(silent){
   }
 }
 
+let autoStoreCheckStarted=false;
 function autoCheckStoreOnMobile(){
+  // V0010: Automatisk GPS/butikkmatch skal kun kjøres én gang ved sideåpning.
+  // Silent polling/loadItems skal ikke starte nye GPS-sjekker og dermed ikke få listen til å hoppe i butikken.
+  if(autoStoreCheckStarted){
+    return;
+  }
+
   if(!isLikelyMobileDevice()){
     return;
   }
 
+  autoStoreCheckStarted=true;
   window.setTimeout(async () => {
     if(gpsClientStateEnabled() && !(await canAutoUseGpsWithoutPrompt())){
       return;
@@ -2888,4 +2896,4 @@ loadItems();</script>
   },1000);
 })();
 </script>
-<div>V0009</div></body></html>
+<div>V0010</div></body></html>
