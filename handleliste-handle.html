@@ -892,6 +892,9 @@ body.dark-mode select option:checked{
 .item-thumb-badges{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
 @media(max-width:700px){.item-thumb-grid{grid-template-columns:repeat(auto-fill,104px);gap:7px;}.item-thumb-card{width:104px;max-width:104px;min-width:104px;min-height:138px;padding:6px;}.item-thumb-image{height:92px;flex-basis:92px;}.item-thumb-name{font-size:13px;}}
 
+
+/* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Handle */
+#shoppingList .group-title{ text-transform:uppercase !important; }
 </style><script src="shared/kvimarka-client-state.js"></script><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v81 admin_version_info 2026-06-21 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -1167,15 +1170,23 @@ function saveLastGpsPosition(location){
   }catch(error){}
 }
 async function canAutoUseGpsWithoutPrompt(){
-  if(!gpsClientStateEnabled())return true;
+  // V0007: Aldri trigge GPS-prompt fra automatisk/silent sjekk.
+  // Automatisk GPS er kun tillatt når brukeren eksplisitt har aktivert GPS
+  // OG nettleseren allerede har gitt tillatelse. Hvis status er ukjent
+  // (typisk Safari uten Permissions API), venter vi på manuelt trykk på Oppdater butikk.
   if(!getGpsEnabled())return false;
-  if(!navigator.permissions || !navigator.permissions.query)return true;
+
+  if(!navigator.permissions || !navigator.permissions.query){
+    return false;
+  }
+
   try{
     const result=await navigator.permissions.query({name:"geolocation"});
-    if(result && result.state === "prompt")return false;
+    if(result && result.state === "granted")return true;
     if(result && result.state === "denied"){setGpsEnabled(false);return false;}
   }catch(error){}
-  return true;
+
+  return false;
 }
 let selectedShoppingArea=getInitialSelectedShoppingArea();
 function normalizeShoppingArea(value,type){
@@ -2877,4 +2888,4 @@ loadItems();</script>
   },1000);
 })();
 </script>
-<div>V0006</div></body></html>
+<div>V0009</div></body></html>
