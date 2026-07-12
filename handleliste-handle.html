@@ -1067,7 +1067,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v83-finish-auto-retry-one-session-error-log";
+const HANDLELISTE_HANDLE_VERSION="v84-workflow-background-finish";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -2606,7 +2606,7 @@ async function logShoppingFinishError(error,context){
   }
 }
 
-async function finishShopping(options={}){
+async function finishShoppingLegacy(options={}){
   const autoResume=!!(options&&options.autoResume);
   const storedPending=readPendingShoppingFinish();
 
@@ -2782,7 +2782,7 @@ async function finishShopping(options={}){
     });
 
     setStatus(`Uventet feil under avslutning.<br>${esc(error.message)}<br><br>Systemet fortsetter automatisk om 5 sekunder.`,"error");
-    setTimeout(()=>finishShopping({autoResume:true}),5000);
+    setTimeout(()=>finishShoppingLegacy({autoResume:true}),5000);
   }finally{
     button.disabled=false;
     render();
@@ -2802,14 +2802,169 @@ async function maybeAutoResumePendingShoppingFinish(){
   renderShoppingAreaButtons();
   render();
   setStatus("En tidligere påbegynt avslutning er funnet. Systemet fortsetter automatisk til hele handelen er registrert.","error");
-  await finishShopping({autoResume:true});
+  await finishShoppingLegacy({autoResume:true});
 }
+
+const SHOPPING_FINISH_WORKFLOW_ENABLED=true;
+const SHOPPING_FINISH_WORKFLOW_STORAGE_KEY="kvimarka92ShoppingFinishWorkflowV1";
+
+function readPendingShoppingFinishWorkflow(){
+  try{
+    const value=JSON.parse(localStorage.getItem(SHOPPING_FINISH_WORKFLOW_STORAGE_KEY)||"null");
+    return value&&typeof value==="object"?value:null;
+  }catch(error){return null;}
+}
+
+function writePendingShoppingFinishWorkflow(value){
+  try{
+    if(value)localStorage.setItem(SHOPPING_FINISH_WORKFLOW_STORAGE_KEY,JSON.stringify(value));
+    else localStorage.removeItem(SHOPPING_FINISH_WORKFLOW_STORAGE_KEY);
+  }catch(error){}
+}
+
+function workflowStatusName(result){
+  const status=result&&result.status;
+  if(typeof status==="string")return status;
+  return String(status&&status.status||"");
+}
+
+async function pollShoppingFinishWorkflow(instanceId,options={}){
+  const quiet=!!options.quiet;
+  try{
+    const result=await fetchJson(`${API_BASE}/shopping/finish-workflow/status?id=${encodeURIComponent(instanceId)}`);
+    const statusName=workflowStatusName(result);
+    const status=result&&result.status||{};
+
+    if(statusName==="complete"){
+      writePendingShoppingFinishWorkflow(null);
+      try{await loadItems();}catch(error){}
+      const count=Number(status.processedCount||status.requestedCount||0);
+      setStatus(`Handelen er avsluttet.${count?` ${count} varer ble lagret som handlet.`:""}`,"success");
+      return result;
+    }
+
+    if(statusName==="errored"||statusName==="terminated"){
+      writePendingShoppingFinishWorkflow(null);
+      const message=String(status.error&&status.error.message||status.error||"Bakgrunnsjobben stoppet.");
+      setStatus(`Kunne ikke fullføre handelen i bakgrunnen.<br>${esc(message)}`,"error");
+      await logShoppingFinishError(new Error(message),{action:"workflow-status",instanceId,status:statusName});
+      return result;
+    }
+
+    const processed=Number(status.processedCount||0);
+    const total=Number(status.itemCount||status.requestedCount||0);
+    if(!quiet){
+      setStatus(`Handelen avsluttes i bakgrunnen.${total?` ${processed} av ${total} varer er registrert.`:""}<br>Du kan forlate siden.`,"success");
+    }
+    window.setTimeout(()=>pollShoppingFinishWorkflow(instanceId,{quiet:false}),2500);
+    return result;
+  }catch(error){
+    if(!quiet)setStatus("Handelen avsluttes i bakgrunnen. Status kunne ikke hentes akkurat nå, men jobben fortsetter hos Cloudflare.","success");
+    window.setTimeout(()=>pollShoppingFinishWorkflow(instanceId,{quiet:false}),5000);
+    return null;
+  }
+}
+
+async function finishShopping(){
+  if(!SHOPPING_FINISH_WORKFLOW_ENABLED){
+    return finishShoppingLegacy();
+  }
+
+  if(!boughtIds.size){
+    alert("Kryss av minst én vare som handlet først.");
+    return;
+  }
+
+  if(!confirm(`Avslutte handel og lagre ${boughtIds.size} handlet vare${boughtIds.size===1?"":"r"}?`))return;
+
+  const button=document.getElementById("finishButton");
+  button.disabled=true;
+  let location={status:"none"};
+
+  try{
+    if(gpsClientStateEnabled()&&!getGpsEnabled()){
+      location={status:"disabled",message:"GPS er deaktivert i appen."};
+    }else{
+      setStatus("Henter GPS-posisjon før handelen avsluttes...");
+      location=await getShoppingLocation();
+    }
+
+    if(location.status!=="ok"&&location.status!=="disabled"){
+      const continueWithoutGps=confirm(`${formatGpsLocation(location).replace(/<[^>]+>/g,"")}\n\nFortsette og avslutte handelen uten GPS?`);
+      if(!continueWithoutGps){
+        setStatus(formatGpsLocation(location),"error");
+        return;
+      }
+    }
+
+    const allBoughtIds=Array.from(boughtIds).map(Number).filter(Number.isInteger).sort((a,b)=>a-b);
+    const boughtAt=new Date().toISOString();
+    setStatus(`${formatGpsLocation(location)}<br>Starter avslutning av handelen...`,location.status==="ok"?"success":"error");
+
+    const environment=window.KvimarkaErrorLogger&&typeof window.KvimarkaErrorLogger.getEnvironment==="function"
+      ? window.KvimarkaErrorLogger.getEnvironment()
+      : {};
+
+    const data=await fetchJson(`${API_BASE}/shopping/finish-workflow/start`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({
+        boughtIds:allBoughtIds,
+        boughtAt,
+        location,
+        latitude:location&&location.latitude,
+        longitude:location&&location.longitude,
+        accuracy:location&&location.accuracy,
+        locationStatus:location&&location.status,
+        shoppingArea:selectedShoppingArea,
+        device:environment.device||"",
+        browser:environment.browser||"",
+        operatingSystem:environment.operatingSystem||""
+      })
+    });
+
+    writePendingShoppingFinishWorkflow({
+      instanceId:data.instanceId,
+      boughtAt:data.boughtAt||boughtAt,
+      itemCount:allBoughtIds.length,
+      shoppingArea:selectedShoppingArea,
+      startedAt:new Date().toISOString()
+    });
+
+    clearRememberedBoughtIds();
+    clearShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY);
+    boughtIds=new Set();
+    renderShoppingAreaButtons();
+    render();
+    setStatus(`Handelen avsluttes i bakgrunnen. ${allBoughtIds.length} varer er sendt til registrering.<br>Du kan nå forlate siden.`,"success");
+    window.setTimeout(()=>pollShoppingFinishWorkflow(data.instanceId,{quiet:false}),800);
+  }catch(error){
+    await logShoppingFinishError(error,{
+      action:"workflow-start",
+      shoppingArea:selectedShoppingArea,
+      itemCount:boughtIds.size,
+      locationStatus:location&&location.status||""
+    });
+    setStatus(`Kunne ikke starte avslutningen.<br>${esc(error.message)}<br><br>Ingen lokal markering er fjernet. Dagens fallback kan aktiveres ved å sette SHOPPING_FINISH_WORKFLOW_ENABLED=false.`,"error");
+  }finally{
+    button.disabled=false;
+    render();
+  }
+}
+
+async function maybeResumeShoppingFinishWorkflow(){
+  const pending=readPendingShoppingFinishWorkflow();
+  if(!pending||!pending.instanceId)return;
+  setStatus("En handel avsluttes fortsatt i bakgrunnen. Henter status...","success");
+  await pollShoppingFinishWorkflow(pending.instanceId,{quiet:false});
+}
+
 document.addEventListener("keydown",event=>{
   if(event.key==="Escape"){
     closeAddItemModal();
   }
 });
-loadItems().then(()=>maybeAutoResumePendingShoppingFinish()).catch(error=>{ setStatus(`Kunne ikke laste handlelisten.<br>${esc(error.message)}`,"error"); });</script>
+loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStatus(`Kunne ikke laste handlelisten.<br>${esc(error.message)}`,"error"); });</script>
 <script>
 (function(){
   const APP_PAGE_RE = /^handleliste-[a-z0-9-]+\.html$/i;
