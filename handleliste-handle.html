@@ -895,6 +895,31 @@ body.dark-mode select option:checked{
 
 /* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Handle */
 #shoppingList .group-title{ text-transform:uppercase !important; }
+
+/* Handle V0014: Nøktern, faktisk Workflow-fremdrift.
+   Fyllgraden kommer kun fra registrerte varer / totalt antall varer. */
+#status.shopping-finish-progress{
+  --shopping-finish-progress:0%;
+  padding:8px 10px;
+  border-radius:7px;
+  background:linear-gradient(
+    to right,
+    rgba(127,127,127,.16) 0%,
+    rgba(127,127,127,.16) var(--shopping-finish-progress),
+    transparent var(--shopping-finish-progress),
+    transparent 100%
+  );
+  transition:background .18s linear;
+}
+body.dark-mode #status.shopping-finish-progress{
+  background:linear-gradient(
+    to right,
+    rgba(255,255,255,.09) 0%,
+    rgba(255,255,255,.09) var(--shopping-finish-progress),
+    transparent var(--shopping-finish-progress),
+    transparent 100%
+  );
+}
 </style><script src="shared/kvimarka-client-state.js"></script><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v83 finish-auto-retry-one-session-error-log 2026-07-12 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -1067,7 +1092,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v84-workflow-background-finish";
+const HANDLELISTE_HANDLE_VERSION="v85-workflow-accurate-progress";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -1391,7 +1416,35 @@ async function fetchJson(url,options){
 
   return data;
 }
-function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
+function clearShoppingFinishProgress(){
+  const el=document.getElementById("status");
+  if(!el)return;
+  el.classList.remove("shopping-finish-progress");
+  el.style.removeProperty("--shopping-finish-progress");
+  el.removeAttribute("aria-valuenow");
+  el.removeAttribute("aria-valuemin");
+  el.removeAttribute("aria-valuemax");
+  el.removeAttribute("role");
+}
+function setStatus(message,type,options){
+  const el=document.getElementById("status");
+  if(!(options&&options.keepProgress))clearShoppingFinishProgress();
+  el.className="status"+(type?` ${type}`:"")+(options&&options.keepProgress?" shopping-finish-progress":"");
+  el.innerHTML=message||"";
+}
+function setShoppingFinishProgress(processed,total){
+  const el=document.getElementById("status");
+  if(!el)return;
+  const safeTotal=Math.max(0,Number(total)||0);
+  const safeProcessed=Math.max(0,Math.min(safeTotal,Number(processed)||0));
+  const percent=safeTotal>0?(safeProcessed/safeTotal)*100:0;
+  el.classList.add("shopping-finish-progress");
+  el.style.setProperty("--shopping-finish-progress",`${percent}%`);
+  el.setAttribute("role","progressbar");
+  el.setAttribute("aria-valuemin","0");
+  el.setAttribute("aria-valuemax",String(safeTotal));
+  el.setAttribute("aria-valuenow",String(safeProcessed));
+}
 function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
 function getInitialOwner(){const saved=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");return SHOPPING_OWNERS.includes(saved)?saved:"Felles";}function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}}
 function ownerBadgeColorClass(owner){
@@ -2839,7 +2892,9 @@ async function pollShoppingFinishWorkflow(instanceId,options={}){
       writePendingShoppingFinishWorkflow(null);
       try{await loadItems();}catch(error){}
       const count=Number(status.processedCount||status.requestedCount||0);
-      setStatus(`Handelen er avsluttet.${count?` ${count} varer ble lagret som handlet.`:""}`,"success");
+      const total=Number(status.itemCount||status.requestedCount||count||0);
+      setStatus(`Handelen er avsluttet.${count?` ${count} varer ble lagret som handlet.`:""}`,"success",{keepProgress:true});
+      setShoppingFinishProgress(total,total);
       return result;
     }
 
@@ -2854,7 +2909,8 @@ async function pollShoppingFinishWorkflow(instanceId,options={}){
     const processed=Number(status.processedCount||0);
     const total=Number(status.itemCount||status.requestedCount||0);
     if(!quiet){
-      setStatus(`Handelen avsluttes i bakgrunnen.${total?` ${processed} av ${total} varer er registrert.`:""}<br>Du kan forlate siden.`,"success");
+      setStatus(`Handelen avsluttes i bakgrunnen.${total?` ${processed} av ${total} varer er registrert.`:""}<br>Du kan forlate siden.`,"success",{keepProgress:true});
+      setShoppingFinishProgress(processed,total);
     }
     window.setTimeout(()=>pollShoppingFinishWorkflow(instanceId,{quiet:false}),2500);
     return result;
@@ -2936,7 +2992,8 @@ async function finishShopping(){
     boughtIds=new Set();
     renderShoppingAreaButtons();
     render();
-    setStatus(`Handelen avsluttes i bakgrunnen. ${allBoughtIds.length} varer er sendt til registrering.<br>Du kan nå forlate siden.`,"success");
+    setStatus(`Handelen avsluttes i bakgrunnen. 0 av ${allBoughtIds.length} varer er registrert.<br>Du kan nå forlate siden.`,"success",{keepProgress:true});
+    setShoppingFinishProgress(0,allBoughtIds.length);
     window.setTimeout(()=>pollShoppingFinishWorkflow(data.instanceId,{quiet:false}),800);
   }catch(error){
     await logShoppingFinishError(error,{
@@ -2955,7 +3012,8 @@ async function finishShopping(){
 async function maybeResumeShoppingFinishWorkflow(){
   const pending=readPendingShoppingFinishWorkflow();
   if(!pending||!pending.instanceId)return;
-  setStatus("En handel avsluttes fortsatt i bakgrunnen. Henter status...","success");
+  setStatus("En handel avsluttes fortsatt i bakgrunnen. Henter status...","success",{keepProgress:true});
+  setShoppingFinishProgress(0,Number(pending.itemCount||0));
   await pollShoppingFinishWorkflow(pending.instanceId,{quiet:false});
 }
 
@@ -3213,4 +3271,4 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0013</div></body></html>
+<div>V0014</div></body></html>
