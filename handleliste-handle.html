@@ -896,7 +896,7 @@ body.dark-mode select option:checked{
 /* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Handle */
 #shoppingList .group-title{ text-transform:uppercase !important; }
 
-/* Handle V0014: Nøktern, faktisk Workflow-fremdrift.
+/* Handle V0015: Nøktern, faktisk Workflow-fremdrift.
    Fyllgraden kommer kun fra registrerte varer / totalt antall varer. */
 #status.shopping-finish-progress{
   --shopping-finish-progress:0%;
@@ -2899,10 +2899,15 @@ async function pollShoppingFinishWorkflow(instanceId,options={}){
     }
 
     if(statusName==="errored"||statusName==="terminated"){
-      writePendingShoppingFinishWorkflow(null);
+      const pending=readPendingShoppingFinishWorkflow()||{};
+      writePendingShoppingFinishWorkflow({...pending,instanceId,status:statusName,error:String(status.error&&status.error.message||status.error||"")});
+      try{await loadItems();}catch(error){}
       const message=String(status.error&&status.error.message||status.error||"Bakgrunnsjobben stoppet.");
-      setStatus(`Kunne ikke fullføre handelen i bakgrunnen.<br>${esc(message)}`,"error");
-      await logShoppingFinishError(new Error(message),{action:"workflow-status",instanceId,status:statusName});
+      const processed=Number(status.processedCount||0);
+      const total=Number(status.itemCount||status.requestedCount||pending.itemCount||0);
+      setStatus(`Kunne ikke fullføre handelen i bakgrunnen.${total?` ${processed} av ${total} varer ble registrert før jobben stoppet.`:""}<br>${esc(message)}<br>Du kan trykke Avslutt handel igjen for å fortsette. Allerede registrerte varer blir ikke duplisert.`,"error",{keepProgress:true});
+      setShoppingFinishProgress(processed,total);
+      await logShoppingFinishError(new Error(message),{action:"workflow-status",instanceId,status:statusName,processedCount:processed,itemCount:total});
       return result;
     }
 
@@ -2924,6 +2929,13 @@ async function pollShoppingFinishWorkflow(instanceId,options={}){
 async function finishShopping(){
   if(!SHOPPING_FINISH_WORKFLOW_ENABLED){
     return finishShoppingLegacy();
+  }
+
+  if(!boughtIds.size){
+    const pending=readPendingShoppingFinishWorkflow();
+    if(pending&&pending.status==="errored"&&Array.isArray(pending.allBoughtIds)&&pending.allBoughtIds.length){
+      boughtIds=new Set(pending.allBoughtIds.map(Number).filter(Number.isInteger));
+    }
   }
 
   if(!boughtIds.size){
@@ -2983,6 +2995,7 @@ async function finishShopping(){
       instanceId:data.instanceId,
       boughtAt:data.boughtAt||boughtAt,
       itemCount:allBoughtIds.length,
+      allBoughtIds,
       shoppingArea:selectedShoppingArea,
       startedAt:new Date().toISOString()
     });
@@ -3271,4 +3284,4 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0014</div></body></html>
+<div>V0015</div></body></html>
