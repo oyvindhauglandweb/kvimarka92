@@ -2,7 +2,40 @@
 /* Handleliste felles toppmeny v3
    Produksjonsnavn: handleliste-menu.js */
 (function(){
-  const MENU_VERSION = "handleliste-menu-v14-single-source-view-toggle-2026-06-28";
+  function loadSharedErrorLogger(){
+    if(window.KvimarkaErrorLogger){
+      return Promise.resolve(window.KvimarkaErrorLogger);
+    }
+    if(window.KvimarkaErrorLoggerReady){
+      return window.KvimarkaErrorLoggerReady;
+    }
+
+    window.KvimarkaErrorLoggerReady = new Promise(resolve => {
+      const existing = document.getElementById("kvimarkaErrorLoggerScript");
+      if(existing){
+        existing.addEventListener("load", () => resolve(window.KvimarkaErrorLogger || null), { once:true });
+        existing.addEventListener("error", () => resolve(null), { once:true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.id = "kvimarkaErrorLoggerScript";
+      script.src = "shared/kvimarka-error-logger.js?v=1";
+      script.async = false;
+      script.onload = () => resolve(window.KvimarkaErrorLogger || null);
+      script.onerror = () => {
+        console.warn("Kunne ikke laste felles feillogger.");
+        resolve(null);
+      };
+      (document.head || document.documentElement).appendChild(script);
+    });
+
+    return window.KvimarkaErrorLoggerReady;
+  }
+
+  loadSharedErrorLogger();
+
+  const MENU_VERSION = "handleliste-menu-v15-shared-error-logger-2026-07-12";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
