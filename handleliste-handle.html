@@ -896,7 +896,7 @@ body.dark-mode select option:checked{
 /* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Handle */
 #shoppingList .group-title{ text-transform:uppercase !important; }
 </style><script src="shared/kvimarka-client-state.js"></script><!-- lightdark-restore-2026-06-16 -->
-<!-- version: HANDLE v81 admin_version_info 2026-06-21 -->
+<!-- version: HANDLE v82 finish-one-session-resume-error-log 2026-07-12 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -1067,7 +1067,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v81-admin-version-info";
+const HANDLELISTE_HANDLE_VERSION="v82-finish-one-session-resume-error-log";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -2564,79 +2564,194 @@ function formatLocationDebug(data, clientLocation){
   return parts.join("");
 }
 
+const SHOPPING_FINISH_PENDING_STORAGE_KEY="kvimarka.handleliste.finishPending.v1";
+
+function readPendingShoppingFinish(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(SHOPPING_FINISH_PENDING_STORAGE_KEY)||"null");
+    return parsed && typeof parsed==="object" ? parsed : null;
+  }catch(error){
+    return null;
+  }
+}
+
+function writePendingShoppingFinish(value){
+  try{
+    if(value){
+      localStorage.setItem(SHOPPING_FINISH_PENDING_STORAGE_KEY,JSON.stringify(value));
+    }else{
+      localStorage.removeItem(SHOPPING_FINISH_PENDING_STORAGE_KEY);
+    }
+  }catch(error){}
+}
+
+function shoppingFinishDeviceInfo(){
+  const ua=navigator.userAgent||"";
+  let device="PC";
+  if(/ipad|tablet/i.test(ua))device="Nettbrett";
+  else if(/iphone|android.*mobile|mobile/i.test(ua))device="Mobil";
+
+  let browser="Ukjent";
+  if(/edg\//i.test(ua))browser="Edge";
+  else if(/chrome\//i.test(ua) && !/edg\//i.test(ua))browser="Chrome";
+  else if(/safari\//i.test(ua) && !/chrome\//i.test(ua))browser="Safari";
+  else if(/firefox\//i.test(ua))browser="Firefox";
+
+  let operatingSystem="Ukjent";
+  if(/windows nt/i.test(ua))operatingSystem="Windows";
+  else if(/iphone|ipad|ipod/i.test(ua))operatingSystem="iOS/iPadOS";
+  else if(/android/i.test(ua))operatingSystem="Android";
+  else if(/mac os x/i.test(ua))operatingSystem="macOS";
+
+  return {device,browser,operatingSystem};
+}
+
+async function logShoppingFinishError(error,context){
+  try{
+    const info=shoppingFinishDeviceInfo();
+    await fetch(`${API_BASE}/error-log`,{
+      method:"POST",
+      credentials:"include",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({
+        name:"Kunne ikke avslutte handel",
+        application:"Handleliste",
+        page:"handleliste-handle.html",
+        errorMessage:(error && error.message) || String(error || "Ukjent feil"),
+        errorType:"Shopping finish",
+        stackTrace:(error && error.stack) || "",
+        context:context || {},
+        occurredAt:new Date().toISOString(),
+        device:info.device,
+        browser:info.browser,
+        operatingSystem:info.operatingSystem
+      })
+    });
+  }catch(logError){
+    console.warn("Kunne ikke registrere avslutningsfeil i feilloggen.",logError);
+  }
+}
+
 async function finishShopping(){
   if(!boughtIds.size){
     alert("Kryss av minst én vare som handlet først.");
     return;
   }
 
-  if(!confirm(`Avslutte handel og lagre ${boughtIds.size} handlet vare${boughtIds.size===1?"":"r"}?`)){
-    return;
-  }
+  const allBoughtIds=Array.from(boughtIds).map(Number).filter(Number.isInteger).sort((a,b)=>a-b);
+  const storedPending=readPendingShoppingFinish();
+  const storedIds=storedPending && Array.isArray(storedPending.allBoughtIds)
+    ? storedPending.allBoughtIds.map(Number).filter(Number.isInteger).sort((a,b)=>a-b)
+    : [];
+  const canResume=!!(
+    storedPending &&
+    storedPending.shoppingArea===selectedShoppingArea &&
+    JSON.stringify(storedIds)===JSON.stringify(allBoughtIds)
+  );
+
+  const confirmationText=canResume
+    ? `Forrige avslutning ble avbrutt underveis. Fortsette fra del ${Number(storedPending.nextChunkIndex||0)+1}?`
+    : `Avslutte handel og lagre ${boughtIds.size} handlet vare${boughtIds.size===1?"":"r"}?`;
+
+  if(!confirm(confirmationText))return;
 
   const button=document.getElementById("finishButton");
   button.disabled=true;
 
-  let location={status:"none"};
+  let location=canResume && storedPending.location ? storedPending.location : {status:"none"};
+  let pending=canResume ? storedPending : null;
+  let currentChunkIndex=Number(pending && pending.nextChunkIndex || 0);
 
   try{
-    if(gpsClientStateEnabled() && !getGpsEnabled()){
-      location={status:"disabled", message:"GPS er deaktivert i appen."};
-    }else{
-      setStatus("Henter GPS-posisjon før handelen avsluttes...");
-      location=await getShoppingLocation();
-    }
+    if(!canResume){
+      if(gpsClientStateEnabled() && !getGpsEnabled()){
+        location={status:"disabled",message:"GPS er deaktivert i appen."};
+      }else{
+        setStatus("Henter GPS-posisjon før handelen avsluttes...");
+        location=await getShoppingLocation();
+      }
 
-    if(location.status !== "ok" && location.status !== "disabled"){
-      const continueWithoutGps=confirm(`${formatGpsLocation(location).replace(/<[^>]+>/g, "")}\n\nFortsette og avslutte handelen uten GPS?`);
-
-      if(!continueWithoutGps){
-        setStatus(formatGpsLocation(location), "error");
-        return;
+      if(location.status!=="ok" && location.status!=="disabled"){
+        const continueWithoutGps=confirm(`${formatGpsLocation(location).replace(/<[^>]+>/g,"")}\n\nFortsette og avslutte handelen uten GPS?`);
+        if(!continueWithoutGps){
+          setStatus(formatGpsLocation(location),"error");
+          return;
+        }
       }
     }
 
-    const allBoughtIds=Array.from(boughtIds);
     const chunkSize=8;
     const chunks=[];
-
-    for(let index=0; index<allBoughtIds.length; index+=chunkSize){
+    for(let index=0;index<allBoughtIds.length;index+=chunkSize){
       chunks.push(allBoughtIds.slice(index,index+chunkSize));
     }
 
-    let totalBought=0;
+    if(!pending){
+      pending={
+        boughtAt:new Date().toISOString(),
+        sessionId:null,
+        allBoughtIds,
+        nextChunkIndex:0,
+        shoppingArea:selectedShoppingArea,
+        location
+      };
+      writePendingShoppingFinish(pending);
+    }
+
+    let totalBought=Number(pending.totalBought||0);
     let lastData=null;
 
-    for(let index=0; index<chunks.length; index+=1){
-      setStatus(`${formatGpsLocation(location)}<br>Sender avslutning til Worker... Del ${index+1} av ${chunks.length}.`, location.status === "ok" ? "success" : "error");
+    for(let index=Number(pending.nextChunkIndex||0);index<chunks.length;index+=1){
+      currentChunkIndex=index;
+      setStatus(`${formatGpsLocation(location)}<br>Sender avslutning til Worker... Del ${index+1} av ${chunks.length}.`,location.status==="ok"?"success":"error");
 
       const data=await fetchJson(`${API_BASE}/shopping/finish`,{
         method:"POST",
         headers:{"Content-Type":"text/plain;charset=UTF-8"},
         body:JSON.stringify({
           boughtIds:chunks[index],
+          boughtAt:pending.boughtAt,
+          sessionId:pending.sessionId,
           chunkIndex:index+1,
           chunkCount:chunks.length,
+          isFinalChunk:index===chunks.length-1,
           location,
-          latitude:(location && location.latitude),
-          longitude:(location && location.longitude),
-          accuracy:(location && location.accuracy),
-          locationStatus:(location && location.status),
+          latitude:location && location.latitude,
+          longitude:location && location.longitude,
+          accuracy:location && location.accuracy,
+          locationStatus:location && location.status,
           shoppingArea:selectedShoppingArea
         })
       });
 
-      totalBought += Number(data.boughtCount || chunks[index].length || 0);
+      pending.sessionId=Number(data.sessionId || (data.session && data.session.id) || pending.sessionId || 0) || null;
+      pending.nextChunkIndex=index+1;
+      totalBought+=Number(data.boughtCount||0);
+      pending.totalBought=totalBought;
+      writePendingShoppingFinish(pending);
       lastData=data;
     }
 
+    writePendingShoppingFinish(null);
     clearRememberedBoughtIds();
     clearShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY);
     renderShoppingAreaButtons();
     await loadItems();
-    setStatus(`Handelen er avsluttet. ${totalBought} varer ble lagret som handlet.${shoppingSessionStatusText((lastData && lastData.session))}`,"success");
+    setStatus(`Handelen er avsluttet. ${allBoughtIds.length} varer ble lagret som handlet.${shoppingSessionStatusText(lastData && lastData.session)}`,"success");
   }catch(error){
-    setStatus(`Kunne ikke avslutte handelen.<br><br>${esc(error.message)}<br><br>${esc(formatGpsLocation(location))}`,"error");
+    await logShoppingFinishError(error,{
+      action:"finishShopping",
+      shoppingArea:selectedShoppingArea,
+      itemCount:allBoughtIds.length,
+      chunkSize:8,
+      failedChunkIndex:currentChunkIndex+1,
+      nextChunkIndex:Number(pending && pending.nextChunkIndex || 0)+1,
+      chunkCount:Math.ceil(allBoughtIds.length/8),
+      sessionId:pending && pending.sessionId || null,
+      boughtAt:pending && pending.boughtAt || null,
+      locationStatus:location && location.status || ""
+    });
+    setStatus(`Kunne ikke avslutte handelen.<br><br>${esc(error.message)}<br><br>${esc(formatGpsLocation(location))}<br><br>Fremdriften er lagret. Trykk «Avslutt handel» igjen for å fortsette fra delen som feilet.`,"error");
   }finally{
     button.disabled=false;
     render();
@@ -2896,4 +3011,4 @@ loadItems();</script>
   },1000);
 })();
 </script>
-<div>V0010</div></body></html>
+<div>V0011</div></body></html>
