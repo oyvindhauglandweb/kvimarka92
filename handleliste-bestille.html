@@ -630,7 +630,7 @@ body:not(.dark-mode) .nutrition-tooltip-floating{
 /* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Bestille */
 #itemList .group-title{ text-transform:uppercase !important; }
 
-/* Bestille V0012: Prisjakt-markøren bruker Kassal.app for Matvarer og Prisjakt ellers */
+/* Bestille V0013: Prisjakt-markøren bruker Kassal.app for Matvarer og Prisjakt ellers */
 #itemList .link-badge{cursor:pointer;text-decoration:none;border:0;}
 #itemList .link-badge:hover{filter:brightness(1.14);}
 #itemList .prisjakt-badge{background:rgba(124,199,232,.16);color:var(--link);}
@@ -785,7 +785,7 @@ function prisjaktUrl(item){
     const query=simplifyKassalSearchTerm(name)||name.toLowerCase();
     return `https://kassal.app/varer?sok=${encodeURIComponent(query)}`;
   }
-  return `https://www.prisjakt.no/s/${encodeURIComponent(name.replace(/\s+/g,"-"))}/`;
+  return `https://www.prisjakt.no/search?query=${name.trim().split(/\s+/).map(part=>encodeURIComponent(part)).join("+")}`;
 }
 function webBadge(item){const url=normalizeWebUrl(item&&item.webUrl);return url?`<a class="badge web-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Åpne web-link">WEB</a>`:"";}
 function prisjaktBadge(item){const url=prisjaktUrl(item);return `<a class="badge prisjakt-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Søk etter ${esc(item&&item.name||"varen")} på Prisjakt">Prisjakt</a>`;}
@@ -1587,4 +1587,4 @@ loadItems();
 
 <script>document.getElementById("newItemImage").addEventListener("change",handleNewItemImageChange);</script>
 <script src="handleliste-menu.js?v=15"></script>
-<div>V0012</div></body></html>
+<div>V0013</div></body></html>

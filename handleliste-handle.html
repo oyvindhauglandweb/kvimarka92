@@ -921,7 +921,7 @@ body.dark-mode #status.shopping-finish-progress{
   );
 }
 
-/* Handle V0020: Prisjakt-markøren bruker Kassal.app for Matvarer og Prisjakt ellers */
+/* Handle V0021: Prisjakt-markøren bruker Kassal.app for Matvarer og Prisjakt ellers */
 #shoppingList .link-badge{
   cursor:pointer;
   text-decoration:none;
@@ -1326,7 +1326,7 @@ function prisjaktUrl(item){
     const query=simplifyKassalSearchTerm(name)||name.toLowerCase();
     return `https://kassal.app/varer?sok=${encodeURIComponent(query)}`;
   }
-  return `https://www.prisjakt.no/s/${encodeURIComponent(name.replace(/\s+/g,"-"))}/`;
+  return `https://www.prisjakt.no/search?query=${name.trim().split(/\s+/).map(part=>encodeURIComponent(part)).join("+")}`;
 }
 function webBadge(item){const url=normalizeWebUrl(item&&item.webUrl);return url?`<a class="badge web-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Åpne web-link">WEB</a>`:"";}
 function prisjaktBadge(item){const url=prisjaktUrl(item);return `<a class="badge prisjakt-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Søk etter ${esc(item&&item.name||"varen")} på Prisjakt">Prisjakt</a>`;}
@@ -3334,4 +3334,4 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0020</div></body></html>
+<div>V0021</div></body></html>
