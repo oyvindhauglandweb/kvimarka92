@@ -896,7 +896,7 @@ body.dark-mode select option:checked{
 /* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Handle */
 #shoppingList .group-title{ text-transform:uppercase !important; }
 
-/* Handle V0018: Netthandel og Apotek i handelstypeknapper, og gammel Meieri-verdi fjernet.
+/* Handle V0019: Netthandel og Apotek i handelstypeknapper, og gammel Meieri-verdi fjernet.
    Fyllgraden kommer kun fra registrerte varer / totalt antall varer. */
 #status.shopping-finish-progress{
   --shopping-finish-progress:0%;
@@ -920,6 +920,15 @@ body.dark-mode #status.shopping-finish-progress{
     transparent 100%
   );
 }
+
+/* Handle V0019: aktive WEB-/Prisjakt-markører og trygg eiernavigering */
+#shoppingList .link-badge{
+  cursor:pointer;
+  text-decoration:none;
+  border:0;
+}
+#shoppingList .link-badge:hover{filter:brightness(1.14);}
+#shoppingList .prisjakt-badge{background:rgba(124,199,232,.16);color:var(--link);}
 </style><script src="shared/kvimarka-client-state.js"></script><!-- lightdark-restore-2026-06-16 -->
 <!-- version: HANDLE v83 finish-auto-retry-one-session-error-log 2026-07-12 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
@@ -1292,7 +1301,9 @@ function shoppingAreaBadge(item){
   return `<span class="badge area-badge ${areaClass(area)}" title="Butikkgruppe: ${esc(area)}">${esc(area)}</span>`;
 }
 function normalizeWebUrl(value){const raw=String(value||"").trim();if(!raw)return "";const candidate=/^https?:\/\//i.test(raw)?raw:`https://${raw}`;try{const url=new URL(candidate);return (url.protocol==="http:"||url.protocol==="https:")?url.href:"";}catch(error){return "";}}
-function webBadge(item){return normalizeWebUrl(item&&item.webUrl)?'<span class="badge web-badge" title="Varen har web-link">WEB</span>':"";}
+function prisjaktUrl(item){const name=String(item&&item.name||"").trim();return name?`https://www.prisjakt.no/s/${encodeURIComponent(name.replace(/\s+/g,"-"))}/`:"https://www.prisjakt.no/";}
+function webBadge(item){const url=normalizeWebUrl(item&&item.webUrl);return url?`<a class="badge web-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Åpne web-link">WEB</a>`:"";}
+function prisjaktBadge(item){const url=prisjaktUrl(item);return `<a class="badge prisjakt-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Søk etter ${esc(item&&item.name||"varen")} på Prisjakt">Prisjakt</a>`;}
 function updateHandleWebUrlRequirement(){const input=document.getElementById("addItemWebUrl");if(!input)return;const required=selectedShoppingArea==="Netthandel";input.required=required;input.setAttribute("aria-required",required?"true":"false");}
 function isShoppingAreaLocked(){
   return boughtIds&&boughtIds.size>0;
@@ -1468,13 +1479,13 @@ function goToOrderForOwner(owner,event){
   const normalized=normalizeOwner(owner);
   try{localStorage.setItem(OWNER_STORAGE_KEY, normalized);}catch(error){}
   if(window.pushHandlelisteBackUrl){ window.pushHandlelisteBackUrl(); }
-  window.location.href="handleliste-bestille.html";
+  window.location.href=`handleliste-bestille.html?owner=${encodeURIComponent(normalized)}`;
 }
 function ownerBadge(item){
   const owner=normalizeOwner(item.owner);
   if(!owner || owner==="Felles") return "";
   const colorClass=ownerBadgeColorClass(owner);
-  return `<a class="badge owner-badge ${colorClass}" href="handleliste-bestille.html" onclick="goToOrderForOwner('${escJs(owner)}', event)" title="Gå til bestillingslisten for ${esc(owner)}">${esc(owner)}</a>`;
+  return `<a class="badge owner-badge ${colorClass}" href="handleliste-bestille.html?owner=${encodeURIComponent(owner)}" onclick="goToOrderForOwner('${escJs(owner)}', event)" title="Gå til bestillingslisten for ${esc(owner)}">${esc(owner)}</a>`;
 }
 function getOwnerPhone(owner){const normalized=normalizeOwner(owner);const contact=ownerContacts.find(item=>String(item.name||"").trim().toLowerCase()===normalized.toLowerCase());return contact?String(contact.phone||"").trim():"";}
 function makeSmsMessage(item){const sender=String(currentUserName||"").trim()||"";const itemName=String((item && item.name) || "varen").trim()||"varen";return `Jeg er i butikken. Denne varen må du forklare litt mer om hvis du ønsker jeg skal kjøpe den: ${itemName} - Mvh ${sender}`.trim();}
@@ -1788,7 +1799,7 @@ function addedAtButton(item){
   const id=Number((item && item.id) || 0);
   const addedAt=getItemAddedAt(item);
   if(!id || !addedAt)return "";
-  return `<button class="added-time-button" type="button" onclick="openAddedAtModal(${id}); event.stopPropagation();" title="Vis når varen ble lagt til">Lagt til</button>`;
+  return `<button class="added-time-button" type="button" onclick="openAddedAtModal(${id}); event.stopPropagation();" title="Vis når varen ble lagt til">Dato</button>`;
 }
 function openAddedAtModal(id){
   const numericId=Number(id||0);
@@ -2302,7 +2313,7 @@ function renderHandleThumbnailView(groups){
   return groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-thumb-grid">${group.items.map(item=>{
     const id=Number(item.id);
     const isBought=boughtIds.has(id);
-    const badges=`${addedAtButton(item)}${shoppingAreaBadge(item)}${webBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    const badges=`${addedAtButton(item)}${shoppingAreaBadge(item)}${webBadge(item)}${prisjaktBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
     return `<div class="item-thumb-card ${isBought?"selected":""}"><button class="item-thumb-main" type="button" onclick="toggleBought(${id}, ${isBought?"false":"true"})" title="${isBought?"Merk som ikke handlet":"Merk som handlet"}">${renderHandleThumbImage(item)}<div class="item-thumb-name">${esc(item.name)}</div></button><div class="item-thumb-badges">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
@@ -2331,7 +2342,7 @@ function render(){
   }
   root.innerHTML=groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
     const isBought=boughtIds.has(Number(item.id));
-    const badges=`${itemImageButton(item)}${addedAtButton(item)}${shoppingAreaBadge(item)}${webBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    const badges=`${itemImageButton(item)}${addedAtButton(item)}${shoppingAreaBadge(item)}${webBadge(item)}${prisjaktBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
     return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
@@ -3297,4 +3308,4 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0018</div></body></html>
+<div>V0019</div></body></html>

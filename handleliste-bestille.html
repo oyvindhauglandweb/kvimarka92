@@ -629,6 +629,11 @@ body:not(.dark-mode) .nutrition-tooltip-floating{
 
 /* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Bestille */
 #itemList .group-title{ text-transform:uppercase !important; }
+
+/* Bestille V0011: aktive WEB-/Prisjakt-markører og trygg eiernavigering */
+#itemList .link-badge{cursor:pointer;text-decoration:none;border:0;}
+#itemList .link-badge:hover{filter:brightness(1.14);}
+#itemList .prisjakt-badge{background:rgba(124,199,232,.16);color:var(--link);}
 </style><!-- lightdark-restore-2026-06-16 -->
 <!-- version: BESTILLE v46 ios12 load fix 2026-06-19 -->
 <!-- version: BESTILLE v53 final_local_item_types_2026-06-25 -->
@@ -755,7 +760,9 @@ function normalizeWebUrl(value){
   const candidate=/^https?:\/\//i.test(raw)?raw:`https://${raw}`;
   try{const url=new URL(candidate);return (url.protocol==="http:"||url.protocol==="https:")?url.href:"";}catch(error){return "";}
 }
-function webBadge(item){return normalizeWebUrl(item&&item.webUrl)?'<span class="badge web-badge" title="Varen har web-link">WEB</span>':"";}
+function prisjaktUrl(item){const name=String(item&&item.name||"").trim();return name?`https://www.prisjakt.no/s/${encodeURIComponent(name.replace(/\s+/g,"-"))}/`:"https://www.prisjakt.no/";}
+function webBadge(item){const url=normalizeWebUrl(item&&item.webUrl);return url?`<a class="badge web-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Åpne web-link">WEB</a>`:"";}
+function prisjaktBadge(item){const url=prisjaktUrl(item);return `<a class="badge prisjakt-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Søk etter ${esc(item&&item.name||"varen")} på Prisjakt">Prisjakt</a>`;}
 function isNetthandelItem(item){return getItemShoppingArea(item)==="Netthandel";}
 function updateNewItemWebUrlRequirement(){
   const type=document.getElementById("newItemType");
@@ -942,7 +949,8 @@ async function fetchJson(url,options){
 }
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
 function normalizeOwner(value){const text=String(value||"Felles").trim()||"Felles";return SHOPPING_OWNERS.some(owner=>owner.toLowerCase()===text.toLowerCase())?SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===text.toLowerCase()):text;}
-function getInitialOwner(){const saved=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");return SHOPPING_OWNERS.includes(saved)?saved:"Felles";}function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}selectedOwner=normalizeOwner(selectedOwner);if(!SHOPPING_OWNERS.includes(selectedOwner)){selectedOwner=SHOPPING_OWNERS[0]||"Felles";}localStorage.setItem(OWNER_STORAGE_KEY,selectedOwner);}
+function getOwnerFromUrl(){try{return String(new URLSearchParams(location.search).get("owner")||"").trim();}catch(error){return "";}}
+function getInitialOwner(){const requested=getOwnerFromUrl();const saved=normalizeOwner(requested||localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");return SHOPPING_OWNERS.includes(saved)?saved:"Felles";}function setShoppingOwners(options){const incoming=Array.isArray(options)?options.map(value=>String(value||"").trim()).filter(Boolean):[];const seen=new Set();const clean=[];incoming.forEach(owner=>{const key=owner.toLowerCase();if(!seen.has(key)){seen.add(key);clean.push(owner);}});if(!clean.some(owner=>owner.toLowerCase()==="felles")){clean.unshift("Felles");}if(clean.length){SHOPPING_OWNERS=clean;}const requestedOwner=getOwnerFromUrl();if(requestedOwner){const match=SHOPPING_OWNERS.find(owner=>owner.toLowerCase()===requestedOwner.toLowerCase());if(match)selectedOwner=match;}selectedOwner=normalizeOwner(selectedOwner);if(!SHOPPING_OWNERS.includes(selectedOwner)){selectedOwner=SHOPPING_OWNERS[0]||"Felles";}localStorage.setItem(OWNER_STORAGE_KEY,selectedOwner);}
 function ownerBadge(item){const owner=normalizeOwner(item.owner);return owner&&owner!=="Felles"?`<span class="badge">${esc(owner)}</span>`:"";}
 function normalizePermissionText(value){return String(value||"").trim().toLowerCase();}
 function isSupervisorOrAdministrator(){
@@ -1280,7 +1288,7 @@ function renderOrderThumbImage(item){
 function renderOrderThumbnailView(groups){
   return groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-thumb-grid">${group.items.map(item=>{
     const selected=!!item.shouldBuy;
-    const badges=`${nutritionBadge(item)}${shoppingAreaBadge(item)}${webBadge(item)}${ownerBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}`;
+    const badges=`${nutritionBadge(item)}${shoppingAreaBadge(item)}${webBadge(item)}${prisjaktBadge(item)}${ownerBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}`;
     return `<div class="item-thumb-card ${selected?"selected":""}"><button class="item-thumb-main" type="button" onclick="toggleShouldBuy(${Number(item.id)},${selected?"false":"true"})"${nutritionActionTitleAttr(item, selected?"Fjern fra Handle-listen":"Legg til i Handle-listen")}>${renderOrderThumbImage(item)}<div class="item-thumb-name"${nutritionTitleAttr(item)}>${esc(item.name)}</div></button><div class="item-thumb-badges">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
@@ -1303,7 +1311,7 @@ function render(){
     list.innerHTML=renderOrderThumbnailView(groups);
     return;
   }
-  list.innerHTML=groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>`<div class="item-row"><input class="item-check" type="checkbox" ${item.shouldBuy?"checked":""} onchange="toggleShouldBuy(${item.id}, this.checked)" title="Skal handles"><div><div class="item-name"${nutritionTitleAttr(item)}>${esc(item.name)}</div></div><div class="badge-stack">${itemImageButton(item)}${shoppingAreaBadge(item)}${webBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}</div></div>`).join("")}</div></div>`).join("");
+  list.innerHTML=groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>`<div class="item-row"><input class="item-check" type="checkbox" ${item.shouldBuy?"checked":""} onchange="toggleShouldBuy(${item.id}, this.checked)" title="Skal handles"><div><div class="item-name"${nutritionTitleAttr(item)}>${esc(item.name)}</div></div><div class="badge-stack">${itemImageButton(item)}${shoppingAreaBadge(item)}${webBadge(item)}${prisjaktBadge(item)}${item.standardItem?'<span class="badge">Standard</span>':""}</div></div>`).join("")}</div></div>`).join("");
 }
 async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.type=canonicalShoppingType(item.type)||"Annet";item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=uniqueShoppingTypeValues(Array.isArray(data.typeOrder)&&data.typeOrder.length?data.typeOrder:DEFAULT_TYPES.slice());typeOptions=Array.isArray(data.typeOptions)?uniqueShoppingTypeValues(data.typeOptions):[];setShoppingOwners(data.ownerOptions);render();updateOwnerStatus();}catch(error){setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 async function toggleShouldBuy(id,checked){const item=items.find(item=>Number(item.id)===Number(id));let webOpened=true;if(checked&&item&&isNetthandelItem(item)){const url=normalizeWebUrl(item.webUrl);if(!url){setStatus("Varer i Netthandel må ha en gyldig web-link.","error");await loadItems();return;}const openedWindow=window.open(url,"_blank");webOpened=!!openedWindow;if(openedWindow){try{openedWindow.opener=null;}catch(error){}}}try{await fetchJson(`${API_BASE}/shopping/item-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id,shouldBuy:checked})});if(item)item.shouldBuy=checked;render();if(checked&&item&&isNetthandelItem(item)){setStatus(webOpened?"Varen er lagt til i Handle-listen og nettbutikken er åpnet.":"Varen er lagt til i Handle-listen. Nettbutikken kunne ikke åpnes automatisk.",webOpened?"success":"error");}else{setStatus(checked?"Varen er lagt til i Handle-listen.":"Varen er fjernet fra Handle-listen.","success");}}catch(error){setStatus(`Kunne ikke oppdatere varen.<br><br>${esc(error.message)}`,"error");await loadItems();}}
@@ -1553,4 +1561,4 @@ loadItems();
 
 <script>document.getElementById("newItemImage").addEventListener("change",handleNewItemImageChange);</script>
 <script src="handleliste-menu.js?v=15"></script>
-<div>V0010</div></body></html>
+<div>V0011</div></body></html>
