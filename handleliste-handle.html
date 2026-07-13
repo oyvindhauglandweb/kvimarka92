@@ -896,7 +896,7 @@ body.dark-mode select option:checked{
 /* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Handle */
 #shoppingList .group-title{ text-transform:uppercase !important; }
 
-/* Handle V0016: Sikker og effektiv Workflow-fremdrift i grupper på 8.
+/* Handle V0017: Sikker og effektiv Workflow-fremdrift i grupper på 8.
    Fyllgraden kommer kun fra registrerte varer / totalt antall varer. */
 #status.shopping-finish-progress{
   --shopping-finish-progress:0%;
@@ -1039,7 +1039,12 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
       </div>
       <div class="form-field">
         <label for="addItemType">Varetype</label>
-        <select id="addItemType"></select>
+        <select id="addItemType" onchange="updateHandleWebUrlRequirement()"></select>
+      </div>
+      <div class="form-field">
+        <label for="addItemWebUrl">Web-link</label>
+        <input id="addItemWebUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://...">
+        <div class="item-meta">Obligatorisk for varer i Netthandel.</div>
       </div>
       <div class="form-field">
         <label for="addItemOwner">Vareliste/eier</label>
@@ -1286,6 +1291,9 @@ function shoppingAreaBadge(item){
   if(isMatvarerArea(area))return "";
   return `<span class="badge area-badge ${areaClass(area)}" title="Butikkgruppe: ${esc(area)}">${esc(area)}</span>`;
 }
+function normalizeWebUrl(value){const raw=String(value||"").trim();if(!raw)return "";const candidate=/^https?:\/\//i.test(raw)?raw:`https://${raw}`;try{const url=new URL(candidate);return (url.protocol==="http:"||url.protocol==="https:")?url.href:"";}catch(error){return "";}}
+function webBadge(item){return normalizeWebUrl(item&&item.webUrl)?'<span class="badge web-badge" title="Varen har web-link">WEB</span>':"";}
+function updateHandleWebUrlRequirement(){const input=document.getElementById("addItemWebUrl");if(!input)return;const required=selectedShoppingArea==="Netthandel";input.required=required;input.setAttribute("aria-required",required?"true":"false");}
 function isShoppingAreaLocked(){
   return boughtIds&&boughtIds.size>0;
 }
@@ -2182,6 +2190,7 @@ function fillAddItemSelects(){
     const finalOptions=options.length?options:[selectedShoppingArea];
     typeSelect.innerHTML=finalOptions.map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");
     typeSelect.value=finalOptions[0]||"Annet";
+    updateHandleWebUrlRequirement();
   }
   if(ownerSelect){
     ownerSelect.innerHTML=SHOPPING_OWNERS.map(owner=>`<option value="${esc(owner)}">${esc(owner)}</option>`).join("");
@@ -2194,6 +2203,9 @@ function openAddItemModal(){
   const name=document.getElementById("addItemName");
   const shouldBuy=document.getElementById("addItemShouldBuy");
   if(shouldBuy)shouldBuy.checked=true;
+  const webUrl=document.getElementById("addItemWebUrl");
+  if(webUrl)webUrl.value="";
+  updateHandleWebUrlRequirement();
   if(modal)modal.classList.add("open");
   window.setTimeout(()=>{if(name){name.focus();name.select();}},50);
 }
@@ -2207,6 +2219,7 @@ async function createShoppingItemFromHandle(){
   const type=String((document.getElementById("addItemType") && document.getElementById("addItemType").value)||"Annet").trim()||"Annet";
   const owner=normalizeOwner((document.getElementById("addItemOwner") && document.getElementById("addItemOwner").value)||"Felles");
   const shouldBuy=!!(document.getElementById("addItemShouldBuy") && document.getElementById("addItemShouldBuy").checked);
+  const webUrl=String((document.getElementById("addItemWebUrl")&&document.getElementById("addItemWebUrl").value)||"").trim();
   if(!name){
     alert("Skriv inn varenavn.");
     return;
@@ -2216,7 +2229,7 @@ async function createShoppingItemFromHandle(){
     const createdData=await fetchJson(`${API_BASE}/shopping/item-create`,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body:JSON.stringify({name,type,owner,shouldBuy,standardItem:false,shoppingArea:selectedShoppingArea})
+      body:JSON.stringify({name,type,owner,shouldBuy,standardItem:false,shoppingArea:selectedShoppingArea,webUrl})
     });
     const createdId=Number((createdData && createdData.item && createdData.item.id)||0);
     const createdAddedAt=(createdData && createdData.cartSync && createdData.cartSync.row && createdData.cartSync.row.addedAt) || (createdData && createdData.item && createdData.item.addedAt) || new Date().toISOString();
@@ -2289,7 +2302,7 @@ function renderHandleThumbnailView(groups){
   return groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-thumb-grid">${group.items.map(item=>{
     const id=Number(item.id);
     const isBought=boughtIds.has(id);
-    const badges=`${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    const badges=`${addedAtButton(item)}${shoppingAreaBadge(item)}${webBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
     return `<div class="item-thumb-card ${isBought?"selected":""}"><button class="item-thumb-main" type="button" onclick="toggleBought(${id}, ${isBought?"false":"true"})" title="${isBought?"Merk som ikke handlet":"Merk som handlet"}">${renderHandleThumbImage(item)}<div class="item-thumb-name">${esc(item.name)}</div></button><div class="item-thumb-badges">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
@@ -2318,7 +2331,7 @@ function render(){
   }
   root.innerHTML=groups.map(group=>`<div class="group"><h2 class="group-title">${esc(group.type)}</h2><div class="item-list">${group.items.map(item=>{
     const isBought=boughtIds.has(Number(item.id));
-    const badges=`${itemImageButton(item)}${addedAtButton(item)}${shoppingAreaBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
+    const badges=`${itemImageButton(item)}${addedAtButton(item)}${shoppingAreaBadge(item)}${webBadge(item)}${ownerBadge(item)}${ownerSmsButton(item)}${recipeBadge(item)}${item.standardItem?'<a class="badge standard-badge" href="handleliste-rediger.html" onclick="event.stopPropagation();" title="Rediger standardvalg for varer">Standard</a>':""}${isBought?'<span class="badge">Handlet</span>':""}`;
     return `<div class="item-row"><input class="item-check" type="checkbox" ${isBought?"checked":""} onchange="toggleBought(${Number(item.id)}, this.checked)" title="Handlet"><div class="item-name-wrap"><div class="item-name">${esc(item.name)}</div></div><div class="badge-stack">${badges}</div></div>`;
   }).join("")}</div></div>`).join("");
 }
@@ -3284,4 +3297,4 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0016</div></body></html>
+<div>V0017</div></body></html>
