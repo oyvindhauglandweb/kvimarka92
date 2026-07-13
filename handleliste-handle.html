@@ -896,7 +896,7 @@ body.dark-mode select option:checked{
 /* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Handle */
 #shoppingList .group-title{ text-transform:uppercase !important; }
 
-/* Handle V0017: Sikker og effektiv Workflow-fremdrift i grupper på 8.
+/* Handle V0018: Netthandel og Apotek i handelstypeknapper, og gammel Meieri-verdi fjernet.
    Fyllgraden kommer kun fra registrerte varer / totalt antall varer. */
 #status.shopping-finish-progress{
   --shopping-finish-progress:0%;
@@ -1096,13 +1096,13 @@ const OWNER_STORAGE_KEY="kvimarka92ShoppingOwner";
 const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
-const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v86-workflow-efficient-chunks";
+const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
+const HANDLELISTE_HANDLE_VERSION="v87-netthandel-area-buttons";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
-const SHOPPING_AREA_ORDER=["Matvarer","Normal","Europris","Frisør","Clas Ohlson","Sport","Bondekompaniet"];
-const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet"};
+const SHOPPING_AREA_ORDER=["Matvarer","Normal","Europris","Frisør","Clas Ohlson","Sport","Bondekompaniet","Apotek","Netthandel"];
+const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet","apotek":"Apotek","netthandel":"Netthandel"};
 const HANDLE_SHOW_IMAGES_STORAGE_KEY="shoppingShowImages";
 const HANDLE_SHOW_IMAGES_LEGACY_KEYS=[HANDLE_SHOW_IMAGES_STORAGE_KEY,"shoppingHandleShowImages","handlelisteShowImages","shoppingHandleImages","showShoppingImages"];
 function clientStateEnabled(){
@@ -3297,4 +3297,4 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0017</div></body></html>
+<div>V0018</div></body></html>
