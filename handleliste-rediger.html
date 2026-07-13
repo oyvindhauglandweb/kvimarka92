@@ -574,8 +574,35 @@ if(!String.prototype.replaceAll){
   background:transparent;
 }
 .edit-sort-spacer{min-height:24px;}
+.edit-mobile-sort{display:none;}
 @media(max-width:700px){
   .edit-sort-header{display:none;}
+  .edit-mobile-sort{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr) 52px;
+    gap:8px;
+    align-items:center;
+    padding:0 4px 10px;
+  }
+  .edit-mobile-sort-label{
+    color:var(--muted);
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .edit-mobile-sort select,
+  .edit-mobile-sort button{
+    min-height:42px;
+  }
+  .edit-mobile-sort select{width:100%;}
+  .edit-mobile-sort button{
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--soft-button-bg);
+    color:var(--link);
+    font-size:22px;
+    font-weight:700;
+    cursor:pointer;
+  }
 }
 </style>
 </head><body class="dark-mode"><script>
@@ -628,7 +655,17 @@ window.toggleShoppingTheme=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger varer</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><button id="saveAllButton" class="action-button global-save-button" type="button" onclick="saveAllDirtyRows()" disabled>Lagre endringer</button></div><div class="toolbar-right"><a class="action-button" href="handleliste-rydde.html">Rydde i varer</a></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div class="edit-sort-header" id="editSortHeader" aria-label="Sorter varer">
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger varer</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><button id="saveAllButton" class="action-button global-save-button" type="button" onclick="saveAllDirtyRows()" disabled>Lagre endringer</button></div><div class="toolbar-right"><a class="action-button" href="handleliste-rydde.html">Rydde i varer</a></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div class="edit-mobile-sort" id="editMobileSort" aria-label="Sorter varer på mobil">
+  <label class="edit-mobile-sort-label" for="editMobileSortKey">Sorter etter</label>
+  <select id="editMobileSortKey" onchange="setEditSortKey(this.value)">
+    <option value="name">Varenavn</option>
+    <option value="type">Varetype</option>
+    <option value="owner">Eier</option>
+    <option value="standardItem">Standard</option>
+    <option value="hasImage">Bilde</option>
+  </select>
+  <button id="editMobileSortDirection" type="button" onclick="toggleEditSortDirection()" title="Bytt sorteringsretning" aria-label="Bytt sorteringsretning">↑</button>
+</div><div class="edit-sort-header" id="editSortHeader" aria-label="Sorter varer">
   <button class="edit-sort-button" type="button" data-sort="name" onclick="toggleEditSort('name')" title="Sorter etter varenavn">⇅</button>
   <button class="edit-sort-button" type="button" data-sort="type" onclick="toggleEditSort('type')" title="Sorter etter varetype">⇅</button>
   <div class="edit-sort-placeholder" aria-hidden="true" title="Web-link"></div>
@@ -783,6 +820,25 @@ function updateEditSortHeader(){
     button.textContent=active?(editSort.direction==="asc"?"↑":"↓"):"⇅";
     button.setAttribute('aria-pressed',active?"true":"false");
   });
+  const mobileKey=document.getElementById("editMobileSortKey");
+  const mobileDirection=document.getElementById("editMobileSortDirection");
+  if(mobileKey)mobileKey.value=editSort.key;
+  if(mobileDirection){
+    const ascending=editSort.direction==="asc";
+    mobileDirection.textContent=ascending?"↑":"↓";
+    mobileDirection.title=ascending?"Stigende sortering – trykk for fallende":"Fallende sortering – trykk for stigende";
+    mobileDirection.setAttribute("aria-label",mobileDirection.title);
+  }
+}
+function setEditSortKey(key){
+  captureVisibleRowValues();
+  editSort={key,direction:"asc"};
+  render();
+}
+function toggleEditSortDirection(){
+  captureVisibleRowValues();
+  editSort.direction=editSort.direction==="asc"?"desc":"asc";
+  render();
 }
 function toggleEditSort(key){
   captureVisibleRowValues();
