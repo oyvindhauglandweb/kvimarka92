@@ -630,7 +630,7 @@ body:not(.dark-mode) .nutrition-tooltip-floating{
 /* V0009: Gruppeoverskrifter med STORE BOKSTAVER på Bestille */
 #itemList .group-title{ text-transform:uppercase !important; }
 
-/* Bestille V0011: aktive WEB-/Prisjakt-markører og trygg eiernavigering */
+/* Bestille V0012: Prisjakt-markøren bruker Kassal.app for Matvarer og Prisjakt ellers */
 #itemList .link-badge{cursor:pointer;text-decoration:none;border:0;}
 #itemList .link-badge:hover{filter:brightness(1.14);}
 #itemList .prisjakt-badge{background:rgba(124,199,232,.16);color:var(--link);}
@@ -760,7 +760,33 @@ function normalizeWebUrl(value){
   const candidate=/^https?:\/\//i.test(raw)?raw:`https://${raw}`;
   try{const url=new URL(candidate);return (url.protocol==="http:"||url.protocol==="https:")?url.href:"";}catch(error){return "";}
 }
-function prisjaktUrl(item){const name=String(item&&item.name||"").trim();return name?`https://www.prisjakt.no/s/${encodeURIComponent(name.replace(/\s+/g,"-"))}/`:"https://www.prisjakt.no/";}
+function simplifyKassalSearchTerm(value){
+  return String(value||"")
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/\([^)]*\)/g," ")
+    .replace(/\b\d+(?:[.,]\d+)?\s*(?:kg|g|mg|l|dl|cl|ml|stk|pk|pakke|poser?|bokser?)\b/gi," ")
+    .replace(/[^a-zæøå0-9]+/gi," ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(word=>{
+      let w=word;
+      if(w.length>4&&w.endsWith("s"))w=w.slice(0,-1);
+      if(w.endsWith("retter"))w=w.slice(0,-2);
+      return w;
+    })
+    .join(" ");
+}
+function prisjaktUrl(item){
+  const name=String(item&&item.name||"").trim();
+  if(!name)return "https://www.prisjakt.no/";
+  if(getItemShoppingArea(item)===SHOPPING_AREA_DEFAULT){
+    const query=simplifyKassalSearchTerm(name)||name.toLowerCase();
+    return `https://kassal.app/varer?sok=${encodeURIComponent(query)}`;
+  }
+  return `https://www.prisjakt.no/s/${encodeURIComponent(name.replace(/\s+/g,"-"))}/`;
+}
 function webBadge(item){const url=normalizeWebUrl(item&&item.webUrl);return url?`<a class="badge web-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Åpne web-link">WEB</a>`:"";}
 function prisjaktBadge(item){const url=prisjaktUrl(item);return `<a class="badge prisjakt-badge link-badge" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Søk etter ${esc(item&&item.name||"varen")} på Prisjakt">Prisjakt</a>`;}
 function isNetthandelItem(item){return getItemShoppingArea(item)==="Netthandel";}
@@ -1561,4 +1587,4 @@ loadItems();
 
 <script>document.getElementById("newItemImage").addEventListener("change",handleNewItemImageChange);</script>
 <script src="handleliste-menu.js?v=15"></script>
-<div>V0011</div></body></html>
+<div>V0012</div></body></html>
