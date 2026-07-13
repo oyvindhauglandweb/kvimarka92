@@ -2550,10 +2550,75 @@ function formatStoreMatchResult(data){
   return "Butikk kunne ikke foreslås automatisk.";
 }
 
+const SHOPPING_STORE_LOCK_KEY="shoppingStoreMatchLockV1";
+const SHOPPING_STORE_LOCK_MS=60*60*1000;
+
+function readShoppingStoreLock(){
+  try{
+    const raw=localStorage.getItem(SHOPPING_STORE_LOCK_KEY);
+    if(!raw){return null;}
+    const lock=JSON.parse(raw);
+    const expiresAt=Number(lock&&lock.expiresAt||0);
+    if(!lock||!lock.data||!expiresAt||Date.now()>=expiresAt){
+      localStorage.removeItem(SHOPPING_STORE_LOCK_KEY);
+      return null;
+    }
+    return lock;
+  }catch(error){
+    try{localStorage.removeItem(SHOPPING_STORE_LOCK_KEY);}catch(ignore){}
+    return null;
+  }
+}
+
+function writeShoppingStoreLock(data){
+  const matched=!!(data&&(data.storeName||(data.store&&data.store.name)));
+  const uncertain=String(data&&data.storeMatchStatus||"")==="Uncertain";
+  if(!matched||uncertain){return;}
+  try{
+    localStorage.setItem(SHOPPING_STORE_LOCK_KEY,JSON.stringify({
+      savedAt:Date.now(),
+      expiresAt:Date.now()+SHOPPING_STORE_LOCK_MS,
+      data
+    }));
+  }catch(error){}
+}
+
+function clearShoppingStoreLock(){
+  try{localStorage.removeItem(SHOPPING_STORE_LOCK_KEY);}catch(error){}
+}
+
+function applyShoppingStoreMatchData(data){
+  const matched=!!(data.storeName||(data.store&&data.store.name));
+  const uncertain=String(data.storeMatchStatus||"")==="Uncertain";
+  const matchedChain=String(data.storeChain||(data.store&&data.store.chain)||"").trim();
+  currentShoppingPlace=matched
+    ? (matchedChain||selectedShoppingArea||SHOPPING_AREA_DEFAULT)
+    : defaultShoppingPlaceForArea(selectedShoppingArea);
+
+  if(Array.isArray(data.typeOrder)&&data.typeOrder.length){
+    typeOrder=data.typeOrder;
+    currentStoreChain=data.typeOrderChain||matchedChain||"Standard";
+    render();
+  }
+
+  setStoreMatchStatus(formatStoreMatchResult(data),matched&&!uncertain?"success":"");
+}
+
 let storeMatchRunning=false;
 async function checkCurrentStore(silent){
   if(storeMatchRunning){
     return;
+  }
+
+  const explicitRefresh=!silent;
+  if(explicitRefresh){
+    clearShoppingStoreLock();
+  }else{
+    const lock=readShoppingStoreLock();
+    if(lock){
+      applyShoppingStoreMatchData(lock.data);
+      return;
+    }
   }
 
   if(gpsClientStateEnabled()){
@@ -2591,21 +2656,8 @@ async function checkCurrentStore(silent){
       })
     });
 
-    const matched=!!(data.storeName || (data.store && data.store.name));
-    const uncertain=String(data.storeMatchStatus || "") === "Uncertain";
-    const matchedChain=String(data.storeChain || (data.store && data.store.chain) || "").trim();
-    const matchedName=String(data.storeName || (data.store && data.store.name) || "").trim();
-    currentShoppingPlace=matched
-      ? (matchedChain || selectedShoppingArea || SHOPPING_AREA_DEFAULT)
-      : defaultShoppingPlaceForArea(selectedShoppingArea);
-
-    if(Array.isArray(data.typeOrder) && data.typeOrder.length){
-      typeOrder=data.typeOrder;
-      currentStoreChain=data.typeOrderChain || matchedChain || "Standard";
-      render();
-    }
-
-    setStoreMatchStatus(formatStoreMatchResult(data), matched && !uncertain ? "success" : "");
+    applyShoppingStoreMatchData(data);
+    writeShoppingStoreLock(data);
   }catch(error){
     setStoreMatchStatus(`Kunne ikke sjekke butikk.<br><br>${esc(error.message)}`, "error");
   }finally{

@@ -341,7 +341,40 @@ function cleanupPointerListeners(row){
   if(row){row.removeEventListener("pointercancel",handlePointerCancel);}
 }
 
-async function saveTypeOrder(){if(!canEditTypeOrder){setStatus("Kun administrator kan lagre varetyperekkefølge.","error");return;}const button=document.getElementById("saveButton");button.disabled=true;setStatus(`Lagrer rekkefølge for ${esc(currentChain)}...`);try{const data=await fetchJson(`${API_BASE}/shopping/type-order`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({chain:currentChain,types})});types=Array.isArray(data.typeOrder)?data.typeOrder:types;chains=Array.isArray(data.chains)&&data.chains.length?data.chains:chains;chainLogos=data.chainLogos||chainLogos||{};hasUnsavedChanges=false;render();setStatus(`Varetyperekkefølgen for <strong>${esc(currentChain)}</strong> er lagret.`, "success");}catch(error){setStatus(`Kunne ikke lagre varetyperekkefølgen.<br><br>${esc(error.message)}`,"error");}finally{button.disabled=false;}}
+async function saveTypeOrder(){
+  if(!canEditTypeOrder){setStatus("Kun administrator kan lagre varetyperekkefølge.","error");return;}
+  const button=document.getElementById("saveButton");
+  const requestedTypes=[...types];
+  button.disabled=true;
+  setStatus(`Lagrer rekkefølge for ${esc(currentChain)}...`);
+  try{
+    await fetchJson(`${API_BASE}/shopping/type-order`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({chain:currentChain,types:requestedTypes})
+    });
+
+    // Les tilbake fra Baserow via Worker og bekreft at rekkefølgen faktisk er lagret.
+    const verified=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(currentChain)}&verify=${Date.now()}`);
+    const savedTypes=Array.isArray(verified.typeOrder)?verified.typeOrder:[];
+    const requestedKey=requestedTypes.join("\u001f");
+    const savedKey=savedTypes.slice(0,requestedTypes.length).join("\u001f");
+    if(!savedTypes.length||savedKey!==requestedKey){
+      throw new Error("Rekkefølgen ble ikke lest tilbake likt etter lagring.");
+    }
+
+    types=savedTypes;
+    chains=Array.isArray(verified.chains)&&verified.chains.length?verified.chains:chains;
+    chainLogos=verified.chainLogos||chainLogos||{};
+    hasUnsavedChanges=false;
+    render();
+    setStatus(`Varetyperekkefølgen for <strong>${esc(currentChain)}</strong> er lagret og kontrollert.`,"success");
+  }catch(error){
+    setStatus(`Kunne ikke lagre varetyperekkefølgen.<br><br>${esc(error.message)}`,"error");
+  }finally{
+    button.disabled=false;
+  }
+}
 window.addEventListener("beforeunload",event=>{if(!hasUnsavedChanges){return;}event.preventDefault();event.returnValue="";});
 loadTypes("Standard");
 document.getElementById("chainLogo").addEventListener("error",function(){this.style.display="none";});
