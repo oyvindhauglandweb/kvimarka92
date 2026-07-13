@@ -253,6 +253,7 @@ body:not(.dark-mode) .added-at-popup-time{
 #addedAtModal .added-at-popup-name{
   margin-bottom:12px !important;
 }
+#addedAtModal .added-at-popup-person,
 #addedAtModal .added-at-popup-time{
   width:166px !important;
   min-width:166px !important;
@@ -921,7 +922,7 @@ body.dark-mode #status.shopping-finish-progress{
   );
 }
 
-/* Handle V0021: Prisjakt-markøren bruker Kassal.app for Matvarer og Prisjakt ellers */
+/* Handle V0022: Dato-popup viser også hvem som la til varen */
 #shoppingList .link-badge{
   cursor:pointer;
   text-decoration:none;
@@ -1844,10 +1845,17 @@ function openAddedAtModal(id){
   }
 
   const itemName=item ? (item.name || "Vare") : "Vare";
+  const addedBy=String(
+    (item && item.addedBy) ||
+    (item && item.cartAddedBy) ||
+    (item && item.shoppingCartAddedBy) ||
+    ""
+  ).trim();
   const formatted=formatAddedAt(addedAt);
   const timeText=formatted || addedAt || "Tidspunkt mangler";
+  const addedByText=addedBy || "Ikke registrert";
 
-  body.innerHTML=`<div class="added-at-popup-body"><div class="added-at-popup-name">${esc(itemName)}</div><div class="added-at-popup-label">Lagt til</div><div class="added-at-popup-time">${esc(timeText)}</div></div>`;
+  body.innerHTML=`<div class="added-at-popup-body"><div class="added-at-popup-name">${esc(itemName)}</div><div class="added-at-popup-label">Lagt til av</div><div class="added-at-popup-person">${esc(addedByText)}</div><div class="added-at-popup-label">Lagt til</div><div class="added-at-popup-time">${esc(timeText)}</div></div>`;
   modal.classList.add("open");
   updateNewItemDebug({timerText:"Lagt til-popup vist",pendingCount:0},`Lagt til-popup vist for ${itemName}`);
 }
@@ -3334,4 +3342,4 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0021</div></body></html>
+<div>V0022</div></body></html>
