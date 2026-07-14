@@ -248,7 +248,7 @@ if(!String.prototype.replaceAll){
 }
 </script>
 
-<!-- version: HISTORIKK v48 no_cross_session_logo_guess 2026-06-23 -->
+<!-- version: HISTORIKK v49 active-user-display-name 2026-07-14 -->
 </head>
 <body class="dark-mode"><script>
 (function(){
@@ -365,7 +365,7 @@ function renderHistory(groups){
     const logoUrl=historyLogoUrl(group);
     const store=storeText(group);
     const logo=logoUrl?`<img class="store-logo" src="${esc(logoUrl)}" alt="${esc(group.storeChain||group.storeName||"Butikk")}" onerror="this.remove();">`:"";
-    return `<section class="history-group"><div class="history-title"><div><div class="history-date-line"><span class="history-date">${esc(formatDateTime(group.boughtAt))}</span><span class="history-count">${group.items.length} vare${group.items.length===1?"":"r"}</span></div>${store?`<div class="history-store">${esc(store)}</div>`:""}</div>${logo}</div><div class="history-list">${sortedHistoryItems(group.items).map(item=>`<div class="history-row"><div class="item-name">${esc(item.itemName)}</div><span class="badge">${esc(item.type||"Annet")}</span></div>`).join("")}</div></section>`;
+    return `<section class="history-group"><div class="history-title"><div><div class="history-date-line"><span class="history-date">${esc(formatDateTime(group.boughtAt))}</span><span class="history-count">${group.items.length} vare${group.items.length===1?"":"r"}${group.completedBy?` handlet av ${esc(group.completedBy)}`:""}</span></div>${store?`<div class="history-store">${esc(store)}</div>`:""}</div>${logo}</div><div class="history-list">${sortedHistoryItems(group.items).map(item=>`<div class="history-row"><div class="item-name">${esc(item.itemName)}</div><span class="badge">${esc(item.type||"Annet")}</span></div>`).join("")}</div></section>`;
   }).join("");
 }
 async function loadHistory(){setStatus("Laster handlehistorikk...");try{const data=await fetchJson(`${API_BASE}/shopping/history?limit=500&ts=${Date.now()}`);const groups=Array.isArray(data.groups)?data.groups:[];renderHistory(groups);setStatus(`Klar. Viser ${groups.length} ${groups.length===1?"handel":"handler"}, nyeste øverst.`, "success");}catch(error){setStatus(`Kunne ikke laste handlehistorikk.<br><br>${esc(error.message)}`, "error");}}
