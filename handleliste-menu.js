@@ -1,3 +1,4 @@
+// HANDLELISTE_MENU_V223_DELETE_DETAIL_AND_ARCHIVE
 
 /* Handleliste felles toppmeny v4
    Produksjonsnavn: handleliste-menu.js */
@@ -920,7 +921,7 @@
     if(select) select.innerHTML='<option value="">Laster ...</option>';
     const res=await fetch(`${API_BASE}/shopping/item-types-manage`,{method:"GET",credentials:"include",cache:"no-store"});
     const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(error){}
-    if(!res.ok || !data || data.error) throw new Error((data&&(data.error||data.detail))||text||`HTTP ${res.status}`);
+    if(!res.ok || !data || data.error) throw new Error((data&&(data.detail||data.error))||text||`HTTP ${res.status}`);
     const list=kind==="food"?(data.food||[]):(data.external||[]);
     if(select){
       select.innerHTML='<option value="">Velg ...</option>'+list
