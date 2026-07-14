@@ -1,5 +1,5 @@
 
-/* Handleliste felles toppmeny v3
+/* Handleliste felles toppmeny v4
    Produksjonsnavn: handleliste-menu.js */
 (function(){
   function loadSharedErrorLogger(){
@@ -649,8 +649,12 @@
 
   function isAdminUser(user){
     const role = String((user && user.role) || "").trim().toLowerCase();
+    const handlelisteRole = String((user && user.handlelisteRole) || "").trim().toLowerCase();
     const memberRole = String((user && user.family && user.family.memberRole) || "").trim().toLowerCase();
-    return role === "administrator" || role === "admin" || role === "supervisor" || memberRole === "administrator" || memberRole === "admin" || memberRole === "family admin" || memberRole === "family_admin" || memberRole === "owner";
+    return !!(user && user.isFamilyAdmin) ||
+      role === "administrator" || role === "admin" || role === "supervisor" ||
+      handlelisteRole === "administrator" || handlelisteRole === "admin" || handlelisteRole === "family admin" || handlelisteRole === "family_admin" ||
+      memberRole === "administrator" || memberRole === "admin" || memberRole === "family admin" || memberRole === "family_admin" || memberRole === "owner";
   }
 
   async function fetchCurrentUser(){
@@ -705,14 +709,14 @@
 
   function settingsMenuHtml(){
     return `
-          ${settingsLink("handleliste-varsling.html", "Varsling")}
-          ${settingsLink("handleliste-varetyper.html", "Varetyper")}
+          ${settingsLink("handleliste-varsling.html", "Varsling før handling")}
+          ${settingsLink("handleliste-varetyper.html", "Plassere varetyper")}
           <a href="#" id="handlelisteCreateFoodTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('food', event)">Opprett matvaregruppe</a>
           <a href="#" id="handlelisteCreateExternalTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('external', event)">Opprett butikk/handelstype</a>
-          ${settingsLink("handleliste-rediger.html", "Varer")}
-          ${settingsLink("handleliste-historikk.html", "Historikk")}
-          ${settingsLink("handleliste-rydde.html", "Rydde i varer")}
-          ${settingsLink("handleliste-oppskrifter-rediger.html", "Oppskrifter")}
+          ${settingsLink("handleliste-rediger.html", "Redigere varer")}
+          ${settingsLink("handleliste-historikk.html", "Handlehistorikk")}
+          ${settingsLink("handleliste-rydde.html", "Slette varer")}
+          ${settingsLink("handleliste-oppskrifter-rediger.html", "Redigere oppskrifter")}
           ${actionLink("sendShoppingListEmail", "E-post")}
           ${actionLink("sendShoppingListSms", "SMS")}
         `;
