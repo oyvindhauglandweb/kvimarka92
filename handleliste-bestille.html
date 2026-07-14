@@ -1580,7 +1580,7 @@ loadItems();
 
 <script>document.getElementById("newItemImage").addEventListener("change",handleNewItemImageChange);</script>
 <script src="handleliste-menu.js?v=22"></script>
-<div>V0014</div><script src="handleliste-item-dialog.js?v=1"></script>
+<div>V0015</div><script src="handleliste-item-dialog.js?v=2"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase:API_BASE,
@@ -1589,7 +1589,18 @@ HandlelisteItemDialog.configure({
   getTypes:()=>uniqueShoppingTypeValues([...(typeOptions||[]),...(typeOrder||[]),...items.map(item=>item.type)]),
   getDefaultOwner:()=>selectedOwner,
   resolveShoppingArea:type=>normalizeShoppingArea("",type),
-  canSetStandard:()=>isSupervisorOrAdministrator(),
+  canSetStandard:()=>{
+    const u=currentUser||{};
+    const role=String(u.role||"").trim().toLowerCase();
+    const hr=String(u.handlelisteRole||u.handleliste_role||"").trim().toLowerCase();
+    const access=String(u.handlelisteAccess||u.handleliste_access||"").trim().toLowerCase();
+    const mr=String((u.family&&u.family.memberRole)||u.memberRole||"").trim().toLowerCase();
+    return !!u.isFamilyAdmin ||
+      ["administrator","admin","supervisor"].includes(role) ||
+      ["administrator","admin","family admin","family_admin"].includes(hr) ||
+      access==="admin" ||
+      ["family admin","family_admin","administrator","admin","owner"].includes(mr);
+  },
   defaultShouldBuy:true,
   setStatus:setStatus,
   onSaved:async()=>{await loadItems();setStatus("Varen er lagt til.","success");}
