@@ -1,7 +1,7 @@
 (function(){
   "use strict";
 
-  const state={config:{},suggestions:[],suggestionsLoaded:false,imageDataUrl:"",imageFileName:"",sourceItemId:0,sourceSuggestionId:0};
+  const state={config:{},suggestions:[],suggestionsLoaded:false,imageDataUrl:"",imageFileName:"",sourceItemId:0,sourceSuggestionId:0,standardPermission:null};
   const $=id=>document.getElementById(id);
   const esc=value=>String(value==null?"":value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
   const clean=value=>String(value||"").trim();
@@ -14,7 +14,42 @@
   function getTypes(){try{return (config().getTypes&&config().getTypes())||[];}catch(e){return [];}}
   function defaultOwner(){try{return clean(config().getDefaultOwner&&config().getDefaultOwner())||"Felles";}catch(e){return "Felles";}}
   function resolveArea(type){try{return clean(config().resolveShoppingArea&&config().resolveShoppingArea(type))||type;}catch(e){return type;}}
-  function canSetStandard(){try{return !!(config().canSetStandard&&config().canSetStandard());}catch(e){return false;}}
+  function canSetStandard(){
+    if(state.standardPermission===true) return true;
+    try{return !!(config().canSetStandard&&config().canSetStandard());}catch(e){return false;}
+  }
+  function permissionText(value){return clean(value).toLowerCase();}
+  function userCanSetStandard(user){
+    const u=(user&&user.currentUser)||user||{};
+    const family=u.family||{};
+    const role=permissionText(u.role||u.globalRole||u.userRole);
+    const handlelisteRole=permissionText(u.handlelisteRole||u.handleliste_role||u.shoppingRole||u.handleliste?.role);
+    const handlelisteAccess=permissionText(u.handlelisteAccess||u.handleliste_access||u.shoppingAccess||u.handleliste?.access);
+    const memberRole=permissionText(family.memberRole||family.role||u.memberRole||u.familyMemberRole);
+    return !!(u.isFamilyAdmin||u.familyAdmin||family.isFamilyAdmin) ||
+      ["administrator","admin","supervisor"].includes(role) ||
+      ["administrator","admin","family admin","family_admin"].includes(handlelisteRole) ||
+      handlelisteAccess==="admin" ||
+      ["family admin","family_admin","administrator","admin","owner"].includes(memberRole);
+  }
+  async function refreshStandardPermission(){
+    try{
+      const user=await fetchJson(`${apiBase()}/whoami`,{cache:"no-store"});
+      state.standardPermission=userCanSetStandard(user);
+    }catch(e){
+      state.standardPermission=null;
+    }
+    applyStandardPermission();
+    return canSetStandard();
+  }
+  function applyStandardPermission(){
+    const input=$("hidStandard"), row=$("hidStandardRow");
+    if(!input||!row) return;
+    const allowed=canSetStandard();
+    input.disabled=!allowed;
+    row.style.opacity=allowed?"1":".45";
+    row.title=allowed?"":"Bare administrator kan sette standardvare";
+  }
   function setHostStatus(message,type){try{if(config().setStatus)config().setStatus(message,type);}catch(e){}}
 
   async function fetchJson(url,options){
@@ -84,11 +119,11 @@
     const types=unique(getTypes()); if(!types.length)types.push("Annet");
     $("hidType").innerHTML=types.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
     const preferred=clean(config().getDefaultType&&config().getDefaultType()); if(preferred&&types.some(v=>key(v)===key(preferred)))$("hidType").value=types.find(v=>key(v)===key(preferred));
-    const allowed=canSetStandard(); $("hidStandard").disabled=!allowed; $("hidStandardRow").style.opacity=allowed?"1":".45"; $("hidStandardRow").title=allowed?"":"Bare administrator kan sette standardvare";
+    applyStandardPermission();
   }
 
-  function open(){
-    injectModal(); $("hidForm").reset(); state.sourceItemId=0;state.sourceSuggestionId=0;clearImage();hideSuggestions();populate();$("hidShouldBuy").checked=config().defaultShouldBuy!==false;updateWebRequirement();updateDuplicate();$("handlelisteItemDialog").classList.add("open");setTimeout(()=>$("hidTechnical").focus(),60);ensureSuggestions();
+  async function open(){
+    injectModal(); $("hidForm").reset(); state.sourceItemId=0;state.sourceSuggestionId=0;clearImage();hideSuggestions();populate();$("hidShouldBuy").checked=config().defaultShouldBuy!==false;updateWebRequirement();updateDuplicate();$("handlelisteItemDialog").classList.add("open");setTimeout(()=>$("hidTechnical").focus(),60);ensureSuggestions();await refreshStandardPermission();
   }
   function close(){const m=$("handlelisteItemDialog");if(m)m.classList.remove("open");hideSuggestions();state.sourceItemId=0;state.sourceSuggestionId=0;}
 
