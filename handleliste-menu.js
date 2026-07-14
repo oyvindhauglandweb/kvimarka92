@@ -978,9 +978,9 @@
     try{
       if(button) button.disabled=true;
       setItemTypeStatus("Oppretter ...","");
-      const res=await fetch(`${API_BASE}/shopping/item-type-create`,{method:"POST",credentials:"include",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({kind,name})});
+      const res=await fetch(`${API_BASE}/shopping/item-type-create`,{method:"POST",credentials:"include",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({kind,name,device:(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?"Mobil":"PC"),browser:navigator.userAgent||"",operatingSystem:navigator.platform||""})});
       const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(error){}
-      if(!res.ok || (data&&data.error)) throw new Error((data&&(data.error||data.detail))||text||`HTTP ${res.status}`);
+      if(!res.ok || (data&&data.error)) throw new Error((data&&(data.detail||data.error||data.message))||text||`HTTP ${res.status}`);
       document.getElementById("handlelisteItemTypeName").value="";
       await loadItemTypeManagementOptions(kind);
       setItemTypeStatus((data&&data.message)||`${name} er opprettet.`,"success");
@@ -1005,7 +1005,7 @@
       setItemTypeStatus("Sletter ...","");
       const res=await fetch(`${API_BASE}/shopping/item-type-delete`,{method:"POST",credentials:"include",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({kind,id})});
       const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(error){}
-      if(!res.ok || (data&&data.error)) throw new Error((data&&(data.error||data.detail))||text||`HTTP ${res.status}`);
+      if(!res.ok || (data&&data.error)) throw new Error((data&&(data.detail||data.error||data.message))||text||`HTTP ${res.status}`);
       await loadItemTypeManagementOptions(kind);
       setItemTypeStatus((data&&data.message)||`${name} er slettet.`,"success");
       if(location.pathname.endsWith("handleliste-varetyper.html")) setTimeout(()=>location.reload(),700);
