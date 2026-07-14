@@ -428,6 +428,24 @@ body.dark-mode .action-button.gps-button{
   color:inherit !important;
 }
 .action-button.gps-button .btn-icon,
+
+/* V241: Oppdater butikk skal alltid kunne trykkes, også på mobil. */
+#updateStoreButton{
+  position:relative;
+  z-index:20;
+  pointer-events:auto !important;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(124,199,232,.18);
+}
+#updateStoreButton[disabled]{
+  pointer-events:auto !important;
+}
+@media(max-width:700px){
+  #updateStoreButton{
+    min-height:38px;
+  }
+}
+
 .action-button.gps-button .btn-icon svg{
   color:inherit !important;
   stroke:currentColor !important;
@@ -1042,7 +1060,7 @@ window.toggleHandleSize=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="HandlelisteItemDialog.open()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="HandlelisteItemDialog.open()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" id="updateStoreButton" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="itemImageModal" onclick="handleImageModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title" id="itemImageModalTitle">Varebilde</div><button class="modal-close" type="button" onclick="closeItemImageModal()">×</button></div><img class="image-viewer-img" id="itemImageModalImg" alt="Varebilde"></div></div>
 
 <div class="modal" id="newItemsModal" onclick="if(event.target===this) closeNewItemsModal();">
@@ -2477,11 +2495,11 @@ function applyShoppingStoreMatchData(data){
 }
 
 let storeMatchRunning=false;
+let storeMatchRequestId=0;
 async function checkCurrentStore(silent){
-  if(storeMatchRunning){
-    return;
-  }
-
+  // V241: Et manuelt trykk må aldri blokkeres av en automatisk/silent GPS-sjekk.
+  // Hver kjøring får en ID, og bare den nyeste får oppdatere butikk/status.
+  const requestId=++storeMatchRequestId;
   const explicitRefresh=!silent;
   if(explicitRefresh){
     clearShoppingStoreLock();
@@ -2504,14 +2522,16 @@ async function checkCurrentStore(silent){
   storeMatchRunning=true;
 
   try{
-    if(!silent){
+    if(!silent && requestId===storeMatchRequestId){
       setStoreMatchStatus("Sjekker hvilken butikk du er i...");
     }
 
     const location=await getShoppingLocation();
 
     if(location.status !== "ok"){
-      setStoreMatchStatus(formatGpsLocation(location), "error");
+      if(requestId===storeMatchRequestId){
+        setStoreMatchStatus(formatGpsLocation(location), "error");
+      }
       return;
     }
 
@@ -2528,12 +2548,19 @@ async function checkCurrentStore(silent){
       })
     });
 
+    if(requestId!==storeMatchRequestId){
+      return;
+    }
     applyShoppingStoreMatchData(data);
     writeShoppingStoreLock(data);
   }catch(error){
-    setStoreMatchStatus(`Kunne ikke sjekke butikk.<br><br>${esc(error.message)}`, "error");
+    if(requestId===storeMatchRequestId){
+      setStoreMatchStatus(`Kunne ikke sjekke butikk.<br><br>${esc(error.message)}`, "error");
+    }
   }finally{
-    storeMatchRunning=false;
+    if(requestId===storeMatchRequestId){
+      storeMatchRunning=false;
+    }
   }
 }
 
@@ -3266,7 +3293,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0029</div><script src="handleliste-item-dialog.js?v=3"></script>
+<div>V0030</div><script src="handleliste-item-dialog.js?v=3"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase:API_BASE,
