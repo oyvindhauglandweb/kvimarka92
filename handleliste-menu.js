@@ -298,16 +298,28 @@
         font-size:14px;
         font-weight:800;
       }
-      .handleliste-create-user-field input{
+      .handleliste-create-user-field input,
+      .handleliste-create-user-field select{
         width:100%;
         min-height:40px;
         padding:0 12px;
-        border:0;
+        border:1px solid var(--border,#555);
         border-radius:8px;
-        background:rgba(127,127,127,.14);
+        background:var(--card,#242424);
         color:var(--text,#eee);
         font-size:15px;
         box-sizing:border-box;
+        color-scheme:dark;
+      }
+      .handleliste-create-user-field select option{
+        background:#242424;
+        color:#eee;
+      }
+      body.light-mode .handleliste-create-user-field select,
+      body.light-mode .handleliste-create-user-field select option{
+        background:#fff;
+        color:#222;
+        color-scheme:light;
       }
       .handleliste-create-user-help{
         margin:0 0 14px;
