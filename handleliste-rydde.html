@@ -193,6 +193,34 @@ a.primary:hover,
   }
 }
 
+
+/* V236: filter og tabellkolonner på Slette varer */
+.cleanup-filter-grid{display:grid;grid-template-columns:minmax(180px,1.5fr) minmax(150px,1fr) minmax(170px,1fr) auto;gap:8px;align-items:end;}
+.cleanup-filter-field{display:flex;flex-direction:column;gap:5px;}
+.cleanup-filter-field label{font-size:12px;color:var(--muted);}
+.cleanup-filter-field input,.cleanup-filter-field select{min-height:36px;font-size:14px;}
+.cleanup-table-head,.cleanup-row{display:grid;grid-template-columns:minmax(180px,1.65fr) minmax(130px,.95fr) minmax(100px,.7fr) minmax(135px,.9fr) minmax(135px,.9fr) 38px;gap:8px;align-items:center;}
+.cleanup-table-head{padding:4px 8px 7px;color:var(--muted);font-size:11px;font-weight:bold;text-transform:uppercase;}
+.cleanup-row{padding:7px 8px;}
+.cleanup-cell{min-width:0;}
+.cleanup-cell-value{font-size:13px;overflow-wrap:anywhere;}
+.cleanup-title{font-size:14px;font-weight:bold;}
+.cleanup-badges{justify-content:flex-start;margin-top:4px;}
+.cleanup-date-empty{color:var(--muted);}
+@media(max-width:760px){
+  .cleanup-desktop-cell{display:none;}
+  .cleanup-filter-grid{grid-template-columns:1fr 1fr;}
+  .cleanup-filter-actions{grid-column:1/-1;}
+  .cleanup-filter-actions .action-button{width:100%;}
+  .cleanup-table-head{display:none;}
+  .cleanup-row{grid-template-columns:1fr 38px;gap:6px;align-items:start;}
+  .cleanup-row .delete-button{grid-column:2;grid-row:1;}
+  .cleanup-mobile-grid{grid-column:1;display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;margin-top:6px;}
+  .cleanup-mobile-field{min-width:0;}
+  .cleanup-mobile-label{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;font-weight:bold;margin-bottom:2px;}
+  .cleanup-mobile-field .cleanup-cell-value{font-size:11px;}
+}
+@media(max-width:480px){.cleanup-filter-grid{grid-template-columns:1fr;}.cleanup-filter-actions{grid-column:auto;}.cleanup-mobile-grid{grid-template-columns:1fr 1fr;}}
 </style><script>
 if(!String.prototype.replaceAll){
   String.prototype.replaceAll=function(search,replacement){
@@ -251,7 +279,19 @@ window.toggleShoppingTheme=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
-</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rydde i varer</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a></div></div></div><div class="card status-card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="cleanupList"></div></div></div><script>
+</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rydde i varer</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><a class="action-button" href="handleliste-varetyper.html">Varetyper</a></div></div></div><div class="card">
+  <div class="cleanup-filter-grid">
+    <div class="cleanup-filter-field"><label for="cleanupSearch">Søk etter vare</label><input id="cleanupSearch" type="search" placeholder="Skriv varenavn ..." oninput="render()"></div>
+    <div class="cleanup-filter-field"><label for="cleanupTypeFilter">Varegruppe/butikk</label><select id="cleanupTypeFilter" onchange="render()"><option value="">Alle</option></select></div>
+    <div class="cleanup-filter-field"><label for="cleanupOwnerFilter">Vareliste</label><select id="cleanupOwnerFilter" onchange="render()"><option value="">Alle</option></select></div>
+    <div class="cleanup-filter-actions"><button class="action-button" type="button" onclick="resetCleanupFilters()">Nullstill</button></div>
+  </div>
+</div>
+<div class="card status-card"><div id="status" class="status">Laster...</div></div>
+<div class="card">
+  <div class="cleanup-table-head"><div>Vare</div><div>Varegruppe/butikk</div><div>Vareliste</div><div>Lagt inn</div><div>Sist handlet</div><div></div></div>
+  <div id="cleanupList"></div>
+</div></div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 let SHOPPING_OWNERS=["Felles"];
 let items=[];
@@ -266,12 +306,19 @@ function isSupervisorOrAdministrator(){const role=normalizePermissionText((curre
 function ownerMatchesCurrentUser(owner){const safeOwner=normalizePermissionText(owner||"Felles");if(!safeOwner||safeOwner==="felles")return false;const userName=normalizePermissionText((currentUser&&currentUser.name)||"");const emailLocal=normalizePermissionText(String((currentUser&&currentUser.email)||"").split("@")[0]||"");return userName===safeOwner||userName.startsWith(`${safeOwner} `)||emailLocal===safeOwner||emailLocal.startsWith(safeOwner);}
 function canDeleteItem(item){if(isSupervisorOrAdministrator())return true;const owner=normalizeOwner(item.owner);return owner!=="Felles"&&ownerMatchesCurrentUser(owner);}
 function lastBoughtTimestamp(item){const raw=String((item&&item.lastBoughtAt)||"").trim();if(!raw)return -8640000000000000;const t=Date.parse(raw);return Number.isFinite(t)?t:-8640000000000000;}
-function formatLastBought(value){const raw=String(value||"").trim();if(!raw)return "Aldri handlet";const date=new Date(raw);if(Number.isNaN(date.getTime()))return raw;return new Intl.DateTimeFormat("no-NO",{dateStyle:"medium",timeStyle:"short"}).format(date);}
+function formatDateTime(value,emptyText){const raw=String(value||"").trim();if(!raw)return emptyText||"–";const date=new Date(raw);if(Number.isNaN(date.getTime()))return raw;return new Intl.DateTimeFormat("no-NO",{dateStyle:"medium",timeStyle:"short"}).format(date);}
+function formatLastBought(value){return formatDateTime(value,"Aldri handlet");}
+function formatCreatedAt(value){return formatDateTime(value,"Ukjent");}
 function sourceBadge(item){const source=String(item.source||"").trim();if(item.recipeName)return `<span class="badge">${esc(item.recipeName)}</span>`;if(source&&source!=="Normal")return `<span class="badge">${esc(source)}</span>`;return "";}
-function badgesForItem(item){const badges=[];if(item.standardItem)badges.push('<span class="badge">Standard</span>');const owner=normalizeOwner(item.owner);if(owner&&owner!=="Felles")badges.push(`<span class="badge">${esc(owner)}</span>`);const source=sourceBadge(item);if(source)badges.push(source);return badges.join("");}
+function badgesForItem(item){const badges=[];if(item.standardItem)badges.push('<span class="badge">Standard</span>');const source=sourceBadge(item);if(source)badges.push(source);return badges.join("");}
 function sortForCleanup(a,b){const ta=lastBoughtTimestamp(a);const tb=lastBoughtTimestamp(b);if(ta!==tb)return ta-tb;return String(a.name||"").localeCompare(String(b.name||""),"no",{sensitivity:"base"});}
-function render(){const root=document.getElementById("cleanupList");const sorted=[...items].sort(sortForCleanup);if(!sorted.length){root.innerHTML='<div class="empty">Ingen varer.</div>';return;}root.innerHTML=sorted.map(item=>{const canDelete=canDeleteItem(item);const deleteTitle=canDelete?"Slett vare fra systemet":"Du kan bare slette egne varer. Fellesvarer slettes av supervisor/administrator.";return `<div class="cleanup-row"><div><div class="cleanup-title">${esc(item.name)}</div><div class="cleanup-meta">${esc(item.type||"Annet")} • ${esc(normalizeOwner(item.owner))} • Sist handlet: <strong>${esc(formatLastBought(item.lastBoughtAt))}</strong></div></div><div class="cleanup-badges">${badgesForItem(item)}</div><button class="delete-button" type="button" onclick="deleteItem(${item.id})" title="${esc(deleteTitle)}" ${canDelete?"":"disabled"}>🗑</button></div>`;}).join("");}
-async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];render();setStatus(`Klar. Viser ${items.length} varer sortert etter sist handlet, eldste øverst. Varer som aldri er handlet vises først.`,"success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
+function uniqueSorted(values){const seen=new Set();return (values||[]).map(v=>String(v||"").trim()).filter(Boolean).filter(v=>{const k=v.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;}).sort((a,b)=>a.localeCompare(b,"no",{sensitivity:"base"}));}
+function populateCleanupFilters(){const typeEl=document.getElementById("cleanupTypeFilter");const ownerEl=document.getElementById("cleanupOwnerFilter");const selectedType=typeEl?typeEl.value:"";const selectedOwner=ownerEl?ownerEl.value:"";if(typeEl){typeEl.innerHTML='<option value="">Alle</option>'+uniqueSorted(items.map(item=>item.type||"Annet")).map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");typeEl.value=selectedType;}if(ownerEl){ownerEl.innerHTML='<option value="">Alle</option>'+uniqueSorted(items.map(item=>normalizeOwner(item.owner))).map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");ownerEl.value=selectedOwner;}}
+function filteredCleanupItems(){const query=String(document.getElementById("cleanupSearch")?.value||"").trim().toLowerCase();const type=String(document.getElementById("cleanupTypeFilter")?.value||"").trim().toLowerCase();const owner=String(document.getElementById("cleanupOwnerFilter")?.value||"").trim().toLowerCase();return items.filter(item=>{if(query&&!String(item.name||"").toLowerCase().includes(query))return false;if(type&&String(item.type||"Annet").trim().toLowerCase()!==type)return false;if(owner&&normalizeOwner(item.owner).toLowerCase()!==owner)return false;return true;});}
+function resetCleanupFilters(){const search=document.getElementById("cleanupSearch");const type=document.getElementById("cleanupTypeFilter");const owner=document.getElementById("cleanupOwnerFilter");if(search)search.value="";if(type)type.value="";if(owner)owner.value="";render();}
+function cleanupField(label,value,extraClass){return `<div class="cleanup-mobile-field ${extraClass||""}"><span class="cleanup-mobile-label">${esc(label)}</span><span class="cleanup-cell-value">${value}</span></div>`;}
+function render(){const root=document.getElementById("cleanupList");const sorted=filteredCleanupItems().sort(sortForCleanup);if(!sorted.length){root.innerHTML='<div class="empty">Ingen varer passer til filteret.</div>';setStatus(`Klar. Viser 0 av ${items.length} varer.`,"success");return;}root.innerHTML=sorted.map(item=>{const canDelete=canDeleteItem(item);const deleteTitle=canDelete?"Slett vare fra systemet":"Du kan bare slette egne varer. Fellesvarer slettes av supervisor/administrator.";const type=esc(item.type||"Annet");const owner=esc(normalizeOwner(item.owner));const created=esc(formatCreatedAt(item.createdAt));const last=esc(formatLastBought(item.lastBoughtAt));return `<div class="cleanup-row"><div class="cleanup-cell"><div class="cleanup-title">${esc(item.name)}</div><div class="cleanup-badges">${badgesForItem(item)}</div><div class="cleanup-mobile-grid">${cleanupField("Varegruppe/butikk",type)}${cleanupField("Vareliste",owner)}${cleanupField("Lagt inn",created)}${cleanupField("Sist handlet",last)}</div></div><div class="cleanup-cell cleanup-desktop-cell"><div class="cleanup-cell-value">${type}</div></div><div class="cleanup-cell cleanup-desktop-cell"><div class="cleanup-cell-value">${owner}</div></div><div class="cleanup-cell cleanup-desktop-cell"><div class="cleanup-cell-value ${item.createdAt?"":"cleanup-date-empty"}">${created}</div></div><div class="cleanup-cell cleanup-desktop-cell"><div class="cleanup-cell-value ${item.lastBoughtAt?"":"cleanup-date-empty"}">${last}</div></div><button class="delete-button" type="button" onclick="deleteItem(${item.id})" title="${esc(deleteTitle)}" ${canDelete?"":"disabled"}>🗑</button></div>`;}).join("");setStatus(`Klar. Viser ${sorted.length} av ${items.length} varer. Sortert etter sist handlet, eldste øverst. Varer som aldri er handlet vises først.`,"success");}
+async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];populateCleanupFilters();render();}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
 async function deleteItem(id){const item=items.find(item=>Number(item.id)===Number(id));if(!item)return;if(!canDeleteItem(item)){setStatus("Du kan bare slette egne varer. Fellesvarer kan bare slettes av supervisor eller administrator.","error");return;}if(!confirm(`Slette varen fra systemet?\n\n${item.name}\n\nHistorikk beholdes.`))return;try{await fetchJson(`${API_BASE}/shopping/item-delete`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id})});await loadItems();setStatus("Varen er slettet.","success");}catch(error){setStatus(`Kunne ikke slette varen.<br><br>${esc(error.message)}`,"error");}}
 loadItems();
 </script>
@@ -376,4 +423,5 @@ loadItems();
 </script>
 
 
-<script src="handleliste-menu.js?v=22"></script></body></html>
+<script src="handleliste-menu.js?v=22"></script><div style="font-size:10px;color:var(--muted);margin:8px 2px;">V0002</div>
+</body></html>
