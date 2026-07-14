@@ -937,7 +937,10 @@
     const list=kind==="food"?(data.food||[]):(data.external||[]);
     if(select){
       select.innerHTML='<option value="">Velg ...</option>'+list
-        .filter(item=>!(kind==="food"&&String(item.name||"").toLowerCase()==="annet"))
+        .filter(item=>{
+          const key=String(item.name||"").trim().toLowerCase();
+          return !(kind==="food"&&key==="annet") && !(kind==="external"&&key==="netthandel");
+        })
         .map(item=>`<option value="${String(item.id)}">${String(item.name||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</option>`).join("");
     }
     return data;
