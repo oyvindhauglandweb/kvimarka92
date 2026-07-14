@@ -958,7 +958,7 @@ body.dark-mode #status.shopping-finish-progress{
 #shoppingList .link-badge:hover{filter:brightness(1.14);}
 #shoppingList .prisjakt-badge{background:rgba(124,199,232,.16);color:var(--link);}
 </style><script src="shared/kvimarka-client-state.js"></script><!-- lightdark-restore-2026-06-16 -->
-<!-- version: HANDLE v84 shared-item-dialog 2026-07-14 -->
+<!-- version: HANDLE v85 store-refresh-visible-status 2026-07-14 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -2523,16 +2523,24 @@ async function checkCurrentStore(silent){
 
   try{
     if(!silent && requestId===storeMatchRequestId){
-      setStoreMatchStatus("Sjekker hvilken butikk du er i...");
+      setStoreMatchStatus("Henter GPS-posisjon...");
+      setStatus("Oppdaterer butikk: henter GPS-posisjon...");
     }
 
     const location=await getShoppingLocation();
 
     if(location.status !== "ok"){
       if(requestId===storeMatchRequestId){
-        setStoreMatchStatus(formatGpsLocation(location), "error");
+        const locationMessage=formatGpsLocation(location);
+        setStoreMatchStatus(locationMessage, "error");
+        if(!silent)setStatus(`Kunne ikke oppdatere butikk.<br>${locationMessage}`, "error");
       }
       return;
+    }
+
+    if(!silent && requestId===storeMatchRequestId){
+      setStoreMatchStatus("GPS-posisjon er hentet. Søker etter nærmeste butikk...");
+      setStatus("Oppdaterer butikk: GPS-posisjon er hentet. Søker etter nærmeste butikk...");
     }
 
     const data=await fetchJson(`${API_BASE}/shopping/store-match`,{
@@ -2553,9 +2561,22 @@ async function checkCurrentStore(silent){
     }
     applyShoppingStoreMatchData(data);
     writeShoppingStoreLock(data);
+
+    if(!silent){
+      const storeName=String((data&&data.storeName)||(data&&data.store&&data.store.name)||"").trim();
+      const storeChain=String((data&&data.storeChain)||(data&&data.store&&data.store.chain)||"").trim();
+      const storeLabel=[storeChain,storeName].filter(Boolean).join(" ").trim();
+      const matchStatus=String((data&&data.storeMatchStatus)||"");
+      if(storeLabel){
+        setStatus(`Butikken er oppdatert: <strong>${esc(storeLabel)}</strong>. Viser <strong>${esc(selectedShoppingArea)}</strong>.`, matchStatus==="Uncertain"?"":"success");
+      }else{
+        setStatus(`Butikksøket er fullført. Ingen kjent butikk ble funnet. Viser fortsatt <strong>${esc(selectedShoppingArea)}</strong>.`, "success");
+      }
+    }
   }catch(error){
     if(requestId===storeMatchRequestId){
       setStoreMatchStatus(`Kunne ikke sjekke butikk.<br><br>${esc(error.message)}`, "error");
+      if(!silent)setStatus(`Kunne ikke oppdatere butikk.<br><br>${esc(error.message)}`, "error");
     }
   }finally{
     if(requestId===storeMatchRequestId){
