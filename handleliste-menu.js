@@ -1121,8 +1121,8 @@
   }
 
   function actionLink(functionName, label){
-    const exists = typeof window[functionName] === "function";
-    if(!exists) return "";
+    // Menyen bygges i <head> før sideskriptet har definert handlingene.
+    // Vis derfor valget alltid; funksjonen finnes når brukeren klikker.
     return `<a href="#" onclick="return HandlelisteMenu.runPageAction('${functionName}', event)">${label}</a>`;
   }
 
