@@ -35,7 +35,7 @@
 
   loadSharedErrorLogger();
 
-  const MENU_VERSION = "handleliste-menu-v15-shared-error-logger-2026-07-12";
+  const MENU_VERSION = "handleliste-menu-v16-create-item-types-2026-07-14";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -650,7 +650,7 @@
   function isAdminUser(user){
     const role = String((user && user.role) || "").trim().toLowerCase();
     const memberRole = String((user && user.family && user.family.memberRole) || "").trim().toLowerCase();
-    return role === "administrator" || role === "admin" || memberRole === "administrator" || memberRole === "admin";
+    return role === "administrator" || role === "admin" || role === "supervisor" || memberRole === "administrator" || memberRole === "admin" || memberRole === "family admin" || memberRole === "family_admin" || memberRole === "owner";
   }
 
   async function fetchCurrentUser(){
@@ -707,6 +707,8 @@
     return `
           ${settingsLink("handleliste-varsling.html", "Varsling")}
           ${settingsLink("handleliste-varetyper.html", "Varetyper")}
+          <a href="#" id="handlelisteCreateFoodTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('food', event)">Opprett matvaregruppe</a>
+          <a href="#" id="handlelisteCreateExternalTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('external', event)">Opprett butikk/handelstype</a>
           ${settingsLink("handleliste-rediger.html", "Varer")}
           ${settingsLink("handleliste-historikk.html", "Historikk")}
           ${settingsLink("handleliste-rydde.html", "Rydde i varer")}
@@ -746,6 +748,7 @@
     `;
 
     renderCreateUserDialog();
+    renderItemTypeDialog();
     setupLoginWidget();
   }
 
@@ -860,12 +863,95 @@
     return false;
   }
 
+
+  function renderItemTypeDialog(){
+    if(document.getElementById("handlelisteItemTypeModal")) return;
+    const modal=document.createElement("div");
+    modal.id="handlelisteItemTypeModal";
+    modal.className="handleliste-create-user-modal";
+    modal.innerHTML=`
+      <div class="handleliste-create-user-modal-content" role="dialog" aria-modal="true" aria-labelledby="handlelisteItemTypeTitle">
+        <div class="handleliste-create-user-modal-header">
+          <div class="handleliste-create-user-modal-title" id="handlelisteItemTypeTitle">Opprett</div>
+          <button type="button" class="handleliste-create-user-modal-close" onclick="HandlelisteMenu.closeItemTypeDialog()" aria-label="Lukk">×</button>
+        </div>
+        <p class="handleliste-create-user-help" id="handlelisteItemTypeHelp"></p>
+        <form id="handlelisteItemTypeForm" onsubmit="return HandlelisteMenu.submitItemTypeDialog(event)">
+          <input type="hidden" id="handlelisteItemTypeKind">
+          <div class="handleliste-create-user-field">
+            <label for="handlelisteItemTypeName">Navn</label>
+            <input id="handlelisteItemTypeName" type="text" maxlength="80" required autocomplete="off">
+          </div>
+          <div id="handlelisteItemTypeStatus" class="handleliste-create-user-status"></div>
+          <div class="handleliste-create-user-actions">
+            <button type="button" class="handleliste-create-user-button" onclick="HandlelisteMenu.closeItemTypeDialog()">Avbryt</button>
+            <button type="submit" class="handleliste-create-user-button primary">Opprett</button>
+          </div>
+        </form>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+
+  function setItemTypeStatus(message,type){
+    const el=document.getElementById("handlelisteItemTypeStatus");
+    if(!el) return;
+    el.className="handleliste-create-user-status"+(type?` ${type}`:"");
+    el.textContent=message||"";
+  }
+
+  function openItemTypeDialog(kind,event){
+    if(event){event.preventDefault();event.stopPropagation();}
+    renderItemTypeDialog();
+    const isFood=kind==="food";
+    document.getElementById("handlelisteItemTypeKind").value=isFood?"food":"external";
+    document.getElementById("handlelisteItemTypeTitle").textContent=isFood?"Opprett matvaregruppe":"Opprett butikk/handelstype";
+    document.getElementById("handlelisteItemTypeHelp").textContent=isFood
+      ?"Oppretter en ny matvaregruppe med Shopping area = Matvarer og legger den sist i familiens standardrekkefølge."
+      :"Oppretter en ny ekstern butikk/handelstype. Dette er ikke en fysisk butikkfilial med adresse eller GPS-posisjon.";
+    const form=document.getElementById("handlelisteItemTypeForm"); if(form) form.reset();
+    document.getElementById("handlelisteItemTypeKind").value=isFood?"food":"external";
+    setItemTypeStatus("","");
+    document.getElementById("handlelisteItemTypeModal").classList.add("open");
+    closeSettings();
+    setTimeout(()=>document.getElementById("handlelisteItemTypeName")?.focus(),0);
+    return false;
+  }
+
+  function closeItemTypeDialog(){
+    document.getElementById("handlelisteItemTypeModal")?.classList.remove("open");
+    return false;
+  }
+
+  async function submitItemTypeDialog(event){
+    if(event){event.preventDefault();event.stopPropagation();}
+    const kind=String(document.getElementById("handlelisteItemTypeKind")?.value||"");
+    const name=String(document.getElementById("handlelisteItemTypeName")?.value||"").trim();
+    const button=document.querySelector("#handlelisteItemTypeForm button[type='submit']");
+    if(!name){setItemTypeStatus("Navn må fylles ut.","error");return false;}
+    try{
+      if(button) button.disabled=true;
+      setItemTypeStatus("Oppretter ...","");
+      const res=await fetch(`${API_BASE}/shopping/item-type-create`,{
+        method:"POST",credentials:"include",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({kind,name})
+      });
+      const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(error){}
+      if(!res.ok || (data&&data.error)) throw new Error((data&&(data.error||data.detail))||text||`HTTP ${res.status}`);
+      setItemTypeStatus((data&&data.message)||"Opprettet.","success");
+      setTimeout(()=>{closeItemTypeDialog(); if(location.pathname.endsWith("handleliste-varetyper.html")) location.reload();},900);
+    }catch(error){
+      setItemTypeStatus(`Kunne ikke opprette. ${error&&error.message?error.message:""}`.trim(),"error");
+    }finally{if(button) button.disabled=false;}
+    return false;
+  }
+
   async function setupLoginWidget(){
     const loginStatus = document.getElementById("handlelisteLoginStatus");
     const loginMenu = document.getElementById("handlelisteLoginMenu");
     const loginMenuName = document.getElementById("handlelisteLoginMenuName");
     const logoutLink = document.getElementById("handlelisteLogoutLink");
     const createUserLink = document.getElementById("handlelisteCreateUserLink");
+    const createFoodTypeLink = document.getElementById("handlelisteCreateFoodTypeLink");
+    const createExternalTypeLink = document.getElementById("handlelisteCreateExternalTypeLink");
 
     if(!loginStatus || !loginMenu || !loginMenuName || !logoutLink){
       return;
@@ -883,8 +969,12 @@
       loginMenuName.textContent = displayName;
       logoutLink.textContent = "Logge av";
 
+      const canManageTypes=isAdminUser(currentUser);
+      if(createFoodTypeLink) createFoodTypeLink.style.display=canManageTypes?"block":"none";
+      if(createExternalTypeLink) createExternalTypeLink.style.display=canManageTypes?"block":"none";
+
       if(createUserLink){
-        if(isAdminUser(currentUser)){
+        if(canManageTypes){
           createUserLink.style.display = "block";
           createUserLink.onclick = openCreateUserDialog;
         }else{
@@ -919,6 +1009,8 @@
         createUserLink.style.display = "none";
         createUserLink.onclick = null;
       }
+      if(createFoodTypeLink) createFoodTypeLink.style.display="none";
+      if(createExternalTypeLink) createExternalTypeLink.style.display="none";
     }
   }
 
@@ -1105,7 +1197,10 @@
     renderFloatingControls,
     openCreateUserDialog,
     closeCreateUserDialog,
-    submitCreateUserDialog
+    submitCreateUserDialog,
+    openItemTypeDialog,
+    closeItemTypeDialog,
+    submitItemTypeDialog
   };
 
   document.addEventListener("click", closeSettings);
