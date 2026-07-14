@@ -136,7 +136,13 @@
 
   function duplicate(){const name=key($("hidName").value),owner=key($("hidOwner").value);return getItems().find(i=>key(i.name)===name&&key(i.owner||"Felles")===owner);}
   function updateDuplicate(){const d=duplicate();$("hidDuplicate").textContent=d?`Varen finnes allerede i ${$("hidOwner").value}.`:"";}
-  function updateWebRequirement(){const net=key($("hidType").value)==="netthandel";$("hidWeb").required=net;$("hidWebField").style.display=net?"flex":"none";}
+  function updateWebRequirement(){
+    const net=key($("hidType").value)==="netthandel";
+    $("hidWeb").required=net;
+    $("hidWebField").style.display="flex";
+    const help=$("hidWebField").querySelector(".hid-help");
+    if(help) help.textContent=net?"Obligatorisk for varer i Netthandel.":"Valgfritt. Brukes for lenke til varen på nett.";
+  }
   function resizeImage(file,max=1200,quality=.82){return new Promise((resolve,reject)=>{if(!file||!/^image\//i.test(file.type||"")){reject(new Error("Velg en bildefil."));return;}const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.width*s));c.height=Math.max(1,Math.round(img.height*s));const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL("image/jpeg",quality));};img.onerror=()=>reject(new Error("Kunne ikke lese bildet."));img.src=r.result;};r.onerror=()=>reject(new Error("Kunne ikke lese bildet."));r.readAsDataURL(file);});}
   async function handleImage(e){const f=e.target.files&&e.target.files[0];if(!f){clearImage();return;}try{state.imageDataUrl=await resizeImage(f);state.imageFileName=f.name||"varebilde.jpg";$("hidPreviewImg").src=state.imageDataUrl;$("hidPreview").classList.add("visible");}catch(err){alert(err.message||String(err));clearImage();}}
   function clearImage(){state.imageDataUrl="";state.imageFileName="";if($("hidImage"))$("hidImage").value="";if($("hidPreview"))$("hidPreview").classList.remove("visible");if($("hidPreviewImg"))$("hidPreviewImg").removeAttribute("src");}
