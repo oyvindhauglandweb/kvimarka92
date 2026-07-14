@@ -853,7 +853,7 @@ body.dark-mode select option:checked{
 
 
 
-/* Handle V0004: bildevisning samme prinsipp som Bestille */
+/* Handle V0024: Kamera alltid synlig, dynamiske butikker og Netthandel beholdes */
 .item-image-button{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:0;border-radius:8px;background:rgba(124,199,232,.16);color:var(--link);font-size:13px;cursor:pointer;padding:0;}
 .item-image-button:hover{background:rgba(124,199,232,.28);}
 .image-viewer-img{max-width:100%;max-height:70vh;border-radius:12px;border:1px solid var(--border);display:block;margin:0 auto;}
@@ -1042,7 +1042,7 @@ window.toggleHandleSize=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a><button class="action-button" id="toggleHandleImagesButton" type="button" onclick="return toggleHandleImages(event)" title="Vis bilder i handlelisten">Vis bilder</button></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="itemImageModal" onclick="handleImageModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title" id="itemImageModalTitle">Varebilde</div><button class="modal-close" type="button" onclick="closeItemImageModal()">×</button></div><img class="image-viewer-img" id="itemImageModalImg" alt="Varebilde"></div></div>
 
 <div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
@@ -1123,79 +1123,18 @@ const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
 let SHOPPING_AREA_ORDER=["Matvarer","Apotek","Bondekompaniet","Clas Ohlson","Europris","Frisør","Normal","Sport","Netthandel"];
 function setShoppingAreaOrder(values){
   const seen=new Set();
-  const clean=(Array.isArray(values)?values:[])
+  const clean=(Array.isArray(values)?values:[]).concat(["Netthandel"])
     .map(value=>String(value||"").trim())
     .filter(Boolean)
-    .filter(value=>{
-      const key=value.toLocaleLowerCase("nb-NO");
-      if(seen.has(key))return false;
-      seen.add(key);
-      return true;
-    });
+    .filter(value=>{const key=value.toLocaleLowerCase("nb-NO");if(seen.has(key))return false;seen.add(key);return true;});
   const external=clean
     .filter(value=>value!==SHOPPING_AREA_DEFAULT && value.toLocaleLowerCase("nb-NO")!=="netthandel")
     .sort((a,b)=>a.localeCompare(b,"no",{sensitivity:"base"}));
-  const hasNetthandel=clean.some(value=>value.toLocaleLowerCase("nb-NO")==="netthandel");
-  SHOPPING_AREA_ORDER=[SHOPPING_AREA_DEFAULT,...external,...(hasNetthandel?["Netthandel"]:[])];
+  SHOPPING_AREA_ORDER=[SHOPPING_AREA_DEFAULT,...external,"Netthandel"];
 }
 const NON_FOOD_TYPE_AREAS={"normal":"Normal","europris":"Europris","frisør":"Frisør","frisor":"Frisør","clas ohlson":"Clas Ohlson","sport":"Sport","sportsbutikk":"Sport","bondekompaniet":"Bondekompaniet","apotek":"Apotek","netthandel":"Netthandel"};
-const HANDLE_SHOW_IMAGES_STORAGE_KEY="shoppingShowImages";
-const HANDLE_SHOW_IMAGES_LEGACY_KEYS=[HANDLE_SHOW_IMAGES_STORAGE_KEY,"shoppingHandleShowImages","handlelisteShowImages","shoppingHandleImages","showShoppingImages"];
-function clientStateEnabled(){
-  try{
-    return !!(window.KvimarkaClientState && window.KvimarkaClientState.isEnabled && window.KvimarkaClientState.isEnabled());
-  }catch(error){
-    return false;
-  }
-}
-function readLegacyBool(keys,defaultValue){
-  try{
-    for(const key of keys){
-      const raw=localStorage.getItem(key);
-      if(raw===null || raw===undefined)continue;
-      const value=String(raw).trim().toLowerCase();
-      if(["true","1","yes","ja","on"].includes(value))return true;
-      if(["false","0","no","nei","off"].includes(value))return false;
-    }
-  }catch(error){}
-  return !!defaultValue;
-}
-function writeLegacyBool(keys,value){
-  try{
-    const stringValue=value ? "true" : "false";
-    keys.forEach(key=>localStorage.setItem(key,stringValue));
-  }catch(error){}
-}
-function getHandleShowImages(){
-  return readLegacyBool(HANDLE_SHOW_IMAGES_LEGACY_KEYS,false);
-}
-function setHandleShowImages(value){
-  const enabled=!!value;
-  writeLegacyBool(HANDLE_SHOW_IMAGES_LEGACY_KEYS,enabled);
-  if(clientStateEnabled()){
-    try{window.KvimarkaClientState.setBool("handle.showImages", enabled);}catch(error){}
-  }
-  updateImageToggleButton();
-  if(typeof render === "function")render();
-  return false;
-}
-function toggleHandleImages(event){
-  if(event && event.preventDefault)event.preventDefault();
-  if(event && event.stopPropagation)event.stopPropagation();
-  setHandleShowImages(!getHandleShowImages());
-  return false;
-}
-function updateImageToggleButton(){
-  const button=document.getElementById("toggleHandleImagesButton");
-  if(!button)return;
-  const enabled=getHandleShowImages();
-  button.classList.toggle("active", enabled);
-  button.textContent=enabled ? "Skjul bilder" : "Vis bilder";
-  button.title=enabled ? "Skjul bilder i handlelisten" : "Vis bilder i handlelisten";
-}
 function getItemImageUrl(item){return (item&&item.imageUrl)||((item&&item.image&&item.image.url)||"");}
 function itemImageButton(item){
-  if(!getHandleShowImages())return "";
   const url=getItemImageUrl(item);
   if(!url)return "";
   return `<button class="item-image-button" type="button" onclick="showItemImage(${Number(item.id)})" title="Vis bilde av varen">📷</button>`;
@@ -2416,7 +2355,7 @@ async function loadItems(options){const silent=!!(options&&options.silent);updat
     setStatus(`Klar. Viser <strong>${esc(selectedShoppingArea)}</strong>. Kryss av varene etter hvert som de er handlet.`,"success");
   }
 }
-updateActivateStandardNotificationButtonState();updateImageToggleButton();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
+updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
@@ -3420,4 +3359,4 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0022</div></body></html>
+<div>V0024</div></body></html>
