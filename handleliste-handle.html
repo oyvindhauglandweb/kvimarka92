@@ -3255,7 +3255,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0026</div><script src="handleliste-item-dialog.js?v=1"></script>
+<div>V0027</div><script src="handleliste-item-dialog.js?v=2"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase:API_BASE,
@@ -3268,9 +3268,10 @@ HandlelisteItemDialog.configure({
   canSetStandard:()=>{
     const u=currentUser||{};
     const role=String(u.role||"").toLowerCase();
-    const hr=String(u.handlelisteRole||"").toLowerCase();
+    const hr=String(u.handlelisteRole||u.handleliste_role||"").toLowerCase();
+    const access=String(u.handlelisteAccess||u.handleliste_access||"").toLowerCase();
     const mr=String((u.family&&u.family.memberRole)||"").toLowerCase();
-    return !!u.isFamilyAdmin || ["administrator","admin","supervisor"].includes(role) || ["administrator","admin","family admin","family_admin"].includes(hr) || ["family admin","family_admin","administrator","admin","owner"].includes(mr);
+    return !!u.isFamilyAdmin || ["administrator","admin","supervisor"].includes(role) || ["administrator","admin","family admin","family_admin"].includes(hr) || access==="admin" || ["family admin","family_admin","administrator","admin","owner"].includes(mr);
   },
   defaultShouldBuy:true,
   setStatus:setStatus,
