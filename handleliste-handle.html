@@ -1080,7 +1080,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v87-netthandel-area-buttons";
+const HANDLELISTE_HANDLE_VERSION="v88-invalid-area-fallback";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -1272,6 +1272,17 @@ function syncSelectedShoppingAreaFromActive(){
   }else if(!selectedShoppingArea){
     selectedShoppingArea=SHOPPING_AREA_DEFAULT;
   }
+}
+function validateSelectedShoppingArea(){
+  const selected=String(selectedShoppingArea||"").trim();
+  const valid=SHOPPING_AREA_ORDER.some(area=>String(area||"").localeCompare(selected,"nb-NO",{sensitivity:"base"})===0);
+  if(valid)return false;
+
+  selectedShoppingArea=SHOPPING_AREA_DEFAULT;
+  currentShoppingPlace="";
+  clearShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY);
+  writeShoppingAreaStorage(SHOPPING_AREA_STORAGE_KEY,SHOPPING_AREA_DEFAULT);
+  return true;
 }
 function setShoppingArea(area){
   const next=normalizeShoppingArea(area,"");
@@ -2243,12 +2254,12 @@ function render(){
 }
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked){if(!isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);boughtIds.add(numericId);}else{boughtIds.delete(numericId);}saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);renderShoppingAreaButtons();render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));if(!allBought && !isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);renderShoppingAreaButtons();render();}
-async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser && data.currentUser.name)||(data.currentUser && data.currentUser.email)||"";showAdminVersionInfoIfAllowed(data.currentUser);items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(item=>item.type)).concat(typeOrder));setShoppingAreaOrder(Array.isArray(data.shoppingAreas)?data.shoppingAreas:SHOPPING_AREA_ORDER);boughtIds=loadRememberedBoughtIds();syncSelectedShoppingAreaFromActive();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();renderShoppingAreaButtons();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
+async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser && data.currentUser.name)||(data.currentUser && data.currentUser.email)||"";showAdminVersionInfoIfAllowed(data.currentUser);items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(item=>item.type)).concat(typeOrder));setShoppingAreaOrder(Array.isArray(data.shoppingAreas)?data.shoppingAreas:SHOPPING_AREA_ORDER);boughtIds=loadRememberedBoughtIds();syncSelectedShoppingAreaFromActive();const shoppingAreaWasReset=validateSelectedShoppingArea();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();renderShoppingAreaButtons();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
   if(shoppingNotificationActive){
     const when=shoppingNotificationData&&shoppingNotificationData.shoppingTime ? ` Tidspunkt for handling: ${esc(formatLocalDateTimeShort(new Date(shoppingNotificationData.shoppingTime)))}` : "";
     setStatus(`Varsling er aktivert.${when} Viser <strong>${esc(selectedShoppingArea)}</strong>.`,"success");
   }else{
-    setStatus(`Klar. Viser <strong>${esc(selectedShoppingArea)}</strong>. Kryss av varene etter hvert som de er handlet.`,"success");
+    setStatus(`${shoppingAreaWasReset?"Den valgte butikken finnes ikke lenger. ":"Klar. "}Viser <strong>${esc(selectedShoppingArea)}</strong>. Kryss av varene etter hvert som de er handlet.`,"success");
   }
 }
 updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
@@ -3255,7 +3266,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0028</div><script src="handleliste-item-dialog.js?v=3"></script>
+<div>V0029</div><script src="handleliste-item-dialog.js?v=3"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase:API_BASE,
