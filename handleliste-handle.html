@@ -1136,7 +1136,9 @@ function closeItemImageModal(){
   if(img)img.removeAttribute("src");
 }
 function handleImageModalBackdrop(event){if(event.target&&event.target.id==="itemImageModal")closeItemImageModal();}
-function gpsClientStateEnabled(){return clientStateEnabled();}
+function gpsClientStateEnabled(){
+  return !!(window.KvimarkaClientState && typeof window.KvimarkaClientState.getBool === "function" && typeof window.KvimarkaClientState.setBool === "function");
+}
 function getGpsEnabled(){
   if(!gpsClientStateEnabled())return true;
   try{return window.KvimarkaClientState.getBool("gps.enabled", false);}catch(error){return false;}
@@ -3354,7 +3356,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0032</div><script src="handleliste-item-dialog.js?v=4"></script>
+<div>V0033</div><script src="handleliste-item-dialog.js?v=4"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase:API_BASE,
