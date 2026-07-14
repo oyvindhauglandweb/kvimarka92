@@ -940,7 +940,7 @@ body.dark-mode #status.shopping-finish-progress{
 #shoppingList .link-badge:hover{filter:brightness(1.14);}
 #shoppingList .prisjakt-badge{background:rgba(124,199,232,.16);color:var(--link);}
 </style><script src="shared/kvimarka-client-state.js"></script><!-- lightdark-restore-2026-06-16 -->
-<!-- version: HANDLE v83 finish-auto-retry-one-session-error-log 2026-07-12 -->
+<!-- version: HANDLE v84 shared-item-dialog 2026-07-14 -->
 <!-- version: HANDLE v78 activation_worker_error_recheck 2026-06-21 -->
 </head><body class="dark-mode"><script>
 (function(){
@@ -1042,45 +1042,9 @@ window.toggleHandleSize=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="openAddItemModal()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="HandlelisteItemDialog.open()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" type="button" onclick="checkCurrentStore(false)" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="itemImageModal" onclick="handleImageModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title" id="itemImageModalTitle">Varebilde</div><button class="modal-close" type="button" onclick="closeItemImageModal()">×</button></div><img class="image-viewer-img" id="itemImageModalImg" alt="Varebilde"></div></div>
 
-<div class="modal" id="addItemModal" onclick="if(event.target===this) closeAddItemModal();">
-  <div class="modal-content">
-    <div class="modal-header">
-      <div class="modal-title">Legg til vare</div>
-      <button class="modal-close" type="button" onclick="closeAddItemModal()" aria-label="Lukk">×</button>
-    </div>
-    <form id="addItemForm" onsubmit="event.preventDefault(); createShoppingItemFromHandle();">
-      <div class="form-field">
-        <label for="addItemName">Varenavn</label>
-        <input id="addItemName" type="text" autocomplete="off" required>
-      </div>
-      <div class="form-field">
-        <label for="addItemType">Varetype</label>
-        <select id="addItemType" onchange="updateHandleWebUrlRequirement()"></select>
-      </div>
-      <div class="form-field">
-        <label for="addItemWebUrl">Web-link</label>
-        <input id="addItemWebUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://...">
-        <div class="item-meta">Obligatorisk for varer i Netthandel.</div>
-      </div>
-      <div class="form-field">
-        <label for="addItemOwner">Vareliste/eier</label>
-        <select id="addItemOwner"></select>
-      </div>
-      <div class="checkbox-row">
-        <input id="addItemShouldBuy" type="checkbox" checked>
-        <label for="addItemShouldBuy">Legg direkte i handlelisten</label>
-      </div>
-      <div class="add-item-modal-actions">
-        <button class="action-button" type="button" onclick="closeAddItemModal()">Avbryt</button>
-        <button class="action-button primary" id="addItemSaveButton" type="submit">Legg til vare</button>
-      </div>
-    </form>
-  </div>
-
-</div>
 <div class="modal" id="newItemsModal" onclick="if(event.target===this) closeNewItemsModal();">
   <div class="modal-content">
     <div class="modal-header">
@@ -2191,74 +2155,6 @@ function uniqueShoppingTypesForForm(values){
   });
   return result.length?result:["Annet"];
 }
-function fillAddItemSelects(){
-  const typeSelect=document.getElementById("addItemType");
-  const ownerSelect=document.getElementById("addItemOwner");
-  if(typeSelect){
-    const rawOptions=uniqueShoppingTypesForForm((typeOptions||[]).concat(DEFAULT_TYPES).concat(typeOrder).concat(items.map(item=>item.type)).concat(SHOPPING_AREA_ORDER.filter(area=>area!==SHOPPING_AREA_DEFAULT)));
-    const options=rawOptions.filter(type=>getTypeShoppingArea(type)===selectedShoppingArea).sort(compareShoppingTypes);
-    const finalOptions=options.length?options:[selectedShoppingArea];
-    typeSelect.innerHTML=finalOptions.map(type=>`<option value="${esc(type)}">${esc(type)}</option>`).join("");
-    typeSelect.value=finalOptions[0]||"Annet";
-    updateHandleWebUrlRequirement();
-  }
-  if(ownerSelect){
-    ownerSelect.innerHTML=SHOPPING_OWNERS.map(owner=>`<option value="${esc(owner)}">${esc(owner)}</option>`).join("");
-    ownerSelect.value=normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles");
-  }
-}
-function openAddItemModal(){
-  fillAddItemSelects();
-  const modal=document.getElementById("addItemModal");
-  const name=document.getElementById("addItemName");
-  const shouldBuy=document.getElementById("addItemShouldBuy");
-  if(shouldBuy)shouldBuy.checked=true;
-  const webUrl=document.getElementById("addItemWebUrl");
-  if(webUrl)webUrl.value="";
-  updateHandleWebUrlRequirement();
-  if(modal)modal.classList.add("open");
-  window.setTimeout(()=>{if(name){name.focus();name.select();}},50);
-}
-function closeAddItemModal(){
-  const modal=document.getElementById("addItemModal");
-  if(modal)modal.classList.remove("open");
-}
-async function createShoppingItemFromHandle(){
-  const button=document.getElementById("addItemSaveButton");
-  const name=String((document.getElementById("addItemName") && document.getElementById("addItemName").value)||"").trim();
-  const type=String((document.getElementById("addItemType") && document.getElementById("addItemType").value)||"Annet").trim()||"Annet";
-  const owner=normalizeOwner((document.getElementById("addItemOwner") && document.getElementById("addItemOwner").value)||"Felles");
-  const shouldBuy=!!(document.getElementById("addItemShouldBuy") && document.getElementById("addItemShouldBuy").checked);
-  const webUrl=String((document.getElementById("addItemWebUrl")&&document.getElementById("addItemWebUrl").value)||"").trim();
-  if(!name){
-    alert("Skriv inn varenavn.");
-    return;
-  }
-  if(button)button.disabled=true;
-  try{
-    const createdData=await fetchJson(`${API_BASE}/shopping/item-create`,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body:JSON.stringify({name,type,owner,shouldBuy,standardItem:false,shoppingArea:selectedShoppingArea,webUrl})
-    });
-    const createdId=Number((createdData && createdData.item && createdData.item.id)||0);
-    const createdAddedAt=(createdData && createdData.cartSync && createdData.cartSync.row && createdData.cartSync.row.addedAt) || (createdData && createdData.item && createdData.item.addedAt) || new Date().toISOString();
-    if(createdId && shouldBuy){
-      rememberItemAddedAt(createdId,createdAddedAt);
-    }
-    document.getElementById("addItemName").value="";
-    closeAddItemModal();
-    await loadItems();
-    setStatus(`Varen "${esc(name)}" er lagt til handlelisten.`,"success");
-  }catch(error){
-    setStatus(`Kunne ikke legge til vare.<br><br>${esc(error.message)}`,"error");
-  }finally{
-    if(button)button.disabled=false;
-  }
-}
-
-
-
 /* V0005: felles toppmenyknapp for liste-/bildevisning.
    Dette er knappen i felles toppmeny (handlelisteViewModeToggle), ikke den lokale Vis/Skjul bilder-knappen. */
 const HANDLELISTE_VIEW_MODE_STORAGE_KEY="kvimarka.handleliste.viewMode";
@@ -3359,4 +3255,26 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0025</div></body></html>
+<div>V0026</div><script src="handleliste-item-dialog.js?v=1"></script>
+<script>
+HandlelisteItemDialog.configure({
+  apiBase:API_BASE,
+  getItems:()=>items,
+  getOwners:()=>SHOPPING_OWNERS,
+  getTypes:()=>uniqueShoppingTypesForForm([...(typeOptions||[]),...(typeOrder||[]),...items.map(item=>item.type),...(SHOPPING_AREA_ORDER||[])]),
+  getDefaultOwner:()=>normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles"),
+  getDefaultType:()=>selectedShoppingArea,
+  resolveShoppingArea:type=>getTypeShoppingArea(type),
+  canSetStandard:()=>{
+    const u=currentUser||{};
+    const role=String(u.role||"").toLowerCase();
+    const hr=String(u.handlelisteRole||"").toLowerCase();
+    const mr=String((u.family&&u.family.memberRole)||"").toLowerCase();
+    return !!u.isFamilyAdmin || ["administrator","admin","supervisor"].includes(role) || ["administrator","admin","family admin","family_admin"].includes(hr) || ["family admin","family_admin","administrator","admin","owner"].includes(mr);
+  },
+  defaultShouldBuy:true,
+  setStatus:setStatus,
+  onSaved:async name=>{await loadItems();setStatus(`Varen "${esc(name)}" er lagt til handlelisten.`,"success");}
+});
+</script>
+</body></html>
