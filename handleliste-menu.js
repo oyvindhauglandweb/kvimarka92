@@ -35,7 +35,7 @@
 
   loadSharedErrorLogger();
 
-  const MENU_VERSION = "handleliste-menu-v16-create-item-types-2026-07-14";
+  const MENU_VERSION = "handleliste-menu-v17-manage-types-2026-07-14";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
 
   function svg(name){
@@ -709,16 +709,16 @@
 
   function settingsMenuHtml(){
     return `
-          ${settingsLink("handleliste-varsling.html", "Varsling før handling")}
+          <a href="#" id="handlelisteCreateExternalTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('external', event)">Opprette/slette butikk</a>
+          <a href="#" id="handlelisteCreateFoodTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('food', event)">Opprette/slette varetyper</a>
           ${settingsLink("handleliste-varetyper.html", "Plassere varetyper")}
-          <a href="#" id="handlelisteCreateFoodTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('food', event)">Opprett matvaregruppe</a>
-          <a href="#" id="handlelisteCreateExternalTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('external', event)">Opprett butikk/handelstype</a>
           ${settingsLink("handleliste-rediger.html", "Redigere varer")}
-          ${settingsLink("handleliste-historikk.html", "Handlehistorikk")}
           ${settingsLink("handleliste-rydde.html", "Slette varer")}
           ${settingsLink("handleliste-oppskrifter-rediger.html", "Redigere oppskrifter")}
-          ${actionLink("sendShoppingListEmail", "E-post")}
-          ${actionLink("sendShoppingListSms", "SMS")}
+          ${settingsLink("handleliste-varsling.html", "Varsling før handling")}
+          ${actionLink("sendShoppingListEmail", "Handleliste → E-post")}
+          ${actionLink("sendShoppingListSms", "Handleliste → SMS")}
+          ${settingsLink("handleliste-historikk.html", "Handlehistorikk")}
         `;
   }
 
@@ -876,22 +876,34 @@
     modal.innerHTML=`
       <div class="handleliste-create-user-modal-content" role="dialog" aria-modal="true" aria-labelledby="handlelisteItemTypeTitle">
         <div class="handleliste-create-user-modal-header">
-          <div class="handleliste-create-user-modal-title" id="handlelisteItemTypeTitle">Opprett</div>
+          <div class="handleliste-create-user-modal-title" id="handlelisteItemTypeTitle">Opprette/slette</div>
           <button type="button" class="handleliste-create-user-modal-close" onclick="HandlelisteMenu.closeItemTypeDialog()" aria-label="Lukk">×</button>
         </div>
         <p class="handleliste-create-user-help" id="handlelisteItemTypeHelp"></p>
+        <input type="hidden" id="handlelisteItemTypeKind">
         <form id="handlelisteItemTypeForm" onsubmit="return HandlelisteMenu.submitItemTypeDialog(event)">
-          <input type="hidden" id="handlelisteItemTypeKind">
           <div class="handleliste-create-user-field">
-            <label for="handlelisteItemTypeName">Navn</label>
+            <label for="handlelisteItemTypeName" id="handlelisteItemTypeNameLabel">Nytt navn</label>
             <input id="handlelisteItemTypeName" type="text" maxlength="80" required autocomplete="off">
           </div>
-          <div id="handlelisteItemTypeStatus" class="handleliste-create-user-status"></div>
           <div class="handleliste-create-user-actions">
-            <button type="button" class="handleliste-create-user-button" onclick="HandlelisteMenu.closeItemTypeDialog()">Avbryt</button>
             <button type="submit" class="handleliste-create-user-button primary">Opprett</button>
           </div>
         </form>
+        <hr style="border:0;border-top:1px solid rgba(255,255,255,.14);margin:18px 0;">
+        <form id="handlelisteDeleteItemTypeForm" onsubmit="return HandlelisteMenu.submitDeleteItemTypeDialog(event)">
+          <div class="handleliste-create-user-field">
+            <label for="handlelisteDeleteItemTypeSelect" id="handlelisteDeleteItemTypeLabel">Velg for sletting</label>
+            <select id="handlelisteDeleteItemTypeSelect" required><option value="">Laster ...</option></select>
+          </div>
+          <div class="handleliste-create-user-actions">
+            <button type="submit" class="handleliste-create-user-button" style="background:#5a3030;">Slett valgt</button>
+          </div>
+        </form>
+        <div id="handlelisteItemTypeStatus" class="handleliste-create-user-status"></div>
+        <div class="handleliste-create-user-actions">
+          <button type="button" class="handleliste-create-user-button" onclick="HandlelisteMenu.closeItemTypeDialog()">Lukk</button>
+        </div>
       </div>`;
     document.body.appendChild(modal);
   }
@@ -903,20 +915,38 @@
     el.textContent=message||"";
   }
 
-  function openItemTypeDialog(kind,event){
+  async function loadItemTypeManagementOptions(kind){
+    const select=document.getElementById("handlelisteDeleteItemTypeSelect");
+    if(select) select.innerHTML='<option value="">Laster ...</option>';
+    const res=await fetch(`${API_BASE}/shopping/item-types-manage`,{method:"GET",credentials:"include",cache:"no-store"});
+    const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(error){}
+    if(!res.ok || !data || data.error) throw new Error((data&&(data.error||data.detail))||text||`HTTP ${res.status}`);
+    const list=kind==="food"?(data.food||[]):(data.external||[]);
+    if(select){
+      select.innerHTML='<option value="">Velg ...</option>'+list
+        .filter(item=>!(kind==="food"&&String(item.name||"").toLowerCase()==="annet"))
+        .map(item=>`<option value="${String(item.id)}">${String(item.name||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</option>`).join("");
+    }
+    return data;
+  }
+
+  async function openItemTypeDialog(kind,event){
     if(event){event.preventDefault();event.stopPropagation();}
     renderItemTypeDialog();
     const isFood=kind==="food";
     document.getElementById("handlelisteItemTypeKind").value=isFood?"food":"external";
-    document.getElementById("handlelisteItemTypeTitle").textContent=isFood?"Opprett matvaregruppe":"Opprett butikk/handelstype";
+    document.getElementById("handlelisteItemTypeTitle").textContent=isFood?"Opprette/slette varetyper":"Opprette/slette butikk";
     document.getElementById("handlelisteItemTypeHelp").textContent=isFood
-      ?"Oppretter en ny matvaregruppe med Shopping area = Matvarer og legger den sist i familiens standardrekkefølge."
-      :"Oppretter en ny ekstern butikk/handelstype. Dette er ikke en fysisk butikkfilial med adresse eller GPS-posisjon.";
+      ?"Opprett eller slett matvaregrupper. Annet er en fast gruppe og kan ikke slettes."
+      :"Opprett eller slett eksterne butikker/handelstyper. Dette gjelder ikke fysiske butikkfilialer med adresse og GPS-posisjon.";
+    document.getElementById("handlelisteItemTypeNameLabel").textContent=isFood?"Ny varetype":"Ny butikk/handelstype";
+    document.getElementById("handlelisteDeleteItemTypeLabel").textContent=isFood?"Varetype som skal slettes":"Butikk/handelstype som skal slettes";
     const form=document.getElementById("handlelisteItemTypeForm"); if(form) form.reset();
-    document.getElementById("handlelisteItemTypeKind").value=isFood?"food":"external";
     setItemTypeStatus("","");
     document.getElementById("handlelisteItemTypeModal").classList.add("open");
     closeSettings();
+    try{await loadItemTypeManagementOptions(isFood?"food":"external");}
+    catch(error){setItemTypeStatus(`Kunne ikke laste eksisterende valg. ${error&&error.message?error.message:""}`.trim(),"error");}
     setTimeout(()=>document.getElementById("handlelisteItemTypeName")?.focus(),0);
     return false;
   }
@@ -935,15 +965,39 @@
     try{
       if(button) button.disabled=true;
       setItemTypeStatus("Oppretter ...","");
-      const res=await fetch(`${API_BASE}/shopping/item-type-create`,{
-        method:"POST",credentials:"include",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({kind,name})
-      });
+      const res=await fetch(`${API_BASE}/shopping/item-type-create`,{method:"POST",credentials:"include",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({kind,name})});
       const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(error){}
       if(!res.ok || (data&&data.error)) throw new Error((data&&(data.error||data.detail))||text||`HTTP ${res.status}`);
-      setItemTypeStatus((data&&data.message)||"Opprettet.","success");
-      setTimeout(()=>{closeItemTypeDialog(); if(location.pathname.endsWith("handleliste-varetyper.html")) location.reload();},900);
+      document.getElementById("handlelisteItemTypeName").value="";
+      await loadItemTypeManagementOptions(kind);
+      setItemTypeStatus((data&&data.message)||`${name} er opprettet.`,"success");
+      if(location.pathname.endsWith("handleliste-varetyper.html")) setTimeout(()=>location.reload(),700);
     }catch(error){
       setItemTypeStatus(`Kunne ikke opprette. ${error&&error.message?error.message:""}`.trim(),"error");
+    }finally{if(button) button.disabled=false;}
+    return false;
+  }
+
+  async function submitDeleteItemTypeDialog(event){
+    if(event){event.preventDefault();event.stopPropagation();}
+    const kind=String(document.getElementById("handlelisteItemTypeKind")?.value||"");
+    const select=document.getElementById("handlelisteDeleteItemTypeSelect");
+    const id=Number(select?.value||0);
+    const name=String(select?.selectedOptions?.[0]?.textContent||"").trim();
+    const button=document.querySelector("#handlelisteDeleteItemTypeForm button[type='submit']");
+    if(!id){setItemTypeStatus("Velg hva som skal slettes.","error");return false;}
+    if(!window.confirm(`Slette ${name}?`)) return false;
+    try{
+      if(button) button.disabled=true;
+      setItemTypeStatus("Sletter ...","");
+      const res=await fetch(`${API_BASE}/shopping/item-type-delete`,{method:"POST",credentials:"include",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({kind,id})});
+      const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(error){}
+      if(!res.ok || (data&&data.error)) throw new Error((data&&(data.error||data.detail))||text||`HTTP ${res.status}`);
+      await loadItemTypeManagementOptions(kind);
+      setItemTypeStatus((data&&data.message)||`${name} er slettet.`,"success");
+      if(location.pathname.endsWith("handleliste-varetyper.html")) setTimeout(()=>location.reload(),700);
+    }catch(error){
+      setItemTypeStatus(`Kunne ikke slette. ${error&&error.message?error.message:""}`.trim(),"error");
     }finally{if(button) button.disabled=false;}
     return false;
   }
@@ -1204,7 +1258,8 @@
     submitCreateUserDialog,
     openItemTypeDialog,
     closeItemTypeDialog,
-    submitItemTypeDialog
+    submitItemTypeDialog,
+    submitDeleteItemTypeDialog
   };
 
   document.addEventListener("click", closeSettings);
