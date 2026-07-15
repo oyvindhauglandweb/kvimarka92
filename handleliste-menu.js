@@ -351,11 +351,11 @@
         background:var(--link,#7cc7e8);
         color:#fff;
       }
-      body.light-mode #handlelisteItemTypeForm .handleliste-create-user-button.primary{
+      body:not(.dark-mode) #handlelisteItemTypeForm .handleliste-create-user-button.primary{
         background:#0067c0;
         color:#fff;
       }
-      body.light-mode #handlelisteDeleteItemTypeForm .handleliste-create-user-button{
+      body:not(.dark-mode) #handlelisteDeleteItemTypeForm .handleliste-create-user-button{
         background:#b42318 !important;
         color:#fff;
       }
