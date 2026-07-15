@@ -1296,3 +1296,39 @@
     setTimeout(updateThemeButton, 100);
   }
 })();
+/* V246 – tydelige knapper i Light mode */
+(function addHandlelisteManagementLightModeStyles() {
+  if (document.getElementById("handleliste-management-light-button-fix")) {
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.id = "handleliste-management-light-button-fix";
+  style.textContent = `
+    body:not(.dark-mode) .handleliste-type-management-modal button[data-action="create"],
+    body:not(.dark-mode) .handleliste-type-management-modal .primary-button {
+      background: #267086 !important;
+      border-color: #267086 !important;
+      color: #ffffff !important;
+    }
+
+    body:not(.dark-mode) .handleliste-type-management-modal button[data-action="delete"]:not(:disabled),
+    body:not(.dark-mode) .handleliste-type-management-modal .danger-button:not(:disabled) {
+      background: #7b3030 !important;
+      border-color: #7b3030 !important;
+      color: #ffffff !important;
+      opacity: 1 !important;
+    }
+
+    body:not(.dark-mode) .handleliste-type-management-modal button[data-action="delete"]:disabled,
+    body:not(.dark-mode) .handleliste-type-management-modal .danger-button:disabled {
+      background: #e5e7eb !important;
+      border-color: #d1d5db !important;
+      color: #6b7280 !important;
+      opacity: 1 !important;
+      cursor: not-allowed !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
