@@ -271,8 +271,26 @@ let hasUnsavedChanges=false;
 let canEditTypeOrder=false;
 let currentUserRole="";
 const SHOPPING_STORE_LOCK_KEY="shoppingStoreMatchLockV1";
+const SHOPPING_ACTIVE_CHAIN_KEY="shoppingActiveStoreChainV1";
 function relationText(value){if(Array.isArray(value)){return value.map(relationText).find(Boolean)||"";}if(value&&typeof value==="object"){return String(value.value||value.name||value.label||value.type||value.title||"").trim();}return String(value||"").trim();}
-function getInitialChain(){try{const raw=localStorage.getItem(SHOPPING_STORE_LOCK_KEY);if(!raw){return "Standard";}const lock=JSON.parse(raw);const expiresAt=Number(lock&&lock.expiresAt||0);if(!lock||!lock.data||!expiresAt||Date.now()>=expiresAt){localStorage.removeItem(SHOPPING_STORE_LOCK_KEY);return "Standard";}const data=lock.data;return relationText(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName||data.storeChain||(data.store&&data.store.chain))||"Standard";}catch(error){return "Standard";}}
+function normalizeChainKey(value){return relationText(value).toLocaleLowerCase("nb-NO").replace(/[^a-z0-9æøå]+/g,"");}
+function getInitialChain(){
+  try{
+    const activeRaw=localStorage.getItem(SHOPPING_ACTIVE_CHAIN_KEY);
+    if(activeRaw){
+      const active=JSON.parse(activeRaw);
+      if(active&&active.chain&&Number(active.expiresAt)>Date.now())return relationText(active.chain)||"Standard";
+      localStorage.removeItem(SHOPPING_ACTIVE_CHAIN_KEY);
+    }
+    const raw=localStorage.getItem(SHOPPING_STORE_LOCK_KEY);
+    if(!raw)return "Standard";
+    const lock=JSON.parse(raw);
+    const expiresAt=Number(lock&&lock.expiresAt||0);
+    if(!lock||!lock.data||!expiresAt||Date.now()>=expiresAt){localStorage.removeItem(SHOPPING_STORE_LOCK_KEY);return "Standard";}
+    const data=lock.data;
+    return relationText(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName||data.storeChain||(data.store&&data.store.chain))||"Standard";
+  }catch(error){return "Standard";}
+}
 function esc(value){return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");}
 async function fetchJson(url,options){const res=await fetch(url,Object.assign({credentials:"include"},options||{}));const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error((data&&data.error)||(data&&data.detail)||`HTTP ${res.status}`);}return data;}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
@@ -280,7 +298,28 @@ function renderChains(){const el=document.getElementById("chainTabs");el.innerHT
 function updateChainLogo(){const logo=document.getElementById("chainLogo");if(!logo){return;}const logoUrl=chainLogos&&currentChain?chainLogos[currentChain]:"";if(!logoUrl||currentChain==="Standard"){logo.style.display="none";logo.removeAttribute("src");logo.alt="";return;}logo.src=logoUrl;logo.alt=`${currentChain} logo`;logo.title=currentChain;logo.style.display="block";}
 function updateEditUi(){const saveButton=document.getElementById("saveButton");const note=document.getElementById("editNote");if(saveButton){saveButton.style.display=canEditTypeOrder?"inline-flex":"none";saveButton.disabled=!canEditTypeOrder;}if(note){note.textContent=canEditTypeOrder?"":"Kun administrator kan endre rekkefølgen.";}}
 function render(){renderChains();updateChainLogo();updateEditUi();const list=document.getElementById("typeList");list.innerHTML=types.map((type,index)=>{const dragAttrs=canEditTypeOrder?`draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event, ${index})" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)" onpointerdown="handlePointerDown(event, ${index})"`:"";const actions=canEditTypeOrder?`<div class="type-actions"><button class="type-button" type="button" onclick="moveType(${index}, ${index-1})" ${index===0?"disabled":""} title="Flytt opp">↑</button><button class="type-button" type="button" onclick="moveType(${index}, ${index+1})" ${index===types.length-1?"disabled":""} title="Flytt ned">↓</button></div>`:`<div class="type-actions"></div>`;return `<div class="type-row ${canEditTypeOrder?"touch-enabled":"readonly"}" ${dragAttrs} data-index="${index}"><div class="type-number">${index+1}</div><div class="type-name">${esc(type)}</div>${actions}</div>`;}).join("");}
-async function loadTypes(chain){currentChain=chain||currentChain||"Standard";setStatus(`Laster varetyper for ${esc(currentChain)}...`);try{const data=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(currentChain)}`);types=Array.isArray(data.typeOrder)?data.typeOrder:[];chains=Array.isArray(data.chains)&&data.chains.length?data.chains:["Standard"];chainLogos=data.chainLogos||chainLogos||{};currentChain=data.chain||currentChain;canEditTypeOrder=Boolean(data.canEditTypeOrder);currentUserRole=(data.currentUser&&data.currentUser.role)||"";hasUnsavedChanges=false;render();setStatus(canEditTypeOrder?`Klar. Redigerer rekkefølge for <strong>${esc(currentChain)}</strong>.`:`Klar. Viser rekkefølge for <strong>${esc(currentChain)}</strong>. Kun administrator kan endre.`, "success");}catch(error){setStatus(`Kunne ikke laste varetyper.<br><br>${esc(error.message)}`,"error");}}
+async function loadTypes(chain,retryCanonical){
+  const requested=chain||currentChain||"Standard";
+  currentChain=requested;
+  setStatus(`Laster varetyper for ${esc(currentChain)}...`);
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(requested)}`);
+    const returnedChains=Array.isArray(data.chains)&&data.chains.length?data.chains:["Standard"];
+    const canonical=returnedChains.find(value=>normalizeChainKey(value)===normalizeChainKey(requested));
+    if(requested!=="Standard"&&canonical&&relationText(data.chain)!==canonical&&!retryCanonical){
+      return loadTypes(canonical,true);
+    }
+    types=Array.isArray(data.typeOrder)?data.typeOrder:[];
+    chains=returnedChains;
+    chainLogos=data.chainLogos||chainLogos||{};
+    currentChain=canonical||data.chain||requested;
+    canEditTypeOrder=Boolean(data.canEditTypeOrder);
+    currentUserRole=(data.currentUser&&data.currentUser.role)||"";
+    hasUnsavedChanges=false;
+    render();
+    setStatus(canEditTypeOrder?`Klar. Redigerer rekkefølge for <strong>${esc(currentChain)}</strong>.`:`Klar. Viser rekkefølge for <strong>${esc(currentChain)}</strong>. Kun administrator kan endre.`, "success");
+  }catch(error){setStatus(`Kunne ikke laste varetyper.<br><br>${esc(error.message)}`,"error");}
+}
 function selectChain(chain){if(chain===currentChain){return;}if(hasUnsavedChanges&&!confirm("Du har ulagrede endringer. Bytte kjede uten å lagre?")){return;}loadTypes(chain);}
 function moveType(fromIndex,toIndex){if(!canEditTypeOrder){return;}if(fromIndex<0||fromIndex>=types.length||toIndex<0||toIndex>=types.length||fromIndex===toIndex){return;}const [type]=types.splice(fromIndex,1);types.splice(toIndex,0,type);hasUnsavedChanges=true;render();}
 function handleDragStart(event,index){if(!canEditTypeOrder){event.preventDefault();return;}draggedIndex=index;event.currentTarget.classList.add("dragging");event.dataTransfer.effectAllowed="move";}
