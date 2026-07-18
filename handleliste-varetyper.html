@@ -270,6 +270,9 @@ let draggedIndex=null;
 let hasUnsavedChanges=false;
 let canEditTypeOrder=false;
 let currentUserRole="";
+const SHOPPING_STORE_LOCK_KEY="shoppingStoreMatchLockV1";
+function relationText(value){if(Array.isArray(value)){return value.map(relationText).find(Boolean)||"";}if(value&&typeof value==="object"){return String(value.value||value.name||value.label||value.type||value.title||"").trim();}return String(value||"").trim();}
+function getInitialChain(){try{const raw=localStorage.getItem(SHOPPING_STORE_LOCK_KEY);if(!raw){return "Standard";}const lock=JSON.parse(raw);const expiresAt=Number(lock&&lock.expiresAt||0);if(!lock||!lock.data||!expiresAt||Date.now()>=expiresAt){localStorage.removeItem(SHOPPING_STORE_LOCK_KEY);return "Standard";}const data=lock.data;return relationText(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName||data.storeChain||(data.store&&data.store.chain))||"Standard";}catch(error){return "Standard";}}
 function esc(value){return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");}
 async function fetchJson(url,options){const res=await fetch(url,Object.assign({credentials:"include"},options||{}));const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error((data&&data.error)||(data&&data.detail)||`HTTP ${res.status}`);}return data;}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
@@ -376,7 +379,7 @@ async function saveTypeOrder(){
   }
 }
 window.addEventListener("beforeunload",event=>{if(!hasUnsavedChanges){return;}event.preventDefault();event.returnValue="";});
-loadTypes("Standard");
+loadTypes(getInitialChain());
 document.getElementById("chainLogo").addEventListener("error",function(){this.style.display="none";});
 </script>
 <script>
@@ -612,4 +615,4 @@ document.getElementById("chainLogo").addEventListener("error",function(){this.st
 })();
 </script>
 
-<script src="handleliste-menu.js?v=25"></script></body></html>
+<script src="handleliste-menu.js?v=24"></script></body></html>
