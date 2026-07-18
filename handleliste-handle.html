@@ -2509,7 +2509,7 @@ function setStoreMatchStatus(message, type){
 function formatStoreMatchResult(data){
   const matchStatus=String((data && data.storeMatchStatus) || "");
   const storeName=String((data && data.storeName) || (data && data.store && data.store.name) || "").trim();
-  const storeChain=String((data && data.storeChain) || (data && data.store && data.store.chain) || "").trim();
+  const storeChain=getActualStoreChain(data);
   const logoUrl=String((data && data.storeLogoUrl) || (data && data.logoUrl) || (data && data.store && data.store.logoUrl) || "").trim();
   const distance=(data && data.storeDistance);
   const location=(data && data.location) || {};
@@ -2544,12 +2544,26 @@ function formatStoreMatchResult(data){
   return "Butikk kunne ikke foreslås automatisk.";
 }
 
-const SHOPPING_STORE_LOCK_KEY="shoppingStoreMatchLockV1";
-const SHOPPING_ACTIVE_CHAIN_KEY="shoppingActiveStoreChainV1";
+const SHOPPING_STORE_LOCK_KEY="shoppingStoreMatchLockV2";
+const SHOPPING_ACTIVE_CHAIN_KEY="shoppingActiveStoreChainV2";
 const SHOPPING_STORE_LOCK_MS=60*60*1000;
 
 function normalizeChainKey(value){
   return relationText(value).toLocaleLowerCase("nb-NO").replace(/[^a-z0-9æøå]+/g,"");
+}
+
+function isRealStoreChain(value){
+  const text=relationText(value);
+  const key=normalizeChainKey(text);
+  return !!text && key!=="standard" && key!=="standardrekkefolge";
+}
+
+function getActualStoreChain(data){
+  const candidates=[
+    data&&data.storeChain,
+    data&&data.store&&data.store.chain
+  ];
+  return candidates.map(relationText).find(isRealStoreChain)||"";
 }
 
 function readActiveStoreChain(){
@@ -2570,7 +2584,7 @@ function readActiveStoreChain(){
 
 function writeActiveStoreChain(chain,expiresAt){
   const value=relationText(chain);
-  if(!value||value==="Standard")return;
+  if(!isRealStoreChain(value))return;
   try{
     localStorage.setItem(SHOPPING_ACTIVE_CHAIN_KEY,JSON.stringify({
       chain:value,
@@ -2611,7 +2625,7 @@ function writeShoppingStoreLock(data){
       expiresAt,
       data
     }));
-    writeActiveStoreChain(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName||data.storeChain||(data.store&&data.store.chain),expiresAt);
+    writeActiveStoreChain(getActualStoreChain(data),expiresAt);
   }catch(error){}
 }
 
@@ -2654,20 +2668,25 @@ async function enrichStoreMatchWithChainOrder(data){
   const matched=!!(data.storeName||(data.store&&data.store.name));
   if(!matched)return data;
 
-  const requestedChain=relationText(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName||data.storeChain||(data.store&&data.store.chain));
+  // The actual chain from the matched store is authoritative. typeOrderChain may
+  // contain "Standard" from an older cached response and must never replace it.
+  const requestedChain=getActualStoreChain(data);
   if(!requestedChain)return data;
 
   try{
     const orderData=await fetchJsonWithRetry(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(requestedChain)}&storeMatch=${Date.now()}`,{}, {attempts:2,baseDelayMs:500});
     const availableChains=Array.isArray(orderData&&orderData.chains)?orderData.chains.map(relationText).filter(Boolean):[];
     const requestedKey=normalizeChainKey(requestedChain);
-    const canonicalChain=relationText(orderData&&orderData.chain)||availableChains.find(chain=>normalizeChainKey(chain)===requestedKey)||requestedChain;
+    const returnedChain=relationText(orderData&&orderData.chain);
+    const canonicalChain=(isRealStoreChain(returnedChain)&&normalizeChainKey(returnedChain)===requestedKey)
+      ? returnedChain
+      : (availableChains.find(chain=>isRealStoreChain(chain)&&normalizeChainKey(chain)===requestedKey)||requestedChain);
     const order=getStoreTypeOrder(orderData);
     if(!order.length){
       throw new Error(`Fant ikke varegrupperekkefølge for kjeden ${canonicalChain}.`);
     }
     return Object.assign({},data,{
-      storeChain:canonicalChain,
+      storeChain:requestedChain,
       typeOrderChain:canonicalChain,
       typeOrder:order
     });
@@ -2686,14 +2705,14 @@ async function enrichStoreMatchWithChainOrder(data){
 async function restoreShoppingStoreLock(lock){
   if(!lock||!lock.data)return false;
   let data=lock.data;
-  const chain=relationText(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName||data.storeChain||(data.store&&data.store.chain));
+  const chain=getActualStoreChain(data);
   if(chain&&!getStoreTypeOrder(data).length){
     data=await enrichStoreMatchWithChainOrder(data);
     lock.data=data;
     try{localStorage.setItem(SHOPPING_STORE_LOCK_KEY,JSON.stringify(lock));}catch(error){}
   }
   applyShoppingStoreMatchData(data);
-  writeActiveStoreChain(data.typeOrderChain||data.storeChain||(data.store&&data.store.chain),lock.expiresAt);
+  writeActiveStoreChain(getActualStoreChain(data),lock.expiresAt);
   return true;
 }
 
@@ -2714,15 +2733,24 @@ function applyShoppingStoreMatchData(data,options){
   data=data||{};
   const matched=!!(data.storeName||(data.store&&data.store.name));
   const uncertain=String(data.storeMatchStatus||"")==="Uncertain";
-  const matchedChain=relationText(data.storeChain||(data.store&&data.store.chain));
+  const matchedChain=getActualStoreChain(data);
+  if(matched&&!matchedChain){
+    void logHandlelisteError({
+      name:"Funnet butikk mangler gyldig butikkjede",
+      errorType:"Store chain data integrity",
+      fingerprint:`store-chain-missing|${normalizeChainKey(data.storeName||(data.store&&data.store.name)||"")}`,
+      context:{storeId:data.store&&data.store.id||null,storeName:data.storeName||(data.store&&data.store.name)||"",storeChain:data.storeChain||"",typeOrderChain:data.typeOrderChain||"",workerError:data.storeDataIntegrityError||""}
+    });
+  }
   currentShoppingPlace=matched
     ? (matchedChain||selectedShoppingArea||SHOPPING_AREA_DEFAULT)
     : defaultShoppingPlaceForArea(selectedShoppingArea);
 
   const matchedTypeOrder=getStoreTypeOrder(data);
-  if(matched&&matchedTypeOrder.length){
+  const orderChain=relationText(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName);
+  if(matched&&matchedTypeOrder.length&&matchedChain){
     typeOrder=matchedTypeOrder;
-    currentStoreChain=relationText(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName)||matchedChain||"Standard";
+    currentStoreChain=isRealStoreChain(orderChain) ? orderChain : matchedChain;
   }else{
     typeOrder=standardTypeOrder.slice();
     currentStoreChain="Standard";
