@@ -21,7 +21,7 @@
 
       const script = document.createElement("script");
       script.id = "kvimarkaErrorLoggerScript";
-      script.src = "shared/kvimarka-error-logger.js?v=1";
+      script.src = "shared/kvimarka-error-logger.js?v=2";
       script.async = false;
       script.onload = () => resolve(window.KvimarkaErrorLogger || null);
       script.onerror = () => {
@@ -351,11 +351,11 @@
         background:var(--link,#7cc7e8);
         color:#fff;
       }
-      body:not(.dark-mode) #handlelisteItemTypeForm .handleliste-create-user-button.primary{
+      body.light-mode #handlelisteItemTypeForm .handleliste-create-user-button.primary{
         background:#0067c0;
         color:#fff;
       }
-      body:not(.dark-mode) #handlelisteDeleteItemTypeForm .handleliste-create-user-button{
+      body.light-mode #handlelisteDeleteItemTypeForm .handleliste-create-user-button{
         background:#b42318 !important;
         color:#fff;
       }

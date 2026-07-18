@@ -1411,16 +1411,90 @@ function renderNewItemDebug(){
 }
 setTimeout(()=>updateNewItemDebug({},"Debugpanel klart"),0);
 
+async function getSharedErrorLogger(){
+  return window.KvimarkaErrorLogger || (window.KvimarkaErrorLoggerReady ? await window.KvimarkaErrorLoggerReady : null);
+}
+
+function plainStatusText(message){
+  const wrapper=document.createElement("div");
+  wrapper.innerHTML=String(message||"");
+  return (wrapper.textContent||wrapper.innerText||"").trim();
+}
+
+async function logHandlelisteError(details){
+  try{
+    const logger=await getSharedErrorLogger();
+    if(!logger||typeof logger.log!=="function"){
+      console.warn("Felles feillogger er ikke tilgjengelig.",details);
+      return {success:false,unavailable:true};
+    }
+    return await logger.log(Object.assign({
+      application:"Handleliste",
+      page:"handleliste-handle.html"
+    },details||{}));
+  }catch(logError){
+    console.warn("Kunne ikke registrere feil i feilloggen.",logError);
+    return {success:false,error:logError};
+  }
+}
+
+function isRetryableFetchError(error){
+  if(!error)return false;
+  const message=String(error.message||error).toLowerCase();
+  const status=Number(error.httpStatus||0);
+  return !status || [408,425,429,500,502,503,504].includes(status) ||
+    message.includes("load failed") || message.includes("failed to fetch") ||
+    message.includes("network") || message.includes("nettverk") ||
+    message.includes("timeout") || message.includes("avbrutt");
+}
+
+function wait(ms){
+  return new Promise(resolve=>window.setTimeout(resolve,ms));
+}
+
 async function fetchJson(url,options){
   const fetchOptions = Object.assign({credentials:"include"}, options || {});
-  const res = await fetch(url, fetchOptions);
-  const data = await res.json().catch(()=>null);
+  let res;
+  try{
+    res = await fetch(url, fetchOptions);
+  }catch(error){
+    error.requestUrl=url;
+    error.requestMethod=fetchOptions.method||"GET";
+    throw error;
+  }
+  const responseText=await res.text().catch(()=>"");
+  let data=null;
+  if(responseText){
+    try{data=JSON.parse(responseText);}catch(parseError){}
+  }
 
   if(!res.ok || (data && data.error)){
-    throw new Error((data && (data.detail || data.error)) || `HTTP ${res.status}`);
+    const error=new Error((data && (data.detail || data.error)) || responseText || `HTTP ${res.status}`);
+    error.httpStatus=res.status;
+    error.requestUrl=url;
+    error.requestMethod=fetchOptions.method||"GET";
+    error.responseText=responseText.slice(0,2000);
+    throw error;
   }
 
   return data;
+}
+
+async function fetchJsonWithRetry(url,options,retryOptions){
+  const config=Object.assign({attempts:3,baseDelayMs:750},retryOptions||{});
+  let lastError=null;
+  for(let attempt=1;attempt<=config.attempts;attempt++){
+    try{
+      return await fetchJson(url,options);
+    }catch(error){
+      lastError=error;
+      error.attempt=attempt;
+      error.maxAttempts=config.attempts;
+      if(attempt>=config.attempts||!isRetryableFetchError(error))throw error;
+      await wait(config.baseDelayMs*attempt);
+    }
+  }
+  throw lastError||new Error("Ukjent nettverksfeil");
 }
 function clearShoppingFinishProgress(){
   const el=document.getElementById("status");
@@ -1432,11 +1506,36 @@ function clearShoppingFinishProgress(){
   el.removeAttribute("aria-valuemax");
   el.removeAttribute("role");
 }
+let lastUiErrorFingerprint="";
+let lastUiErrorAt=0;
 function setStatus(message,type,options){
   const el=document.getElementById("status");
   if(!(options&&options.keepProgress))clearShoppingFinishProgress();
   el.className="status"+(type?` ${type}`:"")+(options&&options.keepProgress?" shopping-finish-progress":"");
   el.innerHTML=message||"";
+
+  if(type==="error"&&!(options&&options.skipErrorLog)){
+    const errorMessage=plainStatusText(message)||"Ukjent feil i statusfeltet";
+    const fingerprint=`handleliste-handle-ui|${errorMessage}`;
+    const now=Date.now();
+    if(fingerprint!==lastUiErrorFingerprint||now-lastUiErrorAt>10000){
+      lastUiErrorFingerprint=fingerprint;
+      lastUiErrorAt=now;
+      void logHandlelisteError({
+        name:"Feil vist i handlelisten",
+        errorType:"UI status",
+        errorMessage,
+        fingerprint,
+        context:{
+          selectedShoppingArea,
+          currentStoreChain,
+          currentShoppingPlace,
+          online:navigator.onLine,
+          visibilityState:document.visibilityState
+        }
+      });
+    }
+  }
 }
 function setShoppingFinishProgress(processed,total){
   const el=document.getElementById("status");
@@ -2587,6 +2686,13 @@ async function checkCurrentStore(silent, options){
         const locationMessage=formatGpsLocation(location);
         setStoreMatchStatus(locationMessage, "error");
         if(!silent)setStatus(`Kunne ikke oppdatere butikk.<br>${locationMessage}`, "error");
+        else void logHandlelisteError({
+          name:"Kunne ikke hente GPS-posisjon for butikksøk",
+          errorType:"Store lookup GPS",
+          errorMessage:locationMessage,
+          fingerprint:`store-lookup-gps|${location.status||"unknown"}`,
+          context:{silent,requestId,location,selectedShoppingArea,online:navigator.onLine}
+        });
       }
       return;
     }
@@ -2596,7 +2702,7 @@ async function checkCurrentStore(silent, options){
       setStatus("Oppdaterer butikk: GPS-posisjon er hentet. Søker etter nærmeste butikk...");
     }
 
-    const data=await fetchJson(`${API_BASE}/shopping/store-match`,{
+    const data=await fetchJsonWithRetry(`${API_BASE}/shopping/store-match`,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=UTF-8"},
       body:JSON.stringify({
@@ -2607,7 +2713,7 @@ async function checkCurrentStore(silent, options){
         locationStatus:location.status,
         shoppingArea:selectedShoppingArea
       })
-    });
+    },{attempts:3,baseDelayMs:800});
 
     if(requestId!==storeMatchRequestId){
       return;
@@ -2625,7 +2731,25 @@ async function checkCurrentStore(silent, options){
   }catch(error){
     if(requestId===storeMatchRequestId){
       setStoreMatchStatus(`Kunne ikke sjekke butikk.<br><br>${esc(error.message)}`, "error");
-      if(!silent)setStatus(`Kunne ikke oppdatere butikk.<br><br>${esc(error.message)}`, "error");
+      if(!silent)setStatus(`Kunne ikke oppdatere butikk.<br><br>${esc(error.message)}`, "error",{skipErrorLog:true});
+      void logHandlelisteError({
+        name:"Kunne ikke søke etter nærmeste butikk",
+        errorType:"Store lookup",
+        error,
+        fingerprint:`store-lookup|${error.httpStatus||"network"}|${String(error.message||error)}`,
+        context:{
+          silent,
+          requestId,
+          attempt:error.attempt||null,
+          maxAttempts:error.maxAttempts||null,
+          httpStatus:error.httpStatus||null,
+          requestUrl:error.requestUrl||`${API_BASE}/shopping/store-match`,
+          responseText:error.responseText||"",
+          selectedShoppingArea,
+          online:navigator.onLine,
+          visibilityState:document.visibilityState
+        }
+      });
     }
   }finally{
     if(requestId===storeMatchRequestId){
@@ -2658,7 +2782,14 @@ function installUpdateStoreButtonHandler(){
     Promise.resolve().then(()=>checkCurrentStore(false)).catch(error=>{
       const message=error&&error.message?error.message:String(error||"Ukjent feil");
       setStoreMatchStatus(`Kunne ikke oppdatere butikk.<br><br>${esc(message)}`,"error");
-      setStatus(`Kunne ikke oppdatere butikk.<br><br>${esc(message)}`,"error");
+      setStatus(`Kunne ikke oppdatere butikk.<br><br>${esc(message)}`,"error",{skipErrorLog:true});
+      void logHandlelisteError({
+        name:"Butikksøk stoppet uventet",
+        errorType:"Store lookup handler",
+        error,
+        fingerprint:`store-lookup-handler|${message}`,
+        context:{selectedShoppingArea,online:navigator.onLine}
+      });
     });
   };
 
@@ -3398,7 +3529,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
 })();
 </script>
 
-<script src="handleliste-menu.js?v=24"></script>
+<script src="handleliste-menu.js?v=25"></script>
 <script>
 (function(){
   let count=0;
@@ -3413,7 +3544,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0034</div><script src="handleliste-item-dialog.js?v=4"></script>
+<div>V0035</div><script src="handleliste-item-dialog.js?v=4"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase:API_BASE,

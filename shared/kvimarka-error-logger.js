@@ -1,4 +1,4 @@
-/* Kvimarka 92 felles feillogger v1
+/* Kvimarka 92 felles feillogger v2
    Produksjonsnavn: shared/kvimarka-error-logger.js */
 (function(){
   "use strict";
@@ -7,9 +7,11 @@
     return;
   }
 
-  const VERSION = "kvimarka-error-logger-v1-2026-07-12";
+  const VERSION = "kvimarka-error-logger-v2-2026-07-18";
   const API_BASE = "https://api-kvimarka92.carstereogarage.com";
-  let isSending = false;
+  const QUEUE_KEY = "kvimarka.errorLog.queue.v2";
+  const MAX_QUEUE_LENGTH = 100;
+  let flushPromise = null;
 
   function text(value){
     return String(value == null ? "" : value).trim();
@@ -83,47 +85,111 @@
     return location.pathname.split("/").pop() || location.pathname || "ukjent side";
   }
 
-  async function log(details){
+  function readQueue(){
+    try{
+      const value=JSON.parse(localStorage.getItem(QUEUE_KEY)||"[]");
+      return Array.isArray(value)?value:[];
+    }catch(error){
+      return [];
+    }
+  }
+
+  function writeQueue(queue){
+    try{
+      localStorage.setItem(QUEUE_KEY,JSON.stringify((queue||[]).slice(-MAX_QUEUE_LENGTH)));
+      return true;
+    }catch(error){
+      console.warn("Kunne ikke lagre feilloggkø lokalt.",error);
+      return false;
+    }
+  }
+
+  function queuePayload(payload){
+    const queue=readQueue();
+    queue.push({payload,queuedAt:new Date().toISOString(),attempts:0});
+    writeQueue(queue);
+  }
+
+  function buildPayload(details){
     const data = details && typeof details === "object" ? details : {};
     const error = data.error instanceof Error ? data.error : null;
     const errorMessage = text(data.errorMessage || data.message || (error && error.message) || data.error || "Ukjent feil");
+    if(!errorMessage)return null;
 
-    if(!errorMessage || isSending) return { skipped:true };
+    return {
+      name:text(data.name) || errorMessage.slice(0, 180),
+      application:text(data.application) || detectApplication(),
+      page:text(data.page) || pageName(),
+      errorMessage,
+      errorType:text(data.errorType) || "JavaScript",
+      stackTrace:text(data.stackTrace || (error && error.stack)),
+      context:data.context || {},
+      occurredAt:data.occurredAt || new Date().toISOString(),
+      device:detectDevice(),
+      browser:detectBrowser(),
+      operatingSystem:detectOperatingSystem(),
+      fingerprint:text(data.fingerprint)
+    };
+  }
 
-    isSending = true;
-    try{
-      const response = await fetch(`${API_BASE}/error-log`, {
-        method:"POST",
-        credentials:"include",
-        headers:{"Content-Type":"text/plain;charset=UTF-8"},
-        body:JSON.stringify({
-          name:text(data.name) || errorMessage.slice(0, 180),
-          application:text(data.application) || detectApplication(),
-          page:text(data.page) || pageName(),
-          errorMessage,
-          errorType:text(data.errorType) || "JavaScript",
-          stackTrace:text(data.stackTrace || (error && error.stack)),
-          context:data.context || {},
-          occurredAt:data.occurredAt || new Date().toISOString(),
-          device:detectDevice(),
-          browser:detectBrowser(),
-          operatingSystem:detectOperatingSystem(),
-          fingerprint:text(data.fingerprint)
-        })
-      });
+  async function sendPayload(payload){
+    const response = await fetch(`${API_BASE}/error-log`, {
+      method:"POST",
+      credentials:"include",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify(payload)
+    });
 
-      if(!response.ok){
-        const detail = await response.text().catch(() => "");
-        console.warn("Feilloggen svarte med feil.", response.status, detail);
-        return { success:false, status:response.status, detail };
+    if(!response.ok){
+      const detail = await response.text().catch(() => "");
+      const error=new Error(`Feilloggen svarte med HTTP ${response.status}${detail?`: ${detail}`:""}`);
+      error.httpStatus=response.status;
+      error.detail=detail;
+      throw error;
+    }
+
+    return await response.json().catch(() => ({ success:true, status:response.status }));
+  }
+
+  async function flushQueue(){
+    if(flushPromise)return flushPromise;
+    flushPromise=(async function(){
+      const queue=readQueue();
+      if(!queue.length)return {success:true,sent:0,remaining:0};
+
+      let sent=0;
+      while(queue.length){
+        const entry=queue[0];
+        try{
+          await sendPayload(entry.payload);
+          queue.shift();
+          sent+=1;
+          writeQueue(queue);
+        }catch(error){
+          entry.attempts=Number(entry.attempts||0)+1;
+          entry.lastAttemptAt=new Date().toISOString();
+          entry.lastError=text(error&&error.message||error);
+          writeQueue(queue);
+          return {success:false,sent,remaining:queue.length,error};
+        }
       }
+      return {success:true,sent,remaining:0};
+    })().finally(()=>{flushPromise=null;});
+    return flushPromise;
+  }
 
-      return await response.json().catch(() => ({ success:true, status:response.status }));
+  async function log(details){
+    const payload=buildPayload(details);
+    if(!payload)return {skipped:true};
+
+    try{
+      await flushQueue();
+      const result=await sendPayload(payload);
+      return Object.assign({success:true,queued:false},result||{});
     }catch(logError){
-      console.warn("Kunne ikke registrere feil i feilloggen.", logError);
-      return { success:false, error:logError };
-    }finally{
-      isSending = false;
+      queuePayload(payload);
+      console.warn("Feilen ble lagret lokalt og sendes til feilloggen når forbindelsen virker igjen.",logError);
+      return {success:false,queued:true,error:logError};
     }
   }
 
@@ -132,7 +198,7 @@
     if(target && target !== window){
       const source = target.src || target.href || "";
       if(source){
-        log({
+        void log({
           name:"Ressurs kunne ikke lastes",
           errorType:"Resource",
           errorMessage:`Kunne ikke laste ressurs: ${source}`,
@@ -143,7 +209,7 @@
     }
 
     const error = event && event.error;
-    log({
+    void log({
       name:"Ubehandlet JavaScript-feil",
       errorType:"JavaScript",
       error,
@@ -160,7 +226,7 @@
   function rejectionHandler(event){
     const reason = event && event.reason;
     const error = reason instanceof Error ? reason : null;
-    log({
+    void log({
       name:"Ubehandlet promise-feil",
       errorType:"Unhandled promise",
       error,
@@ -173,6 +239,8 @@
   window.KvimarkaErrorLogger = {
     version:VERSION,
     log,
+    flushQueue,
+    getQueuedCount:function(){return readQueue().length;},
     detectDevice,
     detectBrowser,
     detectOperatingSystem,
@@ -187,4 +255,9 @@
 
   window.addEventListener("error", globalErrorHandler, true);
   window.addEventListener("unhandledrejection", rejectionHandler);
+  window.addEventListener("online",()=>{void flushQueue();});
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="visible")void flushQueue();
+  });
+  window.setTimeout(()=>{void flushQueue();},1500);
 })();
