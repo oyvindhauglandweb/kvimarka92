@@ -2645,6 +2645,69 @@ function applyShoppingStoreMatchData(data,options){
   if(options.status!==false)showPlacementStatus();
 }
 
+async function logGpsHistoryForStoreLookup(location, silent){
+  if(!location || location.status!=="ok") return null;
+
+  const latitude=Number(location.latitude);
+  const longitude=Number(location.longitude);
+  const accuracy=location.accuracy===null || location.accuracy===undefined || location.accuracy===""
+    ? null
+    : Math.round(Number(location.accuracy));
+
+  if(!Number.isFinite(latitude) || !Number.isFinite(longitude)){
+    void logHandlelisteError({
+      name:"GPS-historikk mangler gyldige koordinater",
+      errorType:"GPS history logging",
+      errorMessage:"GPS-posisjonen var markert som OK, men koordinatene kunne ikke konverteres til tall.",
+      fingerprint:"gps-history-invalid-coordinates",
+      context:{silent,location,selectedShoppingArea}
+    });
+    return null;
+  }
+
+  try{
+    const data=await fetchJsonWithRetry(`${API_BASE}/shopping/gps-history-log`,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({
+        latitude:Number(latitude.toFixed(4)),
+        longitude:Number(longitude.toFixed(4)),
+        accuracy:Number.isFinite(accuracy)?accuracy:null,
+        locationStatus:location.status,
+        locationSource:location.source||"handleliste-handle",
+        locationMessage:location.message||"",
+        shoppingArea:selectedShoppingArea,
+        storeMatchStatus:"GPS position received"
+      })
+    },{attempts:2,baseDelayMs:500});
+
+    const result=data&&data.gpsHistoryLog?data.gpsHistoryLog:data;
+    if(result && result.logged===false){
+      throw new Error(result.error||"Worker bekreftet ikke at GPS-historikken ble lagret.");
+    }
+    return result||null;
+  }catch(error){
+    void logHandlelisteError({
+      name:"Kunne ikke registrere GPS-posisjon i GPS-historikken",
+      errorType:"GPS history logging",
+      error,
+      fingerprint:`gps-history-log|${error.httpStatus||"network"}|${String(error.message||error)}`,
+      context:{
+        silent,
+        selectedShoppingArea,
+        latitude:Number(latitude.toFixed(6)),
+        longitude:Number(longitude.toFixed(6)),
+        accuracy:Number.isFinite(accuracy)?accuracy:null,
+        requestUrl:error.requestUrl||`${API_BASE}/shopping/gps-history-log`,
+        httpStatus:error.httpStatus||null,
+        responseText:error.responseText||"",
+        online:navigator.onLine
+      }
+    });
+    return null;
+  }
+}
+
 let storeMatchRunning=false;
 let storeMatchRequestId=0;
 async function checkCurrentStore(silent, options){
@@ -2701,6 +2764,11 @@ async function checkCurrentStore(silent, options){
       setStoreMatchStatus("GPS-posisjon er hentet. Søker etter nærmeste butikk...");
       setStatus("Oppdaterer butikk: GPS-posisjon er hentet. Søker etter nærmeste butikk...");
     }
+
+    // GPS-historikken er en egen registrering og skal ikke være avhengig av at
+    // butikkmatchen lykkes. Vent på forsøket før butikksøket fortsetter, slik at
+    // posisjonen ikke går tapt ved sidebytte eller en senere fetch-feil.
+    await logGpsHistoryForStoreLookup(location, silent);
 
     const data=await fetchJsonWithRetry(`${API_BASE}/shopping/store-match`,{
       method:"POST",
@@ -3529,7 +3597,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
 })();
 </script>
 
-<script src="handleliste-menu.js?v=25"></script>
+<script src="handleliste-menu.js?v=24"></script>
 <script>
 (function(){
   let count=0;
