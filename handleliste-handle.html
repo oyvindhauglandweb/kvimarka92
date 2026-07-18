@@ -1098,7 +1098,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v89-store-match-persistence";
+const HANDLELISTE_HANDLE_VERSION="v90-chain-order-invariant";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -2147,7 +2147,7 @@ function startShoppingItemsPolling(){
 
 
 const BOUGHT_STORAGE_KEY="kvimarka92ShoppingBoughtIds";
-let items=[];let boughtIds=new Set();let typeOrder=[];let typeOptions=[];let currentStoreChain="Standard";let currentShoppingPlace="";
+let items=[];let boughtIds=new Set();let typeOrder=[];let standardTypeOrder=[];let typeOptions=[];let currentStoreChain="Standard";let currentShoppingPlace="";
 function getBoughtStorageKey(){return BOUGHT_STORAGE_KEY;}
 function loadRememberedBoughtIds(){
   try{
@@ -2274,13 +2274,15 @@ function render(){
 }
 function toggleBought(id,checked){const numericId=Number(id);if(!numericId)return;if(checked){if(!isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);boughtIds.add(numericId);}else{boughtIds.delete(numericId);}saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);renderShoppingAreaButtons();render();}
 function toggleAllBought(){const ordered=getOrderedItems();if(!ordered.length)return;const allBought=ordered.every(item=>boughtIds.has(Number(item.id)));if(!allBought && !isShoppingAreaLocked())writeShoppingAreaStorage(SHOPPING_ACTIVE_AREA_STORAGE_KEY,selectedShoppingArea);ordered.forEach(item=>{const id=Number(item.id);if(allBought)boughtIds.delete(id);else boughtIds.add(id);});saveRememberedBoughtIds();updateShoppingInProgressState();flushDeferredNewItemPopupIfAllowed();queueCurrentItemsAddedAfterActiveContext(items);renderShoppingAreaButtons();render();}
-async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser && data.currentUser.name)||(data.currentUser && data.currentUser.email)||"";showAdminVersionInfoIfAllowed(data.currentUser);items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});typeOrder=Array.isArray(data.typeOrder)?data.typeOrder:[];typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(item=>item.type)).concat(typeOrder));setShoppingAreaOrder(Array.isArray(data.shoppingAreas)?data.shoppingAreas:SHOPPING_AREA_ORDER);boughtIds=loadRememberedBoughtIds();syncSelectedShoppingAreaFromActive();const shoppingAreaWasReset=validateSelectedShoppingArea();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();renderShoppingAreaButtons();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
-  if(shoppingNotificationActive){
-    const when=shoppingNotificationData&&shoppingNotificationData.shoppingTime ? ` Tidspunkt for handling: ${esc(formatLocalDateTimeShort(new Date(shoppingNotificationData.shoppingTime)))}` : "";
-    setStatus(`Varsling er aktivert.${when} Viser <strong>${esc(selectedShoppingArea)}</strong>.`,"success");
-  }else{
-    setStatus(`${shoppingAreaWasReset?"Den valgte butikken finnes ikke lenger. ":"Klar. "}Viser <strong>${esc(selectedShoppingArea)}</strong>. Kryss av varene etter hvert som de er handlet.`,"success");
-  }
+async function loadItems(options){const silent=!!(options&&options.silent);updateNewItemDebug({loadItems:silent?"silent polling":"manuell/første last"},silent?"Polling: laster varer":"Laster varer");if(!silent)setStatus("Laster handlelisten...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions);ownerContacts=Array.isArray(data.ownerContacts)?data.ownerContacts:[];currentUserName=(data.currentUser && data.currentUser.name)||(data.currentUser && data.currentUser.email)||"";showAdminVersionInfoIfAllowed(data.currentUser);items=Array.isArray(data.items)?data.items:[];items.forEach(item=>{item.shoppingArea=normalizeShoppingArea(item.shoppingArea,item.type);});standardTypeOrder=Array.isArray(data.typeOrder)?data.typeOrder.map(normalizeTypeOrderEntry).filter(Boolean):[];typeOrder=standardTypeOrder.slice();typeOptions=Array.isArray(data.typeOptions)?data.typeOptions:uniqueShoppingTypesForForm(DEFAULT_TYPES.concat(items.map(item=>item.type)).concat(typeOrder));setShoppingAreaOrder(Array.isArray(data.shoppingAreas)?data.shoppingAreas:SHOPPING_AREA_ORDER);boughtIds=loadRememberedBoughtIds();syncSelectedShoppingAreaFromActive();const shoppingAreaWasReset=validateSelectedShoppingArea();reconcileBoughtIdsWithItems();updateShoppingInProgressState();await refreshShoppingNotificationState(true);registerLoadedItemsForTimestampsAndAlerts(items);flushDeferredNewItemPopupIfAllowed();const activeStoreLock=readShoppingStoreLock();
+if(activeStoreLock){
+  applyShoppingStoreMatchData(activeStoreLock.data,{render:false,status:false});
+}else{
+  currentStoreChain="Standard";
+  currentShoppingPlace=defaultShoppingPlaceForArea(selectedShoppingArea);
+}
+renderShoppingAreaButtons();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
+  showPlacementStatus();
 }
 updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent)setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}
 
@@ -2479,34 +2481,69 @@ function clearShoppingStoreLock(){
   try{localStorage.removeItem(SHOPPING_STORE_LOCK_KEY);}catch(error){}
 }
 
+function relationText(value){
+  if(Array.isArray(value)){
+    return value.map(relationText).find(Boolean)||"";
+  }
+  if(value&&typeof value==="object"){
+    return String(value.value||value.name||value.label||value.type||value.title||"").trim();
+  }
+  return String(value||"").trim();
+}
+
+function normalizeTypeOrderEntry(item){
+  if(item&&typeof item==="object"){
+    return relationText(item.type||item.shoppingType||item.shopping_item_type||item.name||item.value||item.label);
+  }
+  return relationText(item);
+}
+
 function getStoreTypeOrder(data){
   const candidates=[
     data&&data.typeOrder,
     data&&data.shoppingTypeOrder,
     data&&data.storeTypeOrder,
+    data&&data.chainTypeOrder,
     data&&data.store&&data.store.typeOrder
   ];
   const value=candidates.find(candidate=>Array.isArray(candidate)&&candidate.length);
-  return value ? value.map(item=>String(item||"").trim()).filter(Boolean) : [];
+  return value ? value.map(normalizeTypeOrderEntry).filter(Boolean) : [];
 }
 
-function applyShoppingStoreMatchData(data){
+function placementStatusText(){
+  const chain=String(currentStoreChain||"").trim();
+  if(chain&&chain!=="Standard"){
+    return `Varegruppene er plassert i.h.t. <strong>${esc(chain)}</strong> kjeden.`;
+  }
+  return "Varegruppene er plassert i.h.t. standard oppsett.";
+}
+
+function showPlacementStatus(){
+  setStatus(placementStatusText(),"success");
+}
+
+function applyShoppingStoreMatchData(data,options){
+  options=options||{};
   data=data||{};
   const matched=!!(data.storeName||(data.store&&data.store.name));
   const uncertain=String(data.storeMatchStatus||"")==="Uncertain";
-  const matchedChain=String(data.storeChain||(data.store&&data.store.chain)||"").trim();
+  const matchedChain=relationText(data.storeChain||(data.store&&data.store.chain));
   currentShoppingPlace=matched
     ? (matchedChain||selectedShoppingArea||SHOPPING_AREA_DEFAULT)
     : defaultShoppingPlaceForArea(selectedShoppingArea);
 
   const matchedTypeOrder=getStoreTypeOrder(data);
-  if(matchedTypeOrder.length){
+  if(matched&&matchedTypeOrder.length){
     typeOrder=matchedTypeOrder;
-    currentStoreChain=data.typeOrderChain||data.storeTypeOrderChain||matchedChain||"Standard";
+    currentStoreChain=relationText(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName)||matchedChain||"Standard";
+  }else{
+    typeOrder=standardTypeOrder.slice();
+    currentStoreChain="Standard";
   }
 
-  render();
+  if(options.render!==false)render();
   setStoreMatchStatus(formatStoreMatchResult(data),matched&&!uncertain?"success":"");
+  if(options.status!==false)showPlacementStatus();
 }
 
 let storeMatchRunning=false;
@@ -2583,11 +2620,7 @@ async function checkCurrentStore(silent, options){
       const storeChain=String((data&&data.storeChain)||(data&&data.store&&data.store.chain)||"").trim();
       const storeLabel=[storeChain,storeName].filter(Boolean).join(" ").trim();
       const matchStatus=String((data&&data.storeMatchStatus)||"");
-      if(storeLabel){
-        setStatus(`Butikken er oppdatert: <strong>${esc(storeLabel)}</strong>. Viser <strong>${esc(selectedShoppingArea)}</strong>.`, matchStatus==="Uncertain"?"":"success");
-      }else{
-        setStatus(`Butikksøket er fullført. Ingen kjent butikk ble funnet. Viser fortsatt <strong>${esc(selectedShoppingArea)}</strong>.`, "success");
-      }
+      showPlacementStatus();
     }
   }catch(error){
     if(requestId===storeMatchRequestId){
@@ -2642,23 +2675,34 @@ else installUpdateStoreButtonHandler();
 
 
 let autoStoreCheckStarted=false;
-function autoCheckStoreOnMobile(){
-  // V0089: Gjenbruk funnet butikk i én time. Finnes ingen gyldig butikk,
-  // kjøres ett automatisk butikksøk ved sideåpning på både mobil og PC.
-  // Polling starter aldri nye GPS-søk.
-  if(autoStoreCheckStarted){
-    return;
-  }
+function isMobileStoreSearchDevice(){
+  const coarse=window.matchMedia&&window.matchMedia("(pointer: coarse)").matches;
+  const touch=Number(navigator.maxTouchPoints||0)>0;
+  const narrow=window.matchMedia&&window.matchMedia("(max-width: 900px)").matches;
+  return !!(coarse||(touch&&narrow));
+}
 
+function autoCheckStoreOnMobile(){
+  // Automatisk butikksøk skal kun kjøres på mobil/nettbrett, aldri på PC.
+  // En gyldig butikkmatch gjenbrukes i én time på alle enheter.
+  if(autoStoreCheckStarted)return;
   autoStoreCheckStarted=true;
+
   window.setTimeout(() => {
     const lock=readShoppingStoreLock();
     if(lock){
       applyShoppingStoreMatchData(lock.data);
       return;
     }
-    checkCurrentStore(true,{allowPermissionPrompt:true});
-  }, 500);
+    if(isMobileStoreSearchDevice()){
+      checkCurrentStore(true,{allowPermissionPrompt:true});
+    }else{
+      typeOrder=standardTypeOrder.slice();
+      currentStoreChain="Standard";
+      render();
+      showPlacementStatus();
+    }
+  },500);
 }
 
 function shoppingSessionStatusText(session){
@@ -3369,7 +3413,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0033</div><script src="handleliste-item-dialog.js?v=4"></script>
+<div>V0034</div><script src="handleliste-item-dialog.js?v=4"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase:API_BASE,
