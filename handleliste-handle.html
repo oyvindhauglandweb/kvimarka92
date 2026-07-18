@@ -1098,7 +1098,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v88-invalid-area-fallback";
+const HANDLELISTE_HANDLE_VERSION="v89-store-match-persistence";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -2324,6 +2324,7 @@ function getShoppingLocation(){
           accuracy:position.coords.accuracy
         };
         saveLastGpsPosition(location);
+        setGpsEnabled(true);
         resolve(location);
       },
       error=>{
@@ -2464,8 +2465,7 @@ function readShoppingStoreLock(){
 
 function writeShoppingStoreLock(data){
   const matched=!!(data&&(data.storeName||(data.store&&data.store.name)));
-  const uncertain=String(data&&data.storeMatchStatus||"")==="Uncertain";
-  if(!matched||uncertain){return;}
+  if(!matched){return;}
   try{
     localStorage.setItem(SHOPPING_STORE_LOCK_KEY,JSON.stringify({
       savedAt:Date.now(),
@@ -2479,7 +2479,19 @@ function clearShoppingStoreLock(){
   try{localStorage.removeItem(SHOPPING_STORE_LOCK_KEY);}catch(error){}
 }
 
+function getStoreTypeOrder(data){
+  const candidates=[
+    data&&data.typeOrder,
+    data&&data.shoppingTypeOrder,
+    data&&data.storeTypeOrder,
+    data&&data.store&&data.store.typeOrder
+  ];
+  const value=candidates.find(candidate=>Array.isArray(candidate)&&candidate.length);
+  return value ? value.map(item=>String(item||"").trim()).filter(Boolean) : [];
+}
+
 function applyShoppingStoreMatchData(data){
+  data=data||{};
   const matched=!!(data.storeName||(data.store&&data.store.name));
   const uncertain=String(data.storeMatchStatus||"")==="Uncertain";
   const matchedChain=String(data.storeChain||(data.store&&data.store.chain)||"").trim();
@@ -2487,18 +2499,20 @@ function applyShoppingStoreMatchData(data){
     ? (matchedChain||selectedShoppingArea||SHOPPING_AREA_DEFAULT)
     : defaultShoppingPlaceForArea(selectedShoppingArea);
 
-  if(Array.isArray(data.typeOrder)&&data.typeOrder.length){
-    typeOrder=data.typeOrder;
-    currentStoreChain=data.typeOrderChain||matchedChain||"Standard";
-    render();
+  const matchedTypeOrder=getStoreTypeOrder(data);
+  if(matchedTypeOrder.length){
+    typeOrder=matchedTypeOrder;
+    currentStoreChain=data.typeOrderChain||data.storeTypeOrderChain||matchedChain||"Standard";
   }
 
+  render();
   setStoreMatchStatus(formatStoreMatchResult(data),matched&&!uncertain?"success":"");
 }
 
 let storeMatchRunning=false;
 let storeMatchRequestId=0;
-async function checkCurrentStore(silent){
+async function checkCurrentStore(silent, options){
+  options=options||{};
   // V241: Et manuelt trykk må aldri blokkeres av en automatisk/silent GPS-sjekk.
   // Hver kjøring får en ID, og bare den nyeste får oppdatere butikk/status.
   const requestId=++storeMatchRequestId;
@@ -2516,7 +2530,7 @@ async function checkCurrentStore(silent){
   if(gpsClientStateEnabled()){
     if(!silent){
       setGpsEnabled(true);
-    }else if(!(await canAutoUseGpsWithoutPrompt())){
+    }else if(!options.allowPermissionPrompt && !(await canAutoUseGpsWithoutPrompt())){
       return;
     }
   }
@@ -2629,23 +2643,22 @@ else installUpdateStoreButtonHandler();
 
 let autoStoreCheckStarted=false;
 function autoCheckStoreOnMobile(){
-  // V0010: Automatisk GPS/butikkmatch skal kun kjøres én gang ved sideåpning.
-  // Silent polling/loadItems skal ikke starte nye GPS-sjekker og dermed ikke få listen til å hoppe i butikken.
+  // V0089: Gjenbruk funnet butikk i én time. Finnes ingen gyldig butikk,
+  // kjøres ett automatisk butikksøk ved sideåpning på både mobil og PC.
+  // Polling starter aldri nye GPS-søk.
   if(autoStoreCheckStarted){
     return;
   }
 
-  if(!isLikelyMobileDevice()){
-    return;
-  }
-
   autoStoreCheckStarted=true;
-  window.setTimeout(async () => {
-    if(gpsClientStateEnabled() && !(await canAutoUseGpsWithoutPrompt())){
+  window.setTimeout(() => {
+    const lock=readShoppingStoreLock();
+    if(lock){
+      applyShoppingStoreMatchData(lock.data);
       return;
     }
-    checkCurrentStore(true);
-  }, 800);
+    checkCurrentStore(true,{allowPermissionPrompt:true});
+  }, 500);
 }
 
 function shoppingSessionStatusText(session){
