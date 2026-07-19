@@ -211,30 +211,28 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         applyStandardPermission();
     }
     function open() {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        injectModal();
-                        $("hidForm").reset();
-                        state.sourceItemId = 0;
-                        state.sourceSuggestionId = 0;
-                        clearImage();
-                        hideSuggestions();
-                        populate();
-                        $("hidShouldBuy").checked = config().defaultShouldBuy !== false;
-                        updateWebRequirement();
-                        updateDuplicate();
-                        $("handlelisteItemDialog").classList.add("open");
-                        setTimeout(function () { return $("hidTechnical").focus(); }, 60);
-                        ensureSuggestions();
-                        return [4 /*yield*/, refreshStandardPermission()];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
+        injectModal();
+        var form = $("hidForm");
+        if (!form || !$("handlelisteItemDialog")) {
+            setHostStatus("Kunne ikke åpne vinduet for ny vare.", "error");
+            return;
+        }
+        form.reset();
+        state.sourceItemId = 0;
+        state.sourceSuggestionId = 0;
+        clearImage();
+        hideSuggestions();
+        populate();
+        $("hidShouldBuy").checked = config().defaultShouldBuy !== false;
+        updateWebRequirement();
+        updateDuplicate();
+        $("handlelisteItemDialog").classList.add("open");
+        setTimeout(function () {
+            var input = $("hidTechnical");
+            if (input) input.focus();
+        }, 60);
+        ensureSuggestions();
+        refreshStandardPermission();
     }
     function close() { var m = $("handlelisteItemDialog"); if (m)
         m.classList.remove("open"); hideSuggestions(); state.sourceItemId = 0; state.sourceSuggestionId = 0; }

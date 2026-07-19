@@ -3741,27 +3741,39 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0036</div><script src="handleliste-item-dialog.js?v=4"></script>
+<div>V0037</div><script src="handleliste-item-dialog.js?v=6"></script>
 <script>
 HandlelisteItemDialog.configure({
-  apiBase:API_BASE,
-  getItems:()=>items,
-  getOwners:()=>SHOPPING_OWNERS,
-  getTypes:()=>uniqueShoppingTypesForForm([...(typeOptions||[]),...(typeOrder||[]),...items.map(item=>item.type),...(SHOPPING_AREA_ORDER||[])]),
-  getDefaultOwner:()=>normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY)||"Felles"),
-  getDefaultType:()=>selectedShoppingArea,
-  resolveShoppingArea:type=>getTypeShoppingArea(type),
-  canSetStandard:()=>{
-    const u=currentUser||{};
-    const role=String(u.role||"").toLowerCase();
-    const hr=String(u.handlelisteRole||u.handleliste_role||"").toLowerCase();
-    const access=String(u.handlelisteAccess||u.handleliste_access||"").toLowerCase();
-    const mr=String((u.family&&u.family.memberRole)||"").toLowerCase();
-    return !!u.isFamilyAdmin || ["administrator","admin","supervisor"].includes(role) || ["administrator","admin","family admin","family_admin"].includes(hr) || access==="admin" || ["family admin","family_admin","administrator","admin","owner"].includes(mr);
+  apiBase: API_BASE,
+  getItems: function(){ return items; },
+  getOwners: function(){ return SHOPPING_OWNERS; },
+  getTypes: function(){
+    return uniqueShoppingTypesForForm(
+      (typeOptions || []).concat(typeOrder || []).concat(items.map(function(item){ return item.type; })).concat(SHOPPING_AREA_ORDER || [])
+    );
   },
-  defaultShouldBuy:true,
-  setStatus:setStatus,
-  onSaved:async name=>{await loadItems();setStatus(`Varen "${esc(name)}" er lagt til handlelisten.`,"success");}
+  getDefaultOwner: function(){ return normalizeOwner(localStorage.getItem(OWNER_STORAGE_KEY) || "Felles"); },
+  getDefaultType: function(){ return selectedShoppingArea; },
+  resolveShoppingArea: function(type){ return getTypeShoppingArea(type); },
+  canSetStandard: function(){
+    var u = currentUser || {};
+    var role = String(u.role || "").toLowerCase();
+    var hr = String(u.handlelisteRole || u.handleliste_role || "").toLowerCase();
+    var access = String(u.handlelisteAccess || u.handleliste_access || "").toLowerCase();
+    var mr = String((u.family && u.family.memberRole) || "").toLowerCase();
+    return !!u.isFamilyAdmin ||
+      ["administrator","admin","supervisor"].indexOf(role) >= 0 ||
+      ["administrator","admin","family admin","family_admin"].indexOf(hr) >= 0 ||
+      access === "admin" ||
+      ["family admin","family_admin","administrator","admin","owner"].indexOf(mr) >= 0;
+  },
+  defaultShouldBuy: true,
+  setStatus: setStatus,
+  onSaved: function(name){
+    return loadItems().then(function(){
+      setStatus('Varen "' + esc(name) + '" er lagt til handlelisten.', "success");
+    });
+  }
 });
 </script>
 </body></html>
