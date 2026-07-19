@@ -995,19 +995,21 @@
     closeSettings();
     try{await loadItemTypeManagementOptions(isFood?"food":"external");}
     catch(error){setItemTypeStatus(`Kunne ikke laste eksisterende valg. ${error&&error.message?error.message:""}`.trim(),"error");}
-    setTimeout(()=>document.getElementById("handlelisteItemTypeName")?.focus(),0);
+    setTimeout(function(){ var element=document.getElementById("handlelisteItemTypeName"); if(element){ element.focus(); } },0);
     return false;
   }
 
   function closeItemTypeDialog(){
-    document.getElementById("handlelisteItemTypeModal")?.classList.remove("open");
+    var modal=document.getElementById("handlelisteItemTypeModal"); if(modal){ modal.classList.remove("open"); }
     return false;
   }
 
   async function submitItemTypeDialog(event){
     if(event){event.preventDefault();event.stopPropagation();}
-    const kind=String(document.getElementById("handlelisteItemTypeKind")?.value||"");
-    const name=String(document.getElementById("handlelisteItemTypeName")?.value||"").trim();
+    const kindElement=document.getElementById("handlelisteItemTypeKind");
+    const kind=String((kindElement && kindElement.value)||"");
+    const nameElement=document.getElementById("handlelisteItemTypeName");
+    const name=String((nameElement && nameElement.value)||"").trim();
     const button=document.querySelector("#handlelisteItemTypeForm button[type='submit']");
     if(!name){setItemTypeStatus("Navn må fylles ut.","error");return false;}
     try{
@@ -1028,10 +1030,12 @@
 
   async function submitDeleteItemTypeDialog(event){
     if(event){event.preventDefault();event.stopPropagation();}
-    const kind=String(document.getElementById("handlelisteItemTypeKind")?.value||"");
+    const kindElement=document.getElementById("handlelisteItemTypeKind");
+    const kind=String((kindElement && kindElement.value)||"");
     const select=document.getElementById("handlelisteDeleteItemTypeSelect");
-    const id=Number(select?.value||0);
-    const name=String(select?.selectedOptions?.[0]?.textContent||"").trim();
+    const id=Number((select && select.value)||0);
+    const selectedOption=(select && select.selectedOptions && select.selectedOptions.length) ? select.selectedOptions[0] : null;
+    const name=String((selectedOption && selectedOption.textContent)||"").trim();
     const button=document.querySelector("#handlelisteDeleteItemTypeForm button[type='submit']");
     if(!id){setItemTypeStatus("Velg hva som skal slettes.","error");return false;}
     if(!window.confirm(`Slette ${name}?`)) return false;
