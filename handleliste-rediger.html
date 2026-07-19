@@ -786,7 +786,7 @@ async function removeItemImage(id,options){
 }
 
 let items=[];let currentUser=null;let SHOPPING_TYPES=DEFAULT_TYPES.slice();let dirtyRows=new Set();
-function canonicalEditType(value){const text=String(value||"").trim();return text.toLowerCase()==="meieri"?"Meieri og egg":text;}function uniqueValues(values){const seen=new Set();const result=[];(Array.isArray(values)?values:[]).forEach(value=>{const text=canonicalEditType(value);if(!text)return;const key=text.toLowerCase();if(seen.has(key))return;seen.add(key);result.push(text);});return result;}
+function canonicalEditType(value){const text=String(value||"").trim();return text.toLowerCase()==="meieri"?"Meieri og egg":text;}function uniqueValues(values){const seen=new Set();const result=[];(Array.isArray(values)?values:[]).forEach(value=>{const text=canonicalEditType(value);if(!text)return;const key=text.toLowerCase();if(key==="matvarer"||seen.has(key))return;seen.add(key);result.push(text);});return result;}
 function setShoppingTypes(typeOrder,rows,typeOptions){const options=Array.isArray(typeOptions)?typeOptions.map(value=>String(value||"").trim()).filter(Boolean):[];SHOPPING_TYPES=uniqueValues([...(options.length?options:[]),...(Array.isArray(typeOrder)?typeOrder:[]),...(Array.isArray(rows)?rows.map(item=>getEffectiveEditType(item)):[]),...DEFAULT_TYPES,...EXTRA_SHOPPING_AREA_TYPES]);}
 function isExternalShoppingAreaType(value){const key=String(value||"").trim().toLowerCase();return EXTRA_SHOPPING_AREA_TYPES.some(type=>type.toLowerCase()===key);}
 function getEffectiveEditType(item){const area=String(item&&item.shoppingArea||"").trim();if(isExternalShoppingAreaType(area))return area;return canonicalEditType(item&&item.type||"Annet")||"Annet";}

@@ -2278,6 +2278,7 @@ function uniqueShoppingTypesForForm(values){
   (Array.isArray(values)?values:[]).forEach(value=>{
     const text=String(value||"").trim()||"Annet";
     const key=text.toLowerCase();
+    if(key==="matvarer")return;
     if(!seen.has(key)){
       seen.add(key);
       result.push(text);
@@ -3741,7 +3742,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0037</div><script src="handleliste-item-dialog.js?v=6"></script>
+<div>V0038</div><script src="handleliste-item-dialog.js?v=6"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase: API_BASE,

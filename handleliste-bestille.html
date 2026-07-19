@@ -819,6 +819,7 @@ function uniqueShoppingTypeValues(values){
     const type=canonicalShoppingType(value);
     if(!type||isDeprecatedShoppingType(type))return;
     const key=type.toLowerCase().replace(/\s+/g," ");
+    if(key==="matvarer")return;
     if(seen.has(key))return;
     seen.add(key);
     result.push(type);
