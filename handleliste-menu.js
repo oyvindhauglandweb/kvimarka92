@@ -728,11 +728,35 @@
     return data || {};
   }
 
+  function getActiveStoreChainForTypeOrderLink(){
+    const keys=["shoppingActiveStoreChainV2","shoppingActiveStoreChainV1"];
+    for(const key of keys){
+      try{
+        const raw=localStorage.getItem(key);
+        if(!raw) continue;
+        const saved=JSON.parse(raw);
+        const chain=String(saved&&saved.chain||"").trim();
+        const expiresAt=Number(saved&&saved.expiresAt||0);
+        const normalized=chain.toLocaleLowerCase("nb-NO").replace(/[^a-z0-9æøå]+/g,"");
+        if(chain&&expiresAt>Date.now()&&normalized!=="standard"&&normalized!=="standardrekkefolge"){
+          return chain;
+        }
+      }catch(error){}
+    }
+    return "";
+  }
+
+  function getTypeOrderSettingsUrl(){
+    const chain=getActiveStoreChainForTypeOrderLink();
+    return chain ? `handleliste-varetyper.html?chain=${encodeURIComponent(chain)}` : "handleliste-varetyper.html";
+  }
+
   function settingsMenuHtml(){
+    const typeOrderUrl=getTypeOrderSettingsUrl();
     return `
           <a href="#" id="handlelisteCreateExternalTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('external', event)">Opprette/slette butikk</a>
           <a href="#" id="handlelisteCreateFoodTypeLink" style="display:none;" onclick="return HandlelisteMenu.openItemTypeDialog('food', event)">Opprette/slette varetyper</a>
-          ${settingsLink("handleliste-varetyper.html", "Plassere varetyper")}
+          ${settingsLink(typeOrderUrl, "Plassere varetyper")}
           ${settingsLink("handleliste-rediger.html", "Redigere varer")}
           ${settingsLink("handleliste-rydde.html", "Slette varer")}
           ${settingsLink("handleliste-oppskrifter-rediger.html", "Redigere oppskrifter")}

@@ -256,9 +256,9 @@ window.toggleShoppingTheme=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Sorter varetyper</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Plassere varetyper</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
 <div class="card"><div class="toolbar type-admin-toolbar"><div class="toolbar-left"><a class="action-button" href="handleliste-rediger.html">Rediger</a></div><div class="toolbar-right"><button class="action-button primary" type="button" id="saveButton" onclick="saveTypeOrder()">Lagre rekkefølge</button><span class="readonly-note" id="editNote"></span></div></div></div>
-<div class="card"><div class="small-help">Velg <strong>Standard</strong> for vanlig rekkefølge, eller en butikkjede for å tilpasse rekkefølgen slik varene står i den kjeden. Dra og slipp varetypene fra øverst til nederst.</div></div><div class="card"><div id="chainTabs" class="chain-tabs"></div></div>
+<div class="card"><div class="small-help">Velg <strong>Standard</strong> for vanlig rekkefølge, eller en butikkjede for å tilpasse rekkefølgen slik varene står i den kjeden. Dra og slipp varegruppene fra øverst til nederst.</div></div><div class="card"><div id="chainTabs" class="chain-tabs"></div></div>
 <div class="card"><div class="chain-status-row"><div id="status" class="status">Laster...</div><img id="chainLogo" class="chain-logo" alt=""></div></div><div class="card"><div id="typeList" class="type-list"></div></div></div>
 <script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
@@ -270,12 +270,15 @@ let draggedIndex=null;
 let hasUnsavedChanges=false;
 let canEditTypeOrder=false;
 let currentUserRole="";
-const SHOPPING_STORE_LOCK_KEY="shoppingStoreMatchLockV1";
-const SHOPPING_ACTIVE_CHAIN_KEY="shoppingActiveStoreChainV1";
+const SHOPPING_STORE_LOCK_KEY="shoppingStoreMatchLockV2";
+const SHOPPING_ACTIVE_CHAIN_KEY="shoppingActiveStoreChainV2";
 function relationText(value){if(Array.isArray(value)){return value.map(relationText).find(Boolean)||"";}if(value&&typeof value==="object"){return String(value.value||value.name||value.label||value.type||value.title||"").trim();}return String(value||"").trim();}
 function normalizeChainKey(value){return relationText(value).toLocaleLowerCase("nb-NO").replace(/[^a-z0-9æøå]+/g,"");}
+function isRealStoreChain(value){const key=normalizeChainKey(value);return !!key&&key!=="standard"&&key!=="standardrekkefolge";}
 function getInitialChain(){
   try{
+    const requestedChain=relationText(new URLSearchParams(location.search).get("chain"));
+    if(isRealStoreChain(requestedChain))return requestedChain;
     const activeRaw=localStorage.getItem(SHOPPING_ACTIVE_CHAIN_KEY);
     if(activeRaw){
       const active=JSON.parse(activeRaw);
@@ -288,7 +291,8 @@ function getInitialChain(){
     const expiresAt=Number(lock&&lock.expiresAt||0);
     if(!lock||!lock.data||!expiresAt||Date.now()>=expiresAt){localStorage.removeItem(SHOPPING_STORE_LOCK_KEY);return "Standard";}
     const data=lock.data;
-    return relationText(data.typeOrderChain||data.storeTypeOrderChain||data.chainTypeOrderName||data.storeChain||(data.store&&data.store.chain))||"Standard";
+    const actualChain=relationText(data.storeChain||(data.store&&data.store.chain));
+    return isRealStoreChain(actualChain)?actualChain:"Standard";
   }catch(error){return "Standard";}
 }
 function esc(value){return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");}
@@ -654,4 +658,4 @@ document.getElementById("chainLogo").addEventListener("error",function(){this.st
 })();
 </script>
 
-<script src="handleliste-menu.js?v=24"></script></body></html>
+<script src="handleliste-menu.js?v=26"></script></body></html>
