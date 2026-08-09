@@ -1119,7 +1119,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v96-payment-app-ui";
+const HANDLELISTE_HANDLE_VERSION="v97-deeplink-test-panel";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -3981,7 +3981,40 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ setStat
   },1000);
 })();
 </script>
-<div>V0040</div><script src="handleliste-item-dialog.js?v=6"></script>
+<div class="card" id="deepLinkTestPanel" style="margin-top:12px;">
+  <div style="font-weight:bold;font-size:16px;margin-bottom:6px;">Deep link-test (midlertidig)</div>
+  <div class="status" style="margin-bottom:10px;">Trykk på linkene én etter én. Linken markeres som testet før iOS forsøker å åpne den.</div>
+  <div id="deepLinkTestLinks" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px;"></div>
+</div>
+<script>
+(function(){
+  const candidates=[
+    ["Coop 01","coop://"],["Coop 02","coopapp://"],["Coop 03","coopmedlem://"],["Coop 04","coop-member://"],["Coop 05","coopmember://"],["Coop 06","coopno://"],["Coop 07","coop-norge://"],["Coop 08","coopnorge://"],["Coop 09","coopay://"],["Coop 10","coop://coopay"],["Coop 11","coop://payment"],["Coop 12","coop://pay"],["Coop 13","coopmedlem://coopay"],["Coop 14","coopapp://coopay"],["Coop 15","https://coop.no/app"],["Coop 16","https://www.coop.no/app"],["Coop 17","https://coop.no/coopay"],["Coop 18","https://www.coop.no/coopay"],
+    ["Trumf 01","trumf://"],["Trumf 02","trumfapp://"],["Trumf 03","trumf-app://"],["Trumf 04","trumfpay://"],["Trumf 05","trumf-pay://"],["Trumf 06","trumf://pay"],["Trumf 07","trumf://trumfpay"],["Trumf 08","trumfapp://pay"],["Trumf 09","trumfapp://trumfpay"],["Trumf 10","norgesgruppen://trumf"],["Trumf 11","ngtrumf://"],["Trumf 12","https://trumf.no/app"],["Trumf 13","https://www.trumf.no/app"],["Trumf 14","https://trumf.no/trumf-pay"],["Trumf 15","https://www.trumf.no/trumf-pay"],["Trumf 16","https://trumf.no/trumfpay"],
+    ["REMA 01","rema://"],["REMA 02","rema1000://"],["REMA 03","rema-1000://"],["REMA 04","remaapp://"],["REMA 05","rema-app://"],["REMA 06","rema1000app://"],["REMA 07","rema://pay"],["REMA 08","rema1000://pay"],["REMA 09","rema://scanandpay"],["REMA 10","rema1000://scanandpay"],["REMA 11","rema://skann-og-betal"],["REMA 12","rema1000://skann-og-betal"],["REMA 13","https://rema.no/app"],["REMA 14","https://www.rema.no/app"],["REMA 15","https://rema.no/skann-og-betal"],["REMA 16","https://www.rema.no/skann-og-betal"]
+  ];
+  const box=document.getElementById("deepLinkTestLinks");
+  if(!box)return;
+  let tested={};
+  try{tested=JSON.parse(localStorage.getItem("handlelisteDeepLinkTests")||"{}");}catch(error){}
+  candidates.forEach(function(entry,index){
+    const label=entry[0],url=entry[1];
+    const a=document.createElement("a");
+    a.href=url;
+    a.textContent=label+" · "+url;
+    a.style.cssText="display:flex;align-items:center;min-height:42px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:var(--button);color:var(--text);text-decoration:none;font-size:11px;font-weight:bold;line-height:1.2;overflow-wrap:anywhere;";
+    if(tested[index]){a.style.opacity=".48";a.textContent="✓ "+a.textContent;}
+    a.addEventListener("click",function(){
+      tested[index]=true;
+      try{localStorage.setItem("handlelisteDeepLinkTests",JSON.stringify(tested));}catch(error){}
+      a.style.opacity=".48";
+      if(a.textContent.indexOf("✓ ")!==0)a.textContent="✓ "+a.textContent;
+    });
+    box.appendChild(a);
+  });
+})();
+</script>
+<div>V0041</div><script src="handleliste-item-dialog.js?v=6"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase: API_BASE,
