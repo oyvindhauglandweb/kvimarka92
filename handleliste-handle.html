@@ -1063,6 +1063,23 @@ document.addEventListener("DOMContentLoaded", window.applyHandleSizeState);
 </script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Handle</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><button class="action-button primary" type="button" onclick="HandlelisteItemDialog.open()">Legg til vare</button><a class="action-button" href="handleliste-rediger.html">Rediger varer</a></div><div class="toolbar-right"><button class="action-button" id="activateStandardNotificationButton" type="button" onclick="toggleStandardNotification()" title="Aktiver varsling før handling med lagret varslingsoppsett">Aktiver varsling før handling</button><button class="action-button gps-button" id="updateStoreButton" type="button" title="Oppdater butikkforslag"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"></path><circle cx="12" cy="10" r="2.2"></circle></svg></span>Oppdater butikk</button><button class="action-button primary finish-icon-button" id="finishButton" type="button" onclick="finishShopping()"><span class="btn-icon" aria-hidden="true"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.2 2.2 4.8-5"></path></svg></span>Avslutt handel</button></div></div></div><div class="card shopping-area-card"><div class="shopping-area-title">Velg butikk / handelstype</div><div class="shopping-area-buttons" id="shoppingAreaButtons"></div><div class="shopping-area-lock-note" id="shoppingAreaLockNote"></div></div><div class="card" id="storeMatchCard" style="display:none;"><div id="storeMatchStatus" class="status"></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card" id="toggleAllCard"><div class="toolbar"><div class="toolbar-left"><button class="action-button" id="toggleAllButton" type="button" onclick="toggleAllBought()" title="Merk eller avmerk alle varer">Merk alle</button></div></div></div><div class="card"><div id="shoppingList"></div></div></div>
 <div class="modal" id="itemImageModal" onclick="handleImageModalBackdrop(event)"><div class="modal-content" onclick="event.stopPropagation();"><div class="modal-header"><div class="modal-title" id="itemImageModalTitle">Varebilde</div><button class="modal-close" type="button" onclick="closeItemImageModal()">×</button></div><img class="image-viewer-img" id="itemImageModalImg" alt="Varebilde"></div></div>
 
+<div class="modal" id="manualChainModal" onclick="if(event.target===this) closeManualChainModal();">
+  <div class="modal-content" onclick="event.stopPropagation();">
+    <div class="modal-header">
+      <div class="modal-title">Velg matvarekjede</div>
+      <button class="modal-close" type="button" onclick="closeManualChainModal()" aria-label="Lukk">×</button>
+    </div>
+    <div class="status" id="manualChainInfo">Ingen registrert matvarebutikk ble funnet i nærheten. Velg kjeden du handler i, så sorteres handlelisten etter denne kjedens vareplassering.</div>
+    <div class="form-field" style="margin-top:14px;">
+      <label for="manualChainSelect">Matvarekjede</label>
+      <select id="manualChainSelect"></select>
+    </div>
+    <div class="toolbar" style="justify-content:flex-end;margin-top:14px;">
+      <button class="action-button" type="button" onclick="closeManualChainModal()">Avbryt</button>
+      <button class="action-button primary" id="manualChainApplyButton" type="button" onclick="applyManualChainSelection()">Bruk kjede</button>
+    </div>
+  </div>
+</div>
 <div class="modal" id="newItemsModal" onclick="if(event.target===this) closeNewItemsModal();">
   <div class="modal-content">
     <div class="modal-header">
@@ -1098,7 +1115,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v92-ios12-manual-gps";
+const HANDLELISTE_HANDLE_VERSION="v93-manual-grocery-chain-fallback";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -2518,6 +2535,11 @@ function formatStoreMatchResult(data){
     ? `${Math.round(Number(location.accuracy))} m`
     : "ukjent";
 
+  if(data && data.manualChain){
+    const chain=getActualStoreChain(data)||relationText(data.typeOrderChain);
+    return `Matvarekjede valgt manuelt: <strong>${esc(chain||"Standard")}</strong>.`;
+  }
+
   if(storeName){
     const label=[storeChain,storeName].filter(Boolean).join(" ").trim();
     const distanceText=distance !== null && distance !== undefined ? ` · ${Math.round(Number(distance))} m unna` : "";
@@ -2617,7 +2639,8 @@ function readShoppingStoreLock(){
 }
 
 function writeShoppingStoreLock(data){
-  const matched=!!(data&&(data.storeName||(data.store&&data.store.name)));
+  const manual=!!(data&&data.manualChain&&getActualStoreChain(data));
+  const matched=!!(data&&(data.storeName||(data.store&&data.store.name)))||manual;
   if(!matched){return;}
   const expiresAt=Date.now()+SHOPPING_STORE_LOCK_MS;
   try{
@@ -2732,8 +2755,9 @@ function showPlacementStatus(){
 function applyShoppingStoreMatchData(data,options){
   options=options||{};
   data=data||{};
-  const matched=!!(data.storeName||(data.store&&data.store.name));
-  const uncertain=String(data.storeMatchStatus||"")==="Uncertain";
+  const manual=!!(data.manualChain&&getActualStoreChain(data));
+  const matched=!!(data.storeName||(data.store&&data.store.name))||manual;
+  const uncertain=!manual&&String(data.storeMatchStatus||"")==="Uncertain";
   const matchedChain=getActualStoreChain(data);
   if(matched&&!matchedChain){
     void logHandlelisteError({
@@ -2760,6 +2784,102 @@ function applyShoppingStoreMatchData(data,options){
   if(options.render!==false)render();
   setStoreMatchStatus(formatStoreMatchResult(data),matched&&!uncertain?"success":"");
   if(options.status!==false)showPlacementStatus();
+}
+
+let manualChainSourceData=null;
+let manualChainOptionsCache=null;
+
+function closeManualChainModal(){
+  const modal=document.getElementById("manualChainModal");
+  if(modal)modal.classList.remove("open");
+}
+
+function manualChainNamesFromResponse(data){
+  const raw=Array.isArray(data&&data.chains)?data.chains:[];
+  const seen=new Set();
+  return raw
+    .map(relationText)
+    .map(value=>String(value||"").trim())
+    .filter(isRealStoreChain)
+    .filter(value=>{const key=normalizeChainKey(value);if(seen.has(key))return false;seen.add(key);return true;})
+    .sort((a,b)=>a.localeCompare(b,"nb-NO",{sensitivity:"base"}));
+}
+
+async function loadManualChainOptions(){
+  if(Array.isArray(manualChainOptionsCache)&&manualChainOptionsCache.length)return manualChainOptionsCache;
+  const data=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent("Standard")}&manualChoice=${Date.now()}`);
+  const chains=manualChainNamesFromResponse(data);
+  if(!chains.length)throw new Error("Fant ingen matvarekjeder å velge mellom.");
+  manualChainOptionsCache=chains;
+  return chains;
+}
+
+async function openManualChainModal(sourceData){
+  if(!isLikelyMobileDevice()||!isMatvarerArea(selectedShoppingArea))return;
+  const modal=document.getElementById("manualChainModal");
+  const select=document.getElementById("manualChainSelect");
+  const info=document.getElementById("manualChainInfo");
+  const applyButton=document.getElementById("manualChainApplyButton");
+  if(!modal||!select||!info||!applyButton)return;
+
+  manualChainSourceData=sourceData||null;
+  modal.classList.add("open");
+  select.disabled=true;
+  applyButton.disabled=true;
+  select.innerHTML='<option value="">Laster matvarekjeder...</option>';
+  info.className="status";
+  info.innerHTML="Ingen registrert matvarebutikk ble funnet i nærheten. Velg kjeden du handler i, så sorteres handlelisten etter denne kjedens vareplassering.";
+
+  try{
+    const chains=await loadManualChainOptions();
+    select.innerHTML='<option value="">Velg kjede...</option>'+chains.map(chain=>`<option value="${esc(chain)}">${esc(chain)}</option>`).join("");
+    select.disabled=false;
+    applyButton.disabled=false;
+  }catch(error){
+    select.innerHTML='<option value="">Ingen kjeder tilgjengelig</option>';
+    info.className="status error";
+    info.innerHTML=`Kunne ikke hente listen over matvarekjeder.<br><br>${esc(error.message||error)}`;
+  }
+}
+
+async function applyManualChainSelection(){
+  const select=document.getElementById("manualChainSelect");
+  const info=document.getElementById("manualChainInfo");
+  const applyButton=document.getElementById("manualChainApplyButton");
+  const chain=String(select&&select.value||"").trim();
+  if(!chain){
+    if(info){info.className="status error";info.textContent="Velg en matvarekjede først.";}
+    return;
+  }
+
+  if(select)select.disabled=true;
+  if(applyButton)applyButton.disabled=true;
+  if(info){info.className="status";info.textContent=`Henter vareplassering for ${chain}...`;}
+
+  try{
+    const data=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent(chain)}&manualChoice=${Date.now()}`);
+    const order=getStoreTypeOrder(data);
+    if(!order.length)throw new Error(`Fant ingen lagret varegrupperekkefølge for ${chain}.`);
+    const returnedChain=relationText(data&&data.chain);
+    const canonicalChain=isRealStoreChain(returnedChain)?returnedChain:chain;
+
+    const manualData={
+      manualChain:true,
+      storeName:"",
+      storeChain:canonicalChain,
+      storeMatchStatus:"Manual",
+      typeOrder:order,
+      typeOrderChain:canonicalChain,
+      location:(manualChainSourceData&&manualChainSourceData.location)||null
+    };
+    applyShoppingStoreMatchData(manualData);
+    writeShoppingStoreLock(manualData);
+    closeManualChainModal();
+  }catch(error){
+    if(info){info.className="status error";info.innerHTML=`Kunne ikke bruke valgt kjede.<br><br>${esc(error.message||error)}`;}
+    if(select)select.disabled=false;
+    if(applyButton)applyButton.disabled=false;
+  }
 }
 
 async function logGpsHistoryForStoreLookup(location, silent){
@@ -2909,6 +3029,11 @@ async function checkCurrentStore(silent, options){
     }
     applyShoppingStoreMatchData(data);
     writeShoppingStoreLock(data);
+
+    const noStoreFound=String((data&&data.storeMatchStatus)||"")==="No match" && !String((data&&data.storeName)||(data&&data.store&&data.store.name)||"").trim();
+    if(noStoreFound && isMatvarerArea(selectedShoppingArea) && isLikelyMobileDevice()){
+      void openManualChainModal(data);
+    }
 
     if(!silent){
       const storeName=String((data&&data.storeName)||(data&&data.store&&data.store.name)||"").trim();
