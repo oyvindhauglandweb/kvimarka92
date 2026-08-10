@@ -1119,7 +1119,7 @@ const ITEM_ADDED_AT_STORAGE_KEY="kvimarka92ShoppingItemAddedAtV1";
 const NEW_ITEM_ALERT_STORAGE_KEY="kvimarka92ShoppingNewItemAlertSeenV1";
 const SHOPPING_IN_PROGRESS_SINCE_KEY="kvimarka92ShoppingInProgressSinceV1";
 const DEFAULT_TYPES=["Frukt og grønt","Kjøtt og fisk","Brød","Frysevarer","Pålegg","Meieri og egg","Tørrvarer","Drikke","Husholdning","Personlig","Snacks","Annet"];
-const HANDLELISTE_HANDLE_VERSION="v101-local-list-cache";
+const HANDLELISTE_HANDLE_VERSION="v102-api-access-bootstrap";
 const SHOPPING_AREA_DEFAULT="Matvarer";
 const SHOPPING_AREA_STORAGE_KEY="kvimarka92SelectedShoppingAreaV1";
 const SHOPPING_ACTIVE_AREA_STORAGE_KEY="kvimarka92ActiveShoppingAreaV1";
@@ -1558,6 +1558,65 @@ function setStatus(message,type,options){
     }
   }
 }
+
+const API_ACCESS_BOOTSTRAP_URL=API_BASE+"/shopping/version";
+const API_ACCESS_BOOTSTRAP_PENDING_KEY="kvimarka92ApiAccessBootstrapPendingV1";
+let apiAccessBootstrapPending=false;
+let apiAccessBootstrapRetrying=false;
+
+function isApiAccessBootstrapError(error){
+  const message=String(error&&(error.message||error)||"").toLowerCase();
+  const status=Number(error&&error.httpStatus||0);
+  return status===401 ||
+    message.indexOf("not authenticated")!==-1 ||
+    message.indexOf("origin null")!==-1 ||
+    message.indexOf("access-control-allow-origin")!==-1 ||
+    message.indexOf("failed to fetch")!==-1 ||
+    message.indexOf("load failed")!==-1;
+}
+function rememberApiAccessBootstrapPending(value){
+  apiAccessBootstrapPending=!!value;
+  try{
+    if(apiAccessBootstrapPending)sessionStorage.setItem(API_ACCESS_BOOTSTRAP_PENDING_KEY,"1");
+    else sessionStorage.removeItem(API_ACCESS_BOOTSTRAP_PENDING_KEY);
+  }catch(error){}
+}
+function hasPendingApiAccessBootstrap(){
+  if(apiAccessBootstrapPending)return true;
+  try{return sessionStorage.getItem(API_ACCESS_BOOTSTRAP_PENDING_KEY)==="1";}catch(error){return false;}
+}
+function apiAccessBootstrapMessage(hasCachedList){
+  const intro=hasCachedList
+    ? "Kunne ikke oppdatere – viser sist lagrede handleliste."
+    : "Handlelisten trenger én gangs tilgang til API-et på denne enheten.";
+  return `${intro}<br><br><button class="action-button primary" type="button" onclick="openApiAccessBootstrap()">Aktiver tilgang</button>`;
+}
+function openApiAccessBootstrap(){
+  rememberApiAccessBootstrapPending(true);
+  const opened=window.open(API_ACCESS_BOOTSTRAP_URL,"_blank");
+  if(opened){
+    try{opened.opener=null;}catch(error){}
+    setStatus("Tilgangssjekk er åpnet i en ny fane. Når den er ferdig, gå tilbake hit – handlelisten oppdateres automatisk.","success");
+  }else{
+    setStatus("Safari blokkerte den nye fanen. Trykk på Aktiver tilgang én gang til.","error");
+  }
+}
+async function retryApiAfterBootstrap(){
+  if(!hasPendingApiAccessBootstrap()||apiAccessBootstrapRetrying)return;
+  apiAccessBootstrapRetrying=true;
+  try{
+    const ok=await loadItems();
+    if(ok)rememberApiAccessBootstrapPending(false);
+  }catch(error){}
+  apiAccessBootstrapRetrying=false;
+}
+window.addEventListener("focus",function(){
+  if(hasPendingApiAccessBootstrap())window.setTimeout(retryApiAfterBootstrap,250);
+});
+document.addEventListener("visibilitychange",function(){
+  if(!document.hidden&&hasPendingApiAccessBootstrap())window.setTimeout(retryApiAfterBootstrap,250);
+});
+
 function setShoppingFinishProgress(processed,total){
   const el=document.getElementById("status");
   if(!el)return;
@@ -2456,7 +2515,7 @@ if(activeStoreLock){
 setShoppingCachePreviewActive(false);renderShoppingAreaButtons();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
   showPlacementStatus();
 }
-updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent){if(shoppingCachePreviewActive){setStatus(`Kunne ikke oppdatere – viser sist lagrede handleliste.<br><br>${esc(error.message)}`,"error");}else{setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}}}
+updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");return true;}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent){if(isApiAccessBootstrapError(error)){setStatus(apiAccessBootstrapMessage(shoppingCachePreviewActive),"error");}else if(shoppingCachePreviewActive){setStatus(`Kunne ikke oppdatere – viser sist lagrede handleliste.<br><br>${esc(error.message)}`,"error");}else{setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}return false;}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
@@ -4033,7 +4092,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ if(!sho
   },1000);
 })();
 </script>
-<div>V0045</div><script src="handleliste-item-dialog.js?v=6"></script>
+<div>V0046</div><script src="handleliste-item-dialog.js?v=6"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase: API_BASE,
