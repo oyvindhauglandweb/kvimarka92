@@ -73,7 +73,7 @@
     .cal-day.outside{opacity:.42}
     .cal-day.today .date-no{color:var(--accent)}
     .date-no{font-size:12px;font-weight:800;margin-bottom:5px}
-    .cal-event{display:block;background:#263338;border-left:3px solid #5aa9c3;border-radius:4px;padding:4px 5px;margin:4px 0;font-size:11px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default}
+    .cal-event{display:block;background:var(--organizer-bg,#263338);border-left:4px solid var(--organizer-border,#5aa9c3);color:var(--organizer-text,#fff);border-radius:4px;padding:4px 5px;margin:4px 0;font-size:11px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default}
     .empty{text-align:center;color:var(--muted);padding:42px 16px;background:var(--panel);border-radius:10px;border:1px solid #242424}
 
     @media (max-width:900px){
@@ -287,6 +287,29 @@
     }).join("");
   }
 
+  const ORGANIZER_COLORS = [
+    {bg:"#23536b", border:"#62c7f2", text:"#ffffff"},
+    {bg:"#5a3f78", border:"#bd8df2", text:"#ffffff"},
+    {bg:"#326247", border:"#79d99d", text:"#ffffff"},
+    {bg:"#704b2d", border:"#e7a761", text:"#ffffff"},
+    {bg:"#6b3544", border:"#e986a0", text:"#ffffff"},
+    {bg:"#3d5577", border:"#87b4f4", text:"#ffffff"},
+    {bg:"#5d5a2d", border:"#d5cc66", text:"#ffffff"},
+    {bg:"#5b3f50", border:"#d28caf", text:"#ffffff"},
+    {bg:"#2c6264", border:"#6fd0d3", text:"#ffffff"},
+    {bg:"#65422f", border:"#d99667", text:"#ffffff"}
+  ];
+
+  function organizerColor(name) {
+    const text = String(name || "Ukjent arrangør");
+    let hash = 2166136261;
+    for (let i=0; i<text.length; i++) {
+      hash ^= text.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return ORGANIZER_COLORS[(hash >>> 0) % ORGANIZER_COLORS.length];
+  }
+
   function renderCalendar() {
     const year = monthCursor.getFullYear();
     const month = monthCursor.getMonth();
@@ -317,7 +340,8 @@
       html += `<div class="${classes.join(" ")}"><div class="date-no">${d.getDate()}</div>${rows.map(e => {
         const s = asDate(e.startTime);
         const tip = [e.title,e.organizer,e.location].filter(Boolean).join(" – ");
-        return `<div class="cal-event" title="${escapeHtml(tip)}">${s ? escapeHtml(noTime.format(s))+" " : ""}${escapeHtml(e.title)}</div>`;
+        const color = organizerColor(e.organizer);
+        return `<div class="cal-event" style="--organizer-bg:${color.bg};--organizer-border:${color.border};--organizer-text:${color.text}" title="${escapeHtml(tip)}">${s ? escapeHtml(noTime.format(s))+" " : ""}${escapeHtml(e.title)}</div>`;
       }).join("")}</div>`;
     }
     els.calGrid.innerHTML = html;
