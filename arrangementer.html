@@ -109,8 +109,8 @@
   </header>
 
   <main>
-    <h2 class="page-title">Arrangementer i Hå</h2>
-    <p class="lead">Felles oversikt over kommende arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
+    <h2 class="page-title">Arrangementer</h2>
+    <p class="lead">Felles oversikt over kommende arrangementer fra menigheter, bedehus og andre lokale kilder i Hå og Time.</p>
 
     <section class="toolbar" aria-label="Filtre">
       <div class="field search-field">
@@ -120,6 +120,10 @@
       <div class="field">
         <label for="typeFilter">Møtetype</label>
         <select id="typeFilter"><option value="">Alle møtetyper</option></select>
+      </div>
+      <div class="field">
+        <label for="municipalityFilter">Kommune</label>
+        <select id="municipalityFilter"><option value="">Alle kommuner</option></select>
       </div>
       <div class="field">
         <label for="settlementFilter">Tettsted</label>
@@ -161,10 +165,12 @@
   const API_BASE = "https://kvimarka92-api.oyvind-haugland.workers.dev";
   const EVENTS_API = `${API_BASE}/arrangementer/events`;
   const IMPORT_API = `${API_BASE}/arrangementer/import`;
+  // Testmodus: samme midlertidige nøkkel brukes for import og Baserow under utvikling.
+  const IMPORT_KEY = "oD0likwHw5ZpGJsNtRXg6eRp9jN7C9FR";
 
   const $ = (id) => document.getElementById(id);
   const els = {
-    search: $("search"), type: $("typeFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
+    search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
     status: $("status"), list: $("list"), calendar: $("calendar"), listBtn: $("listBtn"), calBtn: $("calBtn"), refreshBtn: $("refreshBtn"),
     calTitle: $("calTitle"), calGrid: $("calGrid"), prevMonth: $("prevMonth"), nextMonth: $("nextMonth")
   };
@@ -204,24 +210,33 @@
     if ([...select.options].some(o => o.value === old)) select.value = old;
   }
 
+  function refreshSettlementOptions() {
+    const municipality = els.municipality.value;
+    const relevant = municipality ? events.filter(e => e.municipality === municipality) : events;
+    addOptions(els.settlement, relevant.map(e => e.settlement), "Alle tettsteder");
+  }
+
   function populateFilters() {
     addOptions(els.type, events.flatMap(e => e.meetingTypes || []), "Alle møtetyper");
-    addOptions(els.settlement, events.map(e => e.settlement), "Alle tettsteder");
+    addOptions(els.municipality, events.map(e => e.municipality), "Alle kommuner");
+    refreshSettlementOptions();
     addOptions(els.organizer, events.map(e => e.organizer), "Alle arrangører");
   }
 
   function applyFilters() {
     const q = els.search.value.trim().toLocaleLowerCase("no");
     const type = els.type.value;
+    const municipality = els.municipality.value;
     const settlement = els.settlement.value;
     const organizer = els.organizer.value;
 
     filtered = events.filter(e => {
       if (type && !(e.meetingTypes || []).includes(type)) return false;
+      if (municipality && e.municipality !== municipality) return false;
       if (settlement && e.settlement !== settlement) return false;
       if (organizer && e.organizer !== organizer) return false;
       if (q) {
-        const hay = [e.title,e.organizer,e.location,e.settlement,e.description,...(e.meetingTypes||[])].join(" ").toLocaleLowerCase("no");
+        const hay = [e.title,e.organizer,e.location,e.settlement,e.municipality,e.description,...(e.meetingTypes||[])].join(" ").toLocaleLowerCase("no");
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -324,28 +339,17 @@
         els.status.className = "status";
         els.status.textContent = "Henter nye arrangementer fra kildene…";
 
-        let importKey = sessionStorage.getItem("arrangementImportKey") || "";
-        if (!importKey) {
-          importKey = prompt("Testmodus: Skriv ARRANGEMENT_IMPORT_KEY");
-          if (!importKey) {
-            els.status.textContent = "Oppdatering avbrutt.";
-            return;
-          }
-          sessionStorage.setItem("arrangementImportKey", importKey);
-        }
-
         const importRes = await fetch(IMPORT_API, {
           method:"POST",
           headers:{
             "Accept":"application/json",
-            "x-import-key":importKey
+            "x-import-key":IMPORT_KEY
           },
           cache:"no-store"
         });
 
         if (importRes.status === 401) {
-          sessionStorage.removeItem("arrangementImportKey");
-          throw new Error("Importnøkkelen ble avvist (401). Trykk Oppdater igjen og skriv riktig nøkkel.");
+          throw new Error("Importnøkkelen ble avvist (401).");
         }
         if (!importRes.ok) {
           throw new Error(`Import HTTP ${importRes.status}`);
@@ -384,6 +388,10 @@
   }
 
   [els.search,els.type,els.settlement,els.organizer].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFilters));
+  els.municipality.addEventListener("change", () => {
+    refreshSettlementOptions();
+    applyFilters();
+  });
   els.listBtn.addEventListener("click", () => setView("list"));
   els.calBtn.addEventListener("click", () => setView("calendar"));
   els.refreshBtn.addEventListener("click", () => load(true));
