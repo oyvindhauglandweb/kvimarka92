@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Arrangementer – Kvimarka 92</title>
+  <style>
+    :root {
+      --bg:#111;
+      --panel:#1e1e1e;
+      --panel-2:#243238;
+      --text:#f4f4f4;
+      --muted:#b7c0c4;
+      --line:#34383b;
+      --accent:#61d6ff;
+      --danger:#ff8c8c;
+      --shadow:0 8px 24px rgba(0,0,0,.18);
+      color-scheme:dark;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    body{padding:28px 18px 56px}
+    a{color:var(--accent)}
+    .wrap{width:min(1180px,100%);margin:0 auto}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}
+    .brand{text-align:right;margin-left:auto}
+    .brand h1{margin:0;font-size:32px;line-height:1.05}
+    .brand p{margin:7px 0 0;color:#d9d9d9;font-size:15px}
+    .brand a{color:inherit;text-decoration:none}
+    .page-title{margin:18px 0 8px;font-size:28px}
+    .lead{margin:0 0 20px;color:var(--muted);line-height:1.5}
+
+    .toolbar{display:grid;grid-template-columns:1.2fr repeat(3,minmax(150px,.7fr)) auto;gap:10px;align-items:end;background:var(--panel);padding:14px;border-radius:10px;box-shadow:var(--shadow);border:1px solid #242424}
+    .field label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}
+    input,select,button{font:inherit}
+    input,select{width:100%;height:42px;border-radius:7px;border:1px solid #40464a;background:#16191b;color:var(--text);padding:0 11px;outline:none}
+    input:focus,select:focus{border-color:var(--accent)}
+    button{height:42px;border:0;border-radius:7px;background:var(--panel-2);color:var(--text);padding:0 14px;cursor:pointer;font-weight:700}
+    button:hover{filter:brightness(1.12)}
+    .view-buttons{display:flex;gap:6px}
+    .view-buttons button{min-width:76px}
+    .view-buttons button.active{color:var(--accent);outline:1px solid #375968}
+
+    .status{min-height:24px;margin:14px 2px 8px;color:var(--muted);font-size:14px}
+    .status.error{color:var(--danger)}
+
+    .list{display:flex;flex-direction:column;gap:18px}
+    .day-group{background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+    .day-heading{padding:12px 15px;background:#181a1b;border-bottom:1px solid var(--line);font-weight:800;text-transform:capitalize}
+    .event{display:grid;grid-template-columns:86px minmax(0,1fr) auto;gap:14px;padding:14px 15px;border-bottom:1px solid var(--line);align-items:start}
+    .event:last-child{border-bottom:0}
+    .time{font-size:17px;font-weight:800;white-space:nowrap}
+    .event-title{font-weight:800;font-size:17px;margin-bottom:5px}
+    .event-meta{display:flex;gap:7px 13px;flex-wrap:wrap;color:var(--muted);font-size:14px;line-height:1.4}
+    .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .tag{display:inline-flex;align-items:center;min-height:25px;padding:2px 8px;border-radius:999px;background:#263338;border:1px solid #34464d;color:#dff6ff;font-size:12px}
+    .event-desc{margin-top:8px;color:#d3d3d3;font-size:14px;line-height:1.45;white-space:pre-line}
+    .source-link{white-space:nowrap;font-size:13px;text-decoration:none;border:1px solid #3c4b50;border-radius:6px;padding:7px 9px;color:#dff6ff}
+
+    .calendar{display:none;background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+    .calendar.active{display:block}
+    .list.hidden{display:none}
+    .cal-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+    .cal-title{font-size:19px;font-weight:800;text-transform:capitalize}
+    .cal-nav{display:flex;gap:6px}
+    .cal-nav button{height:34px;padding:0 11px}
+    .weekdays,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+    .weekdays div{padding:9px 6px;text-align:center;color:var(--muted);font-size:12px;border-right:1px solid var(--line)}
+    .weekdays div:last-child{border-right:0}
+    .cal-day{min-height:118px;border-top:1px solid var(--line);border-right:1px solid var(--line);padding:7px;overflow:hidden}
+    .cal-day:nth-child(7n){border-right:0}
+    .cal-day.outside{opacity:.42}
+    .cal-day.today .date-no{color:var(--accent)}
+    .date-no{font-size:12px;font-weight:800;margin-bottom:5px}
+    .cal-event{display:block;background:#263338;border-left:3px solid #5aa9c3;border-radius:4px;padding:4px 5px;margin:4px 0;font-size:11px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default}
+    .empty{text-align:center;color:var(--muted);padding:42px 16px;background:var(--panel);border-radius:10px;border:1px solid #242424}
+
+    @media (max-width:900px){
+      .toolbar{grid-template-columns:1fr 1fr}
+      .search-field{grid-column:1/-1}
+      .view-buttons{justify-content:flex-start}
+      .event{grid-template-columns:72px 1fr}
+      .source-link{grid-column:2;justify-self:start}
+    }
+    @media (max-width:620px){
+      body{padding:18px 10px 40px}
+      .topbar{display:block}
+      .brand{text-align:left}
+      .brand h1{font-size:27px}
+      .toolbar{grid-template-columns:1fr}
+      .search-field{grid-column:auto}
+      .event{grid-template-columns:1fr;gap:5px}
+      .time{font-size:15px}
+      .source-link{grid-column:auto}
+      .calendar{overflow-x:auto}
+      .weekdays,.cal-grid{min-width:720px}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div></div>
+    <div class="brand">
+      <h1><a href="./">Kvimarka 92</a></h1>
+      <p>Informasjon • Dokumentasjon • Fellesskap</p>
+    </div>
+  </header>
+
+  <main>
+    <h2 class="page-title">Arrangementer i Hå</h2>
+    <p class="lead">Felles oversikt over kommende arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
+
+    <section class="toolbar" aria-label="Filtre">
+      <div class="field search-field">
+        <label for="search">Søk</label>
+        <input id="search" type="search" placeholder="Søk i tittel, sted eller arrangør">
+      </div>
+      <div class="field">
+        <label for="typeFilter">Møtetype</label>
+        <select id="typeFilter"><option value="">Alle møtetyper</option></select>
+      </div>
+      <div class="field">
+        <label for="settlementFilter">Tettsted</label>
+        <select id="settlementFilter"><option value="">Alle tettsteder</option></select>
+      </div>
+      <div class="field">
+        <label for="organizerFilter">Arrangør</label>
+        <select id="organizerFilter"><option value="">Alle arrangører</option></select>
+      </div>
+      <div class="view-buttons" aria-label="Visning">
+        <button id="listBtn" class="active" type="button">Liste</button>
+        <button id="calBtn" type="button">Kalender</button>
+      </div>
+    </section>
+
+    <div id="status" class="status">Laster arrangementer…</div>
+    <section id="list" class="list"></section>
+
+    <section id="calendar" class="calendar" aria-label="Månedskalender">
+      <div class="cal-head">
+        <div class="cal-nav"><button id="prevMonth" type="button" aria-label="Forrige måned">‹</button></div>
+        <div id="calTitle" class="cal-title"></div>
+        <div class="cal-nav"><button id="nextMonth" type="button" aria-label="Neste måned">›</button></div>
+      </div>
+      <div class="weekdays"><div>Man</div><div>Tir</div><div>Ons</div><div>Tor</div><div>Fre</div><div>Lør</div><div>Søn</div></div>
+      <div id="calGrid" class="cal-grid"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // Hvis Workeren ligger på et annet domene, sett hele URL-en her.
+  // Eksempel: https://din-worker.workers.dev/arrangementer/events
+  // Dersom Worker-ruten ligger på samme domene, behold den relative URL-en.
+  const EVENTS_API = "/arrangementer/events";
+
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    search: $("search"), type: $("typeFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
+    status: $("status"), list: $("list"), calendar: $("calendar"), listBtn: $("listBtn"), calBtn: $("calBtn"),
+    calTitle: $("calTitle"), calGrid: $("calGrid"), prevMonth: $("prevMonth"), nextMonth: $("nextMonth")
+  };
+
+  let events = [];
+  let filtered = [];
+  let monthCursor = new Date();
+  monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth(), 1);
+
+  const noDate = new Intl.DateTimeFormat("no-NO", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  const noMonth = new Intl.DateTimeFormat("no-NO", { month:"long", year:"numeric" });
+  const noTime = new Intl.DateTimeFormat("no-NO", { hour:"2-digit", minute:"2-digit", hour12:false });
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c]);
+  }
+
+  function asDate(value) {
+    if (!value) return null;
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  function dateKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function addOptions(select, values, placeholder) {
+    const old = select.value;
+    select.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>`;
+    [...new Set(values.filter(Boolean))]
+      .sort((a,b) => a.localeCompare(b,"no"))
+      .forEach(v => select.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
+    if ([...select.options].some(o => o.value === old)) select.value = old;
+  }
+
+  function populateFilters() {
+    addOptions(els.type, events.flatMap(e => e.meetingTypes || []), "Alle møtetyper");
+    addOptions(els.settlement, events.map(e => e.settlement), "Alle tettsteder");
+    addOptions(els.organizer, events.map(e => e.organizer), "Alle arrangører");
+  }
+
+  function applyFilters() {
+    const q = els.search.value.trim().toLocaleLowerCase("no");
+    const type = els.type.value;
+    const settlement = els.settlement.value;
+    const organizer = els.organizer.value;
+
+    filtered = events.filter(e => {
+      if (type && !(e.meetingTypes || []).includes(type)) return false;
+      if (settlement && e.settlement !== settlement) return false;
+      if (organizer && e.organizer !== organizer) return false;
+      if (q) {
+        const hay = [e.title,e.organizer,e.location,e.settlement,e.description,...(e.meetingTypes||[])].join(" ").toLocaleLowerCase("no");
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    els.status.className = "status";
+    els.status.textContent = `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"}`;
+    renderList();
+    renderCalendar();
+  }
+
+  function renderList() {
+    if (!filtered.length) {
+      els.list.innerHTML = '<div class="empty">Ingen arrangementer passer med valgte filtre.</div>';
+      return;
+    }
+
+    const groups = new Map();
+    for (const e of filtered) {
+      const d = asDate(e.startTime);
+      if (!d) continue;
+      const key = dateKey(d);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(e);
+    }
+
+    els.list.innerHTML = [...groups.entries()].map(([key, rows]) => {
+      const day = asDate(rows[0].startTime);
+      const items = rows.map(e => {
+        const start = asDate(e.startTime);
+        const end = asDate(e.endTime);
+        const time = start ? noTime.format(start) : "";
+        const timeRange = end ? `${time}–${noTime.format(end)}` : time;
+        const meta = [e.organizer, e.location && e.location !== e.organizer ? e.location : "", e.settlement].filter(Boolean);
+        const tags = (e.meetingTypes || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("");
+        return `<article class="event">
+          <div class="time">${escapeHtml(timeRange)}</div>
+          <div>
+            <div class="event-title">${escapeHtml(e.title || "Uten tittel")}</div>
+            <div class="event-meta">${meta.map(x => `<span>${escapeHtml(x)}</span>`).join("")}</div>
+            ${tags ? `<div class="tags">${tags}</div>` : ""}
+            ${e.description ? `<div class="event-desc">${escapeHtml(e.description)}</div>` : ""}
+          </div>
+          ${e.sourceUrl ? `<a class="source-link" href="${escapeHtml(e.sourceUrl)}" target="_blank" rel="noopener">Kilde ↗</a>` : ""}
+        </article>`;
+      }).join("");
+      return `<section class="day-group"><div class="day-heading">${escapeHtml(noDate.format(day))}</div>${items}</section>`;
+    }).join("");
+  }
+
+  function renderCalendar() {
+    const year = monthCursor.getFullYear();
+    const month = monthCursor.getMonth();
+    els.calTitle.textContent = noMonth.format(monthCursor);
+
+    const first = new Date(year, month, 1);
+    const mondayOffset = (first.getDay() + 6) % 7;
+    const gridStart = new Date(year, month, 1 - mondayOffset);
+    const byDay = new Map();
+    for (const e of filtered) {
+      const d = asDate(e.startTime);
+      if (!d) continue;
+      const key = dateKey(d);
+      if (!byDay.has(key)) byDay.set(key, []);
+      byDay.get(key).push(e);
+    }
+
+    const today = dateKey(new Date());
+    let html = "";
+    for (let i=0;i<42;i++) {
+      const d = new Date(gridStart);
+      d.setDate(gridStart.getDate()+i);
+      const key = dateKey(d);
+      const rows = byDay.get(key) || [];
+      const classes = ["cal-day"];
+      if (d.getMonth() !== month) classes.push("outside");
+      if (key === today) classes.push("today");
+      html += `<div class="${classes.join(" ")}"><div class="date-no">${d.getDate()}</div>${rows.map(e => {
+        const s = asDate(e.startTime);
+        const tip = [e.title,e.organizer,e.location].filter(Boolean).join(" – ");
+        return `<div class="cal-event" title="${escapeHtml(tip)}">${s ? escapeHtml(noTime.format(s))+" " : ""}${escapeHtml(e.title)}</div>`;
+      }).join("")}</div>`;
+    }
+    els.calGrid.innerHTML = html;
+  }
+
+  function setView(mode) {
+    const calendar = mode === "calendar";
+    els.list.classList.toggle("hidden", calendar);
+    els.calendar.classList.toggle("active", calendar);
+    els.listBtn.classList.toggle("active", !calendar);
+    els.calBtn.classList.toggle("active", calendar);
+  }
+
+  async function load() {
+    try {
+      const res = await fetch(EVENTS_API, { headers:{"Accept":"application/json"}, cache:"no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      events = (Array.isArray(data) ? data : data.events || [])
+        .filter(e => e.active !== false)
+        .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
+        .filter(e => asDate(e.startTime))
+        .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
+      populateFilters();
+      applyFilters();
+    } catch (err) {
+      console.error(err);
+      els.status.className = "status error";
+      els.status.textContent = "Kunne ikke hente arrangementer. Kontroller Worker-adressen og at API-et svarer.";
+      els.list.innerHTML = "";
+    }
+  }
+
+  [els.search,els.type,els.settlement,els.organizer].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFilters));
+  els.listBtn.addEventListener("click", () => setView("list"));
+  els.calBtn.addEventListener("click", () => setView("calendar"));
+  els.prevMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1); renderCalendar(); });
+  els.nextMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1); renderCalendar(); });
+
+  load();
+})();
+</script>
+</body>
+</html>
