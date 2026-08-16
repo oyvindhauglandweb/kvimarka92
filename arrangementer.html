@@ -216,11 +216,17 @@
     addOptions(els.settlement, relevant.map(e => e.settlement), "Alle tettsteder");
   }
 
+  function refreshOrganizerOptions() {
+    const municipality = els.municipality.value;
+    const relevant = municipality ? events.filter(e => e.municipality === municipality) : events;
+    addOptions(els.organizer, relevant.map(e => e.organizer), "Alle arrangører");
+  }
+
   function populateFilters() {
     addOptions(els.type, events.flatMap(e => e.meetingTypes || []), "Alle møtetyper");
     addOptions(els.municipality, events.map(e => e.municipality), "Alle kommuner");
     refreshSettlementOptions();
-    addOptions(els.organizer, events.map(e => e.organizer), "Alle arrangører");
+    refreshOrganizerOptions();
   }
 
   function applyFilters() {
@@ -414,6 +420,7 @@
   [els.search,els.type,els.settlement,els.organizer].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFilters));
   els.municipality.addEventListener("change", () => {
     refreshSettlementOptions();
+    refreshOrganizerOptions();
     applyFilters();
   });
   els.listBtn.addEventListener("click", () => setView("list"));
