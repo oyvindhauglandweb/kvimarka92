@@ -132,6 +132,7 @@
       <div class="view-buttons" aria-label="Visning">
         <button id="listBtn" class="active" type="button">Liste</button>
         <button id="calBtn" type="button">Kalender</button>
+        <button id="refreshBtn" type="button">Oppdater</button>
       </div>
     </section>
 
@@ -162,7 +163,7 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     search: $("search"), type: $("typeFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
-    status: $("status"), list: $("list"), calendar: $("calendar"), listBtn: $("listBtn"), calBtn: $("calBtn"),
+    status: $("status"), list: $("list"), calendar: $("calendar"), listBtn: $("listBtn"), calBtn: $("calBtn"), refreshBtn: $("refreshBtn"),
     calTitle: $("calTitle"), calGrid: $("calGrid"), prevMonth: $("prevMonth"), nextMonth: $("nextMonth")
   };
 
@@ -313,8 +314,15 @@
     els.calBtn.classList.toggle("active", calendar);
   }
 
-  async function load() {
+  async function load(isManualRefresh = false) {
     try {
+      if (isManualRefresh) {
+        els.refreshBtn.disabled = true;
+        els.refreshBtn.textContent = "Oppdaterer…";
+        els.status.className = "status";
+        els.status.textContent = "Henter siste arrangementer…";
+      }
+
       const res = await fetch(EVENTS_API, { headers:{"Accept":"application/json"}, cache:"no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -325,17 +333,27 @@
         .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
       populateFilters();
       applyFilters();
+      if (isManualRefresh) {
+        els.status.className = "status";
+        els.status.textContent = `${filtered.length} kommende arrangementer – oppdatert nå`;
+      }
     } catch (err) {
       console.error(err);
       els.status.className = "status error";
       els.status.textContent = "Kunne ikke hente arrangementer. Kontroller Worker-adressen og at API-et svarer.";
       els.list.innerHTML = "";
+    } finally {
+      if (isManualRefresh) {
+        els.refreshBtn.disabled = false;
+        els.refreshBtn.textContent = "Oppdater";
+      }
     }
   }
 
   [els.search,els.type,els.settlement,els.organizer].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFilters));
   els.listBtn.addEventListener("click", () => setView("list"));
   els.calBtn.addEventListener("click", () => setView("calendar"));
+  els.refreshBtn.addEventListener("click", () => load(true));
   els.prevMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1); renderCalendar(); });
   els.nextMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1); renderCalendar(); });
 
