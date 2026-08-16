@@ -158,7 +158,9 @@
   // Hvis Workeren ligger på et annet domene, sett hele URL-en her.
   // Eksempel: https://din-worker.workers.dev/arrangementer/events
   // Dersom Worker-ruten ligger på samme domene, behold den relative URL-en.
-  const EVENTS_API = "https://kvimarka92-api.oyvind-haugland.workers.dev/arrangementer/events";
+  const API_BASE = "https://kvimarka92-api.oyvind-haugland.workers.dev";
+  const EVENTS_API = `${API_BASE}/arrangementer/events`;
+  const IMPORT_API = `${API_BASE}/arrangementer/import`;
 
   const $ = (id) => document.getElementById(id);
   const els = {
@@ -320,7 +322,38 @@
         els.refreshBtn.disabled = true;
         els.refreshBtn.textContent = "Oppdaterer…";
         els.status.className = "status";
-        els.status.textContent = "Henter siste arrangementer…";
+        els.status.textContent = "Henter nye arrangementer fra kildene…";
+
+        let importKey = sessionStorage.getItem("arrangementImportKey") || "";
+        if (!importKey) {
+          importKey = prompt("Testmodus: Skriv ARRANGEMENT_IMPORT_KEY");
+          if (!importKey) {
+            els.status.textContent = "Oppdatering avbrutt.";
+            return;
+          }
+          sessionStorage.setItem("arrangementImportKey", importKey);
+        }
+
+        const importRes = await fetch(IMPORT_API, {
+          method:"POST",
+          headers:{
+            "Accept":"application/json",
+            "x-import-key":importKey
+          },
+          cache:"no-store"
+        });
+
+        if (importRes.status === 401) {
+          sessionStorage.removeItem("arrangementImportKey");
+          throw new Error("Importnøkkelen ble avvist (401). Trykk Oppdater igjen og skriv riktig nøkkel.");
+        }
+        if (!importRes.ok) {
+          throw new Error(`Import HTTP ${importRes.status}`);
+        }
+
+        const importData = await importRes.json();
+        console.log("Arrangement import:", importData);
+        els.status.textContent = "Import ferdig – henter oppdatert kalender…";
       }
 
       const res = await fetch(EVENTS_API, { headers:{"Accept":"application/json"}, cache:"no-store" });
@@ -340,7 +373,7 @@
     } catch (err) {
       console.error(err);
       els.status.className = "status error";
-      els.status.textContent = "Kunne ikke hente arrangementer. Kontroller Worker-adressen og at API-et svarer.";
+      els.status.textContent = err && err.message ? err.message : "Kunne ikke hente arrangementer.";
       els.list.innerHTML = "";
     } finally {
       if (isManualRefresh) {
