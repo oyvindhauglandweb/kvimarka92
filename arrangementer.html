@@ -890,6 +890,34 @@
 
   function organizerColor(name) {
     const text = String(name || "Ukjent arrangør");
+
+    // V326: Faste farger for utvalgte arrangører.
+    // Brukes likt i dropdown, favorittknapper, liste og kalender.
+    const fixed = {
+      "Nærbø Bedehus": {
+        border:"#4da3ff",
+        bg:"#17324d",
+        text:"#7dbdff"
+      },
+      "Nærbø sokn": {
+        border:"#3fa86a",
+        bg:"#173726",
+        text:"#5fcf87"
+      },
+      "Pinsemenigheten Betel": {
+        border:"#a66cff",
+        bg:"#35224f",
+        text:"#bd8cff"
+      },
+      "Klepp Frikyrkje": {
+        border:"#3fa86a",
+        bg:"#173726",
+        text:"#5fcf87"
+      }
+    };
+
+    if (fixed[text]) return fixed[text];
+
     let hash = 2166136261;
     for (let i=0; i<text.length; i++) {
       hash ^= text.charCodeAt(i);
