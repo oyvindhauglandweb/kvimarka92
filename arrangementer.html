@@ -74,7 +74,11 @@
     .cal-title{font-size:19px;font-weight:800;text-transform:capitalize}
     .cal-nav{display:flex;gap:6px}
     .cal-nav button{height:34px;padding:0 11px}
-    .weekdays,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+    .cal-months{display:flex;flex-direction:column}
+    .cal-month{border-top:1px solid var(--line)}
+    .cal-month:first-child{border-top:0}
+    .cal-month-title{padding:12px 14px;font-size:18px;font-weight:800;text-transform:capitalize;background:#181a1b;border-bottom:1px solid var(--line)}
+    .weekdays,.cal-month-grid{display:grid;grid-template-columns:repeat(7,1fr)}
     .weekdays div{padding:9px 6px;text-align:center;color:var(--muted);font-size:12px;border-right:1px solid var(--line)}
     .weekdays div:last-child{border-right:0}
     .cal-day{min-height:118px;border-top:1px solid var(--line);border-right:1px solid var(--line);padding:7px;overflow:hidden}
@@ -107,20 +111,12 @@
       .time{font-size:15px}
       .source-link{grid-column:auto}
       .calendar{overflow-x:auto}
-      .weekdays,.cal-grid{min-width:720px}
+      .weekdays,.cal-month-grid{min-width:720px}
     }
   </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="topbar">
-    <div></div>
-    <div class="brand">
-      <h1><a href="./">Kvimarka 92</a></h1>
-      <p>Informasjon • Dokumentasjon • Fellesskap</p>
-    </div>
-  </header>
-
   <main>
     <h2 class="page-title">Arrangementer</h2>
     <p class="lead">Felles oversikt over kommende arrangementer fra menigheter, bedehus og andre lokale kilder i Hå og Time.</p>
@@ -160,14 +156,13 @@
     <div id="status" class="status">Laster arrangementer…</div>
     <section id="list" class="list"></section>
 
-    <section id="calendar" class="calendar" aria-label="Månedskalender">
+    <section id="calendar" class="calendar" aria-label="12 måneders kalender">
       <div class="cal-head">
-        <div class="cal-nav"><button id="prevMonth" type="button" aria-label="Forrige måned">‹</button></div>
+        <div class="cal-nav"><button id="prevMonth" type="button" aria-label="Forrige 12 måneder">‹</button></div>
         <div id="calTitle" class="cal-title"></div>
-        <div class="cal-nav"><button id="nextMonth" type="button" aria-label="Neste måned">›</button></div>
+        <div class="cal-nav"><button id="nextMonth" type="button" aria-label="Neste 12 måneder">›</button></div>
       </div>
-      <div class="weekdays"><div>Man</div><div>Tir</div><div>Ons</div><div>Tor</div><div>Fre</div><div>Lør</div><div>Søn</div></div>
-      <div id="calGrid" class="cal-grid"></div>
+      <div id="calGrid" class="cal-months"></div>
     </section>
   </main>
 </div>
@@ -427,13 +422,6 @@
   }
 
   function renderCalendar() {
-    const year = monthCursor.getFullYear();
-    const month = monthCursor.getMonth();
-    els.calTitle.textContent = noMonth.format(monthCursor);
-
-    const first = new Date(year, month, 1);
-    const mondayOffset = (first.getDay() + 6) % 7;
-    const gridStart = new Date(year, month, 1 - mondayOffset);
     const byDay = new Map();
     for (const e of filtered) {
       const d = asDate(e.startTime);
@@ -444,22 +432,45 @@
     }
 
     const today = dateKey(new Date());
+    const lastMonth = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 11, 1);
+    els.calTitle.textContent = `${noMonth.format(monthCursor)} – ${noMonth.format(lastMonth)}`;
+
     let html = "";
-    for (let i=0;i<42;i++) {
-      const d = new Date(gridStart);
-      d.setDate(gridStart.getDate()+i);
-      const key = dateKey(d);
-      const rows = byDay.get(key) || [];
-      const classes = ["cal-day"];
-      if (d.getMonth() !== month) classes.push("outside");
-      if (key === today) classes.push("today");
-      html += `<div class="${classes.join(" ")}"><div class="date-no">${d.getDate()}</div>${rows.map(e => {
-        const s = asDate(e.startTime);
-        const tip = [e.title,e.organizer,e.location].filter(Boolean).join(" – ");
-        const color = organizerColor(e.organizer);
-        return `<div class="cal-event" style="--organizer-bg:${color.bg};--organizer-border:${color.border};--organizer-text:${color.text}" title="${escapeHtml(tip)}">${s ? escapeHtml(noTime.format(s))+" " : ""}${escapeHtml(e.title)}</div>`;
-      }).join("")}</div>`;
+
+    for (let monthOffset = 0; monthOffset < 12; monthOffset++) {
+      const cursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + monthOffset, 1);
+      const year = cursor.getFullYear();
+      const month = cursor.getMonth();
+
+      const first = new Date(year, month, 1);
+      const mondayOffset = (first.getDay() + 6) % 7;
+      const gridStart = new Date(year, month, 1 - mondayOffset);
+
+      html += `<section class="cal-month">`;
+      html += `<div class="cal-month-title">${escapeHtml(noMonth.format(cursor))}</div>`;
+      html += `<div class="weekdays"><div>Man</div><div>Tir</div><div>Ons</div><div>Tor</div><div>Fre</div><div>Lør</div><div>Søn</div></div>`;
+      html += `<div class="cal-month-grid">`;
+
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(gridStart);
+        d.setDate(gridStart.getDate() + i);
+        const key = dateKey(d);
+        const rows = byDay.get(key) || [];
+        const classes = ["cal-day"];
+        if (d.getMonth() !== month) classes.push("outside");
+        if (key === today) classes.push("today");
+
+        html += `<div class="${classes.join(" ")}"><div class="date-no">${d.getDate()}</div>${rows.map(e => {
+          const s = asDate(e.startTime);
+          const tip = [e.title,e.organizer,e.location].filter(Boolean).join(" – ");
+          const color = organizerColor(e.organizer);
+          return `<div class="cal-event" style="--organizer-bg:${color.bg};--organizer-border:${color.border};--organizer-text:${color.text}" title="${escapeHtml(tip)}">${s ? escapeHtml(noTime.format(s))+" " : ""}${escapeHtml(e.title)}</div>`;
+        }).join("")}</div>`;
+      }
+
+      html += `</div></section>`;
     }
+
     els.calGrid.innerHTML = html;
   }
 
@@ -570,8 +581,8 @@
   els.listBtn.addEventListener("click", () => setView("list"));
   els.calBtn.addEventListener("click", () => setView("calendar"));
   els.refreshBtn.addEventListener("click", () => load(true));
-  els.prevMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1); renderCalendar(); });
-  els.nextMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1); renderCalendar(); });
+  els.prevMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()-12,1); renderCalendar(); });
+  els.nextMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()+12,1); renderCalendar(); });
 
   els.organizerCustomButton.addEventListener("click", (event) => {
     event.stopPropagation();
