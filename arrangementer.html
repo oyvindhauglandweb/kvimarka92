@@ -57,7 +57,17 @@
     .list{display:flex;flex-direction:column;gap:18px}
     .day-group{background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
     .day-heading{padding:12px 15px;background:#181a1b;border-bottom:1px solid var(--line);font-weight:800;text-transform:capitalize}
-    .event{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:14px;padding:14px 15px;border-bottom:1px solid var(--line);align-items:start}
+    .event{
+      display:grid;
+      grid-template-columns:110px minmax(0,1fr) auto;
+      gap:14px;
+      padding:14px 15px;
+      border-bottom:1px solid var(--line);
+      align-items:start
+    }
+    .event>.time{grid-column:1;grid-row:1}
+    .event>.event-body{grid-column:2;grid-row:1}
+    .event>.event-actions{grid-column:3;grid-row:1}
     .event:last-child{border-bottom:0}
     .time{font-size:17px;font-weight:800;white-space:nowrap;color:var(--organizer-color,var(--text))}
     .event-title{font-weight:800;font-size:17px;margin-bottom:5px;color:var(--organizer-color,var(--text))}
