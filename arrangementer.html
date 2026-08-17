@@ -673,7 +673,7 @@
     const values = [...new Set(relevant.map(e => e.organizer).filter(Boolean))]
       .sort((a,b) => a.localeCompare(b,"no"));
 
-    els.organizer.innerHTML = '<option value="">Alle arrangører</option>';
+    els.organizer.innerHTML = '<option value="" style="color:var(--text)">Alle arrangører</option>';
     for (const name of values) {
       const option = document.createElement("option");
       option.value = name;
@@ -712,6 +712,8 @@
       if (value) {
         const color = organizerColor(value);
         btn.style.color = color.border;
+      } else {
+        btn.style.color = "var(--text)";
       }
 
       btn.classList.toggle("selected", value === selected);
@@ -788,14 +790,14 @@
   function updateOrganizerSelectColor() {
     const name = els.organizer.value;
     const label = name || "Alle arrangører";
-    const color = name ? organizerColor(name).border : "";
+    const color = name ? organizerColor(name).border : "var(--text)";
 
     els.organizer.style.color = color;
-    els.organizer.style.fontWeight = name ? "700" : "";
+    els.organizer.style.fontWeight = name ? "700" : "400";
 
     if (els.organizerCustomButton) {
       els.organizerCustomButton.textContent = label;
-      els.organizerCustomButton.style.color = color || "var(--text)";
+      els.organizerCustomButton.style.color = color;
       els.organizerCustomButton.style.fontWeight = name ? "700" : "400";
     }
   }
