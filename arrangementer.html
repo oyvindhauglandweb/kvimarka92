@@ -672,8 +672,13 @@
         els.organizerCustom.classList.remove("open");
         els.organizerCustomButton.setAttribute("aria-expanded","false");
 
-        updateOrganizerSelectColor();
-        renderOrganizerCustom(values);
+        if (value) {
+          syncDependentFiltersFromOrganizer();
+        } else {
+          updateOrganizerSelectColor();
+          renderOrganizerCustom(values);
+        }
+
         saveFilters();
         applyFilters();
         renderFavoriteButtons();
@@ -1403,8 +1408,50 @@
     renderFavoriteButtons();
   });
 
-  els.organizer.addEventListener("change", () => {
+  function syncDependentFiltersFromOrganizer() {
+    const organizer = els.organizer.value;
+    if (!organizer) return;
+
+    const matching = events.filter(e => e.organizer === organizer);
+    if (!matching.length) return;
+
+    const municipalities = [...new Set(
+      matching.map(e => e.municipality).filter(Boolean)
+    )];
+
+    const settlements = [...new Set(
+      matching.map(e => e.settlement).filter(Boolean)
+    )];
+
+    // Hvis arrangøren bare finnes i én kommune, velg den automatisk.
+    if (municipalities.length === 1) {
+      els.municipality.value = municipalities[0];
+      refreshSettlementOptions();
+    }
+
+    // Hvis arrangøren bare finnes på ett tettsted, velg det automatisk.
+    if (
+      settlements.length === 1 &&
+      [...els.settlement.options].some(o => o.value === settlements[0])
+    ) {
+      els.settlement.value = settlements[0];
+    }
+
+    // Bygg arrangørlisten på nytt etter geofeltene og gjenvelg arrangøren.
+    refreshOrganizerOptions();
+
+    if ([...els.organizer.options].some(o => o.value === organizer)) {
+      els.organizer.value = organizer;
+    }
+
     updateOrganizerSelectColor();
+    renderOrganizerCustom(
+      [...els.organizer.options].map(o => o.value).filter(Boolean)
+    );
+  }
+
+  els.organizer.addEventListener("change", () => {
+    syncDependentFiltersFromOrganizer();
     saveFilters();
     applyFilters();
     renderFavoriteButtons();
