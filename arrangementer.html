@@ -248,7 +248,17 @@
     [...new Set(values.filter(Boolean))]
       .sort((a,b) => a.localeCompare(b,"no"))
       .forEach(v => select.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
-    if ([...select.options].some(o => o.value === old)) select.value = old;
+
+    const realOptions = [...select.options].filter(o => String(o.value || "").trim() !== "");
+
+    if (old && realOptions.some(o => o.value === old)) {
+      select.value = old;
+    } else if (realOptions.length === 1) {
+      // Når bare ett reelt valg finnes, velges det automatisk.
+      select.value = realOptions[0].value;
+    } else {
+      select.value = "";
+    }
   }
 
   function refreshSettlementOptions() {
@@ -284,8 +294,11 @@
       els.organizer.appendChild(option);
     }
 
-    if ([...els.organizer.options].some(o => o.value === old)) {
+    if (old && [...els.organizer.options].some(o => o.value === old)) {
       els.organizer.value = old;
+    } else if (values.length === 1) {
+      // Eksempel: Tettsted = Undheim -> eneste arrangør er Undheim sokn.
+      els.organizer.value = values[0];
     } else {
       els.organizer.value = "";
     }
