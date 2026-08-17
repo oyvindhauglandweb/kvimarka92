@@ -1321,13 +1321,18 @@
         els.status.textContent =
           `Rydding ferdig (${purgeDeleted} slettet) – henter kilder…`;
 
-        // V333: Fullimporten kjøres nå av Workeren som én sekvensiell jobb.
-        // Nettleseren skal ikke lenger starte 15 separate sourceId-importer.
-        // Workeren kjører én kilde om gangen, med retry og pauser mellom kildene.
-        els.status.textContent = "Starter sekvensiell fullimport…";
+        // V335: Orkestrer sekvensielt fra nettleseren, men la HVER kilde være
+        // en separat Worker-invokasjon. Dette unngår at én lang
+        // /import-all-sequential-request står åpen gjennom 15 kilder + pauser,
+        // noe som kan bli terminert av Cloudflare før den er ferdig.
+        //
+        // Vi kjører fortsatt strengt én kilde om gangen, med tydelig pause
+        // mellom kildene og lengre pause etter feil.
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-        const importRes = await fetch(IMPORT_ALL_SEQUENTIAL_API, {
-          method:"POST",
+        els.status.textContent = "Henter importplan…";
+
+        const planRes = await fetch(IMPORT_PLAN_API, {
           headers:{
             "Accept":"application/json",
             "x-import-key":IMPORT_KEY
@@ -1335,30 +1340,121 @@
           cache:"no-store"
         });
 
-        if (importRes.status === 401) {
+        if (planRes.status === 401) {
           throw new Error("Importnøkkelen ble avvist (401).");
         }
-
-        const importData = await importRes.json().catch(() => ({}));
-
-        if (!importRes.ok && importRes.status !== 207) {
-          throw new Error(
-            `Sekvensiell fullimport HTTP ${importRes.status}` +
-            (importData.error ? `: ${importData.error}` : "")
-          );
+        if (!planRes.ok) {
+          throw new Error(`Importplan HTTP ${planRes.status}`);
         }
 
-        console.log("Sekvensiell arrangement-import:", importData);
+        const plan = await planRes.json();
+        const sources = Array.isArray(plan.sources) ? plan.sources : [];
 
-        const failures = Array.isArray(importData.results)
-          ? importData.results.filter(x => !x?.ok)
-          : [];
+        if (!sources.length) {
+          throw new Error("Ingen aktive arrangementskilder funnet.");
+        }
+
+        const importResults = [];
+        const failures = [];
+
+        for (let i=0; i<sources.length; i++) {
+          const source = sources[i];
+          const label = source.name || source.sourceId || `Kilde ${i+1}`;
+          const importUrl =
+            `${IMPORT_API}?sourceId=${encodeURIComponent(source.sourceId)}&cleanup=0`;
+
+          let success = false;
+          let lastStatus = 0;
+          let lastMessage = "";
+
+          for (let attempt=1; attempt<=3; attempt++) {
+            els.status.className = "status";
+            els.status.textContent =
+              `Oppdaterer ${i+1}/${sources.length}: ${label}` +
+              (attempt > 1 ? ` – forsøk ${attempt}/3…` : "…");
+
+            try {
+              const res = await fetch(importUrl, {
+                method:"POST",
+                headers:{
+                  "Accept":"application/json",
+                  "x-import-key":IMPORT_KEY
+                },
+                cache:"no-store"
+              });
+
+              lastStatus = res.status;
+
+              if (res.status === 401) {
+                throw new Error("Importnøkkelen ble avvist (401).");
+              }
+
+              const raw = await res.text();
+              let data = {};
+              try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
+
+              if (res.ok || res.status === 207) {
+                importResults.push({
+                  source,
+                  ok:true,
+                  status:res.status,
+                  attempt,
+                  data
+                });
+                success = true;
+                break;
+              }
+
+              lastMessage =
+                data?.error ||
+                `HTTP ${res.status}`;
+            } catch (error) {
+              lastMessage = error?.message || String(error);
+            }
+
+            if (attempt < 3) {
+              const retryDelay = 5000 * attempt;
+              els.status.textContent =
+                `${label} feilet – nytt forsøk om ${retryDelay/1000} sek…`;
+              await sleep(retryDelay);
+            }
+          }
+
+          if (!success) {
+            failures.push({
+              sourceId:source.sourceId,
+              sourceName:label,
+              status:lastStatus,
+              message:lastMessage || "Import feilet"
+            });
+
+            importResults.push({
+              source,
+              ok:false,
+              status:lastStatus,
+              error:lastMessage || "Import feilet"
+            });
+
+            console.error(
+              "Kildeimport feilet, fortsetter med neste kilde:",
+              label,
+              lastMessage
+            );
+          }
+
+          // Viktig: gi Cloudflare/Baserow ro før neste separate Worker-kall.
+          if (i < sources.length - 1) {
+            const pauseMs = success ? 5000 : 10000;
+            els.status.textContent =
+              `${label} ${success ? "ferdig" : "feilet"} – neste kilde om ${pauseMs/1000} sek…`;
+            await sleep(pauseMs);
+          }
+        }
+
+        console.log("Sekvensiell arrangement-import:", importResults);
 
         if (failures.length) {
-          const names = failures
-            .map(x => x.sourceName || x.sourceId || "Ukjent kilde")
-            .join(", ");
-
+          const names = failures.map(x => x.sourceName).join(", ");
           els.status.className = "status error";
           els.status.textContent =
             `Fullimport ferdig med ${failures.length} kildefeil: ${names}. ` +
