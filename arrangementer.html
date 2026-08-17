@@ -182,6 +182,7 @@
   const API_BASE = "https://kvimarka92-api.oyvind-haugland.workers.dev";
   const EVENTS_API = `${API_BASE}/arrangementer/events`;
   const IMPORT_API = `${API_BASE}/arrangementer/import`;
+  const IMPORT_PLAN_API = `${API_BASE}/arrangementer/import-plan`;
   // Testmodus: samme midlertidige nøkkel brukes for import og Baserow under utvikling.
   const IMPORT_KEY = "oD0likwHw5ZpGJsNtRXg6eRp9jN7C9FR";
 
@@ -457,24 +458,48 @@
         els.status.className = "status";
         els.status.textContent = "Henter nye arrangementer fra kildene…";
 
-        const importRes = await fetch(IMPORT_API, {
-          method:"POST",
+        const planRes = await fetch(IMPORT_PLAN_API, {
           headers:{
             "Accept":"application/json",
             "x-import-key":IMPORT_KEY
           },
           cache:"no-store"
         });
+        if (planRes.status === 401) throw new Error("Importnøkkelen ble avvist (401).");
+        if (!planRes.ok) throw new Error(`Importplan HTTP ${planRes.status}`);
 
-        if (importRes.status === 401) {
-          throw new Error("Importnøkkelen ble avvist (401).");
-        }
-        if (!importRes.ok) {
-          throw new Error(`Import HTTP ${importRes.status}`);
+        const plan = await planRes.json();
+        const sources = Array.isArray(plan.sources) ? plan.sources : [];
+        if (!sources.length) throw new Error("Ingen aktive arrangementskilder funnet.");
+
+        const importResults = [];
+        for (let i=0; i<sources.length; i++) {
+          const source = sources[i];
+          els.status.textContent = `Oppdaterer ${i+1}/${sources.length}: ${source.name || source.sourceId}…`;
+
+          const importUrl =
+            `${IMPORT_API}?sourceId=${encodeURIComponent(source.sourceId)}` +
+            `&cleanup=${i === 0 ? "1" : "0"}`;
+
+          const importRes = await fetch(importUrl, {
+            method:"POST",
+            headers:{
+              "Accept":"application/json",
+              "x-import-key":IMPORT_KEY
+            },
+            cache:"no-store"
+          });
+
+          if (importRes.status === 401) throw new Error("Importnøkkelen ble avvist (401).");
+          const importData = await importRes.json().catch(() => ({}));
+          importResults.push({source, status:importRes.status, data:importData});
+
+          if (!importRes.ok && importRes.status !== 207) {
+            throw new Error(`${source.name || source.sourceId}: Import HTTP ${importRes.status}`);
+          }
         }
 
-        const importData = await importRes.json();
-        console.log("Arrangement import:", importData);
+        console.log("Arrangement import:", importResults);
         els.status.textContent = "Import ferdig – henter oppdatert kalender…";
       }
 
