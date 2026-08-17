@@ -535,10 +535,29 @@
         els.status.textContent = "Import ferdig – henter oppdatert kalender…";
       }
 
-      const res = await fetch(EVENTS_API, { headers:{"Accept":"application/json"}, cache:"no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      events = (Array.isArray(data) ? data : data.events || [])
+      const loadedEvents = [];
+      let eventPage = 1;
+      const eventPageSize = 100;
+
+      while (true) {
+        const pageUrl = `${EVENTS_API}?page=${eventPage}&size=${eventPageSize}`;
+        const res = await fetch(pageUrl, {
+          headers:{"Accept":"application/json"},
+          cache:"no-store"
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status} ved henting av arrangementside ${eventPage}`);
+
+        const data = await res.json();
+        loadedEvents.push(...(Array.isArray(data) ? data : data.events || []));
+
+        if (!data.hasMore || !data.nextPage) break;
+        eventPage = data.nextPage;
+
+        // Sikkerhetsstopp mot en eventuell feilaktig uendelig paginering.
+        if (eventPage > 50) throw new Error("For mange arrangementssider fra API.");
+      }
+
+      events = loadedEvents
         .filter(e => e.active !== false)
         .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
         .filter(e => asDate(e.startTime))
