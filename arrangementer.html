@@ -196,7 +196,10 @@
       font-weight:800;font-size:14px;letter-spacing:.2px;
     }
     .favorite-organizer-btn.active{
-      background:var(--favorite-active);color:var(--accent);outline:1px solid var(--accent);
+      background:var(--favorite-active);
+      outline:1px solid var(--accent);
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px var(--accent) inset;
     }
 
     html[data-theme="light"] input,
@@ -336,14 +339,67 @@
     try {
       const raw = localStorage.getItem(FAVORITES_STORAGE_KEY);
       const v = raw ? JSON.parse(raw) : [];
-      return Array.isArray(v) ? [...new Set(v.filter(Boolean))] : [];
+
+      // Bakoverkompatibilitet med gamle favoritter lagret som bare arrangørnavn.
+      if (Array.isArray(v)) {
+        return v
+          .map(item => typeof item === "string"
+            ? {organizer:item,type:"",municipality:"",settlement:""}
+            : item)
+          .filter(item => item && typeof item === "object");
+      }
+
+      return [];
     } catch (_) { return []; }
+  }
+
+  function favoriteKey(fav) {
+    return JSON.stringify({
+      organizer:String(fav?.organizer || ""),
+      type:String(fav?.type || ""),
+      municipality:String(fav?.municipality || ""),
+      settlement:String(fav?.settlement || "")
+    });
   }
 
   function saveFavorites(items) {
     try {
-      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify([...new Set(items.filter(Boolean))]));
+      const unique = [];
+      const seen = new Set();
+
+      for (const item of items || []) {
+        if (!item || typeof item !== "object") continue;
+        const normalized = {
+          organizer:String(item.organizer || ""),
+          type:String(item.type || ""),
+          municipality:String(item.municipality || ""),
+          settlement:String(item.settlement || "")
+        };
+
+        if (!normalized.organizer && !normalized.type) continue;
+
+        const key = favoriteKey(normalized);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        unique.push(normalized);
+      }
+
+      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(unique));
     } catch (_) {}
+  }
+
+  function currentFavoriteDefinition() {
+    return {
+      organizer:els.organizer.value || "",
+      type:els.type.value || "",
+      municipality:els.municipality.value || "",
+      settlement:els.settlement.value || ""
+    };
+  }
+
+  function favoriteMatchesCurrent(fav) {
+    const current = currentFavoriteDefinition();
+    return favoriteKey(fav) === favoriteKey(current);
   }
 
   const FAVORITE_INITIAL_OVERRIDES = {
@@ -829,18 +885,33 @@
     const favorites = loadFavorites();
     els.favoritesButtons.innerHTML = "";
 
-    for (const name of favorites) {
+    for (const fav of favorites) {
+      const name = fav.organizer || fav.type || "Favoritt";
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "favorite-organizer-btn";
-      btn.textContent = organizerInitials(name);
-      btn.title = name;
-      btn.setAttribute("aria-label",name);
-      btn.classList.toggle("active", els.organizer.value === name);
+      btn.textContent = fav.organizer
+        ? organizerInitials(fav.organizer)
+        : String(fav.type || "FT").slice(0,2).toUpperCase();
 
-      // Samme faste arrangørfarge som brukes i arrangementene/dropdown.
-      const favColor = organizerColor(name);
-      btn.style.color = favColor.border || favColor.text || "var(--text)";
+      const details = [];
+      if (fav.type) details.push(fav.type);
+      if (fav.organizer) details.push(fav.organizer);
+      if (fav.settlement) details.push(fav.settlement);
+      else if (fav.municipality) details.push(fav.municipality);
+
+      btn.title = details.join(" · ") || name;
+      btn.setAttribute("aria-label",btn.title);
+
+      // Blå ramme når akkurat denne favorittkombinasjonen er aktiv.
+      const selected = favoriteMatchesCurrent(fav);
+      btn.classList.toggle("active",selected);
+
+      // Samme arrangørfarge som ellers i portalen.
+      if (fav.organizer) {
+        const favColor = organizerColor(fav.organizer);
+        btn.style.color = favColor.border || favColor.text || "var(--text)";
+      }
 
       let longPressTimer = null;
       let longPressTriggered = false;
@@ -850,9 +921,9 @@
         clearTimeout(longPressTimer);
         longPressTimer = setTimeout(() => {
           longPressTriggered = true;
-
-          if (confirm(`Fjerne ${name} fra favoritter?`)) {
-            saveFavorites(loadFavorites().filter(x => x !== name));
+          if (confirm(`Fjerne ${btn.title} fra favoritter?`)) {
+            const key = favoriteKey(fav);
+            saveFavorites(loadFavorites().filter(x => favoriteKey(x) !== key));
             renderFavoriteButtons();
           }
         }, 700);
@@ -863,11 +934,11 @@
         longPressTimer = null;
       };
 
-      btn.addEventListener("pointerdown", beginLongPress);
-      btn.addEventListener("pointerup", cancelLongPress);
-      btn.addEventListener("pointerleave", cancelLongPress);
-      btn.addEventListener("pointercancel", cancelLongPress);
-      btn.addEventListener("contextmenu", event => event.preventDefault());
+      btn.addEventListener("pointerdown",beginLongPress);
+      btn.addEventListener("pointerup",cancelLongPress);
+      btn.addEventListener("pointerleave",cancelLongPress);
+      btn.addEventListener("pointercancel",cancelLongPress);
+      btn.addEventListener("contextmenu",event => event.preventDefault());
 
       btn.addEventListener("click", () => {
         if (longPressTriggered) {
@@ -875,8 +946,38 @@
           return;
         }
 
-        const currentlySelected = els.organizer.value === name;
-        els.organizer.value = currentlySelected ? "" : name;
+        if (favoriteMatchesCurrent(fav)) {
+          // Klikk på aktiv favoritt = tilbake til alle filtre.
+          els.type.value = "";
+          els.municipality.value = "";
+          refreshSettlementOptions();
+          els.settlement.value = "";
+          refreshOrganizerOptions();
+          els.organizer.value = "";
+        } else {
+          // Gjenskap hele filterkombinasjonen som ble lagret i favoritten.
+          els.type.value = [...els.type.options].some(o => o.value === fav.type) ? fav.type : "";
+
+          els.municipality.value =
+            [...els.municipality.options].some(o => o.value === fav.municipality)
+              ? fav.municipality
+              : "";
+
+          refreshSettlementOptions();
+
+          els.settlement.value =
+            [...els.settlement.options].some(o => o.value === fav.settlement)
+              ? fav.settlement
+              : "";
+
+          refreshOrganizerOptions();
+
+          els.organizer.value =
+            [...els.organizer.options].some(o => o.value === fav.organizer)
+              ? fav.organizer
+              : "";
+        }
+
         updateOrganizerSelectColor();
         renderOrganizerCustom(
           [...els.organizer.options].map(o => o.value).filter(Boolean)
@@ -890,34 +991,41 @@
       els.favoritesButtons.appendChild(btn);
     }
 
-    els.favoritesRow.classList.toggle("visible", favorites.length > 0);
+    els.favoritesRow.classList.toggle("visible",favorites.length > 0);
     updateFavoriteTopButton();
   }
 
   function updateFavoriteTopButton() {
-    const organizer = els.organizer.value;
+    const current = currentFavoriteDefinition();
     const favorites = loadFavorites();
-    const isFavorite = organizer && favorites.includes(organizer);
-    els.favoriteToggleBtn.classList.toggle("favorite-on", Boolean(isFavorite));
-    els.favoriteToggleBtn.disabled = !organizer;
-    els.favoriteToggleBtn.title = !organizer
-      ? "Velg en arrangør først"
+    const isFavorite = favorites.some(fav => favoriteKey(fav) === favoriteKey(current));
+    const hasSomethingToSave = Boolean(current.organizer || current.type);
+
+    els.favoriteToggleBtn.classList.toggle("favorite-on",isFavorite);
+    els.favoriteToggleBtn.disabled = !hasSomethingToSave;
+
+    els.favoriteToggleBtn.title = !hasSomethingToSave
+      ? "Velg en arrangør eller møtetype først"
       : isFavorite
-        ? `Fjern ${organizer} fra favoritter`
-        : `Legg ${organizer} til favoritter`;
+        ? "Fjern gjeldende filterkombinasjon fra favoritter"
+        : "Lagre gjeldende filterkombinasjon som favoritt";
   }
 
   function toggleCurrentOrganizerFavorite() {
-    const organizer = els.organizer.value;
-    if (!organizer) {
-      els.status.textContent = "Velg en arrangør i filteret først.";
+    const current = currentFavoriteDefinition();
+
+    if (!current.organizer && !current.type) {
+      els.status.textContent = "Velg en arrangør eller møtetype først.";
       return;
     }
 
     const favorites = loadFavorites();
-    const next = favorites.includes(organizer)
-      ? favorites.filter(x => x !== organizer)
-      : [...favorites,organizer];
+    const key = favoriteKey(current);
+    const exists = favorites.some(fav => favoriteKey(fav) === key);
+
+    const next = exists
+      ? favorites.filter(fav => favoriteKey(fav) !== key)
+      : [...favorites,current];
 
     saveFavorites(next);
     renderFavoriteButtons();
@@ -1173,6 +1281,7 @@
     refreshOrganizerOptions();
     saveFilters();
     applyFilters();
+    renderFavoriteButtons();
   });
 
   els.organizer.addEventListener("change", () => {
@@ -1186,6 +1295,7 @@
     refreshOrganizerOptions();
     saveFilters();
     applyFilters();
+    renderFavoriteButtons();
   });
   els.listBtn.addEventListener("click", () => setView("list"));
   els.calBtn.addEventListener("click", () => setView("calendar"));
