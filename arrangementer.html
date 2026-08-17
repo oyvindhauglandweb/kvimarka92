@@ -113,12 +113,116 @@
       .calendar{overflow-x:auto}
       .weekdays,.cal-month-grid{min-width:720px}
     }
+
+    /* V319 – standard toppmeny, light mode og favoritter */
+    :root{
+      --input-bg:#16191b;
+      --input-border:#40464a;
+      --heading-bg:#181a1b;
+      --dropdown-bg:#191b1c;
+      --dropdown-hover:#272b2d;
+      --soft-border:#242424;
+      --button-border:#3a454a;
+      --favorite-bg:#20282b;
+      --favorite-active:#2d4149;
+    }
+    html[data-theme="light"]{
+      --bg:#f3f4f5;
+      --panel:#ffffff;
+      --panel-2:#e7eef1;
+      --text:#16191b;
+      --muted:#5f6a70;
+      --line:#d8dde0;
+      --accent:#087ca7;
+      --danger:#b42318;
+      --shadow:0 6px 18px rgba(0,0,0,.09);
+      --input-bg:#ffffff;
+      --input-border:#b9c2c7;
+      --heading-bg:#f2f4f5;
+      --dropdown-bg:#ffffff;
+      --dropdown-hover:#eef2f4;
+      --soft-border:#dfe4e6;
+      --button-border:#bac6cb;
+      --favorite-bg:#f3f6f7;
+      --favorite-active:#dcecf2;
+      color-scheme:light;
+    }
+
+    .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:8px}
+    .page-head .page-title{margin:0}
+    .top-menu{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+    .square-btn{
+      width:46px;height:46px;min-width:46px;padding:0;border-radius:7px;
+      border:1px solid var(--button-border);background:var(--panel-2);color:var(--text);
+      display:inline-flex;align-items:center;justify-content:center;font-size:21px;
+      line-height:1;box-shadow:none;
+    }
+    .square-btn.active{color:var(--accent);outline:1px solid var(--accent)}
+    .square-btn.favorite-on{color:#f2c94c}
+    .square-btn:disabled{opacity:.42;cursor:not-allowed}
+    .square-btn .small-icon{font-size:18px}
+
+    .toolbar{grid-template-columns:repeat(4,minmax(150px,1fr));}
+    .search-field{display:none;grid-column:1/-1}
+    .search-field.visible{display:block}
+    .legacy-view-buttons{display:none!important}
+
+    .favorites-row{
+      grid-column:1/-1;display:none;align-items:center;gap:7px;flex-wrap:wrap;
+      padding-top:4px;border-top:1px solid var(--line);margin-top:2px;
+    }
+    .favorites-row.visible{display:flex}
+    .favorites-label{font-size:12px;color:var(--muted);margin-right:2px}
+    .favorite-organizer-btn{
+      width:46px;height:46px;min-width:46px;padding:0;border-radius:7px;
+      border:1px solid var(--button-border);background:var(--favorite-bg);color:var(--text);
+      font-weight:800;font-size:14px;letter-spacing:.2px;
+    }
+    .favorite-organizer-btn.active{
+      background:var(--favorite-active);color:var(--accent);outline:1px solid var(--accent);
+    }
+
+    html[data-theme="light"] input,
+    html[data-theme="light"] select,
+    html[data-theme="light"] .organizer-custom-button{background:var(--input-bg);border-color:var(--input-border);color:var(--text)}
+    html[data-theme="light"] .toolbar,
+    html[data-theme="light"] .day-group,
+    html[data-theme="light"] .calendar,
+    html[data-theme="light"] .empty{border-color:var(--soft-border)}
+    html[data-theme="light"] .day-heading,
+    html[data-theme="light"] .cal-month-title{background:var(--heading-bg)}
+    html[data-theme="light"] .organizer-custom-menu{background:var(--dropdown-bg);border-color:var(--input-border);box-shadow:0 12px 26px rgba(0,0,0,.16)}
+    html[data-theme="light"] .organizer-custom-option:hover,
+    html[data-theme="light"] .organizer-custom-option.selected{background:var(--dropdown-hover)}
+    html[data-theme="light"] .event-desc{color:#3f474b}
+    html[data-theme="light"] .source-link{color:#174b5e;border-color:#aab8be}
+    html[data-theme="light"] .tag{background:#e8f2f5;border-color:#bed2d9;color:#174b5e}
+
+    @media (max-width:900px){
+      .toolbar{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width:620px){
+      .page-head{align-items:center}
+      .page-title{font-size:25px}
+      .top-menu{gap:5px}
+      .square-btn,.favorite-organizer-btn{width:42px;height:42px;min-width:42px}
+    }
+
   </style>
 </head>
 <body>
 <div class="wrap">
   <main>
-    <h2 class="page-title">Arrangementer</h2>
+    <div class="page-head">
+      <h2 class="page-title">Arrangementer</h2>
+      <nav class="top-menu" aria-label="Hovedmeny">
+        <button id="viewToggleBtn" class="square-btn" type="button" title="Bytt mellom liste og kalender" aria-label="Bytt mellom liste og kalender">▦</button>
+        <button id="searchToggleBtn" class="square-btn" type="button" title="Vis/skjul søk" aria-label="Vis/skjul søk">⌕</button>
+        <button id="themeToggleBtn" class="square-btn" type="button" title="Bytt mellom dark og light mode" aria-label="Bytt mellom dark og light mode">☀</button>
+        <button id="favoriteToggleBtn" class="square-btn" type="button" title="Legg valgt arrangør til/fra favoritter" aria-label="Legg valgt arrangør til/fra favoritter">★</button>
+        <button id="refreshTopBtn" class="square-btn" type="button" title="Oppdater arrangementer" aria-label="Oppdater arrangementer">↻</button>
+      </nav>
+    </div>
     <p class="lead">Felles oversikt over kommende arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
 
     <section class="toolbar" aria-label="Filtre">
@@ -146,10 +250,14 @@
           <div id="organizerCustomMenu" class="organizer-custom-menu" role="listbox"></div>
         </div>
       </div>
-      <div class="view-buttons" aria-label="Visning">
+      <div class="view-buttons legacy-view-buttons" aria-label="Visning">
         <button id="listBtn" class="active" type="button">Liste</button>
         <button id="calBtn" type="button">Kalender</button>
         <button id="refreshBtn" type="button">Oppdater</button>
+      </div>
+      <div id="favoritesRow" class="favorites-row" aria-label="Favorittarrangører">
+        <span class="favorites-label">Favoritter</span>
+        <div id="favoritesButtons" style="display:flex;gap:7px;flex-wrap:wrap"></div>
       </div>
     </section>
 
@@ -180,6 +288,63 @@
 
   const FILTER_STORAGE_KEY = "arrangementer.filters.v1";
   const SNAPSHOT_STORAGE_KEY = "arrangementer.snapshot.v1";
+  const UI_STORAGE_KEY = "arrangementer.ui.v1";
+  const FAVORITES_STORAGE_KEY = "arrangementer.favorites.v1";
+
+  function loadUiState() {
+    try {
+      const raw = localStorage.getItem(UI_STORAGE_KEY);
+      const v = raw ? JSON.parse(raw) : {};
+      return v && typeof v === "object" ? v : {};
+    } catch (_) { return {}; }
+  }
+
+  function saveUiState(patch={}) {
+    try {
+      const current = loadUiState();
+      localStorage.setItem(UI_STORAGE_KEY, JSON.stringify({...current,...patch}));
+    } catch (_) {}
+  }
+
+  function loadFavorites() {
+    try {
+      const raw = localStorage.getItem(FAVORITES_STORAGE_KEY);
+      const v = raw ? JSON.parse(raw) : [];
+      return Array.isArray(v) ? [...new Set(v.filter(Boolean))] : [];
+    } catch (_) { return []; }
+  }
+
+  function saveFavorites(items) {
+    try {
+      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify([...new Set(items.filter(Boolean))]));
+    } catch (_) {}
+  }
+
+  const FAVORITE_INITIAL_OVERRIDES = {
+    "Nærbø Bedehus":"NB",
+    "Fredheim Arena":"FR"
+  };
+
+  function organizerInitials(name) {
+    const clean = String(name || "").trim();
+    if (FAVORITE_INITIAL_OVERRIDES[clean]) return FAVORITE_INITIAL_OVERRIDES[clean];
+
+    const words = clean
+      .replace(/[–—-]/g," ")
+      .split(/\s+/)
+      .map(x => x.replace(/[^\p{L}\p{N}]/gu,""))
+      .filter(Boolean);
+
+    if (!words.length) return "??";
+    if (words.length === 1) return words[0].slice(0,2).toUpperCase();
+
+    const genericSecond = new Set(["arena","sokn","kirke","kyrkje"]);
+    if (genericSecond.has(words[1].toLowerCase()) && words[0].length >= 2) {
+      return words[0].slice(0,2).toUpperCase();
+    }
+
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
 
   function savedFilters() {
     try {
@@ -293,6 +458,9 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
+    viewToggleBtn:$("viewToggleBtn"), searchToggleBtn:$("searchToggleBtn"), themeToggleBtn:$("themeToggleBtn"),
+    favoriteToggleBtn:$("favoriteToggleBtn"), refreshTopBtn:$("refreshTopBtn"),
+    favoritesRow:$("favoritesRow"), favoritesButtons:$("favoritesButtons"),
     organizerCustom: $("organizerCustom"), organizerCustomButton: $("organizerCustomButton"), organizerCustomMenu: $("organizerCustomMenu"),
     status: $("status"), list: $("list"), calendar: $("calendar"), listBtn: $("listBtn"), calBtn: $("calBtn"), refreshBtn: $("refreshBtn"),
     calTitle: $("calTitle"), calGrid: $("calGrid"), prevMonth: $("prevMonth"), nextMonth: $("nextMonth")
@@ -387,6 +555,7 @@
 
     renderOrganizerCustom(values);
     updateOrganizerSelectColor();
+    renderFavoriteButtons();
   }
 
   function renderOrganizerCustom(values) {
@@ -597,12 +766,108 @@
     els.calGrid.innerHTML = html;
   }
 
+  function currentTheme() {
+    return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+  }
+
+  function applyTheme(theme, persist=true) {
+    const next = theme === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    els.themeToggleBtn.textContent = next === "light" ? "☾" : "☀";
+    els.themeToggleBtn.title = next === "light" ? "Bytt til dark mode" : "Bytt til light mode";
+    if (persist) saveUiState({theme:next});
+  }
+
+  function setSearchVisible(visible, persist=true) {
+    const field = els.search.closest(".search-field");
+    field.classList.toggle("visible", Boolean(visible));
+    els.searchToggleBtn.classList.toggle("active", Boolean(visible));
+    if (persist) saveUiState({searchVisible:Boolean(visible)});
+    if (visible) setTimeout(() => els.search.focus(), 0);
+  }
+
+  function updateViewToggleButton(mode) {
+    const calendar = mode === "calendar";
+    els.viewToggleBtn.textContent = calendar ? "≡" : "▦";
+    els.viewToggleBtn.title = calendar ? "Vis liste" : "Vis kalender";
+    els.viewToggleBtn.classList.toggle("active", calendar);
+  }
+
+  function renderFavoriteButtons() {
+    const favorites = loadFavorites();
+    els.favoritesButtons.innerHTML = "";
+
+    for (const name of favorites) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "favorite-organizer-btn";
+      btn.textContent = organizerInitials(name);
+      btn.title = name;
+      btn.setAttribute("aria-label",name);
+      btn.classList.toggle("active", els.organizer.value === name);
+
+      btn.addEventListener("click", () => {
+        const currentlySelected = els.organizer.value === name;
+        els.organizer.value = currentlySelected ? "" : name;
+        updateOrganizerSelectColor();
+        renderOrganizerCustom(
+          [...els.organizer.options].map(o => o.value).filter(Boolean)
+        );
+        saveFilters();
+        applyFilters();
+        renderFavoriteButtons();
+        updateFavoriteTopButton();
+      });
+
+      els.favoritesButtons.appendChild(btn);
+    }
+
+    els.favoritesRow.classList.toggle("visible", favorites.length > 0);
+    updateFavoriteTopButton();
+  }
+
+  function updateFavoriteTopButton() {
+    const organizer = els.organizer.value;
+    const favorites = loadFavorites();
+    const isFavorite = organizer && favorites.includes(organizer);
+    els.favoriteToggleBtn.classList.toggle("favorite-on", Boolean(isFavorite));
+    els.favoriteToggleBtn.disabled = !organizer;
+    els.favoriteToggleBtn.title = !organizer
+      ? "Velg en arrangør først"
+      : isFavorite
+        ? `Fjern ${organizer} fra favoritter`
+        : `Legg ${organizer} til favoritter`;
+  }
+
+  function toggleCurrentOrganizerFavorite() {
+    const organizer = els.organizer.value;
+    if (!organizer) {
+      els.status.textContent = "Velg en arrangør i filteret først.";
+      return;
+    }
+
+    const favorites = loadFavorites();
+    const next = favorites.includes(organizer)
+      ? favorites.filter(x => x !== organizer)
+      : [...favorites,organizer];
+
+    saveFavorites(next);
+    renderFavoriteButtons();
+  }
+
+  function restoreUiState() {
+    const ui = loadUiState();
+    applyTheme(ui.theme === "light" ? "light" : "dark", false);
+    setSearchVisible(Boolean(ui.searchVisible), false);
+  }
+
   function setView(mode) {
     const calendar = mode === "calendar";
     els.list.classList.toggle("hidden", calendar);
     els.calendar.classList.toggle("active", calendar);
     els.listBtn.classList.toggle("active", !calendar);
     els.calBtn.classList.toggle("active", calendar);
+    updateViewToggleButton(mode);
     saveFilters();
   }
 
@@ -846,6 +1111,7 @@
     updateOrganizerSelectColor();
     saveFilters();
     applyFilters();
+    renderFavoriteButtons();
   });
   els.municipality.addEventListener("change", () => {
     refreshSettlementOptions();
@@ -855,6 +1121,18 @@
   });
   els.listBtn.addEventListener("click", () => setView("list"));
   els.calBtn.addEventListener("click", () => setView("calendar"));
+  els.viewToggleBtn.addEventListener("click", () => {
+    setView(els.calendar.classList.contains("active") ? "list" : "calendar");
+  });
+  els.searchToggleBtn.addEventListener("click", () => {
+    const visible = els.search.closest(".search-field").classList.contains("visible");
+    setSearchVisible(!visible);
+  });
+  els.themeToggleBtn.addEventListener("click", () => {
+    applyTheme(currentTheme() === "light" ? "dark" : "light");
+  });
+  els.favoriteToggleBtn.addEventListener("click", toggleCurrentOrganizerFavorite);
+
   els.refreshBtn.addEventListener("click", () => load(true));
   els.prevMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()-12,1); renderCalendar(); });
   els.nextMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()+12,1); renderCalendar(); });
@@ -864,6 +1142,7 @@
     if (els.organizerCustom.classList.contains("open")) closeOrganizerCustom();
     else openOrganizerCustom();
   });
+  els.refreshTopBtn.addEventListener("click", () => els.refreshBtn.click());
   els.organizerCustomMenu.addEventListener("click", event => event.stopPropagation());
   document.addEventListener("click", closeOrganizerCustom);
   document.addEventListener("keydown", event => {
@@ -871,6 +1150,9 @@
   });
 
   window.addEventListener("beforeunload", saveFilters);
+
+  restoreUiState();
+  renderFavoriteButtons();
 
   const restoredFromCache = renderCachedStateImmediately();
   if (restoredFromCache) {
