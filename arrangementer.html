@@ -587,6 +587,7 @@
         if (!sources.length) throw new Error("Ingen aktive arrangementskilder funnet.");
 
         const importResults = [];
+        const failedSources = [];
         for (let i=0; i<sources.length; i++) {
           const source = sources[i];
           els.status.textContent = `Oppdaterer ${i+1}/${sources.length}: ${source.name || source.sourceId}…`;
@@ -637,21 +638,50 @@
             }
           }
 
+          if (lastError || !importRes || (!importRes.ok && importRes.status !== 207)) {
+            const message =
+              lastError?.message ||
+              `${source.name || source.sourceId}: Import feilet etter 3 forsøk`;
+
+            failedSources.push({
+              sourceId:source.sourceId,
+              name:source.name || source.sourceId,
+              status:importRes ? importRes.status : 0,
+              message
+            });
+
+            importResults.push({
+              source,
+              status:importRes ? importRes.status : 0,
+              data:importData,
+              failed:true,
+              error:message
+            });
+
+            console.error("Kildeimport feilet, fortsetter med neste kilde:", message);
+            continue;
+          }
+
           importResults.push({
             source,
             status:importRes ? importRes.status : 0,
-            data:importData
+            data:importData,
+            failed:false
           });
-
-          if (lastError || !importRes || (!importRes.ok && importRes.status !== 207)) {
-            throw lastError || new Error(
-              `${source.name || source.sourceId}: Import feilet etter 3 forsøk`
-            );
-          }
         }
 
         console.log("Arrangement import:", importResults);
-        els.status.textContent = "Import ferdig – henter oppdatert kalender…";
+
+        if (failedSources.length) {
+          const names = failedSources.map(x => x.name).join(", ");
+          els.status.className = "status error";
+          els.status.textContent =
+            `Import ferdig med ${failedSources.length} kildefeil: ${names}. ` +
+            `Andre kilder er oppdatert – henter kalender…`;
+        } else {
+          els.status.className = "status";
+          els.status.textContent = "Import ferdig – henter oppdatert kalender…";
+        }
       }
 
       const loadedEvents = [];
