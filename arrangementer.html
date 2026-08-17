@@ -364,6 +364,7 @@
   const API_BASE = "https://kvimarka92-api.oyvind-haugland.workers.dev";
   const EVENTS_API = `${API_BASE}/arrangementer/events`;
   const IMPORT_API = `${API_BASE}/arrangementer/import`;
+  const IMPORT_ALL_SEQUENTIAL_API = `${API_BASE}/arrangementer/import-all-sequential`;
 
   const FILTER_STORAGE_KEY = "arrangementer.filters.v1";
   const SNAPSHOT_STORAGE_KEY = "arrangementer.snapshot.v1";
@@ -1276,115 +1277,51 @@
         els.status.textContent =
           `Rydding ferdig (${purgeDeleted} slettet) – henter kilder…`;
 
-        const planRes = await fetch(IMPORT_PLAN_API, {
+        // V333: Fullimporten kjøres nå av Workeren som én sekvensiell jobb.
+        // Nettleseren skal ikke lenger starte 15 separate sourceId-importer.
+        // Workeren kjører én kilde om gangen, med retry og pauser mellom kildene.
+        els.status.textContent = "Starter sekvensiell fullimport…";
+
+        const importRes = await fetch(IMPORT_ALL_SEQUENTIAL_API, {
+          method:"POST",
           headers:{
             "Accept":"application/json",
             "x-import-key":IMPORT_KEY
           },
           cache:"no-store"
         });
-        if (planRes.status === 401) throw new Error("Importnøkkelen ble avvist (401).");
-        if (!planRes.ok) throw new Error(`Importplan HTTP ${planRes.status}`);
 
-        const plan = await planRes.json();
-        const sources = Array.isArray(plan.sources) ? plan.sources : [];
-        if (!sources.length) throw new Error("Ingen aktive arrangementskilder funnet.");
-
-        const importResults = [];
-        const failedSources = [];
-        for (let i=0; i<sources.length; i++) {
-          const source = sources[i];
-          els.status.textContent = `Oppdaterer ${i+1}/${sources.length}: ${source.name || source.sourceId}…`;
-
-          const importUrl =
-            `${IMPORT_API}?sourceId=${encodeURIComponent(source.sourceId)}` +
-            `&cleanup=0`;
-
-          let importRes = null;
-          let importData = {};
-          let lastError = null;
-
-          for (let attempt = 1; attempt <= 3; attempt++) {
-            els.status.textContent =
-              `Oppdaterer ${i+1}/${sources.length}: ${source.name || source.sourceId}` +
-              (attempt > 1 ? ` – nytt forsøk ${attempt}/3…` : "…");
-
-            try {
-              importRes = await fetch(importUrl, {
-                method:"POST",
-                headers:{
-                  "Accept":"application/json",
-                  "x-import-key":IMPORT_KEY
-                },
-                cache:"no-store"
-              });
-
-              if (importRes.status === 401) {
-                throw new Error("Importnøkkelen ble avvist (401).");
-              }
-
-              importData = await importRes.json().catch(() => ({}));
-
-              if (importRes.ok || importRes.status === 207) {
-                lastError = null;
-                break;
-              }
-
-              lastError = new Error(
-                `${source.name || source.sourceId}: Import HTTP ${importRes.status}`
-              );
-            } catch (error) {
-              lastError = error;
-            }
-
-            if (attempt < 3) {
-              await new Promise(resolve => setTimeout(resolve, 1500 * attempt));
-            }
-          }
-
-          if (lastError || !importRes || (!importRes.ok && importRes.status !== 207)) {
-            const message =
-              lastError?.message ||
-              `${source.name || source.sourceId}: Import feilet etter 3 forsøk`;
-
-            failedSources.push({
-              sourceId:source.sourceId,
-              name:source.name || source.sourceId,
-              status:importRes ? importRes.status : 0,
-              message
-            });
-
-            importResults.push({
-              source,
-              status:importRes ? importRes.status : 0,
-              data:importData,
-              failed:true,
-              error:message
-            });
-
-            console.error("Kildeimport feilet, fortsetter med neste kilde:", message);
-            continue;
-          }
-
-          importResults.push({
-            source,
-            status:importRes ? importRes.status : 0,
-            data:importData,
-            failed:false
-          });
+        if (importRes.status === 401) {
+          throw new Error("Importnøkkelen ble avvist (401).");
         }
 
-        console.log("Arrangement import:", importResults);
+        const importData = await importRes.json().catch(() => ({}));
 
-        if (failedSources.length) {
-          const names = failedSources.map(x => x.name).join(", ");
+        if (!importRes.ok && importRes.status !== 207) {
+          throw new Error(
+            `Sekvensiell fullimport HTTP ${importRes.status}` +
+            (importData.error ? `: ${importData.error}` : "")
+          );
+        }
+
+        console.log("Sekvensiell arrangement-import:", importData);
+
+        const failures = Array.isArray(importData.results)
+          ? importData.results.filter(x => !x?.ok)
+          : [];
+
+        if (failures.length) {
+          const names = failures
+            .map(x => x.sourceName || x.sourceId || "Ukjent kilde")
+            .join(", ");
+
           els.status.className = "status error";
           els.status.textContent =
-            `Import ferdig med ${failedSources.length} kildefeil: ${names}. ` +
+            `Fullimport ferdig med ${failures.length} kildefeil: ${names}. ` +
             `Andre kilder er oppdatert – henter kalender…`;
         } else {
           els.status.className = "status";
-          els.status.textContent = "Import ferdig – henter oppdatert kalender…";
+          els.status.textContent = "Fullimport ferdig – henter oppdatert kalender…";
         }
       }
 
