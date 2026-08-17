@@ -62,10 +62,13 @@
     .time{font-size:17px;font-weight:800;white-space:nowrap;color:var(--organizer-color,var(--text))}
     .event-title{font-weight:800;font-size:17px;margin-bottom:5px;color:var(--organizer-color,var(--text))}
     .event-meta{display:flex;gap:7px 13px;flex-wrap:wrap;color:var(--muted);font-size:14px;line-height:1.4}
-    .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .event-body{position:relative;min-width:0}
+    .event-main{min-width:0;padding-right:150px}
+    .event-actions{position:absolute;right:0;top:0;display:flex;align-items:center;gap:7px;white-space:nowrap}
+    .tags{display:flex;flex-wrap:wrap;gap:6px;margin:0}
     .tag{display:inline-flex;align-items:center;min-height:25px;padding:2px 8px;border-radius:999px;background:#263338;border:1px solid #34464d;color:#dff6ff;font-size:12px}
     .event-desc{margin-top:8px;color:#d3d3d3;font-size:14px;line-height:1.45;white-space:pre-line}
-    .source-link{white-space:nowrap;font-size:13px;text-decoration:none;border:1px solid #3c4b50;border-radius:6px;padding:7px 9px;color:#dff6ff}
+    .source-link{white-space:nowrap;font-size:13px;text-decoration:none;border:0;padding:2px 0;color:#dff6ff}
 
     .calendar{display:none;background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
     .calendar.active{display:block}
@@ -109,7 +112,10 @@
       .organizer-custom{display:block}
       .event{grid-template-columns:1fr;gap:5px}
       .time{font-size:15px}
-      .source-link{grid-column:auto}
+      .event-main{padding-right:128px}
+      .event-actions{gap:5px}
+      .source-link{grid-column:auto;font-size:12px}
+      .tag{font-size:11px;min-height:23px;padding:2px 7px}
       .calendar{overflow-x:auto}
       .weekdays,.cal-month-grid{min-width:720px}
     }
@@ -215,7 +221,7 @@
     html[data-theme="light"] .organizer-custom-option:hover,
     html[data-theme="light"] .organizer-custom-option.selected{background:var(--dropdown-hover)}
     html[data-theme="light"] .event-desc{color:#3f474b}
-    html[data-theme="light"] .source-link{color:#174b5e;border-color:#aab8be}
+    html[data-theme="light"] .source-link{color:#174b5e}
     html[data-theme="light"] .tag{background:#e8f2f5;border-color:#bed2d9;color:#174b5e}
 
     @media (max-width:900px){
@@ -784,27 +790,65 @@
       groups.get(key).push(e);
     }
 
+    // Vis bare første forekomst når flere egenskaper i metaraden er like.
+    // Sammenligningen er bevisst case-insensitiv og ignorerer ekstra mellomrom,
+    // slik at "Nærbø Bedehus" og "Nærbø bedehus" ikke vises dobbelt.
+    const uniqueMeta = values => {
+      const seen = new Set();
+      const out = [];
+
+      for (const value of values) {
+        const clean = String(value || "").trim().replace(/\s+/g," ");
+        if (!clean) continue;
+
+        const key = clean.toLocaleLowerCase("no");
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(clean);
+      }
+
+      return out;
+    };
+
     els.list.innerHTML = [...groups.entries()].map(([key, rows]) => {
       const day = asDate(rows[0].startTime);
+
       const items = rows.map(e => {
         const start = asDate(e.startTime);
         const end = asDate(e.endTime);
         const time = start ? noTime.format(start) : "";
         const timeRange = end ? `${time}–${noTime.format(end)}` : time;
-        const meta = [e.organizer, e.location && e.location !== e.organizer ? e.location : "", e.settlement].filter(Boolean);
-        const tags = (e.meetingTypes || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("");
+
+        const meta = uniqueMeta([
+          e.organizer,
+          e.location,
+          e.settlement
+        ]);
+
+        const tags = (e.meetingTypes || [])
+          .map(t => `<span class="tag">${escapeHtml(t)}</span>`)
+          .join("");
+
         const color = organizerColor(e.organizer);
+
         return `<article class="event" style="--organizer-color:${color.border}">
           <div class="time">${escapeHtml(timeRange)}</div>
-          <div>
-            <div class="event-title">${escapeHtml(e.title || "Uten tittel")}</div>
-            <div class="event-meta">${meta.map(x => `<span>${escapeHtml(x)}</span>`).join("")}</div>
-            ${tags ? `<div class="tags">${tags}</div>` : ""}
-            ${e.description ? `<div class="event-desc">${escapeHtml(e.description)}</div>` : ""}
+
+          <div class="event-body">
+            <div class="event-main">
+              <div class="event-title">${escapeHtml(e.title || "Uten tittel")}</div>
+              <div class="event-meta">${meta.map(x => `<span>${escapeHtml(x)}</span>`).join("")}</div>
+              ${e.description ? `<div class="event-desc">${escapeHtml(e.description)}</div>` : ""}
+            </div>
+
+            ${(e.sourceUrl || tags) ? `<div class="event-actions">
+              ${e.sourceUrl ? `<a class="source-link" href="${escapeHtml(e.sourceUrl)}" target="_blank" rel="noopener">Kilde ↗</a>` : ""}
+              ${tags ? `<div class="tags">${tags}</div>` : ""}
+            </div>` : ""}
           </div>
-          ${e.sourceUrl ? `<a class="source-link" href="${escapeHtml(e.sourceUrl)}" target="_blank" rel="noopener">Kilde ↗</a>` : ""}
         </article>`;
       }).join("");
+
       return `<section class="day-group"><div class="day-heading">${escapeHtml(noDate.format(day))}</div>${items}</section>`;
     }).join("");
   }
