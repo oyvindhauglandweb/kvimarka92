@@ -179,6 +179,7 @@
   const IMPORT_API = `${API_BASE}/arrangementer/import`;
 
   const FILTER_STORAGE_KEY = "arrangementer.filters.v1";
+  const SNAPSHOT_STORAGE_KEY = "arrangementer.snapshot.v1";
 
   function savedFilters() {
     try {
@@ -198,9 +199,90 @@
         municipality:els.municipality.value || "",
         settlement:els.settlement.value || "",
         organizer:els.organizer.value || "",
-        view:els.calendar.classList.contains("active") ? "calendar" : "list"
+        view:els.calendar.classList.contains("active") ? "calendar" : "list",
+        scrollY:Math.max(0,Math.round(window.scrollY || 0))
       }));
     } catch (_) {}
+  }
+
+  function saveEventSnapshot() {
+    try {
+      localStorage.setItem(SNAPSHOT_STORAGE_KEY, JSON.stringify({
+        savedAt:Date.now(),
+        events
+      }));
+    } catch (_) {}
+  }
+
+  function loadEventSnapshot() {
+    try {
+      const raw = localStorage.getItem(SNAPSHOT_STORAGE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data || !Array.isArray(data.events) || !data.events.length) return null;
+      return data;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function restoreRememberedFilterControls() {
+    const remembered = savedFilters();
+
+    if (remembered.search != null) els.search.value = remembered.search;
+
+    if (remembered.type && [...els.type.options].some(o => o.value === remembered.type)) {
+      els.type.value = remembered.type;
+    }
+
+    if (remembered.municipality && [...els.municipality.options].some(o => o.value === remembered.municipality)) {
+      els.municipality.value = remembered.municipality;
+      refreshSettlementOptions();
+    }
+
+    if (remembered.settlement && [...els.settlement.options].some(o => o.value === remembered.settlement)) {
+      els.settlement.value = remembered.settlement;
+    }
+
+    refreshOrganizerOptions();
+
+    if (remembered.organizer && [...els.organizer.options].some(o => o.value === remembered.organizer)) {
+      els.organizer.value = remembered.organizer;
+      updateOrganizerSelectColor();
+      renderOrganizerCustom(
+        [...els.organizer.options].map(o => o.value).filter(Boolean)
+      );
+    }
+
+    if (remembered.view === "calendar") setView("calendar");
+    else setView("list");
+  }
+
+  function renderCachedStateImmediately() {
+    const snapshot = loadEventSnapshot();
+    if (!snapshot) return false;
+
+    events = snapshot.events
+      .filter(e => e && e.active !== false)
+      .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
+      .filter(e => asDate(e.startTime))
+      .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
+
+    populateFilters();
+    restoreRememberedFilterControls();
+    applyFilters();
+
+    const remembered = savedFilters();
+    els.status.textContent =
+      `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"} – viser sist lagrede oversikt`;
+
+    requestAnimationFrame(() => {
+      if (Number.isFinite(Number(remembered.scrollY))) {
+        window.scrollTo(0,Number(remembered.scrollY));
+      }
+    });
+
+    return true;
   }
 
 
@@ -727,35 +809,11 @@
       populateFilters();
 
       if (!isManualRefresh) {
-        const remembered = savedFilters();
-
-        if (remembered.type && [...els.type.options].some(o => o.value === remembered.type)) {
-          els.type.value = remembered.type;
-        }
-
-        if (remembered.municipality && [...els.municipality.options].some(o => o.value === remembered.municipality)) {
-          els.municipality.value = remembered.municipality;
-          refreshSettlementOptions();
-        }
-
-        if (remembered.settlement && [...els.settlement.options].some(o => o.value === remembered.settlement)) {
-          els.settlement.value = remembered.settlement;
-        }
-
-        refreshOrganizerOptions();
-
-        if (remembered.organizer && [...els.organizer.options].some(o => o.value === remembered.organizer)) {
-          els.organizer.value = remembered.organizer;
-          updateOrganizerSelectColor();
-          renderOrganizerCustom(
-            [...els.organizer.options].map(o => o.value).filter(Boolean)
-          );
-        }
-
-        if (remembered.view === "calendar") setView("calendar");
+        restoreRememberedFilterControls();
       }
 
       applyFilters();
+      saveEventSnapshot();
       if (isManualRefresh) {
         els.status.className = "status";
         els.status.textContent = `${filtered.length} kommende arrangementer – oppdatert nå`;
@@ -812,7 +870,16 @@
     if (event.key === "Escape") closeOrganizerCustom();
   });
 
-  load();
+  window.addEventListener("beforeunload", saveFilters);
+
+  const restoredFromCache = renderCachedStateImmediately();
+  if (restoredFromCache) {
+    // Oppdater data i bakgrunnen. Brukeren får den forrige filtrerte visningen
+    // umiddelbart i stedet for å vente mens alle API-sidene lastes først.
+    load(false);
+  } else {
+    load(false);
+  }
 })();
 </script>
 </body>
