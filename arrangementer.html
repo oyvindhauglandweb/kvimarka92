@@ -50,8 +50,8 @@
     .day-heading{padding:12px 15px;background:#181a1b;border-bottom:1px solid var(--line);font-weight:800;text-transform:capitalize}
     .event{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:14px;padding:14px 15px;border-bottom:1px solid var(--line);align-items:start}
     .event:last-child{border-bottom:0}
-    .time{font-size:17px;font-weight:800;white-space:nowrap}
-    .event-title{font-weight:800;font-size:17px;margin-bottom:5px}
+    .time{font-size:17px;font-weight:800;white-space:nowrap;color:var(--organizer-color,var(--text))}
+    .event-title{font-weight:800;font-size:17px;margin-bottom:5px;color:var(--organizer-color,var(--text))}
     .event-meta{display:flex;gap:7px 13px;flex-wrap:wrap;color:var(--muted);font-size:14px;line-height:1.4}
     .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
     .tag{display:inline-flex;align-items:center;min-height:25px;padding:2px 8px;border-radius:999px;background:#263338;border:1px solid #34464d;color:#dff6ff;font-size:12px}
@@ -219,7 +219,37 @@
   function refreshOrganizerOptions() {
     const municipality = els.municipality.value;
     const relevant = municipality ? events.filter(e => e.municipality === municipality) : events;
-    addOptions(els.organizer, relevant.map(e => e.organizer), "Alle arrangører");
+    const old = els.organizer.value;
+    const values = [...new Set(relevant.map(e => e.organizer).filter(Boolean))]
+      .sort((a,b) => a.localeCompare(b,"no"));
+
+    els.organizer.innerHTML = '<option value="">Alle arrangører</option>';
+    for (const name of values) {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      const color = organizerColor(name);
+      option.style.color = color.border;
+      option.style.fontWeight = "700";
+      els.organizer.appendChild(option);
+    }
+
+    if ([...els.organizer.options].some(o => o.value === old)) {
+      els.organizer.value = old;
+    }
+    updateOrganizerSelectColor();
+  }
+
+  function updateOrganizerSelectColor() {
+    const name = els.organizer.value;
+    if (!name) {
+      els.organizer.style.color = "";
+      els.organizer.style.fontWeight = "";
+      return;
+    }
+    const color = organizerColor(name);
+    els.organizer.style.color = color.border;
+    els.organizer.style.fontWeight = "700";
   }
 
   function populateFilters() {
@@ -278,7 +308,8 @@
         const timeRange = end ? `${time}–${noTime.format(end)}` : time;
         const meta = [e.organizer, e.location && e.location !== e.organizer ? e.location : "", e.settlement].filter(Boolean);
         const tags = (e.meetingTypes || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("");
-        return `<article class="event">
+        const color = organizerColor(e.organizer);
+        return `<article class="event" style="--organizer-color:${color.border}">
           <div class="time">${escapeHtml(timeRange)}</div>
           <div>
             <div class="event-title">${escapeHtml(e.title || "Uten tittel")}</div>
@@ -417,7 +448,11 @@
     }
   }
 
-  [els.search,els.type,els.settlement,els.organizer].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFilters));
+  [els.search,els.type,els.settlement].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFilters));
+  els.organizer.addEventListener("change", () => {
+    updateOrganizerSelectColor();
+    applyFilters();
+  });
   els.municipality.addEventListener("change", () => {
     refreshSettlementOptions();
     refreshOrganizerOptions();
