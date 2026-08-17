@@ -237,7 +237,16 @@
 
   function refreshOrganizerOptions() {
     const municipality = els.municipality.value;
-    const relevant = municipality ? events.filter(e => e.municipality === municipality) : events;
+    const settlement = els.settlement.value;
+
+    let relevant = events;
+    if (municipality) {
+      relevant = relevant.filter(e => e.municipality === municipality);
+    }
+    if (settlement) {
+      relevant = relevant.filter(e => e.settlement === settlement);
+    }
+
     const old = els.organizer.value;
     const values = [...new Set(relevant.map(e => e.organizer).filter(Boolean))]
       .sort((a,b) => a.localeCompare(b,"no"));
@@ -542,7 +551,13 @@
     }
   }
 
-  [els.search,els.type,els.settlement].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFilters));
+  [els.search,els.type].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFilters));
+
+  els.settlement.addEventListener("change", () => {
+    refreshOrganizerOptions();
+    applyFilters();
+  });
+
   els.organizer.addEventListener("change", () => {
     updateOrganizerSelectColor();
     applyFilters();
