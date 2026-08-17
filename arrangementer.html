@@ -653,10 +653,111 @@
 
     els.organizerCustomMenu.querySelectorAll(".organizer-custom-option").forEach(btn => {
       btn.addEventListener("click", () => {
-        els.organizer.value = btn.dataset.value || "";
-        closeOrganizerCustom();
+        if (longPressTriggered) {
+          longPressTriggered = false;
+          return;
+        }
+
+        if (favoriteMatchesCurrent(fav)) {
+          // Klikk på aktiv favoritt = tilbake til alle filtre.
+          els.type.value = "";
+          els.municipality.value = "";
+          refreshSettlementOptions();
+          els.settlement.value = "";
+          refreshOrganizerOptions();
+          els.organizer.value = "";
+        } else {
+          // V325:
+          // Favoritten skal ikke bare filtrere arrangementene; alle nedtrekksmenyer
+          // skal også tilpasses favoritten. Vi finner derfor geografien som faktisk
+          // hører til den lagrede arrangøren/møtetypen i event-dataene.
+          let matching = events;
+
+          if (fav.organizer) {
+            matching = matching.filter(e => e.organizer === fav.organizer);
+          }
+          if (fav.type) {
+            matching = matching.filter(e => (e.meetingTypes || []).includes(fav.type));
+          }
+
+          // Bruk eksplisitt lagrede verdier når de finnes. Ellers utled fra
+          // arrangementene som matcher favoritten.
+          let municipality = fav.municipality || "";
+          let settlement = fav.settlement || "";
+
+          if (!municipality) {
+            const municipalities = [...new Set(
+              matching.map(e => e.municipality).filter(Boolean)
+            )];
+            if (municipalities.length === 1) municipality = municipalities[0];
+          }
+
+          if (municipality) {
+            matching = matching.filter(e => e.municipality === municipality);
+          }
+
+          if (!settlement) {
+            const settlements = [...new Set(
+              matching.map(e => e.settlement).filter(Boolean)
+            )];
+            if (settlements.length === 1) settlement = settlements[0];
+          }
+
+          // Møtetype først.
+          els.type.value =
+            fav.type && [...els.type.options].some(o => o.value === fav.type)
+              ? fav.type
+              : "";
+
+          // Kommune -> oppdater tettsteder.
+          els.municipality.value =
+            municipality && [...els.municipality.options].some(o => o.value === municipality)
+              ? municipality
+              : "";
+
+          refreshSettlementOptions();
+
+          // Tettsted -> oppdater arrangører.
+          els.settlement.value =
+            settlement && [...els.settlement.options].some(o => o.value === settlement)
+              ? settlement
+              : "";
+
+          refreshOrganizerOptions();
+
+          // Til slutt arrangør.
+          els.organizer.value =
+            fav.organizer && [...els.organizer.options].some(o => o.value === fav.organizer)
+              ? fav.organizer
+              : "";
+
+          // Hvis arrangøren ikke kunne settes direkte etter de lagrede
+          // geofeltene, prøv én gang til med geografien utledet kun fra arrangøren.
+          if (fav.organizer && els.organizer.value !== fav.organizer) {
+            const organizerEvents = events.filter(e => e.organizer === fav.organizer);
+            const municipalities = [...new Set(organizerEvents.map(e => e.municipality).filter(Boolean))];
+            const settlements = [...new Set(organizerEvents.map(e => e.settlement).filter(Boolean))];
+
+            if (municipalities.length === 1) {
+              els.municipality.value = municipalities[0];
+              refreshSettlementOptions();
+            }
+
+            if (settlements.length === 1 && [...els.settlement.options].some(o => o.value === settlements[0])) {
+              els.settlement.value = settlements[0];
+              refreshOrganizerOptions();
+            }
+
+            if ([...els.organizer.options].some(o => o.value === fav.organizer)) {
+              els.organizer.value = fav.organizer;
+            }
+          }
+        }
+
         updateOrganizerSelectColor();
-        renderOrganizerCustom(values);
+        renderOrganizerCustom(
+          [...els.organizer.options].map(o => o.value).filter(Boolean)
+        );
         saveFilters();
         applyFilters();
         renderFavoriteButtons();
