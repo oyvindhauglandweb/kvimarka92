@@ -218,6 +218,9 @@
     .square-btn.active{color:var(--accent);outline:1px solid var(--accent)}
     .square-btn.favorite-on{color:#f2c94c}
     .square-btn:disabled{opacity:.42;cursor:not-allowed}
+    .clear-filters-btn[hidden]{display:none!important}
+    .clear-filters-btn{color:var(--text)}
+    .clear-filters-btn:hover{color:var(--danger)}
     .square-btn .small-icon{font-size:18px}
 
     .menu-icon{
@@ -300,6 +303,9 @@
         </button>
         <button id="refreshTopBtn" class="square-btn" type="button" title="Kjør full oppdatering" aria-label="Kjør full oppdatering">
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8.2A7 7 0 0 1 18 6l2 2M18 15.8A7 7 0 0 1 6 18l-2-2"/></svg>
+        </button>
+        <button id="clearFiltersBtn" class="square-btn clear-filters-btn" type="button" title="Nullstill filtre" aria-label="Nullstill filtre" hidden>
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg>
         </button>
       </nav>
     </div>
@@ -593,6 +599,7 @@
     search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
     viewToggleBtn:$("viewToggleBtn"), searchToggleBtn:$("searchToggleBtn"), themeToggleBtn:$("themeToggleBtn"),
     favoriteToggleBtn:$("favoriteToggleBtn"), refreshTopBtn:$("refreshTopBtn"),
+    clearFiltersBtn:$("clearFiltersBtn"),
     favoritesRow:$("favoritesRow"), favoritesButtons:$("favoritesButtons"),
     organizerCustom: $("organizerCustom"), organizerCustomButton: $("organizerCustomButton"), organizerCustomMenu: $("organizerCustomMenu"),
     status: $("status"), list: $("list"), calendar: $("calendar"), listBtn: $("listBtn"), calBtn: $("calBtn"), refreshBtn: $("refreshBtn"),
@@ -822,7 +829,7 @@
     els.status.className = "status";
     els.status.textContent = `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"}`;
     renderList();
-    renderCalendar();
+    renderCalendar();    updateClearFiltersButton();
   }
 
   function renderList() {
@@ -1206,6 +1213,43 @@
     setSearchVisible(Boolean(ui.searchVisible), false);
   }
 
+  function filtersAreActive() {
+    return Boolean(
+      (els.search.value || "").trim() ||
+      els.type.value ||
+      els.municipality.value ||
+      els.settlement.value ||
+      els.organizer.value
+    );
+  }
+
+  function updateClearFiltersButton() {
+    els.clearFiltersBtn.hidden = !filtersAreActive();
+  }
+
+  function clearAllFilters() {
+    els.search.value = "";
+    els.type.value = "";
+    els.municipality.value = "";
+
+    refreshSettlementOptions();
+    els.settlement.value = "";
+
+    refreshOrganizerOptions();
+    els.organizer.value = "";
+
+    updateOrganizerSelectColor();
+    renderOrganizerCustom(
+      [...els.organizer.options].map(o => o.value).filter(Boolean)
+    );
+
+    saveFilters();
+    applyFilters();
+    renderFavoriteButtons();
+    updateFavoriteTopButton();
+    updateClearFiltersButton();
+  }
+
   function setView(mode) {
     const calendar = mode === "calendar";
     els.list.classList.toggle("hidden", calendar);
@@ -1457,6 +1501,7 @@
     applyTheme(currentTheme() === "light" ? "dark" : "light");
   });
   els.favoriteToggleBtn.addEventListener("click", toggleCurrentOrganizerFavorite);
+  els.clearFiltersBtn.addEventListener("click", clearAllFilters);
 
   els.refreshBtn.addEventListener("click", () => load(true));
   els.prevMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()-12,1); renderCalendar(); });
@@ -1478,6 +1523,7 @@
 
   restoreUiState();
   renderFavoriteButtons();
+  updateClearFiltersButton();
 
   const restoredFromCache = renderCachedStateImmediately();
   if (restoredFromCache) {
