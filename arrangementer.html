@@ -553,8 +553,8 @@
         if (!data.hasMore || !data.nextPage) break;
         eventPage = data.nextPage;
 
-        // Sikkerhetsstopp mot en eventuell feilaktig uendelig paginering.
-        if (eventPage > 50) throw new Error("For mange arrangementssider fra API.");
+        // Sikkerhetsstopp kun mot en faktisk feilaktig/uendelig paginering.
+        if (eventPage > 500) throw new Error("Uventet mange arrangementssider fra API.");
       }
 
       events = loadedEvents
