@@ -42,6 +42,15 @@
     .view-buttons button{min-width:76px}
     .view-buttons button.active{color:var(--accent);outline:1px solid #375968}
 
+    .organizer-custom{display:none;position:relative}
+    .organizer-custom-button{width:100%;height:42px;border-radius:7px;border:1px solid #40464a;background:#16191b;color:var(--text);padding:0 36px 0 11px;text-align:left;position:relative;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .organizer-custom-button::after{content:"⌄";position:absolute;right:11px;top:50%;transform:translateY(-53%);font-size:21px;color:#ddd}
+    .organizer-custom.open .organizer-custom-button{border-color:var(--accent)}
+    .organizer-custom-menu{display:none;position:absolute;z-index:50;left:0;right:0;top:calc(100% + 5px);max-height:320px;overflow:auto;background:#191b1c;border:1px solid #485158;border-radius:9px;box-shadow:0 14px 35px rgba(0,0,0,.55);padding:5px}
+    .organizer-custom.open .organizer-custom-menu{display:block}
+    .organizer-custom-option{width:100%;min-height:42px;height:auto;background:transparent;border:0;border-radius:6px;text-align:left;padding:8px 10px;font-weight:700;line-height:1.25}
+    .organizer-custom-option:hover,.organizer-custom-option.selected{background:#272b2d}
+
     .status{min-height:24px;margin:14px 2px 8px;color:var(--muted);font-size:14px}
     .status.error{color:var(--danger)}
 
@@ -88,8 +97,12 @@
       .topbar{display:block}
       .brand{text-align:left}
       .brand h1{font-size:27px}
-      .toolbar{grid-template-columns:1fr}
-      .search-field{grid-column:auto}
+      .toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+      .search-field{grid-column:1/-1}
+      .view-buttons{grid-column:1/-1}
+      .view-buttons button{flex:1;min-width:0;padding:0 9px}
+      .organizer-native{display:none}
+      .organizer-custom{display:block}
       .event{grid-template-columns:1fr;gap:5px}
       .time{font-size:15px}
       .source-link{grid-column:auto}
@@ -131,7 +144,11 @@
       </div>
       <div class="field">
         <label for="organizerFilter">Arrangør</label>
-        <select id="organizerFilter"><option value="">Alle arrangører</option></select>
+        <select id="organizerFilter" class="organizer-native"><option value="">Alle arrangører</option></select>
+        <div id="organizerCustom" class="organizer-custom">
+          <button id="organizerCustomButton" class="organizer-custom-button" type="button" aria-haspopup="listbox" aria-expanded="false">Alle arrangører</button>
+          <div id="organizerCustomMenu" class="organizer-custom-menu" role="listbox"></div>
+        </div>
       </div>
       <div class="view-buttons" aria-label="Visning">
         <button id="listBtn" class="active" type="button">Liste</button>
@@ -171,6 +188,7 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
+    organizerCustom: $("organizerCustom"), organizerCustomButton: $("organizerCustomButton"), organizerCustomMenu: $("organizerCustomMenu"),
     status: $("status"), list: $("list"), calendar: $("calendar"), listBtn: $("listBtn"), calBtn: $("calBtn"), refreshBtn: $("refreshBtn"),
     calTitle: $("calTitle"), calGrid: $("calGrid"), prevMonth: $("prevMonth"), nextMonth: $("nextMonth")
   };
@@ -236,20 +254,59 @@
 
     if ([...els.organizer.options].some(o => o.value === old)) {
       els.organizer.value = old;
+    } else {
+      els.organizer.value = "";
     }
+
+    renderOrganizerCustom(values);
     updateOrganizerSelectColor();
+  }
+
+  function renderOrganizerCustom(values) {
+    if (!els.organizerCustomMenu) return;
+    const current = els.organizer.value;
+    const all = [{value:"",label:"Alle arrangører"}, ...values.map(v => ({value:v,label:v}))];
+
+    els.organizerCustomMenu.innerHTML = all.map(item => {
+      const color = item.value ? organizerColor(item.value).border : "var(--text)";
+      const selected = item.value === current ? " selected" : "";
+      return `<button type="button" class="organizer-custom-option${selected}" role="option" aria-selected="${item.value === current}" data-value="${escapeHtml(item.value)}" style="color:${color}">${escapeHtml(item.label)}</button>`;
+    }).join("");
+
+    els.organizerCustomMenu.querySelectorAll(".organizer-custom-option").forEach(btn => {
+      btn.addEventListener("click", () => {
+        els.organizer.value = btn.dataset.value || "";
+        closeOrganizerCustom();
+        updateOrganizerSelectColor();
+        renderOrganizerCustom(values);
+        applyFilters();
+      });
+    });
+  }
+
+  function openOrganizerCustom() {
+    els.organizerCustom.classList.add("open");
+    els.organizerCustomButton.setAttribute("aria-expanded","true");
+  }
+
+  function closeOrganizerCustom() {
+    els.organizerCustom.classList.remove("open");
+    els.organizerCustomButton.setAttribute("aria-expanded","false");
   }
 
   function updateOrganizerSelectColor() {
     const name = els.organizer.value;
-    if (!name) {
-      els.organizer.style.color = "";
-      els.organizer.style.fontWeight = "";
-      return;
+    const label = name || "Alle arrangører";
+    const color = name ? organizerColor(name).border : "";
+
+    els.organizer.style.color = color;
+    els.organizer.style.fontWeight = name ? "700" : "";
+
+    if (els.organizerCustomButton) {
+      els.organizerCustomButton.textContent = label;
+      els.organizerCustomButton.style.color = color || "var(--text)";
+      els.organizerCustomButton.style.fontWeight = name ? "700" : "400";
     }
-    const color = organizerColor(name);
-    els.organizer.style.color = color.border;
-    els.organizer.style.fontWeight = "700";
   }
 
   function populateFilters() {
@@ -463,6 +520,17 @@
   els.refreshBtn.addEventListener("click", () => load(true));
   els.prevMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1); renderCalendar(); });
   els.nextMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1); renderCalendar(); });
+
+  els.organizerCustomButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (els.organizerCustom.classList.contains("open")) closeOrganizerCustom();
+    else openOrganizerCustom();
+  });
+  els.organizerCustomMenu.addEventListener("click", event => event.stopPropagation());
+  document.addEventListener("click", closeOrganizerCustom);
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeOrganizerCustom();
+  });
 
   load();
 })();
