@@ -191,6 +191,7 @@
     .favorites-label{font-size:12px;color:var(--muted);margin-right:2px}
     .favorite-organizer-btn{
       width:46px;height:46px;min-width:46px;padding:0;border-radius:7px;
+      -webkit-touch-callout:none;user-select:none;-webkit-user-select:none;touch-action:manipulation;
       border:1px solid var(--button-border);background:var(--favorite-bg);color:var(--text);
       font-weight:800;font-size:14px;letter-spacing:.2px;
     }
@@ -282,7 +283,6 @@
         <button id="refreshBtn" type="button">Oppdater</button>
       </div>
       <div id="favoritesRow" class="favorites-row" aria-label="Favorittarrangører">
-        <span class="favorites-label">Favoritter</span>
         <div id="favoritesButtons" style="display:flex;gap:7px;flex-wrap:wrap"></div>
       </div>
     </section>
@@ -838,7 +838,43 @@
       btn.setAttribute("aria-label",name);
       btn.classList.toggle("active", els.organizer.value === name);
 
+      // Samme faste arrangørfarge som brukes i arrangementene/dropdown.
+      const favColor = organizerColor(name);
+      btn.style.color = favColor.border || favColor.text || "var(--text)";
+
+      let longPressTimer = null;
+      let longPressTriggered = false;
+
+      const beginLongPress = () => {
+        longPressTriggered = false;
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(() => {
+          longPressTriggered = true;
+
+          if (confirm(`Fjerne ${name} fra favoritter?`)) {
+            saveFavorites(loadFavorites().filter(x => x !== name));
+            renderFavoriteButtons();
+          }
+        }, 700);
+      };
+
+      const cancelLongPress = () => {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      };
+
+      btn.addEventListener("pointerdown", beginLongPress);
+      btn.addEventListener("pointerup", cancelLongPress);
+      btn.addEventListener("pointerleave", cancelLongPress);
+      btn.addEventListener("pointercancel", cancelLongPress);
+      btn.addEventListener("contextmenu", event => event.preventDefault());
+
       btn.addEventListener("click", () => {
+        if (longPressTriggered) {
+          longPressTriggered = false;
+          return;
+        }
+
         const currentlySelected = els.organizer.value === name;
         els.organizer.value = currentlySelected ? "" : name;
         updateOrganizerSelectColor();
