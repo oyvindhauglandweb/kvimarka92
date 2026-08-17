@@ -488,7 +488,29 @@
         els.refreshBtn.disabled = true;
         els.refreshBtn.textContent = "Oppdaterer…";
         els.status.className = "status";
-        els.status.textContent = "Henter nye arrangementer fra kildene…";
+
+        // V303: Rydd databasen som en egen fase før noen kildeimport starter.
+        // Da ser vi eksplisitt om det er ryddingen eller en bestemt Source som feiler.
+        els.status.textContent = "Rydder gamle arrangementer…";
+        const purgeRes = await fetch(`${API_BASE}/arrangementer/purge`, {
+          method:"POST",
+          headers:{
+            "Accept":"application/json",
+            "x-import-key":IMPORT_KEY
+          },
+          cache:"no-store"
+        });
+        if (purgeRes.status === 401) throw new Error("Importnøkkelen ble avvist (401).");
+        const purgeData = await purgeRes.json().catch(() => ({}));
+        if (!purgeRes.ok) {
+          throw new Error(
+            `Rydding HTTP ${purgeRes.status}` +
+            (purgeData.error ? `: ${purgeData.error}` : "")
+          );
+        }
+
+        els.status.textContent =
+          `Rydding ferdig (${Number(purgeData.deleted || 0)} slettet) – henter kilder…`;
 
         const planRes = await fetch(IMPORT_PLAN_API, {
           headers:{
@@ -511,7 +533,7 @@
 
           const importUrl =
             `${IMPORT_API}?sourceId=${encodeURIComponent(source.sourceId)}` +
-            `&cleanup=${i === 0 ? "1" : "0"}`;
+            `&cleanup=0`;
 
           const importRes = await fetch(importUrl, {
             method:"POST",
