@@ -29,7 +29,7 @@
     .brand p{margin:7px 0 0;color:#d9d9d9;font-size:15px}
     .brand a{color:inherit;text-decoration:none}
     .page-title{margin:18px 0 8px;font-size:28px}
-    .lead{margin:0 0 20px;color:var(--muted);line-height:1.5}
+    .lead{margin:0 0 20px;color:var(--muted);line-height:1.5;text-align:center}
 
     .toolbar{display:grid;grid-template-columns:1.2fr repeat(3,minmax(150px,.7fr)) auto;gap:10px;align-items:end;background:var(--panel);padding:14px;border-radius:10px;box-shadow:var(--shadow);border:1px solid #242424}
     .field label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}
@@ -127,8 +127,8 @@
       --favorite-active:#2d4149;
     }
     html[data-theme="light"]{
-      --bg:#f4f5f6;
-      --panel:#eceff1;
+      --bg:#eceff1;
+      --panel:#f4f5f6;
       --panel-2:#e3e7e9;
       --text:#16191b;
       --muted:#5f6a70;
@@ -148,9 +148,17 @@
       color-scheme:light;
     }
 
-    .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:8px}
-    .page-head .page-title{margin:0}
-    .top-menu{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+    .page-head{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      margin-bottom:12px;
+      text-align:center;
+    }
+    .page-head .page-title{margin:0;text-align:center}
+    .top-menu{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;width:100%}
     .square-btn{
       width:46px;height:46px;min-width:46px;padding:0;border-radius:7px;
       border:1px solid var(--button-border);background:var(--panel-2);color:var(--text);
@@ -162,14 +170,22 @@
     .square-btn:disabled{opacity:.42;cursor:not-allowed}
     .square-btn .small-icon{font-size:18px}
 
+    .menu-icon{
+      width:22px;height:22px;display:block;
+      fill:none;stroke:currentColor;stroke-width:1.9;
+      stroke-linecap:round;stroke-linejoin:round;
+    }
+    #favoriteToggleBtn .menu-icon{fill:none}
+    #favoriteToggleBtn.favorite-on .menu-icon{fill:currentColor}
+
     .toolbar{grid-template-columns:repeat(4,minmax(150px,1fr));}
     .search-field{display:none;grid-column:1/-1}
     .search-field.visible{display:block}
     .legacy-view-buttons{display:none!important}
 
     .favorites-row{
-      grid-column:1/-1;display:none;align-items:center;gap:7px;flex-wrap:wrap;
-      padding-top:4px;border-top:1px solid var(--line);margin-top:2px;
+      grid-column:1/-1;display:none;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;
+      padding-top:10px;border-top:1px solid var(--line);margin-top:4px;
     }
     .favorites-row.visible{display:flex}
     .favorites-label{font-size:12px;color:var(--muted);margin-right:2px}
@@ -203,7 +219,7 @@
     }
     @media (max-width:620px){
       .page-head{align-items:center}
-      .page-title{font-size:25px}
+      .page-title{font-size:25px;text-align:center}
       .top-menu{gap:5px}
       .square-btn,.favorite-organizer-btn{width:42px;height:42px;min-width:42px}
     }
@@ -216,11 +232,21 @@
     <div class="page-head">
       <h2 class="page-title">Arrangementer</h2>
       <nav class="top-menu" aria-label="Hovedmeny">
-        <button id="viewToggleBtn" class="square-btn" type="button" title="Bytt mellom liste og kalender" aria-label="Bytt mellom liste og kalender">▦</button>
-        <button id="searchToggleBtn" class="square-btn" type="button" title="Vis/skjul søk" aria-label="Vis/skjul søk">⌕</button>
-        <button id="themeToggleBtn" class="square-btn" type="button" title="Bytt mellom dark og light mode" aria-label="Bytt mellom dark og light mode">☀</button>
-        <button id="favoriteToggleBtn" class="square-btn" type="button" title="Legg valgt arrangør til/fra favoritter" aria-label="Legg valgt arrangør til/fra favoritter">★</button>
-        <button id="refreshTopBtn" class="square-btn" type="button" title="Kjør full oppdatering" aria-label="Kjør full oppdatering">↻</button>
+        <button id="viewToggleBtn" class="square-btn" type="button" title="Bytt mellom liste og kalender" aria-label="Bytt mellom liste og kalender">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16M8 5v14M12 5v14M16 5v14"/></svg>
+        </button>
+        <button id="searchToggleBtn" class="square-btn" type="button" title="Vis/skjul søk" aria-label="Vis/skjul søk">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 5 5"/></svg>
+        </button>
+        <button id="themeToggleBtn" class="square-btn" type="button" title="Bytt mellom dark og light mode" aria-label="Bytt mellom dark og light mode">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8 8 0 1 1 8.5 4 6.5 6.5 0 0 0 20 15.5z"/></svg>
+        </button>
+        <button id="favoriteToggleBtn" class="square-btn" type="button" title="Legg valgt arrangør til/fra favoritter" aria-label="Legg valgt arrangør til/fra favoritter">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg>
+        </button>
+        <button id="refreshTopBtn" class="square-btn" type="button" title="Kjør full oppdatering" aria-label="Kjør full oppdatering">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8.2A7 7 0 0 1 18 6l2 2M18 15.8A7 7 0 0 1 6 18l-2-2"/></svg>
+        </button>
       </nav>
     </div>
     <p class="lead">Felles oversikt over kommende arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
@@ -577,6 +603,8 @@
         renderOrganizerCustom(values);
         saveFilters();
         applyFilters();
+        renderFavoriteButtons();
+        updateFavoriteTopButton();
       });
     });
   }
@@ -773,7 +801,9 @@
   function applyTheme(theme, persist=true) {
     const next = theme === "light" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
-    els.themeToggleBtn.textContent = next === "light" ? "☾" : "☀";
+    els.themeToggleBtn.innerHTML = next === "light"
+      ? '<svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8 8 0 1 1 8.5 4 6.5 6.5 0 0 0 20 15.5z"/></svg>'
+      : '<svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
     els.themeToggleBtn.title = next === "light" ? "Bytt til dark mode" : "Bytt til light mode";
     if (persist) saveUiState({theme:next});
   }
@@ -788,7 +818,9 @@
 
   function updateViewToggleButton(mode) {
     const calendar = mode === "calendar";
-    els.viewToggleBtn.textContent = calendar ? "≡" : "▦";
+    els.viewToggleBtn.innerHTML = calendar
+      ? '<svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"/></svg>'
+      : '<svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16M8 5v14M12 5v14M16 5v14"/></svg>';
     els.viewToggleBtn.title = calendar ? "Vis liste" : "Vis kalender";
     els.viewToggleBtn.classList.toggle("active", calendar);
   }
