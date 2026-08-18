@@ -844,6 +844,21 @@
     const settlement = els.settlement.value;
     const organizer = els.organizer.value;
 
+    // V339: Felles-favoritter gjelder bare så lenge ingen ordinære filtre
+    // er valgt. Så snart brukeren bruker søk eller et nedtrekksfilter,
+    // nullstilles felles-favorittmodus automatisk og de vanlige filtrene
+    // får styre resultatet.
+    const explicitFilterActive = Boolean(
+      q || type || municipality || settlement || organizer
+    );
+
+    const combinedWasReset =
+      combinedFavoritesActive && explicitFilterActive;
+
+    if (combinedWasReset) {
+      combinedFavoritesActive = false;
+    }
+
     const favorites = loadFavorites();
 
     filtered = events.filter(e => {
@@ -859,16 +874,35 @@
       }
 
       if (q) {
-        const hay = [e.title,e.organizer,e.location,e.settlement,e.municipality,e.description,...(e.meetingTypes||[])].join(" ").toLocaleLowerCase("no");
+        const hay = [
+          e.title,
+          e.organizer,
+          e.location,
+          e.settlement,
+          e.municipality,
+          e.description,
+          ...(e.meetingTypes || [])
+        ].join(" ").toLocaleLowerCase("no");
+
         if (!hay.includes(q)) return false;
       }
+
       return true;
     });
 
     els.status.className = "status";
-    els.status.textContent = `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"}`;
+    els.status.textContent =
+      `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"}`;
+
     renderList();
-    renderCalendar();    updateClearFiltersButton();
+    renderCalendar();
+    updateClearFiltersButton();
+
+    // Oppdater blå markering på favorittknappene med en gang fellesmodus
+    // ble slått av av et ordinært filtervalg.
+    if (combinedWasReset) {
+      renderFavoriteButtons();
+    }
   }
 
   function renderList() {
