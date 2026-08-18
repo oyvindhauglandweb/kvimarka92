@@ -281,6 +281,27 @@
       .square-btn,.favorite-organizer-btn{width:42px;height:42px;min-width:42px}
     }
 
+
+
+    /* V339 – kontaktskjema */
+    .contact-modal[hidden]{display:none!important}
+    .contact-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.68)}
+    .contact-dialog{width:min(560px,100%);max-height:calc(100vh - 36px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 22px 70px rgba(0,0,0,.55);padding:20px}
+    .contact-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+    .contact-head h3{margin:0;font-size:21px}
+    .contact-close{width:38px;height:38px;min-width:38px;padding:0;border-radius:7px;display:inline-flex;align-items:center;justify-content:center}
+    .contact-form{display:grid;gap:13px}
+    .contact-form label{display:grid;gap:6px;font-size:13px;color:var(--muted)}
+    .contact-form input,.contact-form textarea{width:100%;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);border-radius:7px;padding:10px 11px;font:inherit}
+    .contact-form textarea{min-height:150px;resize:vertical;line-height:1.45}
+    .contact-form input:focus,.contact-form textarea:focus{outline:1px solid var(--accent);border-color:var(--accent)}
+    .contact-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:3px}
+    .contact-actions button{min-height:40px}
+    .contact-status{min-height:20px;font-size:13px;color:var(--muted)}
+    .contact-status.error{color:#ff8a8a}
+    .contact-status.success{color:#74d99f}
+    .contact-hp{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+
   </style>
 </head>
 <body>
@@ -300,6 +321,9 @@
         </button>
         <button id="favoriteToggleBtn" class="square-btn" type="button" title="Legg valgt arrangør til/fra favoritter" aria-label="Legg valgt arrangør til/fra favoritter">
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg>
+        </button>
+        <button id="contactBtn" class="square-btn" type="button" title="Kontakt" aria-label="Kontakt">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h17v13h-17z"/><path d="m4 6 8 7 8-7"/></svg>
         </button>
         <button id="refreshTopBtn" class="square-btn" type="button" title="Kjør full oppdatering" aria-label="Kjør full oppdatering">
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8.2A7 7 0 0 1 18 6l2 2M18 15.8A7 7 0 0 1 6 18l-2-2"/></svg>
@@ -358,6 +382,38 @@
       <div id="calGrid" class="cal-months"></div>
     </section>
   </main>
+</div>
+
+
+<div id="contactModal" class="contact-modal" hidden aria-hidden="true">
+  <div class="contact-dialog" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+    <div class="contact-head">
+      <h3 id="contactTitle">Kontakt</h3>
+      <button id="contactCloseBtn" class="contact-close" type="button" aria-label="Lukk">✕</button>
+    </div>
+    <form id="contactForm" class="contact-form">
+      <label>Emne
+        <input id="contactSubject" name="subject" type="text" maxlength="160" required autocomplete="off">
+      </label>
+      <label>Sak
+        <textarea id="contactMessage" name="message" maxlength="5000" required></textarea>
+      </label>
+      <label>Navn
+        <input id="contactName" name="name" type="text" maxlength="120" required autocomplete="name">
+      </label>
+      <label>E-post
+        <input id="contactEmail" name="email" type="email" maxlength="254" required autocomplete="email">
+      </label>
+      <label class="contact-hp" aria-hidden="true">Nettside
+        <input id="contactWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+      </label>
+      <div id="contactStatus" class="contact-status" aria-live="polite"></div>
+      <div class="contact-actions">
+        <button id="contactCancelBtn" type="button">Avbryt</button>
+        <button id="contactSubmitBtn" type="submit">Send</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script>
@@ -591,6 +647,7 @@
 
 
   const IMPORT_PLAN_API = `${API_BASE}/arrangementer/import-plan`;
+  const CONTACT_API = `${API_BASE}/arrangementer/contact`;
   // Testmodus: samme midlertidige nøkkel brukes for import og Baserow under utvikling.
   const IMPORT_KEY = "oD0likwHw5ZpGJsNtRXg6eRp9jN7C9FR";
 
@@ -598,8 +655,10 @@
   const els = {
     search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
     viewToggleBtn:$("viewToggleBtn"), searchToggleBtn:$("searchToggleBtn"), themeToggleBtn:$("themeToggleBtn"),
-    favoriteToggleBtn:$("favoriteToggleBtn"), refreshTopBtn:$("refreshTopBtn"),
+    favoriteToggleBtn:$("favoriteToggleBtn"), contactBtn:$("contactBtn"), refreshTopBtn:$("refreshTopBtn"),
     clearFiltersBtn:$("clearFiltersBtn"),
+    contactModal:$("contactModal"), contactForm:$("contactForm"), contactCloseBtn:$("contactCloseBtn"), contactCancelBtn:$("contactCancelBtn"),
+    contactSubject:$("contactSubject"), contactMessage:$("contactMessage"), contactName:$("contactName"), contactEmail:$("contactEmail"), contactWebsite:$("contactWebsite"), contactStatus:$("contactStatus"), contactSubmitBtn:$("contactSubmitBtn"),
     favoritesRow:$("favoritesRow"), favoritesButtons:$("favoritesButtons"),
     organizerCustom: $("organizerCustom"), organizerCustomButton: $("organizerCustomButton"), organizerCustomMenu: $("organizerCustomMenu"),
     status: $("status"), list: $("list"), calendar: $("calendar"), listBtn: $("listBtn"), calBtn: $("calBtn"), refreshBtn: $("refreshBtn"),
@@ -1323,7 +1382,7 @@
         els.status.textContent =
           `Rydding ferdig (${purgeDeleted} slettet) – henter kilder…`;
 
-        // V335: Orkestrer sekvensielt fra nettleseren, men la HVER kilde være
+        // V338: Orkestrer sekvensielt fra nettleseren, men la HVER kilde være
         // en separat Worker-invokasjon. Dette unngår at én lang
         // /import-all-sequential-request står åpen gjennom 15 kilder + pauser,
         // noe som kan bli terminert av Cloudflare før den er ferdig.
@@ -1415,7 +1474,14 @@
             }
 
             if (attempt < 3) {
-              const retryDelay = 5000 * attempt;
+              // V338: 503 fra Cloudflare mangler ofte CORS-header, og fetch() blir da
+              // bare "Failed to fetch" med status 0. Behandle derfor både 5xx og
+              // nettverksfeil som midlertidig overbelastning og gi Worker/Baserow
+              // vesentlig lengre tid før neste forsøk.
+              const transient = lastStatus === 0 || lastStatus >= 500;
+              const retryDelay = transient
+                ? [30000, 60000][attempt-1]
+                : [10000, 20000][attempt-1];
               els.status.textContent =
                 `${label} feilet – nytt forsøk om ${retryDelay/1000} sek…`;
               await sleep(retryDelay);
@@ -1444,9 +1510,13 @@
             );
           }
 
-          // Viktig: gi Cloudflare/Baserow ro før neste separate Worker-kall.
+          // V338: Adaptiv cooldown. Vanlig vellykket kilde får 10 sekunder.
+          // Har kilden trengt retry, gir vi 20 sekunder. En kilde som fortsatt
+          // feiler etter tre forsøk gir 45 sekunder før neste Source. Dermed
+          // unngår vi at én 503 utløser en hel kjede av nye 503-kall.
           if (i < sources.length - 1) {
-            const pauseMs = success ? 5000 : 10000;
+            const usedRetry = importResults.length && importResults[importResults.length-1]?.attempt > 1;
+            const pauseMs = success ? (usedRetry ? 20000 : 10000) : 45000;
             els.status.textContent =
               `${label} ${success ? "ferdig" : "feilet"} – neste kilde om ${pauseMs/1000} sek…`;
             await sleep(pauseMs);
@@ -1586,6 +1656,57 @@
     applyFilters();
     renderFavoriteButtons();
   });
+
+  function openContactModal(){
+    els.contactStatus.textContent = "";
+    els.contactStatus.className = "contact-status";
+    els.contactModal.hidden = false;
+    els.contactModal.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+    setTimeout(() => els.contactSubject.focus(),0);
+  }
+
+  function closeContactModal(){
+    els.contactModal.hidden = true;
+    els.contactModal.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+  }
+
+  async function submitContactForm(event){
+    event.preventDefault();
+    if(!els.contactForm.reportValidity()) return;
+
+    els.contactSubmitBtn.disabled = true;
+    els.contactStatus.className = "contact-status";
+    els.contactStatus.textContent = "Sender…";
+
+    try{
+      const res = await fetch(CONTACT_API,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          subject:els.contactSubject.value.trim(),
+          message:els.contactMessage.value.trim(),
+          name:els.contactName.value.trim(),
+          email:els.contactEmail.value.trim(),
+          website:els.contactWebsite.value.trim()
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if(!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+      els.contactStatus.className = "contact-status success";
+      els.contactStatus.textContent = "Meldingen er sendt. Takk for tilbakemeldingen!";
+      els.contactForm.reset();
+      setTimeout(closeContactModal,1400);
+    }catch(error){
+      els.contactStatus.className = "contact-status error";
+      els.contactStatus.textContent = error && error.message ? error.message : "Kunne ikke sende meldingen.";
+    }finally{
+      els.contactSubmitBtn.disabled = false;
+    }
+  }
+
   els.listBtn.addEventListener("click", () => setView("list"));
   els.calBtn.addEventListener("click", () => setView("calendar"));
   els.viewToggleBtn.addEventListener("click", () => {
@@ -1607,6 +1728,11 @@
     applyTheme(currentTheme() === "light" ? "dark" : "light");
   });
   els.favoriteToggleBtn.addEventListener("click", toggleCurrentOrganizerFavorite);
+  els.contactBtn.addEventListener("click", openContactModal);
+  els.contactCloseBtn.addEventListener("click", closeContactModal);
+  els.contactCancelBtn.addEventListener("click", closeContactModal);
+  els.contactForm.addEventListener("submit", submitContactForm);
+  els.contactModal.addEventListener("click", event => { if(event.target === els.contactModal) closeContactModal(); });
   els.clearFiltersBtn.addEventListener("click", clearAllFilters);
 
   els.refreshBtn.addEventListener("click", () => load(true));
@@ -1622,7 +1748,10 @@
   els.organizerCustomMenu.addEventListener("click", event => event.stopPropagation());
   document.addEventListener("click", closeOrganizerCustom);
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeOrganizerCustom();
+    if (event.key === "Escape") {
+      if (!els.contactModal.hidden) closeContactModal();
+      else closeOrganizerCustom();
+    }
   });
 
   window.addEventListener("beforeunload", saveFilters);
