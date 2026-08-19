@@ -1453,67 +1453,17 @@
         els.refreshBtn.textContent = "Oppdaterer…";
         els.status.className = "status";
 
-        // V304: Rydd databasen i små, separate Worker-kjøringer.
-        // Hver purge-step sletter maks 200 rader og får dermed sin egen
-        // Cloudflare CPU-/subrequest-kvote.
-        els.status.textContent = "Rydder gamle arrangementer…";
-        let purgeDeleted = 0;
-        let purgeSteps = 0;
-
-        while (true) {
-          const purgeRes = await fetch(`${API_BASE}/arrangementer/purge-step`, {
-            method:"POST",
-            headers:{
-              "Accept":"application/json",
-              "x-import-key":IMPORT_KEY
-            },
-            cache:"no-store"
-          });
-
-          if (purgeRes.status === 401) throw new Error("Importnøkkelen ble avvist (401).");
-
-          const purgeData = await purgeRes.json().catch(() => ({}));
-          if (!purgeRes.ok) {
-            throw new Error(
-              `Rydding HTTP ${purgeRes.status}` +
-              (purgeData.error ? `: ${purgeData.error}` : "")
-            );
-          }
-
-          purgeDeleted += Number(purgeData.deleted || 0);
-          purgeSteps++;
-
-          if (purgeData.done) break;
-
-          const phaseText =
-            purgeData.phase === "disabled-source" && purgeData.sourceName
-              ? `Rydder ${purgeData.sourceName}`
-              : "Rydder gamle arrangementer";
-
-          els.status.textContent =
-            `${phaseText}… (${purgeDeleted} slettet)`;
-
-          // Sikkerhetsstopp kun mot programmeringsfeil. 500 steg = 100 000 rader.
-          if (purgeSteps >= 500) {
-            throw new Error("Ryddingen stoppet etter 500 steg. Databasen er uventet stor.");
-          }
-        }
-
-        els.status.textContent =
-          `Rydding ferdig (${purgeDeleted} slettet) – henter kilder…`;
-
-        // V335: Orkestrer sekvensielt fra nettleseren, men la HVER kilde være
-        // en separat Worker-invokasjon. Dette unngår at én lang
-        // /import-all-sequential-request står åpen gjennom 15 kilder + pauser,
-        // noe som kan bli terminert av Cloudflare før den er ferdig.
+        // V342: Ingen purge før import.
+        // Eksisterende data skal stå urørt dersom en kilde feiler.
         //
-        // Vi kjører fortsatt strengt én kilde om gangen, men V341 bruker
-        // korte pauser: maks to forsøk, 1 s retry og 0,25/1 s mellom kilder.
-        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        // Fullimporten orkestreres igjen som én sekvensiell Worker-jobb.
+        // Dette unngår 26 raske browser -> Worker-kall som i V341 utløste
+        // Cloudflare 503/CORS-følgesymptomer. V337 Worker bruker ett forsøk
+        // per kilde og bare 750 ms mellom kildene.
+        els.status.textContent = "Starter kompakt, sikker fullimport…";
 
-        els.status.textContent = "Henter importplan…";
-
-        const planRes = await fetch(IMPORT_PLAN_API, {
+        const importRes = await fetch(IMPORT_ALL_SEQUENTIAL_API, {
+          method:"POST",
           headers:{
             "Accept":"application/json",
             "x-import-key":IMPORT_KEY
@@ -1521,128 +1471,38 @@
           cache:"no-store"
         });
 
-        if (planRes.status === 401) {
+        if (importRes.status === 401) {
           throw new Error("Importnøkkelen ble avvist (401).");
         }
-        if (!planRes.ok) {
-          throw new Error(`Importplan HTTP ${planRes.status}`);
+
+        const importData = await importRes.json().catch(() => ({}));
+
+        if (!importRes.ok && importRes.status !== 207) {
+          throw new Error(
+            `Sekvensiell fullimport HTTP ${importRes.status}` +
+            (importData.error ? `: ${importData.error}` : "")
+          );
         }
 
-        const plan = await planRes.json();
-        const sources = Array.isArray(plan.sources) ? plan.sources : [];
+        console.log("Sekvensiell arrangement-import:", importData);
 
-        if (!sources.length) {
-          throw new Error("Ingen aktive arrangementskilder funnet.");
-        }
-
-        const importResults = [];
-        const failures = [];
-
-        for (let i=0; i<sources.length; i++) {
-          const source = sources[i];
-          const label = source.name || source.sourceId || `Kilde ${i+1}`;
-          const importUrl =
-            `${IMPORT_API}?sourceId=${encodeURIComponent(source.sourceId)}&cleanup=0`;
-
-          let success = false;
-          let lastStatus = 0;
-          let lastMessage = "";
-
-          for (let attempt=1; attempt<=2; attempt++) {
-            els.status.className = "status";
-            els.status.textContent =
-              `Oppdaterer ${i+1}/${sources.length}: ${label}` +
-              (attempt > 1 ? ` – forsøk ${attempt}/2…` : "…");
-
-            try {
-              const res = await fetch(importUrl, {
-                method:"POST",
-                headers:{
-                  "Accept":"application/json",
-                  "x-import-key":IMPORT_KEY
-                },
-                cache:"no-store"
-              });
-
-              lastStatus = res.status;
-
-              if (res.status === 401) {
-                throw new Error("Importnøkkelen ble avvist (401).");
-              }
-
-              const raw = await res.text();
-              let data = {};
-              try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
-
-              if (res.ok || res.status === 207) {
-                importResults.push({
-                  source,
-                  ok:true,
-                  status:res.status,
-                  attempt,
-                  data
-                });
-                success = true;
-                break;
-              }
-
-              lastMessage =
-                data?.error ||
-                `HTTP ${res.status}`;
-            } catch (error) {
-              lastMessage = error?.message || String(error);
-            }
-
-            if (attempt < 2) {
-              const retryDelay = 1000;
-              els.status.textContent =
-                `${label} feilet – nytt forsøk om ${retryDelay/1000} sek…`;
-              await sleep(retryDelay);
-            }
-          }
-
-          if (!success) {
-            failures.push({
-              sourceId:source.sourceId,
-              sourceName:label,
-              status:lastStatus,
-              message:lastMessage || "Import feilet"
-            });
-
-            importResults.push({
-              source,
-              ok:false,
-              status:lastStatus,
-              error:lastMessage || "Import feilet"
-            });
-
-            console.error(
-              "Kildeimport feilet, fortsetter med neste kilde:",
-              label,
-              lastMessage
-            );
-          }
-
-          // Kort kontrollert pause før neste separate Worker-kall.
-          if (i < sources.length - 1) {
-            const pauseMs = success ? 250 : 1000;
-            els.status.textContent =
-              `${label} ${success ? "ferdig" : "feilet"} – neste kilde om ${pauseMs/1000} sek…`;
-            await sleep(pauseMs);
-          }
-        }
-
-        console.log("Sekvensiell arrangement-import:", importResults);
+        const failures = Array.isArray(importData.results)
+          ? importData.results.filter(x => !x?.ok)
+          : [];
 
         if (failures.length) {
-          const names = failures.map(x => x.sourceName).join(", ");
+          const names = failures
+            .map(x => x.sourceName || x.sourceId || "Ukjent kilde")
+            .join(", ");
+
           els.status.className = "status error";
           els.status.textContent =
             `Fullimport ferdig med ${failures.length} kildefeil: ${names}. ` +
-            `Andre kilder er oppdatert – henter kalender…`;
+            `Eksisterende data for feilede kilder er beholdt – henter kalender…`;
         } else {
           els.status.className = "status";
-          els.status.textContent = "Fullimport ferdig – henter oppdatert kalender…";
+          els.status.textContent =
+            "Fullimport ferdig – henter oppdatert kalender…";
         }
       }
 
