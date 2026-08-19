@@ -437,7 +437,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v403-github-actions-production-2026-08-19";
+  const FRONTEND_VERSION = "v404-github-actions-production-2026-08-19";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1548,18 +1548,8 @@
       applyFilters();
       saveEventSnapshot();
       if (isManualRefresh) {
-        if (calendarLoadWarning) {
-          els.status.className = "status error";
-          els.status.textContent =
-            `${filtered.length} arrangementer vist. ${calendarLoadWarning}`;
-        } else {
-          els.status.className = "status";
-          els.status.textContent = `${filtered.length} kommende arrangementer – oppdatert nå`;
-        }
-      } else if (calendarLoadWarning) {
-        els.status.className = "status error";
-        els.status.textContent =
-          `${filtered.length} arrangementer vist. ${calendarLoadWarning}`;
+        els.status.className = "status";
+        els.status.textContent = `${filtered.length} kommende arrangementer – oppdatert nå`;
       }
     } catch (err) {
       console.error(err);
