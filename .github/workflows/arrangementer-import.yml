@@ -3,7 +3,6 @@ name: Arrangementer import
 on:
   workflow_dispatch:
   schedule:
-    # Ikke på hel time; GitHub anbefaler å unngå belastningstoppen der.
     - cron: "17 */2 * * *"
 
 permissions:
@@ -36,7 +35,9 @@ jobs:
 
       - name: Commit oppdatert snapshot
         run: |
-          if git diff --quiet -- arrangementer-data.json; then
+          # git diff ser ikke nye, untracked filer.
+          # git status --porcelain gjør det.
+          if [ -z "$(git status --porcelain -- arrangementer-data.json)" ]; then
             echo "Ingen endringer i arrangementer-data.json"
             exit 0
           fi
