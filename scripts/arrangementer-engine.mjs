@@ -1266,9 +1266,24 @@ async function arrFetchAndParseVigrestadSource(source, url) {
   }
 
   const deduped = arrDedupeParsed(out);
+
   if (!deduped.length) {
-    throw new Error(`Vigrestad-underkilde ${sourceId} ga ingen arrangementer i importvinduet`);
+    // V407: Fuglareiret kan legitimt være helt tom.
+    // For SRC-0017 skal 0 arrangementer derfor regnes som en gyldig import,
+    // men som merge-only slik at eventuelle eldre rader ikke deaktiveres
+    // bare fordi kalenderen akkurat nå er tom.
+    if (sourceId === "SRC-0017") {
+      deduped._mergeOnly = true;
+      deduped._importNote =
+        "Vigrestad Misjonshus Fuglareiret: kalenderen er tom; dette er gyldig og eksisterende usette rader beholdes.";
+      return deduped;
+    }
+
+    throw new Error(
+      `Vigrestad-underkilde ${sourceId} ga ingen arrangementer i importvinduet`
+    );
   }
+
   return deduped;
 }
 
