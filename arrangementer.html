@@ -1571,8 +1571,12 @@
 
               if (ok) break;
 
-              // Bare plattformfeil får ett nytt forsøk. Vanlige kilde/parserfeil
-              // registreres og vi går videre.
+              // V354: En 503 på akkurat denne importen er ikke automatisk
+              // bevis på at hele backend er nede. Readiness har flere ganger
+              // vært 200 samtidig som en tung kilde ga 503.
+              //
+              // Vanlige 500/parserfeil avsluttes uten retry. 503 får ett nytt
+              // forsøk, men global stopp avgjøres først av readiness.
               if (res.status !== 503) break;
             } catch (error) {
               const message = error?.message || String(error);
@@ -1584,12 +1588,23 @@
                 attempt,
                 error:message
               };
+              // Failed to fetch kan være CORS-følgesymptom av 503.
+              // La readiness avgjøre om backend faktisk er nede.
               if (!/failed to fetch/i.test(message)) break;
             }
 
             if (attempt === 1) {
               const recovered = await waitForBackend(`etter feil på ${label}`,5);
               if (!recovered.ok) {
+                backendStopped = true;
+                break;
+              }
+            } else {
+              // Etter andre 503/Failed to fetch: stopp bare hele importen dersom
+              // readiness faktisk også feiler. Ellers er dette en kilde-spesifikk
+              // tung import, og vi fortsetter med neste kilde.
+              const stillReady = await waitForBackend(`etter andre feil på ${label}`,3);
+              if (!stillReady.ok) {
                 backendStopped = true;
                 break;
               }
@@ -1619,7 +1634,7 @@
 
         const failures = importResults.filter(x => !x.ok);
         console.log("Backend-styrt kildeimport – første pass:", {
-          mode:"browser-sequential-v353-readiness-driven-two-pass",
+          mode:"browser-sequential-v354-source-isolated-503-two-pass",
           sourceCount:sources.length,
           attemptedCount:importResults.filter(x => !x.skipped).length,
           successCount:importResults.filter(x => x.ok).length,
@@ -1698,7 +1713,10 @@
                 )
               };
 
-              if (res.status === 503) backendStopped = true;
+              if (res.status === 503) {
+                const stillReady = await waitForBackend(`etter 503 på ${label}`,3);
+                if (!stillReady.ok) backendStopped = true;
+              }
             } catch (error) {
               const message = error?.message || String(error);
               retryResult = {
@@ -1709,7 +1727,10 @@
                 attempt:2,
                 error:message
               };
-              if (/failed to fetch/i.test(message)) backendStopped = true;
+              if (/failed to fetch/i.test(message)) {
+                const stillReady = await waitForBackend(`etter Failed to fetch på ${label}`,3);
+                if (!stillReady.ok) backendStopped = true;
+              }
             }
 
             // Erstatt første-pass-resultatet for denne kilden.
@@ -1727,7 +1748,7 @@
         const finalFailures = importResults.filter(x => !x.ok);
 
         console.log("Backend-styrt kildeimport – sluttresultat:", {
-          mode:"browser-sequential-v353-readiness-driven-two-pass",
+          mode:"browser-sequential-v354-source-isolated-503-two-pass",
           sourceCount:sources.length,
           successCount:importResults.filter(x => x.ok).length,
           failureCount:finalFailures.length,
