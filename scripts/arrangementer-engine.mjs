@@ -2207,7 +2207,23 @@ async function arrFetchCornerstoneCalendarService(calendarUrl, sourcePrefix, fal
 }
 
 async function arrFetchAndParseBedehuskirken(url) {
+  // V404: Bedehuskirken.
+  //
+  // Bedehuskirken bruker Cornerstone. Den offentlige kalenderen og forsiden
+  // viser fortsatt "Kommende eventer", men fullkalender-tjenesten kan returnere
+  // data som ikke gir noen arrangementer i vårt importvindu.
+  //
+  // Vi gjør derfor:
+  //   1) prøv komplett Cornerstone-kalender,
+  //   2) godta den bare dersom den faktisk inneholder arrangementer
+  //      innen importvinduet,
+  //   3) ellers bruk offentlig HTML som kontrollert merge-only fallback.
+  //
+  // Merge-only er viktig fordi HTML-listen bare viser et kort kommende-utdrag
+  // og derfor aldri må få lov til å deaktivere eksisterende Bedehuskirken-rader.
+
   const calendarUrl = "https://bedehuskirken.no/kalender";
+  const homeUrl = "https://bedehuskirken.no/";
 
   try {
     const result = await arrFetchCornerstoneCalendarService(
@@ -2215,36 +2231,177 @@ async function arrFetchAndParseBedehuskirken(url) {
       "bedehuskirken",
       "Bedehuskirken, Bryne"
     );
-    return result.events;
-  } catch (_) {
-    // HTML-fallback: kommende eventer er synlige på kalendersiden.
-    const html = await arrFetchText(calendarUrl);
-    const out = [];
-    const linkRe = /<a\b[^>]*href=["']([^"']*\/kalender\/arrangement\/calendar_event\/(\d+)[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
-    let m;
-    while ((m=linkRe.exec(html)) !== null) {
-      const id = String(m[2] || "").trim();
-      const label = arrClean(arrHtmlToLines(m[3]).replace(/\s+/g," "));
-      const dm = label.match(
-        /^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?/i
-      );
-      if (!dm) continue;
-      const month = ARR_NORWEGIAN_MONTHS[arrNormalize(dm[4])];
-      if (!month) continue;
 
-      out.push({
-        sourceEventId:`bedehuskirken-${id}`,
-        title:arrClean(dm[1]),
-        startTime:arrOsloLocalIso(Number(dm[5]),month,Number(dm[3]),Number(dm[6]),Number(dm[7]),0),
-        endTime:dm[8] ? arrOsloLocalIso(Number(dm[5]),month,Number(dm[3]),Number(dm[8]),Number(dm[9]),0) : null,
-        location:"Bedehuskirken, Bryne",
-        description:"",
-        sourceUrl:new URL(m[1],calendarUrl).href,
+    const events = Array.isArray(result?.events) ? result.events : [];
+    const inImportWindow = arrFilterParsedEventWindow(events);
+
+    if (inImportWindow.length) {
+      return events;
+    }
+  } catch (_) {
+    // Fortsett til HTML-fallback.
+  }
+
+  const out = [];
+  const seen = new Set();
+
+  async function addEvent({
+    title,
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    endHour,
+    endMinute,
+    description,
+    sourceUrl,
+    eventNo
+  }) {
+    if (!title || !month) return;
+
+    const startTime = arrOsloLocalIso(
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      0
+    );
+
+    const endTime =
+      Number.isFinite(endHour) &&
+      Number.isFinite(endMinute)
+        ? arrOsloLocalIso(
+            year,
+            month,
+            day,
+            endHour,
+            endMinute,
+            0
+          )
+        : null;
+
+    const sourceEventId = eventNo
+      ? `bedehuskirken-${eventNo}`
+      : `bedehuskirken-html-${await arrStableKey(
+          "SRC-0011",
+          startTime,
+          title
+        )}`;
+
+    if (seen.has(sourceEventId)) return;
+    seen.add(sourceEventId);
+
+    out.push({
+      sourceEventId,
+      title: arrClean(title),
+      startTime,
+      endTime,
+      location: "Bedehuskirken, Bryne",
+      description: arrClean(description || ""),
+      sourceUrl: sourceUrl || calendarUrl
+    });
+  }
+
+  async function parseHtmlPage(html, pageUrl) {
+    // Først prøver vi event-lenker med eksplisitt Cornerstone-ID.
+    const linkRe =
+      /<a\b[^>]*href=["']([^"']*\/kalender\/arrangement\/calendar_event\/(\d+)[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
+
+    let m;
+
+    while ((m = linkRe.exec(html)) !== null) {
+      const eventNo = String(m[2] || "").trim();
+
+      const label = arrClean(
+        arrHtmlToLines(m[3]).replace(/\s+/g, " ")
+      );
+
+      const dm = label.match(
+        /^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i
+      );
+
+      if (!dm) continue;
+
+      const month =
+        ARR_NORWEGIAN_MONTHS[
+          arrNormalize(dm[4])
+        ];
+
+      await addEvent({
+        eventNo,
+        title: dm[1],
+        day: Number(dm[3]),
+        month,
+        year: Number(dm[5]),
+        hour: Number(dm[6]),
+        minute: Number(dm[7]),
+        endHour: dm[8] ? Number(dm[8]) : NaN,
+        endMinute: dm[9] ? Number(dm[9]) : NaN,
+        description: dm[10] || "",
+        sourceUrl: new URL(m[1], pageUrl).href
       });
     }
-    if (!out.length) throw new Error("Bedehuskirken-parser fant ingen arrangementer");
-    return arrDedupeParsed(out);
+
+    // Deretter ren tekst fra "Kommende eventer".
+    // Dagens side viser blant annet:
+    // "Kveldsgudstjeneste søndag 9 august 2026 | 19:00"
+    // "GN Fredag fredag 14 august 2026 | 20:00"
+    const lines = arrHtmlToLines(html)
+      .split("\n")
+      .map(arrClean)
+      .filter(Boolean);
+
+    for (const line of lines) {
+      const dm = line.match(
+        /^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i
+      );
+
+      if (!dm) continue;
+
+      const month =
+        ARR_NORWEGIAN_MONTHS[
+          arrNormalize(dm[4])
+        ];
+
+      await addEvent({
+        title: dm[1],
+        day: Number(dm[3]),
+        month,
+        year: Number(dm[5]),
+        hour: Number(dm[6]),
+        minute: Number(dm[7]),
+        endHour: dm[8] ? Number(dm[8]) : NaN,
+        endMinute: dm[9] ? Number(dm[9]) : NaN,
+        description: dm[10] || "",
+        sourceUrl: pageUrl
+      });
+    }
   }
+
+  for (const pageUrl of [calendarUrl, homeUrl]) {
+    try {
+      const html = await arrFetchText(pageUrl);
+      await parseHtmlPage(html, pageUrl);
+    } catch (_) {}
+  }
+
+  if (!out.length) {
+    throw new Error(
+      "Bedehuskirken-parser fant ingen arrangementer i offentlig HTML"
+    );
+  }
+
+  const result = arrDedupeParsed(out);
+
+  // Offentlig HTML viser bare et kort kommende-utdrag.
+  // Oppdater/legg til det vi ser, men behold eksisterende usette rader.
+  result._mergeOnly = true;
+  result._importNote =
+    "Bedehuskirken: offentlig Kommende eventer-fallback; eksisterende usette rader beholdes.";
+
+  return result;
 }
 
 async function arrFetchAndParseKleppFrikirke(url) {
