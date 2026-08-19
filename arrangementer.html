@@ -1457,7 +1457,7 @@
         //
         // Hver kilde får sin EGEN Worker-request og dermed egen Worker-kvote.
         // Ingen purge før import, ingen retry-runder og ingen parallelle kall.
-        // Kort pause etter suksess, litt lengre etter feil/503. Ingen retry av samme kilde.
+        // V345: Gruppebasert throttling. Kilder kjøres sekvensielt i små grupper uten retry.
         els.status.textContent = "Henter importplan…";
 
         const planRes = await fetch(IMPORT_PLAN_API, {
@@ -1491,8 +1491,11 @@
           const sourceName = String(source.name || sourceId || "Ukjent kilde").trim();
 
           els.status.className = "status";
+          const groupNo = Math.floor(i / 5) + 1;
+          const groupCount = Math.ceil(sources.length / 5);
           els.status.textContent =
-            `Importerer ${i + 1} av ${sources.length}: ${sourceName}…`;
+            `Importerer ${i + 1} av ${sources.length}: ${sourceName} ` +
+            `(gruppe ${groupNo} av ${groupCount})…`;
 
           let result;
 
@@ -1542,16 +1545,19 @@
 
           importResults.push(result);
 
-          // Adaptiv avstand uten retry: 0,5 s etter suksess, 2 s etter feil.
-          // Feilet kilde beholder eksisterende data.
+          // V345: Kort avstand innen gruppen, tydelig pustepause mellom grupper.
+          // Feilet kilde beholder eksisterende data. Ingen retry.
           if (i < sources.length - 1) {
-            await sleep(result.ok ? 500 : 2000);
+            const nextIndex = i + 1;
+            const groupSize = 5;
+            const endOfGroup = nextIndex % groupSize === 0;
+            await sleep(endOfGroup ? 3000 : 500);
           }
         }
 
         const failures = importResults.filter(x => !x.ok);
         console.log("Kontrollert kilde-for-kilde-import:", {
-          mode:"browser-sequential-adaptive-no-retry",
+          mode:"browser-sequential-groups5-no-retry",
           sourceCount:sources.length,
           successCount:importResults.length - failures.length,
           failureCount:failures.length,
