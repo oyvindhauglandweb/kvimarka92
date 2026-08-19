@@ -2416,7 +2416,19 @@ async function arrFetchAndParseBryneFrikirke(url) {
         });
       }
 
-      if (out.length) return arrDedupeParsed(out);
+      if (out.length) {
+        const deduped = arrDedupeParsed(out);
+
+        // Cornerstone-endepunktet kan returnere data som finnes teknisk,
+        // men som bare består av gamle/historiske arrangementer.
+        // Da må vi IKKE godta dette som en vellykket fullkalender-import,
+        // fordi det senere tidsfilteret ellers gir 0 og utløser kildevernet.
+        // Fortsett i stedet til HTML-fallbacken nedenfor.
+        const inImportWindow = arrFilterParsedEventWindow(deduped);
+        if (inImportWindow.length) {
+          return deduped;
+        }
+      }
     } catch (_) {}
   }
 
