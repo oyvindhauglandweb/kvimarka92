@@ -2210,288 +2210,115 @@ async function arrFetchCornerstoneCalendarService(calendarUrl, sourcePrefix, fal
 }
 
 async function arrFetchAndParseObsBedehus(url) {
-  // V405: OBS Bedehus (Brusand + Sirevåg).
+  // V406: OBS Bedehus.
   //
-  // Nettsiden er bygget i Wix og kalenderinnholdet ligger ikke nødvendigvis
-  // som vanlig synlig HTML. Vi leser derfor både synlig HTML og JSON-data
-  // som Wix legger inn i <script>-elementene.
+  // De tre Wix-embedene viser at OBS bruker offentlige Google-kalendere.
+  // Vi går derfor direkte på Google Calendar iCal-feedene i stedet for å
+  // forsøke å parse Wix/filesusr-HTML.
   //
-  // Kilden behandles alltid merge-only: dersom Wix bare leverer et utsnitt,
-  // skal eksisterende OBS-rader aldri deaktiveres.
+  // Kalender-ID-er hentet fra de offentlige iframe-ene:
+  //   Brusand: brusand@obsbedehus.no
+  //   Sirevåg: sirevagbedehus@gmail.com
+  //   Felles:  felles@obsbedehus.no
+  //   Ogna:    ogna@obsbedehus.no
+  //
+  // Dersom alle feedene kan leses, behandles dette som en komplett import.
+  // Hvis én feed feiler, bruker vi de andre som merge-only slik at eksisterende
+  // OBS-rader aldri deaktiveres på grunn av en midlertidig kildefeil.
 
-  const pages = [
-    "https://www.obsbedehus.no/kalender",
-    "https://www.obsbedehus.no/kalender/brusand",
-    "https://www.obsbedehus.no/kalender/sirevag"
+  const calendars = [
+    {
+      key: "brusand",
+      name: "Brusand",
+      calendarId: "brusand@obsbedehus.no",
+      location: "Brusand Bedehus"
+    },
+    {
+      key: "sirevag",
+      name: "Sirevåg",
+      calendarId: "sirevagbedehus@gmail.com",
+      location: "Sirevåg Bedehus"
+    },
+    {
+      key: "felles",
+      name: "Felles",
+      calendarId: "felles@obsbedehus.no",
+      location: "OBS Bedehus"
+    },
+    {
+      key: "ogna",
+      name: "Ogna",
+      calendarId: "ogna@obsbedehus.no",
+      location: "Ogna Bedehus"
+    }
   ];
 
-  const out = [];
-  const seen = new Set();
+  const all = [];
+  const failedCalendars = [];
 
-  function inferLocation(value, pageUrl) {
-    const s = arrNormalize(value || "");
-    if (s.includes("sirevag") || /\/sirevag(?:[/?#]|$)/i.test(pageUrl)) {
-      return "Sirevåg Bedehus";
-    }
-    if (s.includes("brusand") || /\/brusand(?:[/?#]|$)/i.test(pageUrl)) {
-      return "Brusand Bedehus";
-    }
-    return "OBS Bedehus";
-  }
+  for (const cal of calendars) {
+    const icsUrl =
+      "https://calendar.google.com/calendar/ical/" +
+      encodeURIComponent(cal.calendarId) +
+      "/public/basic.ics";
 
-  function parsePossibleDate(value) {
-    if (value === null || value === undefined || value === "") return null;
+    try {
+      const parsed = await arrFetchAndParseIcal(icsUrl);
 
-    if (typeof value === "number") {
-      const n = value < 100000000000 ? value * 1000 : value;
-      const d = new Date(n);
-      return Number.isNaN(d.getTime()) ? null : d.toISOString();
-    }
+      for (const item of parsed) {
+        if (!item?.startTime || !arrClean(item.title || "")) {
+          continue;
+        }
 
-    const s = String(value).trim();
-    if (!s) return null;
+        const rawId =
+          item.sourceEventId ||
+          await arrStableKey(
+            "obs",
+            cal.key,
+            item.startTime,
+            item.title,
+            item.endTime || ""
+          );
 
-    if (/^\d{10,13}$/.test(s)) {
-      let n = Number(s);
-      if (s.length === 10) n *= 1000;
-      const d = new Date(n);
-      return Number.isNaN(d.getTime()) ? null : d.toISOString();
-    }
-
-    const d = new Date(s);
-    return Number.isNaN(d.getTime()) ? null : d.toISOString();
-  }
-
-  async function addEvent({
-    title,
-    startTime,
-    endTime,
-    location,
-    description,
-    sourceUrl,
-    sourceEventId
-  }) {
-    title = arrClean(title || "");
-    if (!title || !startTime) return;
-
-    const startIso = parsePossibleDate(startTime);
-    if (!startIso) return;
-
-    const endIso = parsePossibleDate(endTime);
-
-    const key =
-      sourceEventId ||
-      `obs-${await arrStableKey("SRC-0005", startIso, title)}`;
-
-    if (seen.has(key)) return;
-    seen.add(key);
-
-    out.push({
-      sourceEventId: key,
-      title,
-      startTime: startIso,
-      endTime: endIso,
-      location: arrClean(location || "OBS Bedehus"),
-      description: arrClean(description || ""),
-      sourceUrl: sourceUrl || url
-    });
-  }
-
-  async function inspectObject(obj, pageUrl) {
-    if (!obj || typeof obj !== "object" || Array.isArray(obj)) return;
-
-    const title =
-      obj.title ??
-      obj.name ??
-      obj.eventTitle ??
-      obj.summary ??
-      "";
-
-    const start =
-      obj.startDate ??
-      obj.startDateTime ??
-      obj.startTime ??
-      obj.start ??
-      obj.dateStart ??
-      obj.from ??
-      null;
-
-    if (typeof title !== "string" || !start) return;
-
-    const end =
-      obj.endDate ??
-      obj.endDateTime ??
-      obj.endTime ??
-      obj.end ??
-      obj.dateEnd ??
-      obj.to ??
-      null;
-
-    const locationRaw =
-      obj.location?.name ??
-      obj.location?.address ??
-      obj.location ??
-      obj.venue?.name ??
-      obj.venue ??
-      "";
-
-    const description =
-      obj.description ??
-      obj.details ??
-      obj.subtitle ??
-      "";
-
-    const id =
-      obj.id ??
-      obj._id ??
-      obj.eventId ??
-      obj.event_id ??
-      "";
-
-    await addEvent({
-      title,
-      startTime: start,
-      endTime: end,
-      location: inferLocation(locationRaw, pageUrl),
-      description:
-        typeof description === "string"
-          ? description
-          : "",
-      sourceUrl: pageUrl,
-      sourceEventId: id ? `obs-${String(id)}` : ""
-    });
-  }
-
-  async function walkJson(value, pageUrl, depth = 0) {
-    if (depth > 18 || value === null || value === undefined) return;
-
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        await walkJson(item, pageUrl, depth + 1);
+        all.push({
+          ...item,
+          sourceEventId: `obs-${cal.key}-${rawId}`,
+          location: arrClean(item.location || cal.location),
+          sourceUrl: icsUrl
+        });
       }
-      return;
-    }
-
-    if (typeof value !== "object") return;
-
-    await inspectObject(value, pageUrl);
-
-    for (const child of Object.values(value)) {
-      if (child && typeof child === "object") {
-        await walkJson(child, pageUrl, depth + 1);
-      }
-    }
-  }
-
-  async function parseNorwegianText(html, pageUrl) {
-    const lines = arrHtmlToLines(html)
-      .split("\n")
-      .map(arrClean)
-      .filter(Boolean);
-
-    for (const line of lines) {
-      const dm = line.match(
-        /^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2})[.:](\d{2})(?:\s*[–—-]\s*(\d{1,2})[.:](\d{2}))?(?:\s+(.*))?$/i
-      );
-
-      if (!dm) continue;
-
-      const month =
-        ARR_NORWEGIAN_MONTHS[
-          arrNormalize(dm[4])
-        ];
-
-      if (!month) continue;
-
-      const startTime = arrOsloLocalIso(
-        Number(dm[5]),
-        month,
-        Number(dm[3]),
-        Number(dm[6]),
-        Number(dm[7]),
-        0
-      );
-
-      const endTime =
-        dm[8] && dm[9]
-          ? arrOsloLocalIso(
-              Number(dm[5]),
-              month,
-              Number(dm[3]),
-              Number(dm[8]),
-              Number(dm[9]),
-              0
-            )
-          : null;
-
-      await addEvent({
-        title: dm[1],
-        startTime,
-        endTime,
-        location: inferLocation(line, pageUrl),
-        description: dm[10] || "",
-        sourceUrl: pageUrl
+    } catch (error) {
+      failedCalendars.push({
+        key: cal.key,
+        name: cal.name,
+        error: String(error?.message || error || "ukjent feil")
       });
     }
   }
 
-  for (const pageUrl of pages) {
-    let html = "";
-
-    try {
-      html = await arrFetchText(pageUrl);
-    } catch (_) {
-      continue;
-    }
-
-    await parseNorwegianText(html, pageUrl);
-
-    const scriptRe =
-      /<script\b[^>]*>([\s\S]*?)<\/script>/gi;
-
-    let m;
-
-    while ((m = scriptRe.exec(html)) !== null) {
-      const raw = String(m[1] || "").trim();
-      if (!raw) continue;
-
-      const candidates = [raw];
-
-      // Wix legger noen ganger JSON som JSON-streng inne i scriptet.
-      const assignment = raw.match(
-        /^[\s\S]*?=\s*({[\s\S]*}|\[[\s\S]*\])\s*;?\s*$/
-      );
-      if (assignment) candidates.push(assignment[1]);
-
-      for (const candidate of candidates) {
-        try {
-          let data = JSON.parse(candidate);
-          if (typeof data === "string") {
-            try {
-              data = JSON.parse(data);
-            } catch (_) {}
-          }
-          await walkJson(data, pageUrl);
-        } catch (_) {}
-      }
-    }
-  }
-
   const filtered = arrFilterParsedEventWindow(
-    arrDedupeParsed(out)
+    arrDedupeParsed(all)
   );
 
   if (!filtered.length) {
+    const details = failedCalendars.length
+      ? ` Feilede kalendere: ${failedCalendars
+          .map(x => `${x.name}: ${x.error}`)
+          .join(" | ")}`
+      : "";
+
     throw new Error(
-      "OBS Bedehus-parser fant ingen kommende arrangementer i Wix-data"
+      `OBS Bedehus: Google Calendar-feedene ga ingen kommende arrangementer.${details}`
     );
   }
 
-  // Returner bare det kontrollerte importvinduet. Dette er en dynamisk Wix-kilde
-  // og behandles merge-only for å unngå tap av tidligere arrangementer.
-  filtered._mergeOnly = true;
-  filtered._importNote =
-    "OBS Bedehus: Wix HTML/JSON-parser; eksisterende usette rader beholdes.";
+  if (failedCalendars.length) {
+    filtered._mergeOnly = true;
+    filtered._importNote =
+      "OBS Bedehus: delvis Google Calendar-import; eksisterende usette rader beholdes. " +
+      "Feilet: " +
+      failedCalendars.map(x => x.name).join(", ");
+  }
 
   return filtered;
 }
