@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v409-multi-area-sandnes-separate-token-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v410-multi-area-sandnes-auto-migration-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -4150,6 +4150,7 @@ export {
   arrApiBase,
   arrHeaders,
   arrListAllRows,
+  arrUpdateRowsBatch,
   arrImportAllSources,
   arrDedupeExistingVigrestad,
   arrClean,

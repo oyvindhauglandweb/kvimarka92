@@ -6,6 +6,7 @@ import {
   ARR_F,
   arrUseArea,
   arrListAllRows,
+  arrUpdateRowsBatch,
   arrImportAllSources,
   arrClean,
   arrNormalize,
@@ -237,6 +238,124 @@ function dedupeVigrestadSnapshot(events) {
   };
 }
 
+async function migrateAreaOutOfDefault(areaKey) {
+  if (areaKey === "default") {
+    throw new Error("Kan ikke migrere default-området ut av seg selv.");
+  }
+
+  // Les målområdets kilder. Disse er fasiten for hvilke kilder som er flyttet.
+  arrUseArea(areaKey);
+  const targetArea = ARR_AREAS[areaKey];
+  const targetEnv = envForArea(areaKey);
+  const targetSources = await arrListAllRows(
+    targetEnv,
+    targetArea.tables.SOURCES
+  );
+
+  const movedSourceIds = new Set();
+  const movedSourceNames = new Set();
+
+  for (const row of targetSources) {
+    const id = arrClean(row[targetArea.fields.sources.sourceId] || "");
+    const name = arrClean(row[targetArea.fields.sources.name] || "");
+
+    if (id) movedSourceIds.add(arrNormalize(id));
+    if (name) movedSourceNames.add(arrNormalize(name));
+  }
+
+  if (!movedSourceIds.size && !movedSourceNames.size) {
+    throw new Error(
+      `${targetArea.name}: ingen kilder funnet i mål-workspacet; migrering avbrytes.`
+    );
+  }
+
+  // Bytt tilbake til gammel fellesdatabase.
+  arrUseArea("default");
+  const defaultArea = ARR_AREAS.default;
+  const defaultEnv = envForArea("default");
+
+  const [oldSources, oldEvents] = await Promise.all([
+    arrListAllRows(defaultEnv, defaultArea.tables.SOURCES),
+    arrListAllRows(defaultEnv, defaultArea.tables.EVENTS)
+  ]);
+
+  const sourceUpdates = [];
+
+  for (const row of oldSources) {
+    const id = arrNormalize(
+      arrClean(row[defaultArea.fields.sources.sourceId] || "")
+    );
+    const name = arrNormalize(
+      arrClean(row[defaultArea.fields.sources.name] || "")
+    );
+
+    const moved =
+      (id && movedSourceIds.has(id)) ||
+      (name && movedSourceNames.has(name));
+
+    if (
+      moved &&
+      row[defaultArea.fields.sources.enabled] !== false
+    ) {
+      sourceUpdates.push({
+        id: row.id,
+        [defaultArea.fields.sources.enabled]: false
+      });
+    }
+  }
+
+  if (sourceUpdates.length) {
+    await arrUpdateRowsBatch(
+      defaultEnv,
+      defaultArea.tables.SOURCES,
+      sourceUpdates
+    );
+  }
+
+  const eventUpdates = [];
+
+  for (const row of oldEvents) {
+    if (row[defaultArea.fields.events.active] === false) {
+      continue;
+    }
+
+    const source = arrNormalize(
+      arrClean(row[defaultArea.fields.events.source] || "")
+    );
+
+    if (!source) continue;
+
+    const moved =
+      movedSourceIds.has(source) ||
+      movedSourceNames.has(source);
+
+    if (moved) {
+      eventUpdates.push({
+        id: row.id,
+        [defaultArea.fields.events.active]: false
+      });
+    }
+  }
+
+  if (eventUpdates.length) {
+    await arrUpdateRowsBatch(
+      defaultEnv,
+      defaultArea.tables.EVENTS,
+      eventUpdates
+    );
+  }
+
+  return {
+    area: areaKey,
+    areaName: targetArea.name,
+    matchedSourceIds: movedSourceIds.size,
+    matchedSourceNames: movedSourceNames.size,
+    oldSourcesDisabled: sourceUpdates.length,
+    oldEventsDeactivated: eventUpdates.length,
+    deletedRows: 0
+  };
+}
+
 async function readAreaSnapshotEvents(areaKey) {
   arrUseArea(areaKey);
   const areaEnv = envForArea(areaKey);
@@ -412,6 +531,11 @@ const sandnesResult = await arrImportAllSources(
   }
 );
 
+// V410: Når Sandnes er importert til sitt eget workspace, sørger vi automatisk
+// for at de samme kildene ikke lenger er aktive i gammel fellesdatabase.
+// Dette er idempotent: bare fortsatt aktive kilder/events blir PATCH-et.
+const sandnesMigration = await migrateAreaOutOfDefault("sandnes");
+
 const areaResults = [
   { key: "default", result: defaultResult },
   { key: "sandnes", result: sandnesResult }
@@ -466,6 +590,9 @@ const summary = {
     errors: result.errors,
     sourceCount: Array.isArray(result.sources) ? result.sources.length : 0
   })),
+  migrations: [
+    sandnesMigration
+  ],
   dedupe
 };
 
