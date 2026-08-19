@@ -1491,11 +1491,8 @@
           const sourceName = String(source.name || sourceId || "Ukjent kilde").trim();
 
           els.status.className = "status";
-          const groupNo = Math.floor(i / 5) + 1;
-          const groupCount = Math.ceil(sources.length / 5);
           els.status.textContent =
-            `Importerer ${i + 1} av ${sources.length}: ${sourceName} ` +
-            `(gruppe ${groupNo} av ${groupCount})…`;
+            `Importerer ${i + 1} av ${sources.length}: ${sourceName}…`;
 
           let result;
 
@@ -1545,19 +1542,16 @@
 
           importResults.push(result);
 
-          // V345: Kort avstand innen gruppen, tydelig pustepause mellom grupper.
-          // Feilet kilde beholder eksisterende data. Ingen retry.
+          // V346: Referansedata caches i Worker V340, så vi går tilbake til
+          // kort fast pacing. Ingen retry; feilet kilde beholder gamle data.
           if (i < sources.length - 1) {
-            const nextIndex = i + 1;
-            const groupSize = 5;
-            const endOfGroup = nextIndex % groupSize === 0;
-            await sleep(endOfGroup ? 3000 : 500);
+            await sleep(500);
           }
         }
 
         const failures = importResults.filter(x => !x.ok);
         console.log("Kontrollert kilde-for-kilde-import:", {
-          mode:"browser-sequential-groups5-no-retry",
+          mode:"browser-sequential-500ms-reference-cache-no-retry",
           sourceCount:sources.length,
           successCount:importResults.length - failures.length,
           failureCount:failures.length,
@@ -1653,9 +1647,36 @@
       }
     } catch (err) {
       console.error(err);
-      els.status.className = "status error";
-      els.status.textContent = err && err.message ? err.message : "Kunne ikke hente arrangementer.";
-      els.list.innerHTML = "";
+
+      // V346: Hvis ny kalender ikke kan hentes (f.eks. Events side 1 gir
+      // 500/503), behold siste fungerende snapshot i stedet for å tømme siden.
+      const snapshot = loadEventSnapshot();
+
+      if (snapshot && Array.isArray(snapshot.events) && snapshot.events.length) {
+        events = snapshot.events
+          .filter(e => e.active !== false)
+          .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
+          .filter(e => asDate(e.startTime))
+          .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
+
+        populateFilters();
+        restoreRememberedFilterControls();
+        applyFilters();
+
+        const savedWhen = snapshot.savedAt
+          ? new Date(snapshot.savedAt).toLocaleString("nb-NO")
+          : "tidligere";
+
+        els.status.className = "status error";
+        els.status.textContent =
+          `Kunne ikke hente ny kalender (${err && err.message ? err.message : "ukjent feil"}). ` +
+          `Viser sist lagrede kalender fra ${savedWhen}.`;
+      } else {
+        els.status.className = "status error";
+        els.status.textContent =
+          err && err.message ? err.message : "Kunne ikke hente arrangementer.";
+        els.list.innerHTML = "";
+      }
     } finally {
       if (isManualRefresh) {
         els.refreshBtn.disabled = false;
