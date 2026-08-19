@@ -1454,15 +1454,15 @@
         els.refreshBtn.textContent = "Oppdaterer…";
         els.status.className = "status";
 
-        // V343: Kontrollert sekvensiering i nettleseren.
+        // V348: Ekte rollback til V334-importarkitekturen.
         //
-        // Hver kilde får sin EGEN Worker-request og dermed egen Worker-kvote.
-        // Ingen purge før import, ingen retry-runder og ingen parallelle kall.
-        // V345: Gruppebasert throttling. Kilder kjøres sekvensielt i små grupper uten retry.
-        els.status.textContent = "Henter importplan…";
+        // Nettleseren starter KUN ett Worker-kall. Workeren kjører så den
+        // opprinnelige V334-sekvensen internt via /import-all-sequential.
+        // Ingen 26 browser-kall, ingen browser-throttling og ingen purge først.
+        els.status.textContent = "Starter sekvensiell fullimport…";
 
-        const planRes = await fetch(IMPORT_PLAN_API, {
-          method:"GET",
+        const importRes = await fetch(IMPORT_ALL_SEQUENTIAL_API, {
+          method:"POST",
           headers:{
             "Accept":"application/json",
             "x-import-key":IMPORT_KEY
@@ -1470,91 +1470,27 @@
           cache:"no-store"
         });
 
-        if (planRes.status === 401) {
+        if (importRes.status === 401) {
           throw new Error("Importnøkkelen ble avvist (401).");
         }
-        if (!planRes.ok) {
-          throw new Error(`Kunne ikke hente importplan (HTTP ${planRes.status}).`);
+
+        const importData = await importRes.json().catch(() => ({}));
+
+        if (!importRes.ok && importRes.status !== 207) {
+          throw new Error(
+            `Sekvensiell fullimport HTTP ${importRes.status}` +
+            (importData.error ? `: ${importData.error}` : "")
+          );
         }
 
-        const planData = await planRes.json();
-        const sources = Array.isArray(planData?.sources) ? planData.sources : [];
-        if (!sources.length) {
-          throw new Error("Importplanen inneholder ingen aktive kilder.");
-        }
+        console.log("V334 sekvensiell arrangement-import:", importData);
 
-        const importResults = [];
-        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        const failures = Array.isArray(importData.results)
+          ? importData.results.filter(x => !x?.ok)
+          : [];
 
-        for (let i = 0; i < sources.length; i++) {
-          const source = sources[i] || {};
-          const sourceId = String(source.sourceId || "").trim();
-          const sourceName = String(source.name || sourceId || "Ukjent kilde").trim();
-
-          els.status.className = "status";
-          els.status.textContent =
-            `Importerer ${i + 1} av ${sources.length}: ${sourceName}…`;
-
-          let result;
-
-          try {
-            const importRes = await fetch(
-              `${IMPORT_API}?sourceId=${encodeURIComponent(sourceId)}`,
-              {
-                method:"POST",
-                headers:{
-                  "Accept":"application/json",
-                  "x-import-key":IMPORT_KEY
-                },
-                cache:"no-store"
-              }
-            );
-
-            if (importRes.status === 401) {
-              throw new Error("Importnøkkelen ble avvist (401).");
-            }
-
-            const data = await importRes.json().catch(() => ({}));
-            const ok =
-              importRes.ok &&
-              data?.ok !== false &&
-              Number(data?.failureCount || 0) === 0;
-
-            result = {
-              ok,
-              sourceId,
-              sourceName,
-              status:importRes.status,
-              data,
-              error:ok ? "" : String(
-                data?.error ||
-                data?.results?.find?.(x => x && x.ok === false)?.error ||
-                `HTTP ${importRes.status}`
-              )
-            };
-          } catch (error) {
-            result = {
-              ok:false,
-              sourceId,
-              sourceName,
-              error:String(error?.message || error || "Failed to fetch")
-            };
-          }
-
-          importResults.push(result);
-
-          // V347 rollback: enkel kilde-for-kilde-import mot V341/V334-baseline.
-          // Ingen retry og ingen parallelle kall. Kort 750 ms pacing.
-          // Feilet kilde beholder eksisterende data.
-          if (i < sources.length - 1) {
-            await sleep(750);
-          }
-        }
-
-        const failures = importResults.filter(x => !x.ok);
-        // V347: Kjør Vigrestad-deduplisering én gang ETTER kildeimportene.
-        // Dette er bevisst isolert fra vanlig import. Feiler dedupe-kallet,
-        // beholdes alle eksisterende data og resten av kalenderen lastes videre.
+        // Vigrestad-dedupe kjøres ÉN gang, separat etter fullimporten.
+        // Feiler dette kallet, slettes/deaktiveres ingenting av dedupe-logikken.
         let vigrestadDedupeResult = null;
         let vigrestadDedupeWarning = "";
 
@@ -1587,13 +1523,11 @@
           console.warn("Vigrestad-dedupe feilet:", vigrestadDedupeWarning);
         }
 
-        console.log("Kontrollert kilde-for-kilde-import:", {
-          mode:"browser-sequential-rollback-v334-750ms-no-retry",
-          sourceCount:sources.length,
-          successCount:importResults.length - failures.length,
-          failureCount:failures.length,
-          results:importResults
-        });
+        const dedupeText = vigrestadDedupeResult
+          ? ` Vigrestad: ${Number(vigrestadDedupeResult.deactivated || 0)} duplikatrader deaktivert.`
+          : (vigrestadDedupeWarning
+              ? ` Vigrestad-dedupe feilet: ${vigrestadDedupeWarning}.`
+              : "");
 
         if (failures.length) {
           const names = failures
@@ -1601,21 +1535,14 @@
             .join(", ");
 
           els.status.className = "status error";
-          const dedupeText = vigrestadDedupeResult
-            ? ` Vigrestad: ${Number(vigrestadDedupeResult.deactivated || 0)} duplikatrader deaktivert.`
-            : (vigrestadDedupeWarning ? ` Vigrestad-dedupe feilet: ${vigrestadDedupeWarning}.` : "");
-
           els.status.textContent =
             `Fullimport ferdig med ${failures.length} kildefeil: ${names}. ` +
-            `Eksisterende data for feilede kilder er beholdt.${dedupeText} Henter kalender…`;
+            `Eksisterende data for feilede kilder er beholdt.${dedupeText} ` +
+            `Henter kalender…`;
         } else {
           els.status.className = "status";
-          const dedupeText = vigrestadDedupeResult
-            ? ` Vigrestad: ${Number(vigrestadDedupeResult.deactivated || 0)} duplikatrader deaktivert.`
-            : (vigrestadDedupeWarning ? ` Vigrestad-dedupe feilet: ${vigrestadDedupeWarning}.` : "");
-
           els.status.textContent =
-            `Fullimport ferdig (${sources.length} av ${sources.length} kilder).` +
+            `Fullimport ferdig (${Number(importData.successCount || importData.sourceCount || 0)} kilder).` +
             `${dedupeText} Henter kalender…`;
         }
       }
