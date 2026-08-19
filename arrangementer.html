@@ -672,6 +672,7 @@
 
 
   const IMPORT_PLAN_API = `${API_BASE}/arrangementer/import-plan`;
+  const VIGRESTAD_DEDUPE_API = `${API_BASE}/arrangementer/vigrestad-dedupe`;
   const CONTACT_API = `${API_BASE}/arrangementer/contact`;
   // Testmodus: samme midlertidige nøkkel brukes for import og Baserow under utvikling.
   const IMPORT_KEY = "oD0likwHw5ZpGJsNtRXg6eRp9jN7C9FR";
@@ -1542,16 +1543,52 @@
 
           importResults.push(result);
 
-          // V346: Referansedata caches i Worker V340, så vi går tilbake til
-          // kort fast pacing. Ingen retry; feilet kilde beholder gamle data.
+          // V347 rollback: enkel kilde-for-kilde-import mot V341/V334-baseline.
+          // Ingen retry og ingen parallelle kall. Kort 750 ms pacing.
+          // Feilet kilde beholder eksisterende data.
           if (i < sources.length - 1) {
-            await sleep(500);
+            await sleep(750);
           }
         }
 
         const failures = importResults.filter(x => !x.ok);
+        // V347: Kjør Vigrestad-deduplisering én gang ETTER kildeimportene.
+        // Dette er bevisst isolert fra vanlig import. Feiler dedupe-kallet,
+        // beholdes alle eksisterende data og resten av kalenderen lastes videre.
+        let vigrestadDedupeResult = null;
+        let vigrestadDedupeWarning = "";
+
+        try {
+          els.status.className = "status";
+          els.status.textContent = "Kontrollerer Vigrestad-duplikater…";
+
+          const dedupeRes = await fetch(VIGRESTAD_DEDUPE_API, {
+            method:"POST",
+            headers:{
+              "Accept":"application/json",
+              "x-import-key":IMPORT_KEY
+            },
+            cache:"no-store"
+          });
+
+          const dedupeData = await dedupeRes.json().catch(() => ({}));
+
+          if (dedupeRes.ok && dedupeData?.ok !== false) {
+            vigrestadDedupeResult = dedupeData;
+            console.log("Vigrestad-dedupe:", dedupeData);
+          } else {
+            vigrestadDedupeWarning =
+              dedupeData?.error || `HTTP ${dedupeRes.status}`;
+            console.warn("Vigrestad-dedupe feilet:", vigrestadDedupeWarning);
+          }
+        } catch (error) {
+          vigrestadDedupeWarning =
+            String(error?.message || error || "Failed to fetch");
+          console.warn("Vigrestad-dedupe feilet:", vigrestadDedupeWarning);
+        }
+
         console.log("Kontrollert kilde-for-kilde-import:", {
-          mode:"browser-sequential-500ms-reference-cache-no-retry",
+          mode:"browser-sequential-rollback-v334-750ms-no-retry",
           sourceCount:sources.length,
           successCount:importResults.length - failures.length,
           failureCount:failures.length,
@@ -1564,13 +1601,22 @@
             .join(", ");
 
           els.status.className = "status error";
+          const dedupeText = vigrestadDedupeResult
+            ? ` Vigrestad: ${Number(vigrestadDedupeResult.deactivated || 0)} duplikatrader deaktivert.`
+            : (vigrestadDedupeWarning ? ` Vigrestad-dedupe feilet: ${vigrestadDedupeWarning}.` : "");
+
           els.status.textContent =
             `Fullimport ferdig med ${failures.length} kildefeil: ${names}. ` +
-            `Eksisterende data for feilede kilder er beholdt – henter kalender…`;
+            `Eksisterende data for feilede kilder er beholdt.${dedupeText} Henter kalender…`;
         } else {
           els.status.className = "status";
+          const dedupeText = vigrestadDedupeResult
+            ? ` Vigrestad: ${Number(vigrestadDedupeResult.deactivated || 0)} duplikatrader deaktivert.`
+            : (vigrestadDedupeWarning ? ` Vigrestad-dedupe feilet: ${vigrestadDedupeWarning}.` : "");
+
           els.status.textContent =
-            `Fullimport ferdig (${sources.length} av ${sources.length} kilder) – henter kalender…`;
+            `Fullimport ferdig (${sources.length} av ${sources.length} kilder).` +
+            `${dedupeText} Henter kalender…`;
         }
       }
 
