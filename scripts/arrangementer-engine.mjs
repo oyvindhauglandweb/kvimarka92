@@ -475,6 +475,7 @@ async function arrImportAllSources(env, options={}) {
 
     try {
       const parsedRaw = await arrLoadSourceEvents(source);
+      const mergeOnly = parsedRaw && parsedRaw._mergeOnly === true;
 
       // V313: Felles tidsfilter så tidlig som mulig etter at en kilde har
       // levert sine rå/normaliserte events, før klassifisering og Baserow-arbeid.
@@ -604,6 +605,7 @@ async function arrImportAllSources(env, options={}) {
       }).length;
 
       if (
+        !mergeOnly &&
         existingActiveFuture >= 10 &&
         parsed.length < Math.max(3, Math.floor(existingActiveFuture * 0.35))
       ) {
@@ -616,7 +618,7 @@ async function arrImportAllSources(env, options={}) {
 
       // Deaktiver arrangementer som har forsvunnet fra en vellykket kilde.
       // Også dette batches sammen med øvrige oppdateringer.
-      if (parsed.length) {
+      if (parsed.length && !mergeOnly) {
         const sourceNameText = arrClean(source[ARR_F.sources.name] || "");
         const sourceIdText = arrClean(source[ARR_F.sources.sourceId] || "");
         const cutoff = new Date(Date.now()-86400000);
@@ -2301,10 +2303,17 @@ async function arrFetchAndParseKleppFrikirke(url) {
 
 
 async function arrFetchAndParseBryneFrikirke(url) {
-  // V259: Kalender-siden avslører Cornerstone/CMS sitt faktiske events_service-endepunkt.
-  // Vi bruker dette først og ber om ca. 12 måneder fremover. Dette er samme datakilde
-  // som den synlige månedskalenderen bruker, og er derfor langt mer komplett enn
-  // "Kommende hendelser"/"Skjer snart"-HTML-en.
+  // V401: Bryne Frikyrkje.
+  //
+  // Rotårsak 19.08.2026:
+  // Cornerstone events_service som tidligere ga hele kalenderen returnerer ikke
+  // lenger brukbare event-data. Den offentlige forsiden viser derimot fortsatt
+  // "Kommende hendelser". Vi bruker derfor:
+  //   1) events_service dersom den igjen virker,
+  //   2) offentlig HTML som kontrollert fallback.
+  //
+  // Fallbacken merkes som merge-only slik at en kort "Kommende hendelser"-liste
+  // ALDRI kan deaktivere de mange eksisterende Bryne-radene i Baserow.
   const serviceBase = "https://brynefrikyrkje.no/_service/397657/events_service";
   const detailRoute = "L2thbGVuZGVyL2thbGVuZGVyLWRldGFsaS9jYWxlbmRhcl9ldmVudC86aWQ%3D";
   const viewId = "4306263";
@@ -2323,14 +2332,11 @@ async function arrFetchAndParseBryneFrikirke(url) {
     return `${y}-${m}-${day}`;
   }
 
-  // Cornerstone-installasjoner finnes med flere generasjoner av calendar.js.
-  // Prøv de vanlige representasjonene i kontrollert rekkefølge og bruk første
-  // svar som faktisk inneholder event-array.
   const rangeVariants = [
-    [String(rangeStart.getTime()), String(rangeEnd.getTime())],                 // epoch ms
-    [String(Math.floor(rangeStart.getTime()/1000)), String(Math.floor(rangeEnd.getTime()/1000))], // epoch sec
-    [ymd(rangeStart), ymd(rangeEnd)],                                           // YYYY-MM-DD
-    [rangeStart.toISOString(), rangeEnd.toISOString()],                         // ISO 8601
+    [String(rangeStart.getTime()), String(rangeEnd.getTime())],
+    [String(Math.floor(rangeStart.getTime()/1000)), String(Math.floor(rangeEnd.getTime()/1000))],
+    [ymd(rangeStart), ymd(rangeEnd)],
+    [rangeStart.toISOString(), rangeEnd.toISOString()],
   ];
 
   function parseServiceDate(value) {
@@ -2376,7 +2382,6 @@ async function arrFetchAndParseBryneFrikirke(url) {
       let data;
       try {
         data = JSON.parse(responseText);
-        // Enkelte eldre service-endepunkt returnerer JSON som en JSON-streng.
         if (typeof data === "string") data = JSON.parse(data);
       } catch (_) {
         data = null;
@@ -2394,9 +2399,9 @@ async function arrFetchAndParseBryneFrikirke(url) {
         const endTime = parseServiceDate(item.end || item.endTime || item.end_time || item.dateEnd);
         const rawUrl = arrClean(item.url || item.href || item.link || "");
         const id = String(item.id || item.event_id || item.eventId || "").trim();
-        const sourceEventId =
-          id ? `bryne-${id}` :
-          `bryne-service-${await arrStableKey("SRC-0008",startTime,title)}`;
+        const sourceEventId = id
+          ? `bryne-${id}`
+          : `bryne-service-${await arrStableKey("SRC-0008",startTime,title)}`;
 
         out.push({
           sourceEventId,
@@ -2412,75 +2417,109 @@ async function arrFetchAndParseBryneFrikirke(url) {
       }
 
       if (out.length) return arrDedupeParsed(out);
-    } catch (_) {
-      // Prøv neste datorepresentasjon. HTML-fallback brukes dersom alle feiler.
-    }
+    } catch (_) {}
   }
 
-  // Fallback: behold V255-metoden dersom CMS-serviceformatet endres.
+  // Offentlig HTML-fallback.
+  // Nettsiden viser poster som:
+  // "Gudstjeneste - ... søndag 2 august 2026| 11:00 Beskrivelse ..."
+  // Gammel parser krevde slutt rett etter klokkeslett og fant derfor 0.
   const urls = [
     "https://brynefrikyrkje.no/",
     "https://brynefrikyrkje.no/kalender/kalender-detalj/calendar_event/frikirken.no",
   ];
+
   const out = [];
   const seen = new Set();
 
-  function addFromHtml(html, sourcePageUrl) {
+  async function addParsedEvent({title,year,month,day,hour,minute,endHour,endMinute,description,sourceUrl,eventNo}) {
+    if (!title || !month) return;
+
+    const startTime = arrOsloLocalIso(year,month,day,hour,minute,0);
+    const endTime = Number.isFinite(endHour) && Number.isFinite(endMinute)
+      ? arrOsloLocalIso(year,month,day,endHour,endMinute,0)
+      : null;
+
+    const sourceEventId = eventNo
+      ? `bryne-${eventNo}`
+      : `bryne-html-${await arrStableKey("SRC-0008",startTime,title)}`;
+
+    if (seen.has(sourceEventId)) return;
+    seen.add(sourceEventId);
+
+    out.push({
+      sourceEventId,
+      title:arrClean(title),
+      startTime,
+      endTime,
+      location:"Bryne Frikyrkje",
+      description:arrClean(description || ""),
+      sourceUrl:sourceUrl || "https://brynefrikyrkje.no/",
+    });
+  }
+
+  async function addFromHtml(html, sourcePageUrl) {
     const linkRe = /<a\b[^>]*href=["']([^"']*\/kalender\/kalender-detalj\/calendar_event\/(\d+)[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
     let m;
     while ((m = linkRe.exec(html)) !== null) {
       const eventNo = String(m[2] || "").trim();
-      if (!eventNo || seen.has(eventNo)) continue;
       const label = arrClean(arrHtmlToLines(m[3]).replace(/\s+/g," "));
-      const dm = label.match(/^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?/i);
+      const dm = label.match(/^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i);
       if (!dm) continue;
 
-      const title = arrClean(dm[1]);
-      const day = Number(dm[3]);
       const month = ARR_NORWEGIAN_MONTHS[arrNormalize(dm[4])];
-      const year = Number(dm[5]);
-      const hour = Number(dm[6]);
-      const minute = Number(dm[7]);
-      if (!title || !month) continue;
-
-      seen.add(eventNo);
-      out.push({
-        sourceEventId:`bryne-${eventNo}`,
-        title,
-        startTime:arrOsloLocalIso(year,month,day,hour,minute,0),
-        endTime:dm[8] ? arrOsloLocalIso(year,month,day,Number(dm[8]),Number(dm[9]),0) : null,
-        location:"Bryne Frikyrkje",
-        description:"",
+      await addParsedEvent({
+        eventNo,
+        title:dm[1],
+        day:Number(dm[3]),
+        month,
+        year:Number(dm[5]),
+        hour:Number(dm[6]),
+        minute:Number(dm[7]),
+        endHour:dm[8] ? Number(dm[8]) : NaN,
+        endMinute:dm[9] ? Number(dm[9]) : NaN,
+        description:dm[10] || "",
         sourceUrl:`https://brynefrikyrkje.no/kalender/kalender-detalj/calendar_event/${eventNo}`,
       });
     }
 
     const lines = arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
     for (const line of lines) {
-      const dm = line.match(/^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})$/i);
+      const dm = line.match(/^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i);
       if (!dm) continue;
+
       const month = ARR_NORWEGIAN_MONTHS[arrNormalize(dm[4])];
-      if (!month) continue;
-      const title = arrClean(dm[1]);
-      const startTime = arrOsloLocalIso(Number(dm[5]),month,Number(dm[3]),Number(dm[6]),Number(dm[7]),0);
-      const fallbackKey = `bryne-fallback-${startTime}-${arrNormalize(title)}`;
-      if (seen.has(fallbackKey)) continue;
-      seen.add(fallbackKey);
-      out.push({sourceEventId:fallbackKey,title,startTime,endTime:null,location:"Bryne Frikyrkje",sourceUrl:sourcePageUrl});
+      await addParsedEvent({
+        title:dm[1],
+        day:Number(dm[3]),
+        month,
+        year:Number(dm[5]),
+        hour:Number(dm[6]),
+        minute:Number(dm[7]),
+        endHour:dm[8] ? Number(dm[8]) : NaN,
+        endMinute:dm[9] ? Number(dm[9]) : NaN,
+        description:dm[10] || "",
+        sourceUrl:sourcePageUrl,
+      });
     }
   }
 
   for (const sourcePageUrl of urls) {
     try {
       const html = await arrFetchText(sourcePageUrl);
-      addFromHtml(html, sourcePageUrl);
+      await addFromHtml(html, sourcePageUrl);
     } catch (_) {}
   }
 
-  if (!out.length) throw new Error("Bryne Frikyrkje-parser fant ingen arrangementer");
-  return arrDedupeParsed(out);
-}
+  if (!out.length) {
+    throw new Error("Bryne Frikyrkje-parser fant ingen arrangementer");
+  }
 
+  const result = arrDedupeParsed(out);
+  result._mergeOnly = true;
+  result._importNote = "Bryne Frikyrkje: offentlig Kommende hendelser-fallback; eksisterende usette rader beholdes.";
+  return result;
+}
 
 function arrCsvRows(csv) {
   const rows=[]; let row=[],cell="",quoted=false;
