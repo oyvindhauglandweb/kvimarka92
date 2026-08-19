@@ -441,9 +441,8 @@
   // Eksempel: https://din-worker.workers.dev/arrangementer/events
   // Dersom Worker-ruten ligger på samme domene, behold den relative URL-en.
   const API_BASE = "https://kvimarka92-api.oyvind-haugland.workers.dev";
-  const EVENTS_API = `${API_BASE}/arrangementer/events`;
-  const IMPORT_API = `${API_BASE}/arrangementer/import`;
-  const IMPORT_ALL_SEQUENTIAL_API = `${API_BASE}/arrangementer/import-all-sequential`;
+  const STATIC_EVENTS_URL = "./arrangementer-data.json";
+  const IMPORT_START_API = `${API_BASE}/arrangementer/import-start`;
 
   const FILTER_STORAGE_KEY = "arrangementer.filters.v1";
   const SNAPSHOT_STORAGE_KEY = "arrangementer.snapshot.v1";
@@ -671,9 +670,6 @@
   }
 
 
-  const IMPORT_PLAN_API = `${API_BASE}/arrangementer/import-plan`;
-  const VIGRESTAD_DEDUPE_API = `${API_BASE}/arrangementer/vigrestad-dedupe`;
-  const BACKEND_READINESS_API = `${API_BASE}/arrangementer/backend-readiness`;
   const VIGRESTAD_RECOVER_API = `${API_BASE}/arrangementer/vigrestad-recover`;
   const CONTACT_API = `${API_BASE}/arrangementer/contact`;
   // Testmodus: samme midlertidige nøkkel brukes for import og Baserow under utvikling.
@@ -1455,418 +1451,85 @@
         els.refreshBtn.disabled = true;
         els.refreshBtn.textContent = "Oppdaterer…";
         els.status.className = "status";
+        els.status.textContent = "Starter import i GitHub Actions…";
 
-        // V352: Readiness styrer tempoet i stedet for lange faste pauser.
-        // V351 viste at backend er frisk ved start, men kan bli 503 etter flere
-        // tunge kildeimporter. Derfor kontrolleres backend mellom kildene.
-        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        const startedAt = Date.now();
 
-        async function waitForBackend(label, maxChecks=5) {
-          for (let check=1; check<=maxChecks; check++) {
-            try {
-              const res = await fetch(BACKEND_READINESS_API, {
-                headers:{
-                  "Accept":"application/json",
-                  "x-import-key":IMPORT_KEY
-                },
-                cache:"no-store"
-              });
-              const data = await res.json().catch(() => ({}));
-              if (res.ok && data?.ok !== false) {
-                console.log(`Backend readiness (${label}):`, data);
-                return {ok:true,data,checks:check};
-              }
-            } catch (_) {}
-
-            if (check < maxChecks) {
-              els.status.className = "status";
-              els.status.textContent =
-                `Backend opptatt (${label}) – nytt kontrollforsøk om 3 sek…`;
-              await sleep(3000);
-            }
-          }
-          return {ok:false,checks:maxChecks};
-        }
-
-        els.status.textContent = "Kontrollerer backend før import…";
-        const initialReady = await waitForBackend("før import",3);
-        if (!initialReady.ok) {
-          throw new Error("Import avbrutt før oppstart: backend ble ikke tilgjengelig.");
-        }
-
-        els.status.textContent = "Henter importplan…";
-        const planRes = await fetch(IMPORT_PLAN_API, {
+        const startRes = await fetch(IMPORT_START_API, {
+          method:"POST",
           headers:{
             "Accept":"application/json",
             "x-import-key":IMPORT_KEY
           },
           cache:"no-store"
         });
-        if (planRes.status === 401) throw new Error("Importnøkkelen ble avvist (401).");
-        if (!planRes.ok) throw new Error(`Importplan HTTP ${planRes.status}`);
 
-        const plan = await planRes.json();
-        const sources = Array.isArray(plan.sources) ? plan.sources : [];
-        if (!sources.length) throw new Error("Ingen aktive arrangementskilder funnet.");
+        const startData = await startRes.json().catch(() => ({}));
 
-        const importResults = [];
-        let backendStopped = false;
-
-        for (let i=0; i<sources.length; i++) {
-          const source = sources[i];
-          const sourceId = String(source.sourceId || "").trim();
-          const label = source.name || sourceId || `Kilde ${i+1}`;
-          const importUrl = `${IMPORT_API}?sourceId=${encodeURIComponent(sourceId)}&cleanup=0`;
-
-          // Ikke gå videre før backend faktisk er klar.
-          const ready = await waitForBackend(`før ${label}`,5);
-          if (!ready.ok) {
-            backendStopped = true;
-            console.warn(`Backend kom ikke tilbake før ${label}. Importen stoppes.`);
-            break;
-          }
-
-          let finalResult = null;
-
-          for (let attempt=1; attempt<=2; attempt++) {
-            els.status.className = "status";
-            els.status.textContent =
-              `Oppdaterer ${i+1}/${sources.length}: ${label}` +
-              (attempt === 2 ? " – nytt forsøk…" : "…");
-
-            try {
-              const res = await fetch(importUrl, {
-                method:"POST",
-                headers:{
-                  "Accept":"application/json",
-                  "x-import-key":IMPORT_KEY
-                },
-                cache:"no-store"
-              });
-
-              if (res.status === 401) throw new Error("Importnøkkelen ble avvist (401).");
-
-              const raw = await res.text();
-              let data = {};
-              try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
-
-              const ok =
-                (res.ok || res.status === 207) &&
-                data?.ok !== false &&
-                Number(data?.failureCount || 0) === 0;
-
-              finalResult = {
-                ok,
-                sourceId,
-                sourceName:label,
-                status:res.status,
-                attempt,
-                data,
-                error:ok ? "" : (
-                  data?.error ||
-                  data?.results?.find?.(x => x && x.ok === false)?.error ||
-                  `HTTP ${res.status}`
-                )
-              };
-
-              if (ok) break;
-
-              // V354: En 503 på akkurat denne importen er ikke automatisk
-              // bevis på at hele backend er nede. Readiness har flere ganger
-              // vært 200 samtidig som en tung kilde ga 503.
-              //
-              // Vanlige 500/parserfeil avsluttes uten retry. 503 får ett nytt
-              // forsøk, men global stopp avgjøres først av readiness.
-              if (res.status !== 503) break;
-            } catch (error) {
-              const message = error?.message || String(error);
-              finalResult = {
-                ok:false,
-                sourceId,
-                sourceName:label,
-                status:0,
-                attempt,
-                error:message
-              };
-              // Failed to fetch kan være CORS-følgesymptom av 503.
-              // La readiness avgjøre om backend faktisk er nede.
-              if (!/failed to fetch/i.test(message)) break;
-            }
-
-            if (attempt === 1) {
-              const recovered = await waitForBackend(`etter feil på ${label}`,5);
-              if (!recovered.ok) {
-                backendStopped = true;
-                break;
-              }
-            } else {
-              // Etter andre 503/Failed to fetch: stopp bare hele importen dersom
-              // readiness faktisk også feiler. Ellers er dette en kilde-spesifikk
-              // tung import, og vi fortsetter med neste kilde.
-              const stillReady = await waitForBackend(`etter andre feil på ${label}`,3);
-              if (!stillReady.ok) {
-                backendStopped = true;
-                break;
-              }
-            }
-          }
-
-          if (finalResult) importResults.push(finalResult);
-          if (backendStopped) break;
-
-          // Kun en svært kort pust. Readiness-kontrollen bestemmer ellers tempoet.
-          if (i < sources.length - 1) await sleep(400);
-        }
-
-        const attemptedIds = new Set(importResults.map(r => r.sourceId));
-        for (const source of sources) {
-          const sourceId = String(source.sourceId || "");
-          if (!attemptedIds.has(sourceId)) {
-            importResults.push({
-              ok:false,
-              skipped:true,
-              sourceId,
-              sourceName:source.name || sourceId,
-              error:"Ikke forsøkt fordi backend ikke kom tilbake."
-            });
-          }
-        }
-
-        const failures = importResults.filter(x => !x.ok);
-        console.log("Backend-styrt kildeimport – første pass:", {
-          mode:"browser-sequential-v354-source-isolated-503-two-pass",
-          sourceCount:sources.length,
-          attemptedCount:importResults.filter(x => !x.skipped).length,
-          successCount:importResults.filter(x => x.ok).length,
-          failureCount:failures.length,
-          backendStopped,
-          results:importResults
-        });
-
-        // V353: Andre pass KUN for kildene som faktisk feilet i første pass.
-        // De 18 som allerede lyktes røres ikke igjen. Dette gir feilkildene en
-        // ny sjanse etter at hele hovedrunden er ferdig, uten å gjøre testtiden
-        // unødvendig lang.
-        if (!backendStopped) {
-          const failedFirstPass = importResults.filter(x => !x.ok && !x.skipped);
-
-          for (let retryIndex=0; retryIndex<failedFirstPass.length; retryIndex++) {
-            const previous = failedFirstPass[retryIndex];
-            const source = sources.find(s =>
-              String(s.sourceId || "") === String(previous.sourceId || "")
-            );
-            if (!source) continue;
-
-            const sourceId = String(source.sourceId || "").trim();
-            const label = source.name || sourceId;
-
-            const ready = await waitForBackend(`før nytt forsøk på ${label}`,5);
-            if (!ready.ok) {
-              backendStopped = true;
-              console.warn(`Backend kom ikke tilbake før nytt forsøk på ${label}.`);
-              break;
-            }
-
-            els.status.className = "status";
-            els.status.textContent =
-              `Nytt forsøk ${retryIndex+1}/${failedFirstPass.length}: ${label}…`;
-
-            let retryResult;
-
-            try {
-              const res = await fetch(
-                `${IMPORT_API}?sourceId=${encodeURIComponent(sourceId)}&cleanup=0`,
-                {
-                  method:"POST",
-                  headers:{
-                    "Accept":"application/json",
-                    "x-import-key":IMPORT_KEY
-                  },
-                  cache:"no-store"
-                }
-              );
-
-              if (res.status === 401) {
-                throw new Error("Importnøkkelen ble avvist (401).");
-              }
-
-              const raw = await res.text();
-              let data = {};
-              try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
-
-              const ok =
-                (res.ok || res.status === 207) &&
-                data?.ok !== false &&
-                Number(data?.failureCount || 0) === 0;
-
-              retryResult = {
-                ok,
-                sourceId,
-                sourceName:label,
-                status:res.status,
-                attempt:2,
-                data,
-                error:ok ? "" : (
-                  data?.error ||
-                  data?.results?.find?.(x => x && x.ok === false)?.error ||
-                  `HTTP ${res.status}`
-                )
-              };
-
-              if (res.status === 503) {
-                const stillReady = await waitForBackend(`etter 503 på ${label}`,3);
-                if (!stillReady.ok) backendStopped = true;
-              }
-            } catch (error) {
-              const message = error?.message || String(error);
-              retryResult = {
-                ok:false,
-                sourceId,
-                sourceName:label,
-                status:0,
-                attempt:2,
-                error:message
-              };
-              if (/failed to fetch/i.test(message)) {
-                const stillReady = await waitForBackend(`etter Failed to fetch på ${label}`,3);
-                if (!stillReady.ok) backendStopped = true;
-              }
-            }
-
-            // Erstatt første-pass-resultatet for denne kilden.
-            const idx = importResults.findIndex(x => x.sourceId === sourceId);
-            if (idx >= 0) importResults[idx] = retryResult;
-
-            if (backendStopped) break;
-
-            if (retryIndex < failedFirstPass.length - 1) {
-              await sleep(1500);
-            }
-          }
-        }
-
-        const finalFailures = importResults.filter(x => !x.ok);
-
-        console.log("Backend-styrt kildeimport – sluttresultat:", {
-          mode:"browser-sequential-v354-source-isolated-503-two-pass",
-          sourceCount:sources.length,
-          successCount:importResults.filter(x => x.ok).length,
-          failureCount:finalFailures.length,
-          backendStopped,
-          results:importResults
-        });
-
-        // Dedupe kjøres bare dersom ALLE aktive Vigrestad-kilder lyktes.
-        const vigrestadSources = sources.filter(s =>
-          String(s.name || "").toLowerCase().startsWith("vigrestad misjonshus")
-        );
-        const resultById = new Map(importResults.map(r => [r.sourceId,r]));
-        const allVigrestadSucceeded =
-          !backendStopped &&
-          vigrestadSources.length > 0 &&
-          vigrestadSources.every(s =>
-            resultById.get(String(s.sourceId || ""))?.ok === true
-          );
-
-        let dedupeText = "";
-        if (allVigrestadSucceeded) {
-          try {
-            const readyForDedupe = await waitForBackend("før Vigrestad-dedupe",5);
-            if (!readyForDedupe.ok) throw new Error("backend ble ikke tilgjengelig for dedupe");
-
-            els.status.className = "status";
-            els.status.textContent = "Kontrollerer Vigrestad-duplikater…";
-
-            const dedupeRes = await fetch(VIGRESTAD_DEDUPE_API, {
-              method:"POST",
-              headers:{
-                "Accept":"application/json",
-                "x-import-key":IMPORT_KEY
-              },
-              cache:"no-store"
-            });
-            const dedupeData = await dedupeRes.json().catch(() => ({}));
-            if (!dedupeRes.ok || dedupeData?.ok === false) {
-              throw new Error(dedupeData?.error || `HTTP ${dedupeRes.status}`);
-            }
-            console.log("Vigrestad-dedupe:", dedupeData);
-            dedupeText = ` Vigrestad: ${Number(dedupeData.deactivated || 0)} duplikatrader deaktivert.`;
-          } catch (error) {
-            dedupeText = ` Vigrestad-dedupe feilet: ${error?.message || error}.`;
-          }
-        } else {
-          dedupeText = " Vigrestad-dedupe ble hoppet over.";
-        }
-
-        if (backendStopped) {
-          // Ikke kall /events når vi allerede vet at backend er nede.
-          // Ytre catch viser sist lagrede snapshot direkte.
+        if (!startRes.ok || startData?.ok === false) {
           throw new Error(
-            `Backend ble utilgjengelig under import. ` +
-            `${importResults.filter(x => !x.skipped).length} av ${sources.length} kilder ble forsøkt.` +
-            dedupeText
+            startData?.error || `Kunne ikke starte import (HTTP ${startRes.status}).`
           );
         }
 
-        if (failures.length) {
-          const names = failures.filter(x => !x.skipped).map(x => x.sourceName).join(", ");
-          els.status.className = "status error";
-          els.status.textContent =
-            `Fullimport ferdig med ${failures.filter(x => !x.skipped).length} kildefeil` +
-            (names ? `: ${names}` : "") +
-            `. Eksisterende data for feilede kilder er beholdt.${dedupeText} Henter kalender…`;
-        } else {
-          els.status.className = "status";
-          els.status.textContent =
-            `Fullimport ferdig (${sources.length} av ${sources.length} kilder).` +
-            `${dedupeText} Henter kalender…`;
-        }
-      }
+        // Poll statisk snapshot. Ingen Cloudflare/Baserow-import skjer i nettleseren.
+        // Vi venter til generatedAt er nyere enn tidspunktet da importen ble startet.
+        const deadline = Date.now() + 4 * 60 * 1000;
+        let snapshot = null;
 
-      const loadedEvents = [];
-      let eventPage = 1;
-      const eventPageSize = 100;
-      let calendarLoadWarning = "";
+        while (Date.now() < deadline) {
+          els.status.textContent = "Import kjører i GitHub Actions – venter på nytt datasett…";
 
-      while (true) {
-        const pageUrl = `${EVENTS_API}?page=${eventPage}&size=${eventPageSize}`;
+          await new Promise(resolve => setTimeout(resolve, 5000));
 
-        let res;
-        try {
-          res = await fetch(pageUrl, {
-            headers:{"Accept":"application/json"},
-            cache:"no-store"
-          });
-        } catch (error) {
-          if (loadedEvents.length) {
-            calendarLoadWarning =
-              `Kalenderen ble delvis lastet. Henting stoppet på arrangementside ${eventPage}.`;
-            console.warn(calendarLoadWarning, error);
+          const pollRes = await fetch(
+            `${STATIC_EVENTS_URL}?t=${Date.now()}`,
+            { cache:"no-store" }
+          );
+
+          if (!pollRes.ok) continue;
+
+          const candidate = await pollRes.json().catch(() => null);
+          const generatedMs = new Date(candidate?.generatedAt || 0).getTime();
+
+          if (
+            candidate &&
+            Array.isArray(candidate.events) &&
+            Number.isFinite(generatedMs) &&
+            generatedMs >= startedAt - 2000
+          ) {
+            snapshot = candidate;
             break;
           }
-          throw error;
         }
 
+        if (!snapshot) {
+          throw new Error(
+            "Importen ble startet, men nytt snapshot var ikke publisert innen 4 minutter."
+          );
+        }
+
+        window.__arrangementerFreshSnapshot = snapshot;
+      }
+
+      const data = window.__arrangementerFreshSnapshot || await (async () => {
+        const res = await fetch(
+          `${STATIC_EVENTS_URL}?t=${Date.now()}`,
+          { cache:"no-store" }
+        );
         if (!res.ok) {
-          if (loadedEvents.length) {
-            calendarLoadWarning =
-              `Kalenderen ble delvis lastet. HTTP ${res.status} på arrangementside ${eventPage}.`;
-            console.warn(calendarLoadWarning);
-            break;
-          }
-          throw new Error(`HTTP ${res.status} ved henting av arrangementside ${eventPage}`);
+          throw new Error(`HTTP ${res.status} ved henting av arrangementer-data.json`);
         }
+        return await res.json();
+      })();
 
-        const data = await res.json();
-        loadedEvents.push(...(Array.isArray(data) ? data : data.events || []));
+      window.__arrangementerFreshSnapshot = null;
 
-        if (!data.hasMore || !data.nextPage) break;
-        eventPage = data.nextPage;
-
-        // Sikkerhetsstopp kun mot en faktisk feilaktig/uendelig paginering.
-        if (eventPage > 500) throw new Error("Uventet mange arrangementssider fra API.");
+      if (!data || !Array.isArray(data.events)) {
+        throw new Error("Ugyldig arrangementer-data.json");
       }
 
+      const loadedEvents = data.events;
       events = loadedEvents
         .filter(e => e.active !== false)
         .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
