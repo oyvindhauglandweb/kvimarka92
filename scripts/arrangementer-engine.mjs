@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v408-multi-area-sandnes-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v409-multi-area-sandnes-separate-token-2026-08-20";
 
 const ARR_AREAS = {
   default: {

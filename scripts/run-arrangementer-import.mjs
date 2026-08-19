@@ -14,6 +14,8 @@ import {
 
 const env = {
   ARRANGEMENT_BASEROW_TOKEN: process.env.ARRANGEMENT_BASEROW_TOKEN || "",
+  ARRANGEMENT_BASEROW_TOKEN_SANDNES:
+    process.env.ARRANGEMENT_BASEROW_TOKEN_SANDNES || "",
   BASEROW_API_BASE: process.env.BASEROW_API_BASE || "https://api.baserow.io"
 };
 
@@ -21,7 +23,26 @@ if (!env.ARRANGEMENT_BASEROW_TOKEN) {
   throw new Error("ARRANGEMENT_BASEROW_TOKEN mangler.");
 }
 
+if (!env.ARRANGEMENT_BASEROW_TOKEN_SANDNES) {
+  throw new Error("ARRANGEMENT_BASEROW_TOKEN_SANDNES mangler.");
+}
+
 const outputPath = process.env.ARRANGEMENT_DATA_PATH || "arrangementer-data.json";
+
+
+function envForArea(areaKey) {
+  if (areaKey === "sandnes") {
+    return {
+      ...env,
+      ARRANGEMENT_BASEROW_TOKEN: env.ARRANGEMENT_BASEROW_TOKEN_SANDNES
+    };
+  }
+
+  return {
+    ...env,
+    ARRANGEMENT_BASEROW_TOKEN: env.ARRANGEMENT_BASEROW_TOKEN
+  };
+}
 
 function linkedNames(linkValue, byRowId, byPublicId) {
   if (!Array.isArray(linkValue)) return [];
@@ -218,12 +239,13 @@ function dedupeVigrestadSnapshot(events) {
 
 async function readAreaSnapshotEvents(areaKey) {
   arrUseArea(areaKey);
+  const areaEnv = envForArea(areaKey);
 
   const [eventsRows, settlements, meetingTypes, sources] = await Promise.all([
-    arrListAllRows(env, ARR_TABLE.EVENTS),
-    arrListAllRows(env, ARR_TABLE.SETTLEMENTS),
-    arrListAllRows(env, ARR_TABLE.MEETING_TYPES),
-    arrListAllRows(env, ARR_TABLE.SOURCES)
+    arrListAllRows(areaEnv, ARR_TABLE.EVENTS),
+    arrListAllRows(areaEnv, ARR_TABLE.SETTLEMENTS),
+    arrListAllRows(areaEnv, ARR_TABLE.MEETING_TYPES),
+    arrListAllRows(areaEnv, ARR_TABLE.SOURCES)
   ]);
 
   const settlementNameByRowId = new Map();
@@ -374,15 +396,21 @@ console.log("Starter multi-area import: Felles + Sandnes...");
 // Importene kjøres sekvensielt. Det er bevisst:
 // ARR_TABLE/ARR_F peker på ett område om gangen, og sekvensiell kjøring
 // gjør områdebyttet deterministisk og enkelt å feilsøke.
-const defaultResult = await arrImportAllSources(env, {
-  cleanup: false,
-  area: "default"
-});
+const defaultResult = await arrImportAllSources(
+  envForArea("default"),
+  {
+    cleanup: false,
+    area: "default"
+  }
+);
 
-const sandnesResult = await arrImportAllSources(env, {
-  cleanup: false,
-  area: "sandnes"
-});
+const sandnesResult = await arrImportAllSources(
+  envForArea("sandnes"),
+  {
+    cleanup: false,
+    area: "sandnes"
+  }
+);
 
 const areaResults = [
   { key: "default", result: defaultResult },
