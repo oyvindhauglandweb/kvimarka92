@@ -29,6 +29,7 @@ jobs:
       - name: Import arrangementer
         env:
           ARRANGEMENT_BASEROW_TOKEN: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN }}
+          ARRANGEMENT_BASEROW_TOKEN_SANDNES: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_SANDNES }}
           BASEROW_API_BASE: https://api.baserow.io
           ARRANGEMENT_DATA_PATH: arrangementer-data.json
         run: node scripts/run-arrangementer-import.mjs
