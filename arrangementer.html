@@ -673,6 +673,7 @@
 
   const IMPORT_PLAN_API = `${API_BASE}/arrangementer/import-plan`;
   const VIGRESTAD_DEDUPE_API = `${API_BASE}/arrangementer/vigrestad-dedupe`;
+  const BACKEND_READINESS_API = `${API_BASE}/arrangementer/backend-readiness`;
   const VIGRESTAD_RECOVER_API = `${API_BASE}/arrangementer/vigrestad-recover`;
   const CONTACT_API = `${API_BASE}/arrangementer/contact`;
   // Testmodus: samme midlertidige nøkkel brukes for import og Baserow under utvikling.
@@ -1455,14 +1456,32 @@
         els.refreshBtn.textContent = "Oppdaterer…";
         els.status.className = "status";
 
-        // V350: Recovery er allerede gjennomført (167 rader ble reaktivert).
-        // Den kjøres IKKE automatisk igjen, ellers ville en senere korrekt
-        // dedupe bare blitt opphevet ved neste oppdatering.
-        //
-        // Kildeimporten er enkel og rask: én separat Worker-request per kilde,
-        // ett forsøk, 1 sekund mellom kildene. Ingen purge.
-        els.status.textContent = "Henter importplan…";
+        // V351: Circuit breaker. Ikke start 26 kildeimporter dersom
+        // backend allerede svarer 500/503.
+        els.status.textContent = "Kontrollerer backend før import…";
 
+        let readiness;
+        try {
+          const readyRes = await fetch(BACKEND_READINESS_API, {
+            headers:{
+              "Accept":"application/json",
+              "x-import-key":IMPORT_KEY
+            },
+            cache:"no-store"
+          });
+          readiness = await readyRes.json().catch(() => ({}));
+          if (!readyRes.ok || readiness?.ok === false) {
+            throw new Error(readiness?.error || `Backend HTTP ${readyRes.status}`);
+          }
+        } catch(error) {
+          throw new Error(
+            `Import avbrutt før oppstart: backend er ikke tilgjengelig (${error?.message || error}).`
+          );
+        }
+
+        console.log("Backend readiness:", readiness);
+
+        els.status.textContent = "Henter importplan…";
         const planRes = await fetch(IMPORT_PLAN_API, {
           headers:{
             "Accept":"application/json",
@@ -1471,12 +1490,8 @@
           cache:"no-store"
         });
 
-        if (planRes.status === 401) {
-          throw new Error("Importnøkkelen ble avvist (401).");
-        }
-        if (!planRes.ok) {
-          throw new Error(`Importplan HTTP ${planRes.status}`);
-        }
+        if (planRes.status === 401) throw new Error("Importnøkkelen ble avvist (401).");
+        if (!planRes.ok) throw new Error(`Importplan HTTP ${planRes.status}`);
 
         const plan = await planRes.json();
         const sources = Array.isArray(plan.sources) ? plan.sources : [];
@@ -1484,6 +1499,7 @@
 
         const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
         const importResults = [];
+        let circuitBroken = false;
 
         for (let i=0; i<sources.length; i++) {
           const source = sources[i];
@@ -1493,11 +1509,9 @@
             `${IMPORT_API}?sourceId=${encodeURIComponent(sourceId)}&cleanup=0`;
 
           els.status.className = "status";
-          els.status.textContent =
-            `Oppdaterer ${i+1}/${sources.length}: ${label}…`;
+          els.status.textContent = `Oppdaterer ${i+1}/${sources.length}: ${label}…`;
 
           let result;
-
           try {
             const res = await fetch(importUrl, {
               method:"POST",
@@ -1508,9 +1522,7 @@
               cache:"no-store"
             });
 
-            if (res.status === 401) {
-              throw new Error("Importnøkkelen ble avvist (401).");
-            }
+            if (res.status === 401) throw new Error("Importnøkkelen ble avvist (401).");
 
             const raw = await res.text();
             let data = {};
@@ -1533,45 +1545,70 @@
                 `HTTP ${res.status}`
               )
             };
+
+            if (res.status === 503) circuitBroken = true;
           } catch (error) {
+            const message = error?.message || String(error);
             result = {
               ok:false,
               sourceId,
               sourceName:label,
-              error:error?.message || String(error)
+              status:0,
+              error:message
             };
+            if (/failed to fetch/i.test(message)) circuitBroken = true;
           }
 
           importResults.push(result);
 
-          if (i < sources.length - 1) {
-            await sleep(1000);
+          if (circuitBroken) {
+            console.warn(
+              `Circuit breaker stoppet importen etter ${label}. Backend/plattform ga 503/Failed to fetch.`
+            );
+            break;
+          }
+
+          if (i < sources.length - 1) await sleep(1000);
+        }
+
+        const attemptedIds = new Set(importResults.map(r => r.sourceId));
+        for (const source of sources) {
+          const sourceId = String(source.sourceId || "");
+          if (!attemptedIds.has(sourceId)) {
+            importResults.push({
+              ok:false,
+              skipped:true,
+              sourceId,
+              sourceName:source.name || sourceId,
+              error:"Ikke forsøkt fordi circuit breaker stoppet importen."
+            });
           }
         }
 
         const failures = importResults.filter(x => !x.ok);
 
-        console.log("Stabil kilde-for-kilde-import:", {
-          mode:"browser-sequential-v350-one-attempt-1s",
+        console.log("Circuit-breaker kildeimport:", {
+          mode:"browser-sequential-v351-circuit-breaker",
           sourceCount:sources.length,
-          successCount:importResults.length - failures.length,
+          attemptedCount:importResults.filter(x => !x.skipped).length,
+          successCount:importResults.filter(x => x.ok).length,
           failureCount:failures.length,
+          circuitBroken,
           results:importResults
         });
 
-        // Dedupe kjøres KUN dersom alle aktive Vigrestad-kilder lykkes.
         const vigrestadSources = sources.filter(s =>
           String(s.name || "").toLowerCase().startsWith("vigrestad misjonshus")
         );
         const resultById = new Map(importResults.map(r => [r.sourceId,r]));
         const allVigrestadSucceeded =
+          !circuitBroken &&
           vigrestadSources.length > 0 &&
           vigrestadSources.every(s =>
             resultById.get(String(s.sourceId || ""))?.ok === true
           );
 
         let dedupeText = "";
-
         if (allVigrestadSucceeded) {
           try {
             els.status.className = "status";
@@ -1595,16 +1632,19 @@
             dedupeText =
               ` Vigrestad: ${Number(dedupeData.deactivated || 0)} duplikatrader deaktivert.`;
           } catch (error) {
-            console.warn("Vigrestad-dedupe feilet:", error);
-            dedupeText =
-              ` Vigrestad-dedupe feilet: ${error?.message || error}.`;
+            dedupeText = ` Vigrestad-dedupe feilet: ${error?.message || error}.`;
           }
         } else {
-          dedupeText =
-            " Vigrestad-dedupe ble hoppet over fordi ikke alle Vigrestad-kildene lyktes.";
+          dedupeText = " Vigrestad-dedupe ble hoppet over.";
         }
 
-        if (failures.length) {
+        if (circuitBroken) {
+          els.status.className = "status error";
+          els.status.textContent =
+            `Importen ble stoppet tidlig fordi backend/plattform svarte 503 eller Failed to fetch. ` +
+            `${importResults.filter(x => !x.skipped).length} av ${sources.length} kilder ble forsøkt. ` +
+            `Eksisterende data er beholdt.${dedupeText} Henter kalender…`;
+        } else if (failures.length) {
           const names = failures.map(x => x.sourceName).join(", ");
           els.status.className = "status error";
           els.status.textContent =
