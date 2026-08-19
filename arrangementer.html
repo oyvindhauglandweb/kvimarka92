@@ -1618,12 +1618,119 @@
         }
 
         const failures = importResults.filter(x => !x.ok);
-        console.log("Backend-styrt kildeimport:", {
-          mode:"browser-sequential-v352-readiness-driven",
+        console.log("Backend-styrt kildeimport – første pass:", {
+          mode:"browser-sequential-v353-readiness-driven-two-pass",
           sourceCount:sources.length,
           attemptedCount:importResults.filter(x => !x.skipped).length,
           successCount:importResults.filter(x => x.ok).length,
           failureCount:failures.length,
+          backendStopped,
+          results:importResults
+        });
+
+        // V353: Andre pass KUN for kildene som faktisk feilet i første pass.
+        // De 18 som allerede lyktes røres ikke igjen. Dette gir feilkildene en
+        // ny sjanse etter at hele hovedrunden er ferdig, uten å gjøre testtiden
+        // unødvendig lang.
+        if (!backendStopped) {
+          const failedFirstPass = importResults.filter(x => !x.ok && !x.skipped);
+
+          for (let retryIndex=0; retryIndex<failedFirstPass.length; retryIndex++) {
+            const previous = failedFirstPass[retryIndex];
+            const source = sources.find(s =>
+              String(s.sourceId || "") === String(previous.sourceId || "")
+            );
+            if (!source) continue;
+
+            const sourceId = String(source.sourceId || "").trim();
+            const label = source.name || sourceId;
+
+            const ready = await waitForBackend(`før nytt forsøk på ${label}`,5);
+            if (!ready.ok) {
+              backendStopped = true;
+              console.warn(`Backend kom ikke tilbake før nytt forsøk på ${label}.`);
+              break;
+            }
+
+            els.status.className = "status";
+            els.status.textContent =
+              `Nytt forsøk ${retryIndex+1}/${failedFirstPass.length}: ${label}…`;
+
+            let retryResult;
+
+            try {
+              const res = await fetch(
+                `${IMPORT_API}?sourceId=${encodeURIComponent(sourceId)}&cleanup=0`,
+                {
+                  method:"POST",
+                  headers:{
+                    "Accept":"application/json",
+                    "x-import-key":IMPORT_KEY
+                  },
+                  cache:"no-store"
+                }
+              );
+
+              if (res.status === 401) {
+                throw new Error("Importnøkkelen ble avvist (401).");
+              }
+
+              const raw = await res.text();
+              let data = {};
+              try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
+
+              const ok =
+                (res.ok || res.status === 207) &&
+                data?.ok !== false &&
+                Number(data?.failureCount || 0) === 0;
+
+              retryResult = {
+                ok,
+                sourceId,
+                sourceName:label,
+                status:res.status,
+                attempt:2,
+                data,
+                error:ok ? "" : (
+                  data?.error ||
+                  data?.results?.find?.(x => x && x.ok === false)?.error ||
+                  `HTTP ${res.status}`
+                )
+              };
+
+              if (res.status === 503) backendStopped = true;
+            } catch (error) {
+              const message = error?.message || String(error);
+              retryResult = {
+                ok:false,
+                sourceId,
+                sourceName:label,
+                status:0,
+                attempt:2,
+                error:message
+              };
+              if (/failed to fetch/i.test(message)) backendStopped = true;
+            }
+
+            // Erstatt første-pass-resultatet for denne kilden.
+            const idx = importResults.findIndex(x => x.sourceId === sourceId);
+            if (idx >= 0) importResults[idx] = retryResult;
+
+            if (backendStopped) break;
+
+            if (retryIndex < failedFirstPass.length - 1) {
+              await sleep(1500);
+            }
+          }
+        }
+
+        const finalFailures = importResults.filter(x => !x.ok);
+
+        console.log("Backend-styrt kildeimport – sluttresultat:", {
+          mode:"browser-sequential-v353-readiness-driven-two-pass",
+          sourceCount:sources.length,
+          successCount:importResults.filter(x => x.ok).length,
+          failureCount:finalFailures.length,
           backendStopped,
           results:importResults
         });
