@@ -673,6 +673,7 @@
 
   const IMPORT_PLAN_API = `${API_BASE}/arrangementer/import-plan`;
   const VIGRESTAD_DEDUPE_API = `${API_BASE}/arrangementer/vigrestad-dedupe`;
+  const VIGRESTAD_RECOVER_API = `${API_BASE}/arrangementer/vigrestad-recover`;
   const CONTACT_API = `${API_BASE}/arrangementer/contact`;
   // Testmodus: samme midlertidige nøkkel brukes for import og Baserow under utvikling.
   const IMPORT_KEY = "oD0likwHw5ZpGJsNtRXg6eRp9jN7C9FR";
@@ -1454,51 +1455,12 @@
         els.refreshBtn.textContent = "Oppdaterer…";
         els.status.className = "status";
 
-        // V348: Ekte rollback til V334-importarkitekturen.
-        //
-        // Nettleseren starter KUN ett Worker-kall. Workeren kjører så den
-        // opprinnelige V334-sekvensen internt via /import-all-sequential.
-        // Ingen 26 browser-kall, ingen browser-throttling og ingen purge først.
-        els.status.textContent = "Starter sekvensiell fullimport…";
-
-        const importRes = await fetch(IMPORT_ALL_SEQUENTIAL_API, {
-          method:"POST",
-          headers:{
-            "Accept":"application/json",
-            "x-import-key":IMPORT_KEY
-          },
-          cache:"no-store"
-        });
-
-        if (importRes.status === 401) {
-          throw new Error("Importnøkkelen ble avvist (401).");
-        }
-
-        const importData = await importRes.json().catch(() => ({}));
-
-        if (!importRes.ok && importRes.status !== 207) {
-          throw new Error(
-            `Sekvensiell fullimport HTTP ${importRes.status}` +
-            (importData.error ? `: ${importData.error}` : "")
-          );
-        }
-
-        console.log("V334 sekvensiell arrangement-import:", importData);
-
-        const failures = Array.isArray(importData.results)
-          ? importData.results.filter(x => !x?.ok)
-          : [];
-
-        // Vigrestad-dedupe kjøres ÉN gang, separat etter fullimporten.
-        // Feiler dette kallet, slettes/deaktiveres ingenting av dedupe-logikken.
-        let vigrestadDedupeResult = null;
-        let vigrestadDedupeWarning = "";
+        // V349 RECOVERY: Gjenopprett først Vigrestad-rader som tidligere
+        // dedupe-versjon satte Active=false. Ingen fysisk sletting har skjedd.
+        els.status.textContent = "Gjenoppretter Vigrestad-data fra forrige test…";
 
         try {
-          els.status.className = "status";
-          els.status.textContent = "Kontrollerer Vigrestad-duplikater…";
-
-          const dedupeRes = await fetch(VIGRESTAD_DEDUPE_API, {
+          const recoverRes = await fetch(VIGRESTAD_RECOVER_API, {
             method:"POST",
             headers:{
               "Accept":"application/json",
@@ -1506,43 +1468,202 @@
             },
             cache:"no-store"
           });
-
-          const dedupeData = await dedupeRes.json().catch(() => ({}));
-
-          if (dedupeRes.ok && dedupeData?.ok !== false) {
-            vigrestadDedupeResult = dedupeData;
-            console.log("Vigrestad-dedupe:", dedupeData);
-          } else {
-            vigrestadDedupeWarning =
-              dedupeData?.error || `HTTP ${dedupeRes.status}`;
-            console.warn("Vigrestad-dedupe feilet:", vigrestadDedupeWarning);
+          const recoverData = await recoverRes.json().catch(() => ({}));
+          if (!recoverRes.ok || recoverData?.ok === false) {
+            throw new Error(recoverData?.error || `HTTP ${recoverRes.status}`);
           }
+          console.log("Vigrestad recovery:", recoverData);
         } catch (error) {
-          vigrestadDedupeWarning =
-            String(error?.message || error || "Failed to fetch");
-          console.warn("Vigrestad-dedupe feilet:", vigrestadDedupeWarning);
+          // Recovery skal være fail-safe. Ikke fortsett med import dersom vi
+          // ikke vet at de tidligere deaktiverte radene er tilbake.
+          throw new Error(
+            `Vigrestad recovery feilet: ${error?.message || error}`
+          );
         }
 
-        const dedupeText = vigrestadDedupeResult
-          ? ` Vigrestad: ${Number(vigrestadDedupeResult.deactivated || 0)} duplikatrader deaktivert.`
-          : (vigrestadDedupeWarning
-              ? ` Vigrestad-dedupe feilet: ${vigrestadDedupeWarning}.`
-              : "");
+        // Tilbake til den browser-sekvensielle arkitekturen som var i bruk
+        // før self-fetch/import-all-grenen. Én separat Worker-request per kilde.
+        // Ingen purge før import.
+        els.status.textContent = "Henter importplan…";
+
+        const planRes = await fetch(IMPORT_PLAN_API, {
+          headers:{
+            "Accept":"application/json",
+            "x-import-key":IMPORT_KEY
+          },
+          cache:"no-store"
+        });
+
+        if (planRes.status === 401) {
+          throw new Error("Importnøkkelen ble avvist (401).");
+        }
+        if (!planRes.ok) {
+          throw new Error(`Importplan HTTP ${planRes.status}`);
+        }
+
+        const plan = await planRes.json();
+        const sources = Array.isArray(plan.sources) ? plan.sources : [];
+        if (!sources.length) throw new Error("Ingen aktive arrangementskilder funnet.");
+
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        const importResults = [];
+
+        for (let i=0; i<sources.length; i++) {
+          const source = sources[i];
+          const sourceId = String(source.sourceId || "").trim();
+          const label = source.name || sourceId || `Kilde ${i+1}`;
+          const importUrl =
+            `${IMPORT_API}?sourceId=${encodeURIComponent(sourceId)}&cleanup=0`;
+
+          let result = null;
+          let lastError = "";
+          let lastStatus = 0;
+
+          // Maks to forsøk. Dette er vesentlig kortere enn den gamle
+          // 30/60-sekunders retry-kjeden.
+          for (let attempt=1; attempt<=2; attempt++) {
+            els.status.className = "status";
+            els.status.textContent =
+              `Oppdaterer ${i+1}/${sources.length}: ${label}` +
+              (attempt > 1 ? " – forsøk 2/2…" : "…");
+
+            try {
+              const res = await fetch(importUrl, {
+                method:"POST",
+                headers:{
+                  "Accept":"application/json",
+                  "x-import-key":IMPORT_KEY
+                },
+                cache:"no-store"
+              });
+
+              lastStatus = res.status;
+              if (res.status === 401) {
+                throw new Error("Importnøkkelen ble avvist (401).");
+              }
+
+              const raw = await res.text();
+              let data = {};
+              try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
+
+              const ok =
+                (res.ok || res.status === 207) &&
+                data?.ok !== false &&
+                Number(data?.failureCount || 0) === 0;
+
+              if (ok) {
+                result = {
+                  ok:true,
+                  sourceId,
+                  sourceName:label,
+                  attempt,
+                  status:res.status,
+                  data
+                };
+                break;
+              }
+
+              lastError =
+                data?.error ||
+                data?.results?.find?.(x => x && x.ok === false)?.error ||
+                `HTTP ${res.status}`;
+            } catch (error) {
+              lastError = error?.message || String(error);
+            }
+
+            if (attempt < 2) {
+              els.status.textContent =
+                `${label} feilet – nytt forsøk om 10 sek…`;
+              await sleep(10000);
+            }
+          }
+
+          if (!result) {
+            result = {
+              ok:false,
+              sourceId,
+              sourceName:label,
+              status:lastStatus,
+              error:lastError || "Import feilet"
+            };
+          }
+
+          importResults.push(result);
+
+          // Moderat avlastning: 5 s normalt, 15 s etter feil.
+          // Etter hver femte kilde minimum 15 s.
+          if (i < sources.length - 1) {
+            const endOfGroup = (i + 1) % 5 === 0;
+            const pauseMs = (!result.ok || endOfGroup) ? 15000 : 5000;
+            els.status.textContent =
+              `${label} ${result.ok ? "ferdig" : "feilet"} – neste kilde om ${pauseMs/1000} sek…`;
+            await sleep(pauseMs);
+          }
+        }
+
+        const failures = importResults.filter(x => !x.ok);
+        console.log("Rollback kilde-for-kilde-import:", {
+          mode:"browser-sequential-v334-recovery",
+          sourceCount:sources.length,
+          successCount:importResults.length - failures.length,
+          failureCount:failures.length,
+          results:importResults
+        });
+
+        // Dedupe får BARE lov å kjøre dersom ALLE aktive Vigrestad-kilder
+        // i importplanen faktisk lyktes i denne importen.
+        const vigrestadSources = sources.filter(s =>
+          String(s.name || "").toLowerCase().startsWith("vigrestad misjonshus")
+        );
+        const resultById = new Map(importResults.map(r => [r.sourceId,r]));
+        const allVigrestadSucceeded =
+          vigrestadSources.length > 0 &&
+          vigrestadSources.every(s => resultById.get(String(s.sourceId || ""))?.ok === true);
+
+        let dedupeText = "";
+
+        if (allVigrestadSucceeded) {
+          try {
+            els.status.className = "status";
+            els.status.textContent = "Kontrollerer Vigrestad-duplikater…";
+
+            const dedupeRes = await fetch(VIGRESTAD_DEDUPE_API, {
+              method:"POST",
+              headers:{
+                "Accept":"application/json",
+                "x-import-key":IMPORT_KEY
+              },
+              cache:"no-store"
+            });
+
+            const dedupeData = await dedupeRes.json().catch(() => ({}));
+            if (!dedupeRes.ok || dedupeData?.ok === false) {
+              throw new Error(dedupeData?.error || `HTTP ${dedupeRes.status}`);
+            }
+
+            console.log("Vigrestad-dedupe:", dedupeData);
+            dedupeText =
+              ` Vigrestad: ${Number(dedupeData.deactivated || 0)} duplikatrader deaktivert.`;
+          } catch (error) {
+            console.warn("Vigrestad-dedupe feilet:", error);
+            dedupeText =
+              ` Vigrestad-dedupe feilet og gjorde ingen tilsiktet endring: ${error?.message || error}.`;
+          }
+        } else {
+          dedupeText =
+            " Vigrestad-dedupe ble hoppet over fordi ikke alle Vigrestad-kildene lyktes.";
+        }
 
         if (failures.length) {
-          const names = failures
-            .map(x => x.sourceName || x.sourceId || "Ukjent kilde")
-            .join(", ");
-
+          const names = failures.map(x => x.sourceName).join(", ");
           els.status.className = "status error";
           els.status.textContent =
             `Fullimport ferdig med ${failures.length} kildefeil: ${names}. ` +
-            `Eksisterende data for feilede kilder er beholdt.${dedupeText} ` +
-            `Henter kalender…`;
+            `Eksisterende data for feilede kilder er beholdt.${dedupeText} Henter kalender…`;
         } else {
           els.status.className = "status";
           els.status.textContent =
-            `Fullimport ferdig (${Number(importData.successCount || importData.sourceCount || 0)} kilder).` +
+            `Fullimport ferdig (${sources.length} av ${sources.length} kilder).` +
             `${dedupeText} Henter kalender…`;
         }
       }
