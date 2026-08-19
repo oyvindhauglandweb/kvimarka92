@@ -1,0 +1,1781 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Arrangementer – Kvimarka 92</title>
+  <style>
+    :root {
+      --bg:#111;
+      --panel:#1e1e1e;
+      --panel-2:#243238;
+      --text:#f4f4f4;
+      --muted:#b7c0c4;
+      --line:#34383b;
+      --accent:#61d6ff;
+      --danger:#ff8c8c;
+      --shadow:0 8px 24px rgba(0,0,0,.18);
+      color-scheme:dark;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    body{padding:28px 18px 56px}
+    a{color:var(--accent)}
+    .wrap{width:min(1180px,100%);margin:0 auto}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}
+    .brand{text-align:right;margin-left:auto}
+    .brand h1{margin:0;font-size:32px;line-height:1.05}
+    .brand p{margin:7px 0 0;color:#d9d9d9;font-size:15px}
+    .brand a{color:inherit;text-decoration:none}
+    .page-title{margin:18px 0 8px;font-size:28px}
+    .lead{margin:0 0 20px;color:var(--muted);line-height:1.5;text-align:center}
+
+    .toolbar{display:grid;grid-template-columns:1.2fr repeat(3,minmax(150px,.7fr)) auto;gap:10px;align-items:end;background:var(--panel);padding:14px;border-radius:10px;box-shadow:var(--shadow);border:1px solid #242424}
+    .field label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}
+    input,select,button{font:inherit}
+    input,select{width:100%;height:42px;border-radius:7px;border:1px solid #40464a;background:#16191b;color:var(--text);padding:0 11px;outline:none}
+    input:focus,select:focus{border-color:var(--accent)}
+    button{height:42px;border:0;border-radius:7px;background:var(--panel-2);color:var(--text);padding:0 14px;cursor:pointer;font-weight:700}
+    button:hover{filter:brightness(1.12)}
+    .view-buttons{display:flex;gap:6px}
+    .view-buttons button{min-width:76px}
+    .view-buttons button.active{color:var(--accent);outline:1px solid #375968}
+
+    .organizer-custom{display:none;position:relative}
+    .organizer-custom-button{width:100%;height:42px;border-radius:7px;border:1px solid #40464a;background:#16191b;color:var(--text);padding:0 36px 0 11px;text-align:left;position:relative;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .organizer-custom-button::after{content:"⌄";position:absolute;right:11px;top:50%;transform:translateY(-53%);font-size:21px;color:#ddd}
+    .organizer-custom.open .organizer-custom-button{border-color:var(--accent)}
+    .organizer-custom-menu{display:none;position:absolute;z-index:50;left:0;right:0;top:calc(100% + 5px);max-height:320px;overflow:auto;background:#191b1c;border:1px solid #485158;border-radius:9px;box-shadow:0 14px 35px rgba(0,0,0,.55);padding:5px}
+    .organizer-custom.open .organizer-custom-menu{display:block}
+    .organizer-custom-option{width:100%;min-height:42px;height:auto;background:transparent;border:0;border-radius:6px;text-align:left;padding:8px 10px;font-weight:700;line-height:1.25;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    .organizer-custom-option:hover,.organizer-custom-option.selected{background:#272b2d}
+
+    .status{min-height:24px;margin:14px 2px 8px;color:var(--muted);font-size:14px}
+    .status.error{color:var(--danger)}
+
+    .list{display:flex;flex-direction:column;gap:18px}
+    .day-group{background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+    .day-heading{padding:12px 15px;background:#181a1b;border-bottom:1px solid var(--line);font-weight:800;text-transform:capitalize}
+    .event{
+      display:grid;
+      grid-template-columns:110px minmax(0,1fr);
+      gap:8px 14px;
+      padding:14px 15px;
+      border-bottom:1px solid var(--line);
+      align-items:start
+    }
+    .event>.time{grid-column:1;grid-row:1}
+    .event>.event-body{grid-column:2;grid-row:1}
+    .event>.event-actions{
+      grid-column:1/-1;
+      grid-row:2;
+      justify-self:end;
+      align-self:start;
+      margin-top:2px;
+    }
+    .event:last-child{border-bottom:0}
+    .time{font-size:17px;font-weight:800;white-space:nowrap;color:var(--organizer-color,var(--text))}
+    .event-title{font-weight:800;font-size:17px;margin-bottom:5px;color:var(--organizer-color,var(--text))}
+    .event-meta{display:flex;gap:7px 13px;flex-wrap:wrap;color:var(--muted);font-size:14px;line-height:1.4}
+    .event-body{min-width:0}
+    .event-main{min-width:0}
+    .event-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;white-space:nowrap}
+    .tags{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+    .tag{display:inline-flex;align-items:center;min-height:25px;padding:2px 8px;border-radius:999px;background:#263338;border:1px solid #34464d;color:#dff6ff;font-size:12px}
+    .event-desc{margin-top:8px;color:#d3d3d3;font-size:14px;line-height:1.45;white-space:pre-line}
+    .source-link{white-space:nowrap;font-size:13px;text-decoration:none;border:0;padding:0;color:#dff6ff;opacity:.92}
+
+    .calendar{display:none;background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+    .calendar.active{display:block}
+    .list.hidden{display:none}
+    .cal-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+    .cal-title{font-size:19px;font-weight:800;text-transform:capitalize}
+    .cal-nav{display:flex;gap:6px}
+    .cal-nav button{height:34px;padding:0 11px}
+    .cal-months{display:flex;flex-direction:column}
+    .cal-month{border-top:1px solid var(--line)}
+    .cal-month:first-child{border-top:0}
+    .cal-month-title{padding:12px 14px;font-size:18px;font-weight:800;text-transform:capitalize;background:#181a1b;border-bottom:1px solid var(--line)}
+    .weekdays,.cal-month-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+    .weekdays div{padding:9px 6px;text-align:center;color:var(--muted);font-size:12px;border-right:1px solid var(--line)}
+    .weekdays div:last-child{border-right:0}
+    .cal-day{min-height:118px;border-top:1px solid var(--line);border-right:1px solid var(--line);padding:7px;overflow:hidden}
+    .cal-day:nth-child(7n){border-right:0}
+    .cal-day.outside{opacity:.42}
+    .cal-day.today .date-no{color:var(--accent)}
+    .date-no{font-size:12px;font-weight:800;margin-bottom:5px}
+    .cal-event{display:block;background:var(--organizer-bg,#263338);border-left:4px solid var(--organizer-border,#5aa9c3);color:var(--organizer-text,#fff);border-radius:4px;padding:4px 5px;margin:4px 0;font-size:11px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default}
+    .empty{text-align:center;color:var(--muted);padding:42px 16px;background:var(--panel);border-radius:10px;border:1px solid #242424}
+
+    @media (max-width:900px){
+      .toolbar{grid-template-columns:1fr 1fr}
+      .search-field{grid-column:1/-1}
+      .view-buttons{justify-content:flex-start}
+      .event{grid-template-columns:100px 1fr}
+      .source-link{grid-column:2;justify-self:start}
+    }
+    @media (max-width:620px){
+      body{padding:18px 10px 40px}
+      .topbar{display:block}
+      .brand{text-align:left}
+      .brand h1{font-size:27px}
+      .toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+      .search-field{grid-column:1/-1}
+      .view-buttons{grid-column:1/-1}
+      .view-buttons button{flex:1;min-width:0;padding:0 9px}
+      .organizer-native{display:none}
+      .organizer-custom{display:block}
+      .event{
+        grid-template-columns:auto minmax(0,1fr);
+        gap:5px 10px;
+        align-items:start;
+      }
+      .time{
+        grid-column:1;
+        grid-row:1;
+        font-size:15px;
+        align-self:start;
+      }
+      .event-body{
+        grid-column:2;
+        grid-row:1;
+        min-width:0;
+      }
+      .event-actions{
+        grid-column:1/-1;
+        grid-row:2;
+        justify-self:end;
+        align-self:start;
+        gap:14px;
+        margin-top:3px;
+      }
+      .event-title{margin-bottom:4px}
+      .event-meta{
+        flex-wrap:nowrap;
+        gap:7px 12px;
+        font-size:13px;
+        line-height:1.3;
+      }
+      .event-desc{margin-top:6px}
+      .source-link{font-size:12px}
+      .tag{font-size:11px;min-height:23px;padding:2px 7px}
+      .calendar{overflow-x:auto}
+      .weekdays,.cal-month-grid{min-width:720px}
+    }
+
+    /* V319 – standard toppmeny, light mode og favoritter */
+    :root{
+      --input-bg:#16191b;
+      --input-border:#40464a;
+      --heading-bg:#181a1b;
+      --dropdown-bg:#191b1c;
+      --dropdown-hover:#272b2d;
+      --soft-border:#242424;
+      --button-border:#3a454a;
+      --favorite-bg:#20282b;
+      --favorite-active:#2d4149;
+    }
+    html[data-theme="light"]{
+      --bg:#eceff1;
+      --panel:#f4f5f6;
+      --panel-2:#e3e7e9;
+      --text:#16191b;
+      --muted:#5f6a70;
+      --line:#d8dde0;
+      --accent:#087ca7;
+      --danger:#b42318;
+      --shadow:0 6px 18px rgba(0,0,0,.09);
+      --input-bg:#eef1f2;
+      --input-border:#b5c0c5;
+      --heading-bg:#e6eaec;
+      --dropdown-bg:#eef1f2;
+      --dropdown-hover:#eef2f4;
+      --soft-border:#dfe4e6;
+      --button-border:#bac6cb;
+      --favorite-bg:#e8edef;
+      --favorite-active:#d7e7ed;
+      color-scheme:light;
+    }
+
+    .page-head{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      margin-bottom:12px;
+      text-align:center;
+    }
+    .page-head .page-title{margin:0;text-align:center}
+    .top-menu{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;width:100%}
+    .square-btn{
+      width:46px;height:46px;min-width:46px;padding:0;border-radius:7px;
+      border:1px solid var(--button-border);background:var(--panel-2);color:var(--text);
+      display:inline-flex;align-items:center;justify-content:center;font-size:21px;
+      line-height:1;box-shadow:none;
+    }
+    .square-btn.active{color:var(--accent);outline:1px solid var(--accent)}
+    .square-btn.favorite-on{color:var(--text)}
+    .square-btn:disabled{opacity:.42;cursor:not-allowed}
+    .clear-filters-btn[hidden]{display:none!important}
+    .clear-filters-btn{color:var(--text)}
+    .clear-filters-btn:hover{color:var(--danger)}
+    .square-btn .small-icon{font-size:18px}
+
+    .menu-icon{
+      width:22px;height:22px;display:block;
+      fill:none;stroke:currentColor;stroke-width:1.9;
+      stroke-linecap:round;stroke-linejoin:round;
+    }
+    #favoriteToggleBtn .menu-icon{fill:none}
+    #favoriteToggleBtn.favorite-on .menu-icon{fill:none}
+
+    .toolbar{grid-template-columns:repeat(4,minmax(150px,1fr));}
+    .search-field{display:none;grid-column:1/-1}
+    .search-field.visible{display:block}
+    .legacy-view-buttons{display:none!important}
+
+    .favorites-row{
+      grid-column:1/-1;display:none;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;
+      padding-top:10px;border-top:1px solid var(--line);margin-top:4px;
+    }
+    .favorites-row.visible{display:flex}
+    .favorites-label{font-size:12px;color:var(--muted);margin-right:2px}
+    .favorite-organizer-btn{
+      width:46px;height:46px;min-width:46px;padding:0;border-radius:7px;
+      -webkit-touch-callout:none;user-select:none;-webkit-user-select:none;touch-action:manipulation;
+      border:1px solid var(--button-border);background:var(--favorite-bg);color:var(--text);
+      font-weight:800;font-size:14px;letter-spacing:.2px;
+    }
+    .favorite-organizer-btn.active{
+      background:var(--favorite-active);
+      outline:1px solid var(--accent);
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px var(--accent) inset;
+    }
+    .favorite-all-btn{
+      color:var(--text);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .favorite-all-icon{
+      width:34px;
+      height:26px;
+      display:block;
+      margin:auto;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.45;
+      stroke-linejoin:round;
+    }
+    .favorite-all-btn.active .favorite-all-icon{color:var(--accent)}
+
+
+    html[data-theme="light"] input,
+    html[data-theme="light"] select,
+    html[data-theme="light"] .organizer-custom-button{background:var(--input-bg);border-color:var(--input-border);color:var(--text)}
+    html[data-theme="light"] .toolbar,
+    html[data-theme="light"] .day-group,
+    html[data-theme="light"] .calendar,
+    html[data-theme="light"] .empty{border-color:var(--soft-border)}
+    html[data-theme="light"] .day-heading,
+    html[data-theme="light"] .cal-month-title{background:var(--heading-bg)}
+    html[data-theme="light"] .organizer-custom-menu{background:var(--dropdown-bg);border-color:var(--input-border);box-shadow:0 12px 26px rgba(0,0,0,.16)}
+    html[data-theme="light"] .organizer-custom-option:hover,
+    html[data-theme="light"] .organizer-custom-option.selected{background:var(--dropdown-hover)}
+    html[data-theme="light"] .event-desc{color:#3f474b}
+    html[data-theme="light"] .source-link{color:#174b5e}
+    html[data-theme="light"] .tag{background:#e8f2f5;border-color:#bed2d9;color:#174b5e}
+
+    @media (max-width:900px){
+      .toolbar{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width:620px){
+      .page-head{align-items:center}
+      .page-title{font-size:25px;text-align:center}
+      .top-menu{gap:5px}
+      .square-btn,.favorite-organizer-btn{width:42px;height:42px;min-width:42px}
+    }
+
+
+
+    /* V341 – kontaktskjema, lagt oppå full favoritt-baseline */
+    .contact-modal[hidden]{display:none!important}
+    .contact-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.68)}
+    .contact-dialog{width:min(560px,100%);max-height:calc(100vh - 36px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 22px 70px rgba(0,0,0,.55);padding:20px}
+    .contact-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+    .contact-head h3{margin:0;font-size:21px}
+    .contact-close{width:38px;height:38px;min-width:38px;padding:0;border-radius:7px;display:inline-flex;align-items:center;justify-content:center}
+    .contact-form{display:grid;gap:13px}
+    .contact-form label{display:grid;gap:6px;font-size:13px;color:var(--muted)}
+    .contact-form input,.contact-form textarea{width:100%;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);border-radius:7px;padding:10px 11px;font:inherit}
+    .contact-form textarea{min-height:150px;resize:vertical;line-height:1.45}
+    .contact-form input:focus,.contact-form textarea:focus{outline:1px solid var(--accent);border-color:var(--accent)}
+    .contact-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:3px}
+    .contact-actions button{min-height:40px}
+    .contact-status{min-height:20px;font-size:13px;color:var(--muted)}
+    .contact-status.error{color:#ff8a8a}
+    .contact-status.success{color:#74d99f}
+    .contact-hp{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <main>
+    <div class="page-head">
+      <h2 class="page-title">Arrangementer</h2>
+      <nav class="top-menu" aria-label="Hovedmeny">
+        <button id="viewToggleBtn" class="square-btn" type="button" title="Bytt mellom liste og kalender" aria-label="Bytt mellom liste og kalender">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16M8 5v14M12 5v14M16 5v14"/></svg>
+        </button>
+        <button id="searchToggleBtn" class="square-btn" type="button" title="Vis/skjul søk" aria-label="Vis/skjul søk">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 5 5"/></svg>
+        </button>
+        <button id="themeToggleBtn" class="square-btn" type="button" title="Bytt mellom dark og light mode" aria-label="Bytt mellom dark og light mode">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8 8 0 1 1 8.5 4 6.5 6.5 0 0 0 20 15.5z"/></svg>
+        </button>
+        <button id="favoriteToggleBtn" class="square-btn" type="button" title="Legg valgt arrangør til/fra favoritter" aria-label="Legg valgt arrangør til/fra favoritter">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg>
+        </button>
+        <button id="contactBtn" class="square-btn" type="button" title="Kontakt" aria-label="Kontakt">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h17v13h-17z"/><path d="m4 6 8 7 8-7"/></svg>
+        </button>
+        <button id="refreshTopBtn" class="square-btn" type="button" title="Kjør full oppdatering" aria-label="Kjør full oppdatering">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8.2A7 7 0 0 1 18 6l2 2M18 15.8A7 7 0 0 1 6 18l-2-2"/></svg>
+        </button>
+        <button id="clearFiltersBtn" class="square-btn clear-filters-btn" type="button" title="Nullstill filtre" aria-label="Nullstill filtre" hidden>
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg>
+        </button>
+      </nav>
+    </div>
+    <p class="lead">Felles oversikt over kommende arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
+
+    <section class="toolbar" aria-label="Filtre">
+      <div class="field search-field">
+        <label for="search">Søk</label>
+        <input id="search" type="search" placeholder="Søk i tittel, sted eller arrangør">
+      </div>
+      <div class="field">
+        <label for="typeFilter">Møtetype</label>
+        <select id="typeFilter"><option value="">Alle møtetyper</option></select>
+      </div>
+      <div class="field">
+        <label for="municipalityFilter">Kommune</label>
+        <select id="municipalityFilter"><option value="">Alle kommuner</option></select>
+      </div>
+      <div class="field">
+        <label for="settlementFilter">Tettsted</label>
+        <select id="settlementFilter"><option value="">Alle tettsteder</option></select>
+      </div>
+      <div class="field">
+        <label for="organizerFilter">Arrangør</label>
+        <select id="organizerFilter" class="organizer-native"><option value="">Alle arrangører</option></select>
+        <div id="organizerCustom" class="organizer-custom">
+          <button id="organizerCustomButton" class="organizer-custom-button" type="button" aria-haspopup="listbox" aria-expanded="false">Alle arrangører</button>
+          <div id="organizerCustomMenu" class="organizer-custom-menu" role="listbox"></div>
+        </div>
+      </div>
+      <div class="view-buttons legacy-view-buttons" aria-label="Visning">
+        <button id="listBtn" class="active" type="button">Liste</button>
+        <button id="calBtn" type="button">Kalender</button>
+        <button id="refreshBtn" type="button">Oppdater</button>
+      </div>
+      <div id="favoritesRow" class="favorites-row" aria-label="Favorittarrangører">
+        <div id="favoritesButtons" style="display:flex;gap:7px;flex-wrap:wrap"></div>
+      </div>
+    </section>
+
+    <div id="status" class="status">Laster arrangementer…</div>
+    <section id="list" class="list"></section>
+
+    <section id="calendar" class="calendar" aria-label="12 måneders kalender">
+      <div class="cal-head">
+        <div class="cal-nav"><button id="prevMonth" type="button" aria-label="Forrige 12 måneder">‹</button></div>
+        <div id="calTitle" class="cal-title"></div>
+        <div class="cal-nav"><button id="nextMonth" type="button" aria-label="Neste 12 måneder">›</button></div>
+      </div>
+      <div id="calGrid" class="cal-months"></div>
+    </section>
+  </main>
+</div>
+
+<div id="contactModal" class="contact-modal" hidden aria-hidden="true">
+  <div class="contact-dialog" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+    <div class="contact-head">
+      <h3 id="contactTitle">Kontakt</h3>
+      <button id="contactCloseBtn" class="contact-close" type="button" aria-label="Lukk">✕</button>
+    </div>
+    <form id="contactForm" class="contact-form">
+      <label>Emne
+        <input id="contactSubject" name="subject" type="text" maxlength="160" required autocomplete="off">
+      </label>
+      <label>Sak
+        <textarea id="contactMessage" name="message" maxlength="5000" required></textarea>
+      </label>
+      <label>Navn
+        <input id="contactName" name="name" type="text" maxlength="120" required autocomplete="name">
+      </label>
+      <label>E-post
+        <input id="contactEmail" name="email" type="email" maxlength="254" required autocomplete="email">
+      </label>
+      <label class="contact-hp" aria-hidden="true">Nettside
+        <input id="contactWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+      </label>
+      <div id="contactStatus" class="contact-status" aria-live="polite"></div>
+      <div class="contact-actions">
+        <button id="contactCancelBtn" type="button">Avbryt</button>
+        <button id="contactSubmitBtn" type="submit">Send</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // Hvis Workeren ligger på et annet domene, sett hele URL-en her.
+  // Eksempel: https://din-worker.workers.dev/arrangementer/events
+  // Dersom Worker-ruten ligger på samme domene, behold den relative URL-en.
+  const API_BASE = "https://kvimarka92-api.oyvind-haugland.workers.dev";
+  const STATIC_EVENTS_URL = "./arrangementer-data.json";
+  const IMPORT_START_API = `${API_BASE}/arrangementer/import-start`;
+
+  const FILTER_STORAGE_KEY = "arrangementer.filters.v1";
+  const SNAPSHOT_STORAGE_KEY = "arrangementer.snapshot.v1";
+  const UI_STORAGE_KEY = "arrangementer.ui.v1";
+  const FAVORITES_STORAGE_KEY = "arrangementer.favorites.v1";
+
+  function loadUiState() {
+    try {
+      const raw = localStorage.getItem(UI_STORAGE_KEY);
+      const v = raw ? JSON.parse(raw) : {};
+      return v && typeof v === "object" ? v : {};
+    } catch (_) { return {}; }
+  }
+
+  function saveUiState(patch={}) {
+    try {
+      const current = loadUiState();
+      localStorage.setItem(UI_STORAGE_KEY, JSON.stringify({...current,...patch}));
+    } catch (_) {}
+  }
+
+  function loadFavorites() {
+    try {
+      const raw = localStorage.getItem(FAVORITES_STORAGE_KEY);
+      const v = raw ? JSON.parse(raw) : [];
+
+      // Bakoverkompatibilitet med gamle favoritter lagret som bare arrangørnavn.
+      if (Array.isArray(v)) {
+        return v
+          .map(item => typeof item === "string"
+            ? {organizer:item,type:"",municipality:"",settlement:""}
+            : item)
+          .filter(item => item && typeof item === "object");
+      }
+
+      return [];
+    } catch (_) { return []; }
+  }
+
+  function favoriteKey(fav) {
+    return JSON.stringify({
+      organizer:String(fav?.organizer || ""),
+      type:String(fav?.type || ""),
+      municipality:String(fav?.municipality || ""),
+      settlement:String(fav?.settlement || "")
+    });
+  }
+
+  function saveFavorites(items) {
+    try {
+      const unique = [];
+      const seen = new Set();
+
+      for (const item of items || []) {
+        if (!item || typeof item !== "object") continue;
+        const normalized = {
+          organizer:String(item.organizer || ""),
+          type:String(item.type || ""),
+          municipality:String(item.municipality || ""),
+          settlement:String(item.settlement || "")
+        };
+
+        if (!normalized.organizer && !normalized.type) continue;
+
+        const key = favoriteKey(normalized);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        unique.push(normalized);
+      }
+
+      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(unique));
+    } catch (_) {}
+  }
+
+  function currentFavoriteDefinition() {
+    return {
+      organizer:els.organizer.value || "",
+      type:els.type.value || "",
+      municipality:els.municipality.value || "",
+      settlement:els.settlement.value || ""
+    };
+  }
+
+  function eventMatchesFavorite(e, fav) {
+    if (fav.type && !(e.meetingTypes || []).includes(fav.type)) return false;
+    if (fav.municipality && e.municipality !== fav.municipality) return false;
+    if (fav.settlement && e.settlement !== fav.settlement) return false;
+    if (fav.organizer && e.organizer !== fav.organizer) return false;
+    return true;
+  }
+
+  function favoriteMatchesCurrent(fav) {
+    const current = currentFavoriteDefinition();
+    return favoriteKey(fav) === favoriteKey(current);
+  }
+
+  const FAVORITE_INITIAL_OVERRIDES = {
+    "Nærbø Bedehus":"NB",
+    "Fredheim Arena":"FR"
+  };
+
+  function organizerInitials(name) {
+    const clean = String(name || "").trim();
+    if (FAVORITE_INITIAL_OVERRIDES[clean]) return FAVORITE_INITIAL_OVERRIDES[clean];
+
+    const words = clean
+      .replace(/[–—-]/g," ")
+      .split(/\s+/)
+      .map(x => x.replace(/[^\p{L}\p{N}]/gu,""))
+      .filter(Boolean);
+
+    if (!words.length) return "??";
+    if (words.length === 1) return words[0].slice(0,2).toUpperCase();
+
+    const genericSecond = new Set(["arena","sokn","kirke","kyrkje"]);
+    if (genericSecond.has(words[1].toLowerCase()) && words[0].length >= 2) {
+      return words[0].slice(0,2).toUpperCase();
+    }
+
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+
+  function savedFilters() {
+    try {
+      const raw = localStorage.getItem(FILTER_STORAGE_KEY);
+      const value = raw ? JSON.parse(raw) : {};
+      return value && typeof value === "object" ? value : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveFilters() {
+    try {
+      localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify({
+        search:els.search.value || "",
+        type:els.type.value || "",
+        municipality:els.municipality.value || "",
+        settlement:els.settlement.value || "",
+        organizer:els.organizer.value || "",
+        view:els.calendar.classList.contains("active") ? "calendar" : "list",
+        scrollY:Math.max(0,Math.round(window.scrollY || 0))
+      }));
+    } catch (_) {}
+  }
+
+  function saveEventSnapshot() {
+    try {
+      localStorage.setItem(SNAPSHOT_STORAGE_KEY, JSON.stringify({
+        savedAt:Date.now(),
+        events
+      }));
+    } catch (_) {}
+  }
+
+  function loadEventSnapshot() {
+    try {
+      const raw = localStorage.getItem(SNAPSHOT_STORAGE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data || !Array.isArray(data.events) || !data.events.length) return null;
+      return data;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function restoreRememberedFilterControls() {
+    const remembered = savedFilters();
+
+    if (remembered.search != null) els.search.value = remembered.search;
+
+    if (remembered.type && [...els.type.options].some(o => o.value === remembered.type)) {
+      els.type.value = remembered.type;
+    }
+
+    if (remembered.municipality && [...els.municipality.options].some(o => o.value === remembered.municipality)) {
+      els.municipality.value = remembered.municipality;
+      refreshSettlementOptions();
+    }
+
+    if (remembered.settlement && [...els.settlement.options].some(o => o.value === remembered.settlement)) {
+      els.settlement.value = remembered.settlement;
+    }
+
+    refreshOrganizerOptions();
+
+    if (remembered.organizer && [...els.organizer.options].some(o => o.value === remembered.organizer)) {
+      els.organizer.value = remembered.organizer;
+      updateOrganizerSelectColor();
+      renderOrganizerCustom(
+        [...els.organizer.options].map(o => o.value).filter(Boolean)
+      );
+    }
+
+    if (remembered.view === "calendar") setView("calendar");
+    else setView("list");
+  }
+
+  function renderCachedStateImmediately() {
+    const snapshot = loadEventSnapshot();
+    if (!snapshot) return false;
+
+    events = snapshot.events
+      .filter(e => e && e.active !== false)
+      .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
+      .filter(e => asDate(e.startTime))
+      .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
+
+    populateFilters();
+    restoreRememberedFilterControls();
+    applyFilters();
+
+    const remembered = savedFilters();
+    els.status.textContent =
+      `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"} – viser sist lagrede oversikt`;
+
+    requestAnimationFrame(() => {
+      if (Number.isFinite(Number(remembered.scrollY))) {
+        window.scrollTo(0,Number(remembered.scrollY));
+      }
+    });
+
+    return true;
+  }
+
+
+  const VIGRESTAD_RECOVER_API = `${API_BASE}/arrangementer/vigrestad-recover`;
+  const CONTACT_API = `${API_BASE}/arrangementer/contact`;
+  // Testmodus: samme midlertidige nøkkel brukes for import og Baserow under utvikling.
+  const IMPORT_KEY = "oD0likwHw5ZpGJsNtRXg6eRp9jN7C9FR";
+
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
+    viewToggleBtn:$("viewToggleBtn"), searchToggleBtn:$("searchToggleBtn"), themeToggleBtn:$("themeToggleBtn"),
+    favoriteToggleBtn:$("favoriteToggleBtn"), contactBtn:$("contactBtn"), refreshTopBtn:$("refreshTopBtn"),
+    clearFiltersBtn:$("clearFiltersBtn"),
+    contactModal:$("contactModal"), contactForm:$("contactForm"), contactCloseBtn:$("contactCloseBtn"), contactCancelBtn:$("contactCancelBtn"),
+    contactSubject:$("contactSubject"), contactMessage:$("contactMessage"), contactName:$("contactName"), contactEmail:$("contactEmail"), contactWebsite:$("contactWebsite"), contactStatus:$("contactStatus"), contactSubmitBtn:$("contactSubmitBtn"),
+    favoritesRow:$("favoritesRow"), favoritesButtons:$("favoritesButtons"),
+    organizerCustom: $("organizerCustom"), organizerCustomButton: $("organizerCustomButton"), organizerCustomMenu: $("organizerCustomMenu"),
+    status: $("status"), list: $("list"), calendar: $("calendar"), listBtn: $("listBtn"), calBtn: $("calBtn"), refreshBtn: $("refreshBtn"),
+    calTitle: $("calTitle"), calGrid: $("calGrid"), prevMonth: $("prevMonth"), nextMonth: $("nextMonth")
+  };
+
+  let events = [];
+  let filtered = [];
+  let combinedFavoritesActive = false;
+  let monthCursor = new Date();
+  monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth(), 1);
+
+  const noDate = new Intl.DateTimeFormat("no-NO", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  const noMonth = new Intl.DateTimeFormat("no-NO", { month:"long", year:"numeric" });
+  const noTime = new Intl.DateTimeFormat("no-NO", { hour:"2-digit", minute:"2-digit", hour12:false });
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c]);
+  }
+
+  function asDate(value) {
+    if (!value) return null;
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  function dateKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function addOptions(select, values, placeholder) {
+    const old = select.value;
+    select.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>`;
+    [...new Set(values.filter(Boolean))]
+      .sort((a,b) => a.localeCompare(b,"no"))
+      .forEach(v => select.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
+
+    const realOptions = [...select.options].filter(o => String(o.value || "").trim() !== "");
+
+    if (old && realOptions.some(o => o.value === old)) {
+      select.value = old;
+    } else if (realOptions.length === 1) {
+      // Når bare ett reelt valg finnes, velges det automatisk.
+      select.value = realOptions[0].value;
+    } else {
+      select.value = "";
+    }
+  }
+
+  function refreshSettlementOptions() {
+    const municipality = els.municipality.value;
+    const relevant = municipality ? events.filter(e => e.municipality === municipality) : events;
+    addOptions(els.settlement, relevant.map(e => e.settlement), "Alle tettsteder");
+  }
+
+  function refreshOrganizerOptions() {
+    const municipality = els.municipality.value;
+    const settlement = els.settlement.value;
+
+    let relevant = events;
+    if (municipality) {
+      relevant = relevant.filter(e => e.municipality === municipality);
+    }
+    if (settlement) {
+      relevant = relevant.filter(e => e.settlement === settlement);
+    }
+
+    const old = els.organizer.value;
+    const values = [...new Set(relevant.map(e => e.organizer).filter(Boolean))]
+      .sort((a,b) => a.localeCompare(b,"no"));
+
+    els.organizer.innerHTML = '<option value="" style="color:var(--text)">Alle arrangører</option>';
+    for (const name of values) {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      const color = organizerColor(name);
+      option.style.color = color.border;
+      option.style.fontWeight = "700";
+      els.organizer.appendChild(option);
+    }
+
+    if (old && [...els.organizer.options].some(o => o.value === old)) {
+      els.organizer.value = old;
+    } else if (values.length === 1) {
+      // Eksempel: Tettsted = Undheim -> eneste arrangør er Undheim sokn.
+      els.organizer.value = values[0];
+    } else {
+      els.organizer.value = "";
+    }
+
+    renderOrganizerCustom(values);
+    updateOrganizerSelectColor();
+    renderFavoriteButtons();
+  }
+
+  function renderOrganizerCustom(values) {
+    const selected = els.organizer.value || "";
+    els.organizerCustomMenu.innerHTML = "";
+
+    const addOption = (value, label) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "organizer-custom-option";
+      btn.dataset.value = value;
+      btn.textContent = label;
+
+      if (value) {
+        const color = organizerColor(value);
+        btn.style.color = color.border;
+      } else {
+        btn.style.color = "var(--text)";
+      }
+
+      btn.classList.toggle("selected", value === selected);
+
+      const chooseOrganizer = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        combinedFavoritesActive = false;
+        els.organizer.value = value;
+        els.organizerCustom.classList.remove("open");
+        els.organizerCustomButton.setAttribute("aria-expanded","false");
+
+        if (value) {
+          syncDependentFiltersFromOrganizer();
+        } else {
+          updateOrganizerSelectColor();
+          renderOrganizerCustom(values);
+        }
+
+        saveFilters();
+        applyFilters();
+        renderFavoriteButtons();
+        updateFavoriteTopButton();
+      };
+
+      // Mobil Safari kan være upålitelig når en button i en absolutt dropdown
+      // kun bruker click. pointerup gir direkte respons, mens click beholdes
+      // som fallback for tastatur/desktop.
+      let handledByPointer = false;
+
+      btn.addEventListener("pointerup", event => {
+        handledByPointer = true;
+        chooseOrganizer(event);
+        setTimeout(() => { handledByPointer = false; }, 0);
+      });
+
+      btn.addEventListener("click", event => {
+        if (handledByPointer) {
+          event.preventDefault();
+          return;
+        }
+        chooseOrganizer(event);
+      });
+
+      els.organizerCustomMenu.appendChild(btn);
+    };
+
+    addOption("", "Alle arrangører");
+    for (const value of values) addOption(value,value);
+
+    const currentLabel = els.organizer.value || "Alle arrangører";
+    els.organizerCustomButton.textContent = currentLabel;
+
+    if (els.organizer.value) {
+      const color = organizerColor(els.organizer.value);
+      els.organizerCustomButton.style.color = color.border;
+      els.organizerCustomButton.style.fontWeight = "700";
+    } else {
+      els.organizerCustomButton.style.color = "";
+      els.organizerCustomButton.style.fontWeight = "";
+    }
+  }
+
+  function openOrganizerCustom() {
+    els.organizerCustom.classList.add("open");
+    els.organizerCustomButton.setAttribute("aria-expanded","true");
+  }
+
+  function closeOrganizerCustom() {
+    els.organizerCustom.classList.remove("open");
+    els.organizerCustomButton.setAttribute("aria-expanded","false");
+  }
+
+  function updateOrganizerSelectColor() {
+    const name = els.organizer.value;
+    const label = name || "Alle arrangører";
+    const color = name ? organizerColor(name).border : "var(--text)";
+
+    els.organizer.style.color = color;
+    els.organizer.style.fontWeight = name ? "700" : "400";
+
+    if (els.organizerCustomButton) {
+      els.organizerCustomButton.textContent = label;
+      els.organizerCustomButton.style.color = color;
+      els.organizerCustomButton.style.fontWeight = name ? "700" : "400";
+    }
+  }
+
+  function populateFilters() {
+    addOptions(els.type, events.flatMap(e => e.meetingTypes || []), "Alle møtetyper");
+    addOptions(els.municipality, events.map(e => e.municipality), "Alle kommuner");
+    refreshSettlementOptions();
+    refreshOrganizerOptions();
+  }
+
+  function applyFilters() {
+    const q = els.search.value.trim().toLocaleLowerCase("no");
+    const type = els.type.value;
+    const municipality = els.municipality.value;
+    const settlement = els.settlement.value;
+    const organizer = els.organizer.value;
+
+    // V339: Felles-favoritter gjelder bare så lenge ingen ordinære filtre
+    // er valgt. Så snart brukeren bruker søk eller et nedtrekksfilter,
+    // nullstilles felles-favorittmodus automatisk og de vanlige filtrene
+    // får styre resultatet.
+    const explicitFilterActive = Boolean(
+      q || type || municipality || settlement || organizer
+    );
+
+    const combinedWasReset =
+      combinedFavoritesActive && explicitFilterActive;
+
+    if (combinedWasReset) {
+      combinedFavoritesActive = false;
+    }
+
+    const favorites = loadFavorites();
+
+    filtered = events.filter(e => {
+      if (combinedFavoritesActive) {
+        if (!favorites.length || !favorites.some(fav => eventMatchesFavorite(e,fav))) {
+          return false;
+        }
+      } else {
+        if (type && !(e.meetingTypes || []).includes(type)) return false;
+        if (municipality && e.municipality !== municipality) return false;
+        if (settlement && e.settlement !== settlement) return false;
+        if (organizer && e.organizer !== organizer) return false;
+      }
+
+      if (q) {
+        const hay = [
+          e.title,
+          e.organizer,
+          e.location,
+          e.settlement,
+          e.municipality,
+          e.description,
+          ...(e.meetingTypes || [])
+        ].join(" ").toLocaleLowerCase("no");
+
+        if (!hay.includes(q)) return false;
+      }
+
+      return true;
+    });
+
+    els.status.className = "status";
+    els.status.textContent =
+      `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"}`;
+
+    renderList();
+    renderCalendar();
+    updateClearFiltersButton();
+
+    // Oppdater blå markering på favorittknappene med en gang fellesmodus
+    // ble slått av av et ordinært filtervalg.
+    if (combinedWasReset) {
+      renderFavoriteButtons();
+    }
+  }
+
+  function renderList() {
+    if (!filtered.length) {
+      els.list.innerHTML = '<div class="empty">Ingen arrangementer passer med valgte filtre.</div>';
+      return;
+    }
+
+    const groups = new Map();
+    for (const e of filtered) {
+      const d = asDate(e.startTime);
+      if (!d) continue;
+      const key = dateKey(d);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(e);
+    }
+
+    // Vis bare første forekomst når flere egenskaper i metaraden er like.
+    // Sammenligningen er bevisst case-insensitiv og ignorerer ekstra mellomrom,
+    // slik at "Nærbø Bedehus" og "Nærbø bedehus" ikke vises dobbelt.
+    const uniqueMeta = values => {
+      const seen = new Set();
+      const out = [];
+
+      for (const value of values) {
+        const clean = String(value || "").trim().replace(/\s+/g," ");
+        if (!clean) continue;
+
+        const key = clean.toLocaleLowerCase("no");
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(clean);
+      }
+
+      return out;
+    };
+
+    els.list.innerHTML = [...groups.entries()].map(([key, rows]) => {
+      const day = asDate(rows[0].startTime);
+
+      const items = rows.map(e => {
+        const start = asDate(e.startTime);
+        const end = asDate(e.endTime);
+        const time = start ? noTime.format(start) : "";
+        const timeRange = end ? `${time}–${noTime.format(end)}` : time;
+
+        const meta = uniqueMeta([
+          e.organizer,
+          e.location,
+          e.settlement
+        ]);
+
+        const tags = (e.meetingTypes || [])
+          .map(t => `<span class="tag">${escapeHtml(t)}</span>`)
+          .join("");
+
+        const color = organizerColor(e.organizer);
+
+        return `<article class="event" style="--organizer-color:${color.border}">
+          <div class="time">${escapeHtml(timeRange)}</div>
+
+          ${(e.sourceUrl || tags) ? `<div class="event-actions">
+            ${e.sourceUrl ? `<a class="source-link" href="${escapeHtml(e.sourceUrl)}" target="_blank" rel="noopener">Kilde ↗</a>` : ""}
+            ${tags ? `<div class="tags">${tags}</div>` : ""}
+          </div>` : ""}
+
+          <div class="event-body">
+            <div class="event-main">
+              <div class="event-title">${escapeHtml(e.title || "Uten tittel")}</div>
+              <div class="event-meta">${meta.map(x => `<span>${escapeHtml(x)}</span>`).join("")}</div>
+              ${e.description ? `<div class="event-desc">${escapeHtml(e.description)}</div>` : ""}
+            </div>
+          </div>
+        </article>`;
+      }).join("");
+
+      return `<section class="day-group"><div class="day-heading">${escapeHtml(noDate.format(day))}</div>${items}</section>`;
+    }).join("");
+  }
+
+  const ORGANIZER_COLORS = [
+    // Eksisterende farger
+    {bg:"#23536b", border:"#62c7f2", text:"#ffffff"}, // turkisblå
+    {bg:"#5a3f78", border:"#bd8df2", text:"#ffffff"}, // lilla
+    {bg:"#326247", border:"#79d99d", text:"#ffffff"}, // grønn
+    {bg:"#704b2d", border:"#e7a761", text:"#ffffff"}, // oransje
+    {bg:"#6b3544", border:"#e986a0", text:"#ffffff"}, // rosa
+    {bg:"#3d5577", border:"#87b4f4", text:"#ffffff"}, // blå
+    {bg:"#5d5a2d", border:"#d5cc66", text:"#ffffff"}, // gulgrønn
+    {bg:"#5b3f50", border:"#d28caf", text:"#ffffff"}, // gammelrosa
+    {bg:"#2c6264", border:"#6fd0d3", text:"#ffffff"}, // turkis
+    {bg:"#65422f", border:"#d99667", text:"#ffffff"}, // brun
+
+    // Nye farger
+    {bg:"#245b34", border:"#93e6a5", text:"#ffffff"}, // lysere grønn
+    {bg:"#173d24", border:"#4db66a", text:"#ffffff"}, // mørkere grønn
+    {bg:"#6b5b18", border:"#ffe47a", text:"#ffffff"}, // lysere gul
+    {bg:"#42370f", border:"#c9aa28", text:"#ffffff"}, // mørkere gul
+    {bg:"#285b83", border:"#78c9ff", text:"#ffffff"}, // lysere blå
+    {bg:"#193754", border:"#4a91cf", text:"#ffffff"}, // mørkere blå
+    {bg:"#70415c", border:"#f3a7cf", text:"#ffffff"}, // lysere rosa
+    {bg:"#681f27", border:"#ff6f79", text:"#ffffff"}, // rød
+    {bg:"#4b4b4b", border:"#ffffff", text:"#ffffff"}  // hvit
+  ];
+
+  function organizerColor(name) {
+    const text = String(name || "Ukjent arrangør");
+
+    // V326: Faste farger for utvalgte arrangører.
+    // Brukes likt i dropdown, favorittknapper, liste og kalender.
+    const fixed = {
+      "Nærbø Bedehus": {
+        border:"#4da3ff",
+        bg:"#17324d",
+        text:"#7dbdff"
+      },
+      "Nærbø sokn": {
+        border:"#3fa86a",
+        bg:"#173726",
+        text:"#5fcf87"
+      },
+      "Pinsemenigheten Betel": {
+        border:"#a66cff",
+        bg:"#35224f",
+        text:"#bd8cff"
+      },
+      "Klepp Frikyrkje": {
+        border:"#3fa86a",
+        bg:"#173726",
+        text:"#5fcf87"
+      }
+    };
+
+    if (fixed[text]) return fixed[text];
+
+    let hash = 2166136261;
+    for (let i=0; i<text.length; i++) {
+      hash ^= text.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return ORGANIZER_COLORS[(hash >>> 0) % ORGANIZER_COLORS.length];
+  }
+
+  function renderCalendar() {
+    const byDay = new Map();
+    for (const e of filtered) {
+      const d = asDate(e.startTime);
+      if (!d) continue;
+      const key = dateKey(d);
+      if (!byDay.has(key)) byDay.set(key, []);
+      byDay.get(key).push(e);
+    }
+
+    const today = dateKey(new Date());
+    const lastMonth = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 11, 1);
+    els.calTitle.textContent = `${noMonth.format(monthCursor)} – ${noMonth.format(lastMonth)}`;
+
+    let html = "";
+
+    for (let monthOffset = 0; monthOffset < 12; monthOffset++) {
+      const cursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + monthOffset, 1);
+      const year = cursor.getFullYear();
+      const month = cursor.getMonth();
+
+      const first = new Date(year, month, 1);
+      const mondayOffset = (first.getDay() + 6) % 7;
+      const gridStart = new Date(year, month, 1 - mondayOffset);
+
+      html += `<section class="cal-month">`;
+      html += `<div class="cal-month-title">${escapeHtml(noMonth.format(cursor))}</div>`;
+      html += `<div class="weekdays"><div>Man</div><div>Tir</div><div>Ons</div><div>Tor</div><div>Fre</div><div>Lør</div><div>Søn</div></div>`;
+      html += `<div class="cal-month-grid">`;
+
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(gridStart);
+        d.setDate(gridStart.getDate() + i);
+        const key = dateKey(d);
+        const rows = byDay.get(key) || [];
+        const classes = ["cal-day"];
+        if (d.getMonth() !== month) classes.push("outside");
+        if (key === today) classes.push("today");
+
+        html += `<div class="${classes.join(" ")}"><div class="date-no">${d.getDate()}</div>${rows.map(e => {
+          const s = asDate(e.startTime);
+          const tip = [e.title,e.organizer,e.location].filter(Boolean).join(" – ");
+          const color = organizerColor(e.organizer);
+          return `<div class="cal-event" style="--organizer-bg:${color.bg};--organizer-border:${color.border};--organizer-text:${color.text}" title="${escapeHtml(tip)}">${s ? escapeHtml(noTime.format(s))+" " : ""}${escapeHtml(e.title)}</div>`;
+        }).join("")}</div>`;
+      }
+
+      html += `</div></section>`;
+    }
+
+    els.calGrid.innerHTML = html;
+  }
+
+  function currentTheme() {
+    return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+  }
+
+  function applyTheme(theme, persist=true) {
+    const next = theme === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    els.themeToggleBtn.innerHTML = next === "light"
+      ? '<svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8 8 0 1 1 8.5 4 6.5 6.5 0 0 0 20 15.5z"/></svg>'
+      : '<svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+    els.themeToggleBtn.title = next === "light" ? "Bytt til dark mode" : "Bytt til light mode";
+    if (persist) saveUiState({theme:next});
+  }
+
+  function setSearchVisible(visible, persist=true) {
+    const field = els.search.closest(".search-field");
+    field.classList.toggle("visible", Boolean(visible));
+    els.searchToggleBtn.classList.toggle("active", Boolean(visible));
+    if (persist) saveUiState({searchVisible:Boolean(visible)});
+    if (visible) setTimeout(() => els.search.focus(), 0);
+  }
+
+  function updateViewToggleButton(mode) {
+    const calendar = mode === "calendar";
+    els.viewToggleBtn.innerHTML = calendar
+      ? '<svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"/></svg>'
+      : '<svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16M8 5v14M12 5v14M16 5v14"/></svg>';
+    els.viewToggleBtn.title = calendar ? "Vis liste" : "Vis kalender";
+    els.viewToggleBtn.classList.toggle("active", calendar);
+  }
+
+  function renderFavoriteButtons() {
+    const favorites = loadFavorites();
+    els.favoritesButtons.innerHTML = "";
+
+    // Når det finnes minst to favoritter, vis en fellesknapp først.
+    if (favorites.length > 1) {
+      const allBtn = document.createElement("button");
+      allBtn.type = "button";
+      allBtn.className = "favorite-organizer-btn favorite-all-btn";
+      allBtn.title = "Vis alle favoritter samlet";
+      allBtn.setAttribute("aria-label","Vis alle favoritter samlet");
+      allBtn.classList.toggle("active",combinedFavoritesActive);
+      allBtn.innerHTML =
+        '<svg class="favorite-all-icon" viewBox="0 0 32 24" aria-hidden="true">' +
+          '<path d="m6 3 1.4 3 3.3.5-2.4 2.3.6 3.3L6 10.5 3.1 12l.6-3.2L1.3 6.5 4.6 6z"/>' +
+          '<path d="m16 7 1.7 3.5 3.8.6-2.8 2.7.7 3.8-3.4-1.8-3.4 1.8.7-3.8-2.8-2.7 3.8-.6z"/>' +
+          '<path d="m26 3 1.4 3 3.3.5-2.4 2.3.6 3.3-2.9-1.6-2.9 1.6.6-3.3-2.4-2.3 3.3-.5z"/>' +
+        '</svg>';
+
+      allBtn.addEventListener("click", () => {
+        combinedFavoritesActive = !combinedFavoritesActive;
+
+        if (combinedFavoritesActive) {
+          // Fellesfavoritt styres ikke av enkeltfilter. Vis "Alle..." overalt.
+          els.search.value = "";
+          els.type.value = "";
+          els.municipality.value = "";
+          refreshSettlementOptions();
+          els.settlement.value = "";
+          refreshOrganizerOptions();
+          els.organizer.value = "";
+
+          updateOrganizerSelectColor();
+          renderOrganizerCustom(
+            [...els.organizer.options].map(o => o.value).filter(Boolean)
+          );
+        }
+
+        saveFilters();
+        applyFilters();
+        renderFavoriteButtons();
+        updateFavoriteTopButton();
+      });
+
+      els.favoritesButtons.appendChild(allBtn);
+    }
+
+    for (const fav of favorites) {
+      const name = fav.organizer || fav.type || "Favoritt";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "favorite-organizer-btn";
+      btn.textContent = fav.organizer
+        ? organizerInitials(fav.organizer)
+        : String(fav.type || "FT").slice(0,2).toUpperCase();
+
+      const details = [];
+      if (fav.type) details.push(fav.type);
+      if (fav.organizer) details.push(fav.organizer);
+      if (fav.settlement) details.push(fav.settlement);
+      else if (fav.municipality) details.push(fav.municipality);
+
+      btn.title = details.join(" · ") || name;
+      btn.setAttribute("aria-label",btn.title);
+
+      // I fellesmodus markeres alle favoritter som valgt.
+      const selected = combinedFavoritesActive || favoriteMatchesCurrent(fav);
+      btn.classList.toggle("active",selected);
+
+      if (fav.organizer) {
+        const favColor = organizerColor(fav.organizer);
+        btn.style.color = favColor.border || favColor.text || "var(--text)";
+      }
+
+      let longPressTimer = null;
+      let longPressTriggered = false;
+
+      const beginLongPress = () => {
+        longPressTriggered = false;
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(() => {
+          longPressTriggered = true;
+          if (confirm(`Fjerne ${btn.title} fra favoritter?`)) {
+            const key = favoriteKey(fav);
+            saveFavorites(loadFavorites().filter(x => favoriteKey(x) !== key));
+
+            // Hvis bare én favoritt står igjen, kan ikke fellesmodus være aktiv.
+            if (loadFavorites().length < 2) combinedFavoritesActive = false;
+
+            applyFilters();
+            renderFavoriteButtons();
+          }
+        }, 700);
+      };
+
+      const cancelLongPress = () => {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      };
+
+      btn.addEventListener("pointerdown",beginLongPress);
+      btn.addEventListener("pointerup",cancelLongPress);
+      btn.addEventListener("pointerleave",cancelLongPress);
+      btn.addEventListener("pointercancel",cancelLongPress);
+      btn.addEventListener("contextmenu",event => event.preventDefault());
+
+      btn.addEventListener("click", () => {
+        if (longPressTriggered) {
+          longPressTriggered = false;
+          return;
+        }
+
+        // En enkeltfavoritt avslutter alltid fellesmodus.
+        combinedFavoritesActive = false;
+
+        if (favoriteMatchesCurrent(fav)) {
+          els.type.value = "";
+          els.municipality.value = "";
+          refreshSettlementOptions();
+          els.settlement.value = "";
+          refreshOrganizerOptions();
+          els.organizer.value = "";
+        } else {
+          els.type.value = [...els.type.options].some(o => o.value === fav.type) ? fav.type : "";
+
+          els.municipality.value =
+            [...els.municipality.options].some(o => o.value === fav.municipality)
+              ? fav.municipality
+              : "";
+
+          refreshSettlementOptions();
+
+          els.settlement.value =
+            [...els.settlement.options].some(o => o.value === fav.settlement)
+              ? fav.settlement
+              : "";
+
+          refreshOrganizerOptions();
+
+          els.organizer.value =
+            [...els.organizer.options].some(o => o.value === fav.organizer)
+              ? fav.organizer
+              : "";
+        }
+
+        updateOrganizerSelectColor();
+        renderOrganizerCustom(
+          [...els.organizer.options].map(o => o.value).filter(Boolean)
+        );
+        saveFilters();
+        applyFilters();
+        renderFavoriteButtons();
+        updateFavoriteTopButton();
+      });
+
+      els.favoritesButtons.appendChild(btn);
+    }
+
+    els.favoritesRow.classList.toggle("visible",favorites.length > 0);
+    updateFavoriteTopButton();
+  }
+
+  function updateFavoriteTopButton() {
+    const current = currentFavoriteDefinition();
+    const favorites = loadFavorites();
+    const isFavorite = favorites.some(fav => favoriteKey(fav) === favoriteKey(current));
+    const hasSomethingToSave = Boolean(current.organizer || current.type);
+
+    els.favoriteToggleBtn.classList.toggle("favorite-on",isFavorite);
+    els.favoriteToggleBtn.disabled = !hasSomethingToSave;
+
+    els.favoriteToggleBtn.title = !hasSomethingToSave
+      ? "Velg en arrangør eller møtetype først"
+      : isFavorite
+        ? "Fjern gjeldende filterkombinasjon fra favoritter"
+        : "Lagre gjeldende filterkombinasjon som favoritt";
+  }
+
+  function toggleCurrentOrganizerFavorite() {
+    const current = currentFavoriteDefinition();
+
+    if (!current.organizer && !current.type) {
+      els.status.textContent = "Velg en arrangør eller møtetype først.";
+      return;
+    }
+
+    const favorites = loadFavorites();
+    const key = favoriteKey(current);
+    const exists = favorites.some(fav => favoriteKey(fav) === key);
+
+    const next = exists
+      ? favorites.filter(fav => favoriteKey(fav) !== key)
+      : [...favorites,current];
+
+    saveFavorites(next);
+    renderFavoriteButtons();
+  }
+
+  function restoreUiState() {
+    const ui = loadUiState();
+    applyTheme(ui.theme === "light" ? "light" : "dark", false);
+    setSearchVisible(Boolean(ui.searchVisible), false);
+  }
+
+  function filtersAreActive() {
+    return Boolean(
+      combinedFavoritesActive ||
+      (els.search.value || "").trim() ||
+      els.type.value ||
+      els.municipality.value ||
+      els.settlement.value ||
+      els.organizer.value
+    );
+  }
+
+  function updateClearFiltersButton() {
+    els.clearFiltersBtn.hidden = !filtersAreActive();
+  }
+
+  function clearAllFilters() {
+    combinedFavoritesActive = false;
+    els.search.value = "";
+    els.type.value = "";
+    els.municipality.value = "";
+
+    refreshSettlementOptions();
+    els.settlement.value = "";
+
+    refreshOrganizerOptions();
+    els.organizer.value = "";
+
+    updateOrganizerSelectColor();
+    renderOrganizerCustom(
+      [...els.organizer.options].map(o => o.value).filter(Boolean)
+    );
+
+    saveFilters();
+    applyFilters();
+    renderFavoriteButtons();
+    updateFavoriteTopButton();
+    updateClearFiltersButton();
+  }
+
+  function setView(mode) {
+    const calendar = mode === "calendar";
+    els.list.classList.toggle("hidden", calendar);
+    els.calendar.classList.toggle("active", calendar);
+    els.listBtn.classList.toggle("active", !calendar);
+    els.calBtn.classList.toggle("active", calendar);
+    updateViewToggleButton(mode);
+    saveFilters();
+  }
+
+  async function load(isManualRefresh = false) {
+    const rememberedFilters = savedFilters();
+    if (!isManualRefresh && rememberedFilters.search != null) {
+      els.search.value = rememberedFilters.search;
+    }
+
+    try {
+      if (isManualRefresh) {
+        els.refreshBtn.disabled = true;
+        els.refreshBtn.textContent = "Oppdaterer…";
+        els.status.className = "status";
+        els.status.textContent = "Starter import i GitHub Actions…";
+
+        const startedAt = Date.now();
+
+        const startRes = await fetch(IMPORT_START_API, {
+          method:"POST",
+          headers:{
+            "Accept":"application/json",
+            "x-import-key":IMPORT_KEY
+          },
+          cache:"no-store"
+        });
+
+        const startData = await startRes.json().catch(() => ({}));
+
+        if (!startRes.ok || startData?.ok === false) {
+          throw new Error(
+            startData?.error || `Kunne ikke starte import (HTTP ${startRes.status}).`
+          );
+        }
+
+        // Poll statisk snapshot. Ingen Cloudflare/Baserow-import skjer i nettleseren.
+        // Vi venter til generatedAt er nyere enn tidspunktet da importen ble startet.
+        const deadline = Date.now() + 4 * 60 * 1000;
+        let snapshot = null;
+
+        while (Date.now() < deadline) {
+          els.status.textContent = "Import kjører i GitHub Actions – venter på nytt datasett…";
+
+          await new Promise(resolve => setTimeout(resolve, 5000));
+
+          const pollRes = await fetch(
+            `${STATIC_EVENTS_URL}?t=${Date.now()}`,
+            { cache:"no-store" }
+          );
+
+          if (!pollRes.ok) continue;
+
+          const candidate = await pollRes.json().catch(() => null);
+          const generatedMs = new Date(candidate?.generatedAt || 0).getTime();
+
+          if (
+            candidate &&
+            Array.isArray(candidate.events) &&
+            Number.isFinite(generatedMs) &&
+            generatedMs >= startedAt - 2000
+          ) {
+            snapshot = candidate;
+            break;
+          }
+        }
+
+        if (!snapshot) {
+          throw new Error(
+            "Importen ble startet, men nytt snapshot var ikke publisert innen 4 minutter."
+          );
+        }
+
+        window.__arrangementerFreshSnapshot = snapshot;
+      }
+
+      const data = window.__arrangementerFreshSnapshot || await (async () => {
+        const res = await fetch(
+          `${STATIC_EVENTS_URL}?t=${Date.now()}`,
+          { cache:"no-store" }
+        );
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} ved henting av arrangementer-data.json`);
+        }
+        return await res.json();
+      })();
+
+      window.__arrangementerFreshSnapshot = null;
+
+      if (!data || !Array.isArray(data.events)) {
+        throw new Error("Ugyldig arrangementer-data.json");
+      }
+
+      const loadedEvents = data.events;
+      events = loadedEvents
+        .filter(e => e.active !== false)
+        .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
+        .filter(e => asDate(e.startTime))
+        .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
+      populateFilters();
+
+      if (!isManualRefresh) {
+        restoreRememberedFilterControls();
+      }
+
+      applyFilters();
+      saveEventSnapshot();
+      if (isManualRefresh) {
+        if (calendarLoadWarning) {
+          els.status.className = "status error";
+          els.status.textContent =
+            `${filtered.length} arrangementer vist. ${calendarLoadWarning}`;
+        } else {
+          els.status.className = "status";
+          els.status.textContent = `${filtered.length} kommende arrangementer – oppdatert nå`;
+        }
+      } else if (calendarLoadWarning) {
+        els.status.className = "status error";
+        els.status.textContent =
+          `${filtered.length} arrangementer vist. ${calendarLoadWarning}`;
+      }
+    } catch (err) {
+      console.error(err);
+
+      // V346: Hvis ny kalender ikke kan hentes (f.eks. Events side 1 gir
+      // 500/503), behold siste fungerende snapshot i stedet for å tømme siden.
+      const snapshot = loadEventSnapshot();
+
+      if (snapshot && Array.isArray(snapshot.events) && snapshot.events.length) {
+        events = snapshot.events
+          .filter(e => e.active !== false)
+          .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
+          .filter(e => asDate(e.startTime))
+          .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
+
+        populateFilters();
+        restoreRememberedFilterControls();
+        applyFilters();
+
+        const savedWhen = snapshot.savedAt
+          ? new Date(snapshot.savedAt).toLocaleString("nb-NO")
+          : "tidligere";
+
+        els.status.className = "status error";
+        els.status.textContent =
+          `Kunne ikke hente ny kalender (${err && err.message ? err.message : "ukjent feil"}). ` +
+          `Viser sist lagrede kalender fra ${savedWhen}.`;
+      } else {
+        els.status.className = "status error";
+        els.status.textContent =
+          err && err.message ? err.message : "Kunne ikke hente arrangementer.";
+        els.list.innerHTML = "";
+      }
+    } finally {
+      if (isManualRefresh) {
+        els.refreshBtn.disabled = false;
+        els.refreshBtn.textContent = "Oppdater";
+      }
+    }
+  }
+
+  [els.search,els.type].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", () => {
+    saveFilters();
+    applyFilters();
+  }));
+
+  els.settlement.addEventListener("change", () => {
+    combinedFavoritesActive = false;
+    refreshOrganizerOptions();
+    saveFilters();
+    applyFilters();
+    renderFavoriteButtons();
+  });
+
+  function syncDependentFiltersFromOrganizer() {
+    const organizer = els.organizer.value;
+    if (!organizer) return;
+
+    const matching = events.filter(e => e.organizer === organizer);
+    if (!matching.length) return;
+
+    const municipalities = [...new Set(
+      matching.map(e => e.municipality).filter(Boolean)
+    )];
+
+    const settlements = [...new Set(
+      matching.map(e => e.settlement).filter(Boolean)
+    )];
+
+    // Hvis arrangøren bare finnes i én kommune, velg den automatisk.
+    if (municipalities.length === 1) {
+      els.municipality.value = municipalities[0];
+      refreshSettlementOptions();
+    }
+
+    // Hvis arrangøren bare finnes på ett tettsted, velg det automatisk.
+    if (
+      settlements.length === 1 &&
+      [...els.settlement.options].some(o => o.value === settlements[0])
+    ) {
+      els.settlement.value = settlements[0];
+    }
+
+    // Bygg arrangørlisten på nytt etter geofeltene og gjenvelg arrangøren.
+    refreshOrganizerOptions();
+
+    if ([...els.organizer.options].some(o => o.value === organizer)) {
+      els.organizer.value = organizer;
+    }
+
+    updateOrganizerSelectColor();
+    renderOrganizerCustom(
+      [...els.organizer.options].map(o => o.value).filter(Boolean)
+    );
+  }
+
+  els.organizer.addEventListener("change", () => {
+    combinedFavoritesActive = false;
+    syncDependentFiltersFromOrganizer();
+    saveFilters();
+    applyFilters();
+    renderFavoriteButtons();
+  });
+  els.municipality.addEventListener("change", () => {
+    combinedFavoritesActive = false;
+    refreshSettlementOptions();
+    refreshOrganizerOptions();
+    saveFilters();
+    applyFilters();
+    renderFavoriteButtons();
+  });
+  function openContactModal(){
+    els.contactStatus.textContent = "";
+    els.contactStatus.className = "contact-status";
+    els.contactModal.hidden = false;
+    els.contactModal.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+    setTimeout(() => els.contactSubject.focus(),0);
+  }
+
+  function closeContactModal(){
+    els.contactModal.hidden = true;
+    els.contactModal.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+  }
+
+  async function submitContactForm(event){
+    event.preventDefault();
+    if(!els.contactForm.reportValidity()) return;
+
+    els.contactSubmitBtn.disabled = true;
+    els.contactStatus.className = "contact-status";
+    els.contactStatus.textContent = "Sender…";
+
+    try{
+      const res = await fetch(CONTACT_API,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          subject:els.contactSubject.value.trim(),
+          message:els.contactMessage.value.trim(),
+          name:els.contactName.value.trim(),
+          email:els.contactEmail.value.trim(),
+          website:els.contactWebsite.value.trim()
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if(!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+      els.contactStatus.className = "contact-status success";
+      els.contactStatus.textContent = "Meldingen er sendt. Takk for tilbakemeldingen!";
+      els.contactForm.reset();
+      setTimeout(closeContactModal,1400);
+    }catch(error){
+      els.contactStatus.className = "contact-status error";
+      els.contactStatus.textContent = error && error.message ? error.message : "Kunne ikke sende meldingen.";
+    }finally{
+      els.contactSubmitBtn.disabled = false;
+    }
+  }
+
+  els.listBtn.addEventListener("click", () => setView("list"));
+  els.calBtn.addEventListener("click", () => setView("calendar"));
+  els.viewToggleBtn.addEventListener("click", () => {
+    setView(els.calendar.classList.contains("active") ? "list" : "calendar");
+  });
+  els.searchToggleBtn.addEventListener("click", () => {
+    const visible = els.search.closest(".search-field").classList.contains("visible");
+    if (visible) {
+      els.search.value = "";
+      saveFilters();
+      applyFilters();
+    }
+    setSearchVisible(!visible);
+  });
+  els.themeToggleBtn.addEventListener("click", () => {
+    applyTheme(currentTheme() === "light" ? "dark" : "light");
+  });
+  els.favoriteToggleBtn.addEventListener("click", toggleCurrentOrganizerFavorite);
+  els.contactBtn.addEventListener("click", openContactModal);
+  els.contactCloseBtn.addEventListener("click", closeContactModal);
+  els.contactCancelBtn.addEventListener("click", closeContactModal);
+  els.contactForm.addEventListener("submit", submitContactForm);
+  els.contactModal.addEventListener("click", event => { if(event.target === els.contactModal) closeContactModal(); });
+  els.clearFiltersBtn.addEventListener("click", clearAllFilters);
+
+  els.refreshBtn.addEventListener("click", () => load(true));
+  els.prevMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()-12,1); renderCalendar(); });
+  els.nextMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()+12,1); renderCalendar(); });
+
+  els.organizerCustomButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (els.organizerCustom.classList.contains("open")) closeOrganizerCustom();
+    else openOrganizerCustom();
+  });
+  els.refreshTopBtn.addEventListener("click", () => els.refreshBtn.click());
+  els.organizerCustomMenu.addEventListener("click", event => event.stopPropagation());
+  document.addEventListener("click", closeOrganizerCustom);
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      if (!els.contactModal.hidden) closeContactModal();
+      else closeOrganizerCustom();
+    }
+  });
+
+  window.addEventListener("beforeunload", saveFilters);
+
+  restoreUiState();
+  renderFavoriteButtons();
+  updateClearFiltersButton();
+
+  const restoredFromCache = renderCachedStateImmediately();
+  if (restoredFromCache) {
+    // Oppdater data i bakgrunnen. Brukeren får den forrige filtrerte visningen
+    // umiddelbart i stedet for å vente mens alle API-sidene lastes først.
+    load(false);
+  } else {
+    load(false);
+  }
+})();
+</script>
+</body>
+</html>
