@@ -1457,7 +1457,7 @@
         //
         // Hver kilde får sin EGEN Worker-request og dermed egen Worker-kvote.
         // Ingen purge før import, ingen retry-runder og ingen parallelle kall.
-        // Mellom ferdige kildekall venter vi bare 1 sekund.
+        // Kort pause etter suksess, litt lengre etter feil/503. Ingen retry av samme kilde.
         els.status.textContent = "Henter importplan…";
 
         const planRes = await fetch(IMPORT_PLAN_API, {
@@ -1542,15 +1542,16 @@
 
           importResults.push(result);
 
-          // Kort, fast avstand. Ikke retry: feilet kilde beholder eksisterende data.
+          // Adaptiv avstand uten retry: 0,5 s etter suksess, 2 s etter feil.
+          // Feilet kilde beholder eksisterende data.
           if (i < sources.length - 1) {
-            await sleep(1000);
+            await sleep(result.ok ? 500 : 2000);
           }
         }
 
         const failures = importResults.filter(x => !x.ok);
         console.log("Kontrollert kilde-for-kilde-import:", {
-          mode:"browser-sequential-1s-no-retry",
+          mode:"browser-sequential-adaptive-no-retry",
           sourceCount:sources.length,
           successCount:importResults.length - failures.length,
           failureCount:failures.length,
@@ -1576,14 +1577,36 @@
       const loadedEvents = [];
       let eventPage = 1;
       const eventPageSize = 100;
+      let calendarLoadWarning = "";
 
       while (true) {
         const pageUrl = `${EVENTS_API}?page=${eventPage}&size=${eventPageSize}`;
-        const res = await fetch(pageUrl, {
-          headers:{"Accept":"application/json"},
-          cache:"no-store"
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status} ved henting av arrangementside ${eventPage}`);
+
+        let res;
+        try {
+          res = await fetch(pageUrl, {
+            headers:{"Accept":"application/json"},
+            cache:"no-store"
+          });
+        } catch (error) {
+          if (loadedEvents.length) {
+            calendarLoadWarning =
+              `Kalenderen ble delvis lastet. Henting stoppet på arrangementside ${eventPage}.`;
+            console.warn(calendarLoadWarning, error);
+            break;
+          }
+          throw error;
+        }
+
+        if (!res.ok) {
+          if (loadedEvents.length) {
+            calendarLoadWarning =
+              `Kalenderen ble delvis lastet. HTTP ${res.status} på arrangementside ${eventPage}.`;
+            console.warn(calendarLoadWarning);
+            break;
+          }
+          throw new Error(`HTTP ${res.status} ved henting av arrangementside ${eventPage}`);
+        }
 
         const data = await res.json();
         loadedEvents.push(...(Array.isArray(data) ? data : data.events || []));
@@ -1609,8 +1632,18 @@
       applyFilters();
       saveEventSnapshot();
       if (isManualRefresh) {
-        els.status.className = "status";
-        els.status.textContent = `${filtered.length} kommende arrangementer – oppdatert nå`;
+        if (calendarLoadWarning) {
+          els.status.className = "status error";
+          els.status.textContent =
+            `${filtered.length} arrangementer vist. ${calendarLoadWarning}`;
+        } else {
+          els.status.className = "status";
+          els.status.textContent = `${filtered.length} kommende arrangementer – oppdatert nå`;
+        }
+      } else if (calendarLoadWarning) {
+        els.status.className = "status error";
+        els.status.textContent =
+          `${filtered.length} arrangementer vist. ${calendarLoadWarning}`;
       }
     } catch (err) {
       console.error(err);
