@@ -216,7 +216,7 @@
       line-height:1;box-shadow:none;
     }
     .square-btn.active{color:var(--accent);outline:1px solid var(--accent)}
-    .square-btn.favorite-on{color:#f2c94c}
+    .square-btn.favorite-on{color:var(--text)}
     .square-btn:disabled{opacity:.42;cursor:not-allowed}
     .clear-filters-btn[hidden]{display:none!important}
     .clear-filters-btn{color:var(--text)}
@@ -229,7 +229,7 @@
       stroke-linecap:round;stroke-linejoin:round;
     }
     #favoriteToggleBtn .menu-icon{fill:none}
-    #favoriteToggleBtn.favorite-on .menu-icon{fill:currentColor}
+    #favoriteToggleBtn.favorite-on .menu-icon{fill:none}
 
     .toolbar{grid-template-columns:repeat(4,minmax(150px,1fr));}
     .search-field{display:none;grid-column:1/-1}
@@ -254,6 +254,24 @@
       border-color:var(--accent);
       box-shadow:0 0 0 1px var(--accent) inset;
     }
+    .favorite-all-btn{
+      color:var(--text);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .favorite-all-icon{
+      width:34px;
+      height:26px;
+      display:block;
+      margin:auto;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.45;
+      stroke-linejoin:round;
+    }
+    .favorite-all-btn.active .favorite-all-icon{color:var(--accent)}
+
 
     html[data-theme="light"] input,
     html[data-theme="light"] select,
@@ -283,7 +301,7 @@
 
 
 
-    /* V340 – kontaktskjema beholdt fra siste korrekte frontend */
+    /* V341 – kontaktskjema, lagt oppå full favoritt-baseline */
     .contact-modal[hidden]{display:none!important}
     .contact-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.68)}
     .contact-dialog{width:min(560px,100%);max-height:calc(100vh - 36px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 22px 70px rgba(0,0,0,.55);padding:20px}
@@ -383,7 +401,6 @@
     </section>
   </main>
 </div>
-
 
 <div id="contactModal" class="contact-modal" hidden aria-hidden="true">
   <div class="contact-dialog" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
@@ -508,6 +525,14 @@
       municipality:els.municipality.value || "",
       settlement:els.settlement.value || ""
     };
+  }
+
+  function eventMatchesFavorite(e, fav) {
+    if (fav.type && !(e.meetingTypes || []).includes(fav.type)) return false;
+    if (fav.municipality && e.municipality !== fav.municipality) return false;
+    if (fav.settlement && e.settlement !== fav.settlement) return false;
+    if (fav.organizer && e.organizer !== fav.organizer) return false;
+    return true;
   }
 
   function favoriteMatchesCurrent(fav) {
@@ -667,6 +692,7 @@
 
   let events = [];
   let filtered = [];
+  let combinedFavoritesActive = false;
   let monthCursor = new Date();
   monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth(), 1);
 
@@ -781,6 +807,7 @@
         event.preventDefault();
         event.stopPropagation();
 
+        combinedFavoritesActive = false;
         els.organizer.value = value;
         els.organizerCustom.classList.remove("open");
         els.organizerCustomButton.setAttribute("aria-expanded","false");
@@ -875,22 +902,65 @@
     const settlement = els.settlement.value;
     const organizer = els.organizer.value;
 
+    // V339: Felles-favoritter gjelder bare så lenge ingen ordinære filtre
+    // er valgt. Så snart brukeren bruker søk eller et nedtrekksfilter,
+    // nullstilles felles-favorittmodus automatisk og de vanlige filtrene
+    // får styre resultatet.
+    const explicitFilterActive = Boolean(
+      q || type || municipality || settlement || organizer
+    );
+
+    const combinedWasReset =
+      combinedFavoritesActive && explicitFilterActive;
+
+    if (combinedWasReset) {
+      combinedFavoritesActive = false;
+    }
+
+    const favorites = loadFavorites();
+
     filtered = events.filter(e => {
-      if (type && !(e.meetingTypes || []).includes(type)) return false;
-      if (municipality && e.municipality !== municipality) return false;
-      if (settlement && e.settlement !== settlement) return false;
-      if (organizer && e.organizer !== organizer) return false;
+      if (combinedFavoritesActive) {
+        if (!favorites.length || !favorites.some(fav => eventMatchesFavorite(e,fav))) {
+          return false;
+        }
+      } else {
+        if (type && !(e.meetingTypes || []).includes(type)) return false;
+        if (municipality && e.municipality !== municipality) return false;
+        if (settlement && e.settlement !== settlement) return false;
+        if (organizer && e.organizer !== organizer) return false;
+      }
+
       if (q) {
-        const hay = [e.title,e.organizer,e.location,e.settlement,e.municipality,e.description,...(e.meetingTypes||[])].join(" ").toLocaleLowerCase("no");
+        const hay = [
+          e.title,
+          e.organizer,
+          e.location,
+          e.settlement,
+          e.municipality,
+          e.description,
+          ...(e.meetingTypes || [])
+        ].join(" ").toLocaleLowerCase("no");
+
         if (!hay.includes(q)) return false;
       }
+
       return true;
     });
 
     els.status.className = "status";
-    els.status.textContent = `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"}`;
+    els.status.textContent =
+      `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"}`;
+
     renderList();
-    renderCalendar();    updateClearFiltersButton();
+    renderCalendar();
+    updateClearFiltersButton();
+
+    // Oppdater blå markering på favorittknappene med en gang fellesmodus
+    // ble slått av av et ordinært filtervalg.
+    if (combinedWasReset) {
+      renderFavoriteButtons();
+    }
   }
 
   function renderList() {
@@ -1122,6 +1192,49 @@
     const favorites = loadFavorites();
     els.favoritesButtons.innerHTML = "";
 
+    // Når det finnes minst to favoritter, vis en fellesknapp først.
+    if (favorites.length > 1) {
+      const allBtn = document.createElement("button");
+      allBtn.type = "button";
+      allBtn.className = "favorite-organizer-btn favorite-all-btn";
+      allBtn.title = "Vis alle favoritter samlet";
+      allBtn.setAttribute("aria-label","Vis alle favoritter samlet");
+      allBtn.classList.toggle("active",combinedFavoritesActive);
+      allBtn.innerHTML =
+        '<svg class="favorite-all-icon" viewBox="0 0 32 24" aria-hidden="true">' +
+          '<path d="m6 3 1.4 3 3.3.5-2.4 2.3.6 3.3L6 10.5 3.1 12l.6-3.2L1.3 6.5 4.6 6z"/>' +
+          '<path d="m16 7 1.7 3.5 3.8.6-2.8 2.7.7 3.8-3.4-1.8-3.4 1.8.7-3.8-2.8-2.7 3.8-.6z"/>' +
+          '<path d="m26 3 1.4 3 3.3.5-2.4 2.3.6 3.3-2.9-1.6-2.9 1.6.6-3.3-2.4-2.3 3.3-.5z"/>' +
+        '</svg>';
+
+      allBtn.addEventListener("click", () => {
+        combinedFavoritesActive = !combinedFavoritesActive;
+
+        if (combinedFavoritesActive) {
+          // Fellesfavoritt styres ikke av enkeltfilter. Vis "Alle..." overalt.
+          els.search.value = "";
+          els.type.value = "";
+          els.municipality.value = "";
+          refreshSettlementOptions();
+          els.settlement.value = "";
+          refreshOrganizerOptions();
+          els.organizer.value = "";
+
+          updateOrganizerSelectColor();
+          renderOrganizerCustom(
+            [...els.organizer.options].map(o => o.value).filter(Boolean)
+          );
+        }
+
+        saveFilters();
+        applyFilters();
+        renderFavoriteButtons();
+        updateFavoriteTopButton();
+      });
+
+      els.favoritesButtons.appendChild(allBtn);
+    }
+
     for (const fav of favorites) {
       const name = fav.organizer || fav.type || "Favoritt";
       const btn = document.createElement("button");
@@ -1140,11 +1253,10 @@
       btn.title = details.join(" · ") || name;
       btn.setAttribute("aria-label",btn.title);
 
-      // Blå ramme når akkurat denne favorittkombinasjonen er aktiv.
-      const selected = favoriteMatchesCurrent(fav);
+      // I fellesmodus markeres alle favoritter som valgt.
+      const selected = combinedFavoritesActive || favoriteMatchesCurrent(fav);
       btn.classList.toggle("active",selected);
 
-      // Samme arrangørfarge som ellers i portalen.
       if (fav.organizer) {
         const favColor = organizerColor(fav.organizer);
         btn.style.color = favColor.border || favColor.text || "var(--text)";
@@ -1161,6 +1273,11 @@
           if (confirm(`Fjerne ${btn.title} fra favoritter?`)) {
             const key = favoriteKey(fav);
             saveFavorites(loadFavorites().filter(x => favoriteKey(x) !== key));
+
+            // Hvis bare én favoritt står igjen, kan ikke fellesmodus være aktiv.
+            if (loadFavorites().length < 2) combinedFavoritesActive = false;
+
+            applyFilters();
             renderFavoriteButtons();
           }
         }, 700);
@@ -1183,8 +1300,10 @@
           return;
         }
 
+        // En enkeltfavoritt avslutter alltid fellesmodus.
+        combinedFavoritesActive = false;
+
         if (favoriteMatchesCurrent(fav)) {
-          // Klikk på aktiv favoritt = tilbake til alle filtre.
           els.type.value = "";
           els.municipality.value = "";
           refreshSettlementOptions();
@@ -1192,7 +1311,6 @@
           refreshOrganizerOptions();
           els.organizer.value = "";
         } else {
-          // Gjenskap hele filterkombinasjonen som ble lagret i favoritten.
           els.type.value = [...els.type.options].some(o => o.value === fav.type) ? fav.type : "";
 
           els.municipality.value =
@@ -1276,6 +1394,7 @@
 
   function filtersAreActive() {
     return Boolean(
+      combinedFavoritesActive ||
       (els.search.value || "").trim() ||
       els.type.value ||
       els.municipality.value ||
@@ -1289,6 +1408,7 @@
   }
 
   function clearAllFilters() {
+    combinedFavoritesActive = false;
     els.search.value = "";
     els.type.value = "";
     els.municipality.value = "";
@@ -1382,13 +1502,13 @@
         els.status.textContent =
           `Rydding ferdig (${purgeDeleted} slettet) – henter kilder…`;
 
-        // V338: Orkestrer sekvensielt fra nettleseren, men la HVER kilde være
+        // V335: Orkestrer sekvensielt fra nettleseren, men la HVER kilde være
         // en separat Worker-invokasjon. Dette unngår at én lang
         // /import-all-sequential-request står åpen gjennom 15 kilder + pauser,
         // noe som kan bli terminert av Cloudflare før den er ferdig.
         //
-        // Vi kjører fortsatt strengt én kilde om gangen, med tydelig pause
-        // mellom kildene og lengre pause etter feil.
+        // Vi kjører fortsatt strengt én kilde om gangen, men V341 bruker
+        // korte pauser: maks to forsøk, 1 s retry og 0,25/1 s mellom kilder.
         const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
         els.status.textContent = "Henter importplan…";
@@ -1428,11 +1548,11 @@
           let lastStatus = 0;
           let lastMessage = "";
 
-          for (let attempt=1; attempt<=3; attempt++) {
+          for (let attempt=1; attempt<=2; attempt++) {
             els.status.className = "status";
             els.status.textContent =
               `Oppdaterer ${i+1}/${sources.length}: ${label}` +
-              (attempt > 1 ? ` – forsøk ${attempt}/3…` : "…");
+              (attempt > 1 ? ` – forsøk ${attempt}/2…` : "…");
 
             try {
               const res = await fetch(importUrl, {
@@ -1473,15 +1593,8 @@
               lastMessage = error?.message || String(error);
             }
 
-            if (attempt < 3) {
-              // V338: 503 fra Cloudflare mangler ofte CORS-header, og fetch() blir da
-              // bare "Failed to fetch" med status 0. Behandle derfor både 5xx og
-              // nettverksfeil som midlertidig overbelastning og gi Worker/Baserow
-              // vesentlig lengre tid før neste forsøk.
-              const transient = lastStatus === 0 || lastStatus >= 500;
-              const retryDelay = transient
-                ? [30000, 60000][attempt-1]
-                : [10000, 20000][attempt-1];
+            if (attempt < 2) {
+              const retryDelay = 1000;
               els.status.textContent =
                 `${label} feilet – nytt forsøk om ${retryDelay/1000} sek…`;
               await sleep(retryDelay);
@@ -1510,13 +1623,9 @@
             );
           }
 
-          // V338: Adaptiv cooldown. Vanlig vellykket kilde får 10 sekunder.
-          // Har kilden trengt retry, gir vi 20 sekunder. En kilde som fortsatt
-          // feiler etter tre forsøk gir 45 sekunder før neste Source. Dermed
-          // unngår vi at én 503 utløser en hel kjede av nye 503-kall.
+          // Kort kontrollert pause før neste separate Worker-kall.
           if (i < sources.length - 1) {
-            const usedRetry = importResults.length && importResults[importResults.length-1]?.attempt > 1;
-            const pauseMs = success ? (usedRetry ? 20000 : 10000) : 45000;
+            const pauseMs = success ? 250 : 1000;
             els.status.textContent =
               `${label} ${success ? "ferdig" : "feilet"} – neste kilde om ${pauseMs/1000} sek…`;
             await sleep(pauseMs);
@@ -1595,6 +1704,7 @@
   }));
 
   els.settlement.addEventListener("change", () => {
+    combinedFavoritesActive = false;
     refreshOrganizerOptions();
     saveFilters();
     applyFilters();
@@ -1644,19 +1754,20 @@
   }
 
   els.organizer.addEventListener("change", () => {
+    combinedFavoritesActive = false;
     syncDependentFiltersFromOrganizer();
     saveFilters();
     applyFilters();
     renderFavoriteButtons();
   });
   els.municipality.addEventListener("change", () => {
+    combinedFavoritesActive = false;
     refreshSettlementOptions();
     refreshOrganizerOptions();
     saveFilters();
     applyFilters();
     renderFavoriteButtons();
   });
-
   function openContactModal(){
     els.contactStatus.textContent = "";
     els.contactStatus.className = "contact-status";
@@ -1714,14 +1825,11 @@
   });
   els.searchToggleBtn.addEventListener("click", () => {
     const visible = els.search.closest(".search-field").classList.contains("visible");
-
-    // Når søkefeltet skjules, skal også et eventuelt skjult søkekriterium fjernes.
     if (visible) {
       els.search.value = "";
       saveFilters();
       applyFilters();
     }
-
     setSearchVisible(!visible);
   });
   els.themeToggleBtn.addEventListener("click", () => {
