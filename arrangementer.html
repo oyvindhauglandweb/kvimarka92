@@ -1453,17 +1453,15 @@
         els.refreshBtn.textContent = "Oppdaterer…";
         els.status.className = "status";
 
-        // V342: Ingen purge før import.
-        // Eksisterende data skal stå urørt dersom en kilde feiler.
+        // V343: Kontrollert sekvensiering i nettleseren.
         //
-        // Fullimporten orkestreres igjen som én sekvensiell Worker-jobb.
-        // Dette unngår 26 raske browser -> Worker-kall som i V341 utløste
-        // Cloudflare 503/CORS-følgesymptomer. V337 Worker bruker ett forsøk
-        // per kilde og bare 750 ms mellom kildene.
-        els.status.textContent = "Starter kompakt, sikker fullimport…";
+        // Hver kilde får sin EGEN Worker-request og dermed egen Worker-kvote.
+        // Ingen purge før import, ingen retry-runder og ingen parallelle kall.
+        // Mellom ferdige kildekall venter vi bare 1 sekund.
+        els.status.textContent = "Henter importplan…";
 
-        const importRes = await fetch(IMPORT_ALL_SEQUENTIAL_API, {
-          method:"POST",
+        const planRes = await fetch(IMPORT_PLAN_API, {
+          method:"GET",
           headers:{
             "Accept":"application/json",
             "x-import-key":IMPORT_KEY
@@ -1471,24 +1469,93 @@
           cache:"no-store"
         });
 
-        if (importRes.status === 401) {
+        if (planRes.status === 401) {
           throw new Error("Importnøkkelen ble avvist (401).");
         }
-
-        const importData = await importRes.json().catch(() => ({}));
-
-        if (!importRes.ok && importRes.status !== 207) {
-          throw new Error(
-            `Sekvensiell fullimport HTTP ${importRes.status}` +
-            (importData.error ? `: ${importData.error}` : "")
-          );
+        if (!planRes.ok) {
+          throw new Error(`Kunne ikke hente importplan (HTTP ${planRes.status}).`);
         }
 
-        console.log("Sekvensiell arrangement-import:", importData);
+        const planData = await planRes.json();
+        const sources = Array.isArray(planData?.sources) ? planData.sources : [];
+        if (!sources.length) {
+          throw new Error("Importplanen inneholder ingen aktive kilder.");
+        }
 
-        const failures = Array.isArray(importData.results)
-          ? importData.results.filter(x => !x?.ok)
-          : [];
+        const importResults = [];
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        for (let i = 0; i < sources.length; i++) {
+          const source = sources[i] || {};
+          const sourceId = String(source.sourceId || "").trim();
+          const sourceName = String(source.name || sourceId || "Ukjent kilde").trim();
+
+          els.status.className = "status";
+          els.status.textContent =
+            `Importerer ${i + 1} av ${sources.length}: ${sourceName}…`;
+
+          let result;
+
+          try {
+            const importRes = await fetch(
+              `${IMPORT_API}?sourceId=${encodeURIComponent(sourceId)}`,
+              {
+                method:"POST",
+                headers:{
+                  "Accept":"application/json",
+                  "x-import-key":IMPORT_KEY
+                },
+                cache:"no-store"
+              }
+            );
+
+            if (importRes.status === 401) {
+              throw new Error("Importnøkkelen ble avvist (401).");
+            }
+
+            const data = await importRes.json().catch(() => ({}));
+            const ok =
+              importRes.ok &&
+              data?.ok !== false &&
+              Number(data?.failureCount || 0) === 0;
+
+            result = {
+              ok,
+              sourceId,
+              sourceName,
+              status:importRes.status,
+              data,
+              error:ok ? "" : String(
+                data?.error ||
+                data?.results?.find?.(x => x && x.ok === false)?.error ||
+                `HTTP ${importRes.status}`
+              )
+            };
+          } catch (error) {
+            result = {
+              ok:false,
+              sourceId,
+              sourceName,
+              error:String(error?.message || error || "Failed to fetch")
+            };
+          }
+
+          importResults.push(result);
+
+          // Kort, fast avstand. Ikke retry: feilet kilde beholder eksisterende data.
+          if (i < sources.length - 1) {
+            await sleep(1000);
+          }
+        }
+
+        const failures = importResults.filter(x => !x.ok);
+        console.log("Kontrollert kilde-for-kilde-import:", {
+          mode:"browser-sequential-1s-no-retry",
+          sourceCount:sources.length,
+          successCount:importResults.length - failures.length,
+          failureCount:failures.length,
+          results:importResults
+        });
 
         if (failures.length) {
           const names = failures
@@ -1502,7 +1569,7 @@
         } else {
           els.status.className = "status";
           els.status.textContent =
-            "Fullimport ferdig – henter oppdatert kalender…";
+            `Fullimport ferdig (${sources.length} av ${sources.length} kilder) – henter kalender…`;
         }
       }
 
