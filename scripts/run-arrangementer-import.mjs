@@ -5,7 +5,6 @@ import {
   ARR_F,
   arrListAllRows,
   arrImportAllSources,
-  arrDedupeExistingVigrestad,
   arrClean,
   arrNormalize,
   arrResolveHaaFellesraadOrganizer
@@ -50,6 +49,90 @@ function linkedNames(linkValue, byRowId, byPublicId) {
   }
 
   return [...new Set(names)];
+}
+
+
+function normalizeSemanticText(value) {
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function vigrestadSnapshotKey(event) {
+  if (normalizeSemanticText(event?.organizer) !== normalizeSemanticText("Vigrestad Misjonshus")) {
+    return "";
+  }
+
+  const title = normalizeSemanticText(event?.title);
+  const start = new Date(event?.startTime || "").toISOString?.();
+
+  if (!title || !event?.startTime) return "";
+  const ms = new Date(event.startTime).getTime();
+  if (!Number.isFinite(ms)) return "";
+
+  return `${new Date(ms).toISOString()}|${title}`;
+}
+
+function dedupeVigrestadSnapshot(events) {
+  const groups = new Map();
+  const passthrough = [];
+
+  for (const event of events) {
+    const key = vigrestadSnapshotKey(event);
+    if (!key) {
+      passthrough.push(event);
+      continue;
+    }
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(event);
+  }
+
+  let duplicateGroups = 0;
+  let removed = 0;
+  const deduped = [...passthrough];
+
+  const score = event => {
+    let n = 0;
+    if (String(event.description || "").trim()) n += 100;
+    if (String(event.sourceUrl || "").trim()) n += 10;
+    if (String(event.location || "").trim()) n += 5;
+
+    // Foretrekk hovedkilden dersom den finnes, ellers beste romkilde.
+    const source = normalizeSemanticText(event.source || "");
+    if (source === normalizeSemanticText("Vigrestad Misjonshus")) n += 1000;
+
+    return n;
+  };
+
+  for (const items of groups.values()) {
+    if (items.length === 1) {
+      deduped.push(items[0]);
+      continue;
+    }
+
+    duplicateGroups++;
+    removed += items.length - 1;
+
+    const ordered = [...items].sort((a, b) => {
+      const d = score(b) - score(a);
+      if (d) return d;
+      return String(a.id || "").localeCompare(String(b.id || ""));
+    });
+
+    // Snapshot-only: behold én rad i JSON. Baserow endres ikke.
+    deduped.push(ordered[0]);
+  }
+
+  deduped.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+  return {
+    events: deduped,
+    duplicateGroups,
+    removed
+  };
 }
 
 async function buildSnapshot(importSummary) {
@@ -164,13 +247,27 @@ async function buildSnapshot(importSummary) {
 
   events.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
 
+  // V402: Dedupe kun i publisert snapshot.
+  // Dette er trygt selv om én Vigrestad-romkilde feiler, fordi ingen Baserow-rader
+  // deaktiveres eller slettes. Vi fjerner bare eksakte semantiske dubletter
+  // (samme tittel + eksakt starttid) fra JSON-en som frontend leser.
+  const vigrestadSnapshotDedupe = dedupeVigrestadSnapshot(events);
+
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     engineVersion: ARRANGEMENT_ENGINE_VERSION,
     generatedAt: new Date().toISOString(),
-    eventCount: events.length,
-    importSummary,
-    events
+    eventCount: vigrestadSnapshotDedupe.events.length,
+    importSummary: {
+      ...importSummary,
+      snapshotDedupe: {
+        organizer: "Vigrestad Misjonshus",
+        duplicateGroups: vigrestadSnapshotDedupe.duplicateGroups,
+        removedFromSnapshot: vigrestadSnapshotDedupe.removed,
+        baserowRowsChanged: 0
+      }
+    },
+    events: vigrestadSnapshotDedupe.events
   };
 }
 
@@ -186,38 +283,16 @@ const result = await arrImportAllSources(env, { cleanup: false });
 const sourceResults = Array.isArray(result.sources) ? result.sources : [];
 const activeSources = await arrListAllRows(env, ARR_TABLE.SOURCES);
 
-const vigrestadSourceIds = activeSources
-  .filter(row => row[ARR_F.sources.enabled] !== false)
-  .map(row => ({
-    id: arrClean(row[ARR_F.sources.sourceId] || ""),
-    name: arrClean(row[ARR_F.sources.name] || "")
-  }))
-  .filter(source =>
-    /^SRC-(?:001[6-9]|002[0-6])$/i.test(source.id) ||
-    arrNormalize(source.name).startsWith(arrNormalize("Vigrestad Misjonshus"))
-  );
-
-const resultById = new Map(
-  sourceResults.map(row => [arrClean(row.sourceId || ""), row])
-);
-
-const allVigrestadSucceeded =
-  vigrestadSourceIds.length > 0 &&
-  vigrestadSourceIds.every(source => {
-    const row = resultById.get(source.id);
-    return row && !row.error;
-  });
-
-let dedupe = {
-  ok: false,
-  skipped: true,
-  reason: "Ikke alle aktive Vigrestad-kilder lyktes."
+// V402: Ikke kjør destruktiv/deaktiverende Vigrestad-dedupe i Baserow.
+// Dedupe skjer kun i snapshotet som publiseres til frontend. Dette gjør at
+// Fuglareiret kan være tom/feile uten at vi mister beskyttelsen eller får
+// duplikater i den publiserte kalenderen.
+const dedupe = {
+  ok: true,
+  mode: "snapshot-only",
+  baserowRowsChanged: 0,
+  note: "Vigrestad-duplikater fjernes kun fra arrangementer-data.json."
 };
-
-if (allVigrestadSucceeded) {
-  console.log("Alle Vigrestad-kilder lyktes. Kjører isolert dedupe...");
-  dedupe = await arrDedupeExistingVigrestad(env);
-}
 
 const summary = {
   ok: result.ok,
