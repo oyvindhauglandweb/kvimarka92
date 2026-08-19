@@ -1,59 +1,146 @@
-const ARRANGEMENT_ENGINE_VERSION = "v400-github-actions-2026-08-19";
+const ARRANGEMENT_ENGINE_VERSION = "v408-multi-area-sandnes-2026-08-20";
 
-const ARR_TABLE = {
-  EVENTS: 1137493,
-  SOURCES: 1137506,
-  MEETING_TYPES: 1137511,
-  SETTLEMENTS: 1137544,
+const ARR_AREAS = {
+  default: {
+    name: "Felles",
+    tables: {
+      EVENTS: 1137493,
+      SOURCES: 1137506,
+      MEETING_TYPES: 1137511,
+      SETTLEMENTS: 1137544,
+    },
+    fields: {
+      events: {
+        eventId: "field_10177330",
+        title: "field_10177331",
+        startTime: "field_10177332",
+        endTime: "field_10177389",
+        meetingType: "field_10177390",
+        organizer: "field_10177394",
+        location: "field_10177397",
+        description: "field_10177398",
+        source: "field_10177399",
+        sourceUrl: "field_10177400",
+        sourceEventId: "field_10177438",
+        lastSeen: "field_10177439",
+        active: "field_10177442",
+        manuallyEdited: "field_10177443",
+        settlement: "field_10178013",
+      },
+      sources: {
+        sourceId: "field_10177445",
+        name: "field_10177446",
+        website: "field_10177447",
+        calendarUrl: "field_10177474",
+        sourceType: "field_10177498",
+        enabled: "field_10177499",
+        importMethod: "field_10177503",
+        lastImport: "field_10177505",
+        importStatus: "field_10177508",
+        defaultSettlement: "field_10178042",
+      },
+      meetingTypes: {
+        typeId: "field_10177509",
+        name: "field_10177510",
+        description: "field_10177511",
+        keywords: "field_10177858",
+        priority: "field_10177859",
+        active: "field_10177860",
+        sortOrder: "field_10177861",
+      },
+      settlements: {
+        settlementId: "field_10177956",
+        name: "field_10177957",
+        municipality: "field_10177958",
+        active: "field_10178007",
+        sortOrder: "field_10178009",
+      },
+    },
+  },
+
+  sandnes: {
+    name: "Sandnes",
+    databaseId: 528983,
+    tables: {
+      EVENTS: 1144908,
+      SOURCES: 1144922,
+      MEETING_TYPES: 1144925,
+      SETTLEMENTS: 1144926,
+    },
+    fields: {
+      events: {
+        eventId: "field_10252551",
+        title: "field_10252552",
+        startTime: "field_10252553",
+        endTime: "field_10252554",
+        meetingType: "field_10252555",
+        organizer: "field_10252556",
+        location: "field_10252557",
+        description: "field_10252558",
+        source: "field_10252559",
+        sourceUrl: "field_10252560",
+        sourceEventId: "field_10252561",
+        lastSeen: "field_10252562",
+        active: "field_10252563",
+        manuallyEdited: "field_10252564",
+        settlement: "field_10252565",
+      },
+      sources: {
+        sourceId: "field_10252702",
+        name: "field_10252703",
+        website: "field_10252704",
+        calendarUrl: "field_10252705",
+        sourceType: "field_10252706",
+        enabled: "field_10252707",
+        importMethod: "field_10252708",
+        lastImport: "field_10252709",
+        importStatus: "field_10252710",
+        defaultSettlement: "field_10252711",
+      },
+      meetingTypes: {
+        typeId: "field_10252723",
+        name: "field_10252724",
+        description: "field_10252725",
+        keywords: "field_10252726",
+        priority: "field_10252727",
+        active: "field_10252728",
+        sortOrder: "field_10252729",
+      },
+      settlements: {
+        settlementId: "field_10252736",
+        name: "field_10252737",
+        municipality: "field_10252738",
+        active: "field_10252739",
+        sortOrder: "field_10252740",
+      },
+    },
+  },
 };
 
-const ARR_F = {
-  events: {
-    eventId: "field_10177330",
-    title: "field_10177331",
-    startTime: "field_10177332",
-    endTime: "field_10177389",
-    meetingType: "field_10177390",
-    organizer: "field_10177394",
-    location: "field_10177397",
-    description: "field_10177398",
-    source: "field_10177399",
-    sourceUrl: "field_10177400",
-    sourceEventId: "field_10177438",
-    lastSeen: "field_10177439",
-    active: "field_10177442",
-    manuallyEdited: "field_10177443",
-    settlement: "field_10178013",
-  },
-  sources: {
-    sourceId: "field_10177445",
-    name: "field_10177446",
-    website: "field_10177447",
-    calendarUrl: "field_10177474",
-    sourceType: "field_10177498",
-    enabled: "field_10177499",
-    importMethod: "field_10177503",
-    lastImport: "field_10177505",
-    importStatus: "field_10177508",
-    defaultSettlement: "field_10178042",
-  },
-  meetingTypes: {
-    typeId: "field_10177509",
-    name: "field_10177510",
-    description: "field_10177511",
-    keywords: "field_10177858",
-    priority: "field_10177859",
-    active: "field_10177860",
-    sortOrder: "field_10177861",
-  },
-  settlements: {
-    settlementId: "field_10177956",
-    name: "field_10177957",
-    municipality: "field_10177958",
-    active: "field_10178007",
-    sortOrder: "field_10178009",
-  },
-};
+let ARR_CURRENT_AREA = "default";
+let ARR_TABLE = ARR_AREAS.default.tables;
+let ARR_F = ARR_AREAS.default.fields;
+
+function arrUseArea(areaKey = "default") {
+  const key = String(areaKey || "default").trim().toLowerCase();
+  const area = ARR_AREAS[key];
+
+  if (!area) {
+    throw new Error(`Ukjent Arrangementer-område: ${areaKey}`);
+  }
+
+  ARR_CURRENT_AREA = key;
+  ARR_TABLE = area.tables;
+  ARR_F = area.fields;
+  return area;
+}
+
+function arrGetAreaConfig(areaKey = ARR_CURRENT_AREA) {
+  const key = String(areaKey || "default").trim().toLowerCase();
+  const area = ARR_AREAS[key];
+  if (!area) throw new Error(`Ukjent Arrangementer-område: ${areaKey}`);
+  return area;
+}
 
 const ARR_NORWEGIAN_MONTHS = {
   januar:1, februar:2, mars:3, april:4, mai:5, juni:6,
@@ -340,6 +427,8 @@ function arrResolveHaaFellesraadOrganizer(title, organizer) {
 }
 
 async function arrImportAllSources(env, options={}) {
+  const areaKey = String(options.area || "default").trim().toLowerCase();
+  arrUseArea(areaKey);
   const requestedSourceIds = new Set((options.sourceIds || []).map(x => String(x || '').trim()).filter(Boolean));
   const doCleanup = options.cleanup !== false;
   const includeDisabled = options.includeDisabled === true;
@@ -454,6 +543,8 @@ async function arrImportAllSources(env, options={}) {
 
   const result = {
     ok:true,
+    area:areaKey,
+    areaName:arrGetAreaConfig(areaKey).name,
     startedAt:new Date().toISOString(),
     sources:[],
     created:0,
@@ -4051,8 +4142,11 @@ async function arrDedupeExistingVigrestad(env) {
 
 export {
   ARRANGEMENT_ENGINE_VERSION,
+  ARR_AREAS,
   ARR_TABLE,
   ARR_F,
+  arrUseArea,
+  arrGetAreaConfig,
   arrApiBase,
   arrHeaders,
   arrListAllRows,

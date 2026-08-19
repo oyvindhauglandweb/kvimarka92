@@ -1,8 +1,10 @@
 import fs from "node:fs/promises";
 import {
   ARRANGEMENT_ENGINE_VERSION,
+  ARR_AREAS,
   ARR_TABLE,
   ARR_F,
+  arrUseArea,
   arrListAllRows,
   arrImportAllSources,
   arrClean,
@@ -51,6 +53,7 @@ function linkedNames(linkValue, byRowId, byPublicId) {
   return [...new Set(names)];
 }
 
+
 function normalizeSemanticText(value) {
   return String(value ?? "")
     .normalize("NFKD")
@@ -69,7 +72,8 @@ function localDateKey(value) {
   const d = new Date(value || "");
   if (!Number.isFinite(d.getTime())) return "";
 
-  // Kildene gjelder Norge. Bruk Europe/Oslo eksplisitt for gruppering.
+  // Kildene gjelder Norge. Snapshotet brukes for 2026-data, der browser/front-end
+  // presenterer norsk lokal tid. Bruk Europe/Oslo eksplisitt for gruppering.
   return new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Europe/Oslo",
     year: "numeric",
@@ -83,15 +87,11 @@ function eventInterval(event) {
   if (!Number.isFinite(start)) return null;
 
   let end = new Date(event?.endTime || "").getTime();
-
   if (!Number.isFinite(end) || end < start) {
     end = start;
   }
 
-  return {
-    start,
-    end
-  };
+  return { start, end };
 }
 
 function intervalsOverlap(a, b) {
@@ -106,11 +106,8 @@ function dedupeVigrestadSnapshot(events) {
   const vigrestad = [];
 
   for (const event of events) {
-    if (vigrestadIsEvent(event)) {
-      vigrestad.push(event);
-    } else {
-      passthrough.push(event);
-    }
+    if (vigrestadIsEvent(event)) vigrestad.push(event);
+    else passthrough.push(event);
   }
 
   const buckets = new Map();
@@ -125,44 +122,26 @@ function dedupeVigrestadSnapshot(events) {
     }
 
     const key = `${day}|${title}`;
-
-    if (!buckets.has(key)) {
-      buckets.set(key, []);
-    }
-
+    if (!buckets.has(key)) buckets.set(key, []);
     buckets.get(key).push(event);
   }
 
   let duplicateGroups = 0;
   let removed = 0;
   let overlapGroups = 0;
-
   const deduped = [...passthrough];
 
   const score = event => {
     let n = 0;
-
     const source = normalizeSemanticText(event.source || "");
 
     // Hovedkilden er fasit når den finnes.
-    if (
-      source === normalizeSemanticText("Vigrestad Misjonshus")
-    ) {
-      n += 10000;
-    }
+    if (source === normalizeSemanticText("Vigrestad Misjonshus")) n += 10000;
 
     // Deretter foretrekk mest informative rad.
-    if (String(event.description || "").trim()) {
-      n += 100;
-    }
-
-    if (String(event.sourceUrl || "").trim()) {
-      n += 10;
-    }
-
-    if (String(event.location || "").trim()) {
-      n += 5;
-    }
+    if (String(event.description || "").trim()) n += 100;
+    if (String(event.sourceUrl || "").trim()) n += 10;
+    if (String(event.location || "").trim()) n += 5;
 
     return n;
   };
@@ -172,7 +151,6 @@ function dedupeVigrestadSnapshot(events) {
     const ordered = [...items].sort((a, b) => {
       const ai = eventInterval(a);
       const bi = eventInterval(b);
-
       return (ai?.start ?? 0) - (bi?.start ?? 0);
     });
 
@@ -189,26 +167,17 @@ function dedupeVigrestadSnapshot(events) {
       let target = null;
 
       for (const cluster of clusters) {
-        const overlaps = cluster.items.some(existing => {
+        if (cluster.items.some(existing => {
           const existingInterval = eventInterval(existing);
-
-          return (
-            existingInterval &&
-            intervalsOverlap(interval, existingInterval)
-          );
-        });
-
-        if (overlaps) {
+          return existingInterval && intervalsOverlap(interval, existingInterval);
+        })) {
           target = cluster;
           break;
         }
       }
 
       if (!target) {
-        target = {
-          items: []
-        };
-
+        target = { items: [] };
         clusters.push(target);
       }
 
@@ -227,25 +196,17 @@ function dedupeVigrestadSnapshot(events) {
 
       const best = [...cluster.items].sort((a, b) => {
         const d = score(b) - score(a);
-
         if (d) return d;
-
-        return String(a.id || "")
-          .localeCompare(String(b.id || ""));
+        return String(a.id || "").localeCompare(String(b.id || ""));
       })[0];
 
-      // Behold tidspunktet fra valgt fasitrad.
-      // Vi slår IKKE sammen start/slutt, fordi romreservasjoner ofte
-      // starter tidligere enn selve arrangementet.
+      // Behold tidspunktet fra valgt fasitrad. Vi slår IKKE sammen start/slutt,
+      // fordi romreservasjoner ofte starter tidligere enn selve arrangementet.
       deduped.push(best);
     }
   }
 
-  deduped.sort(
-    (a, b) =>
-      new Date(a.startTime) -
-      new Date(b.startTime)
-  );
+  deduped.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
 
   return {
     events: deduped,
@@ -255,13 +216,10 @@ function dedupeVigrestadSnapshot(events) {
   };
 }
 
-async function buildSnapshot(importSummary) {
-  const [
-    eventsRows,
-    settlements,
-    meetingTypes,
-    sources
-  ] = await Promise.all([
+async function readAreaSnapshotEvents(areaKey) {
+  arrUseArea(areaKey);
+
+  const [eventsRows, settlements, meetingTypes, sources] = await Promise.all([
     arrListAllRows(env, ARR_TABLE.EVENTS),
     arrListAllRows(env, ARR_TABLE.SETTLEMENTS),
     arrListAllRows(env, ARR_TABLE.MEETING_TYPES),
@@ -275,56 +233,16 @@ async function buildSnapshot(importSummary) {
 
   for (const row of settlements) {
     const rowId = Number(row.id);
+    const publicId = arrClean(row[ARR_F.settlements.settlementId] || "");
+    const name = arrClean(row[ARR_F.settlements.name] || "");
+    const municipality = arrClean(row[ARR_F.settlements.municipality] || "");
 
-    const publicId = arrClean(
-      row[ARR_F.settlements.settlementId] ||
-      ""
-    );
+    if (Number.isFinite(rowId) && name) settlementNameByRowId.set(rowId, name);
+    if (publicId && name) settlementNameByPublicId.set(arrNormalize(publicId), name);
+    if (name) municipalityBySettlementName.set(arrNormalize(name), municipality);
 
-    const name = arrClean(
-      row[ARR_F.settlements.name] ||
-      ""
-    );
-
-    const municipality = arrClean(
-      row[ARR_F.settlements.municipality] ||
-      ""
-    );
-
-    if (
-      Number.isFinite(rowId) &&
-      name
-    ) {
-      settlementNameByRowId.set(
-        rowId,
-        name
-      );
-    }
-
-    if (
-      publicId &&
-      name
-    ) {
-      settlementNameByPublicId.set(
-        arrNormalize(publicId),
-        name
-      );
-    }
-
-    if (name) {
-      municipalityBySettlementName.set(
-        arrNormalize(name),
-        municipality
-      );
-    }
-
-    if (
-      row[ARR_F.settlements.active] !== false &&
-      name
-    ) {
-      activeSettlementNames.add(
-        arrNormalize(name)
-      );
+    if (row[ARR_F.settlements.active] !== false && name) {
+      activeSettlementNames.add(arrNormalize(name));
     }
   }
 
@@ -333,381 +251,202 @@ async function buildSnapshot(importSummary) {
 
   for (const row of meetingTypes) {
     const rowId = Number(row.id);
+    const publicId = arrClean(row[ARR_F.meetingTypes.typeId] || "");
+    const name = arrClean(row[ARR_F.meetingTypes.name] || "");
 
-    const publicId = arrClean(
-      row[ARR_F.meetingTypes.typeId] ||
-      ""
-    );
-
-    const name = arrClean(
-      row[ARR_F.meetingTypes.name] ||
-      ""
-    );
-
-    if (
-      Number.isFinite(rowId) &&
-      name
-    ) {
-      meetingTypeNameByRowId.set(
-        rowId,
-        name
-      );
-    }
-
-    if (
-      publicId &&
-      name
-    ) {
-      meetingTypeNameByPublicId.set(
-        arrNormalize(publicId),
-        name
-      );
-    }
+    if (Number.isFinite(rowId) && name) meetingTypeNameByRowId.set(rowId, name);
+    if (publicId && name) meetingTypeNameByPublicId.set(arrNormalize(publicId), name);
   }
 
   const activeSourceNames = new Set();
   const activeSourceIds = new Set();
 
   for (const row of sources) {
-    if (
-      row[ARR_F.sources.enabled] === false
-    ) {
-      continue;
-    }
-
-    const name = arrClean(
-      row[ARR_F.sources.name] ||
-      ""
-    );
-
-    const id = arrClean(
-      row[ARR_F.sources.sourceId] ||
-      ""
-    );
-
-    if (name) {
-      activeSourceNames.add(
-        arrNormalize(name)
-      );
-    }
-
-    if (id) {
-      activeSourceIds.add(
-        arrNormalize(id)
-      );
-    }
+    if (row[ARR_F.sources.enabled] === false) continue;
+    const name = arrClean(row[ARR_F.sources.name] || "");
+    const id = arrClean(row[ARR_F.sources.sourceId] || "");
+    if (name) activeSourceNames.add(arrNormalize(name));
+    if (id) activeSourceIds.add(arrNormalize(id));
   }
 
   const now = Date.now();
-
-  const fromMs =
-    now -
-    6 * 60 * 60 * 1000;
-
-  const toMs =
-    now +
-    370 * 86400000;
-
+  const fromMs = now - 6 * 60 * 60 * 1000;
+  const toMs = now + 370 * 86400000;
   const events = [];
 
   for (const row of eventsRows) {
-    if (
-      row[ARR_F.events.active] === false
-    ) {
-      continue;
-    }
+    if (row[ARR_F.events.active] === false) continue;
 
-    const source = arrClean(
-      row[ARR_F.events.source] ||
-      ""
-    );
-
-    const normalizedSource =
-      arrNormalize(source);
+    const source = arrClean(row[ARR_F.events.source] || "");
+    const normalizedSource = arrNormalize(source);
 
     if (
       normalizedSource &&
       !activeSourceNames.has(normalizedSource) &&
       !activeSourceIds.has(normalizedSource)
-    ) {
-      continue;
-    }
+    ) continue;
 
-    const startTime =
-      row[ARR_F.events.startTime] ||
-      null;
+    const startTime = row[ARR_F.events.startTime] || null;
+    const startMs = new Date(startTime).getTime();
+    if (!Number.isFinite(startMs) || startMs < fromMs || startMs > toMs) continue;
 
-    const startMs =
-      new Date(startTime).getTime();
-
-    if (
-      !Number.isFinite(startMs) ||
-      startMs < fromMs ||
-      startMs > toMs
-    ) {
-      continue;
-    }
-
-    const settlementNames =
-      linkedNames(
-        row[ARR_F.events.settlement],
-        settlementNameByRowId,
-        settlementNameByPublicId
-      );
+    const settlementNames = linkedNames(
+      row[ARR_F.events.settlement],
+      settlementNameByRowId,
+      settlementNameByPublicId
+    );
 
     if (
       settlementNames.length &&
-      !settlementNames.some(
-        name =>
-          activeSettlementNames.has(
-            arrNormalize(name)
-          )
-      )
-    ) {
-      continue;
-    }
+      !settlementNames.some(name => activeSettlementNames.has(arrNormalize(name)))
+    ) continue;
 
-    const settlement =
-      settlementNames[0] ||
-      "";
-
-    const typeNames =
-      linkedNames(
-        row[ARR_F.events.meetingType],
-        meetingTypeNameByRowId,
-        meetingTypeNameByPublicId
-      );
+    const settlement = settlementNames[0] || "";
+    const typeNames = linkedNames(
+      row[ARR_F.events.meetingType],
+      meetingTypeNameByRowId,
+      meetingTypeNameByPublicId
+    );
 
     events.push({
-      id:
-        row[ARR_F.events.eventId] ||
-        String(row.id),
-
-      title:
-        row[ARR_F.events.title] ||
-        "",
-
+      id: row[ARR_F.events.eventId] || String(row.id),
+      title: row[ARR_F.events.title] || "",
       startTime,
-
-      endTime:
-        row[ARR_F.events.endTime] ||
-        null,
-
-      meetingTypes:
-        typeNames,
-
-      organizer:
-        arrResolveHaaFellesraadOrganizer(
-          row[ARR_F.events.title] ||
-          "",
-          row[ARR_F.events.organizer] ||
-          source ||
-          ""
-        ),
-
-      location:
-        row[ARR_F.events.location] ||
-        "",
-
+      endTime: row[ARR_F.events.endTime] || null,
+      meetingTypes: typeNames,
+      organizer: arrResolveHaaFellesraadOrganizer(
+        row[ARR_F.events.title] || "",
+        row[ARR_F.events.organizer] || source || ""
+      ),
+      location: row[ARR_F.events.location] || "",
       settlement,
-
-      municipality:
-        municipalityBySettlementName.get(
-          arrNormalize(settlement)
-        ) ||
-        "",
-
-      description:
-        row[ARR_F.events.description] ||
-        "",
-
-      sourceUrl:
-        row[ARR_F.events.sourceUrl] ||
-        "",
-
+      municipality: municipalityBySettlementName.get(arrNormalize(settlement)) || "",
+      description: row[ARR_F.events.description] || "",
+      sourceUrl: row[ARR_F.events.sourceUrl] || "",
       source,
-
-      active:
-        true
+      active: true
     });
   }
 
-  events.sort(
-    (a, b) =>
-      new Date(a.startTime) -
-      new Date(b.startTime)
-  );
+  return events;
+}
 
-  // V403:
-  // Dedupe kun i publisert snapshot.
-  // Samme Vigrestad-tittel på samme lokale dato samles når tidsintervallene
-  // overlapper. Dette håndterer romreservasjoner med litt ulik start/slutt.
-  // Ingen Baserow-rader deaktiveres eller slettes.
-  const vigrestadSnapshotDedupe =
-    dedupeVigrestadSnapshot(events);
+async function buildSnapshot(importSummary) {
+  const areaKeys = ["default", "sandnes"];
+  const allEvents = [];
+
+  for (const areaKey of areaKeys) {
+    allEvents.push(...await readAreaSnapshotEvents(areaKey));
+  }
+
+  allEvents.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+  // Vigrestad-dedupe skjer fortsatt kun i publisert snapshot.
+  const vigrestadSnapshotDedupe = dedupeVigrestadSnapshot(allEvents);
 
   return {
-    schemaVersion: 3,
-
-    engineVersion:
-      ARRANGEMENT_ENGINE_VERSION,
-
-    generatedAt:
-      new Date().toISOString(),
-
-    eventCount:
-      vigrestadSnapshotDedupe.events.length,
-
+    schemaVersion: 4,
+    engineVersion: ARRANGEMENT_ENGINE_VERSION,
+    generatedAt: new Date().toISOString(),
+    areas: areaKeys.map(key => ({
+      key,
+      name: ARR_AREAS[key].name,
+      eventsTable: ARR_AREAS[key].tables.EVENTS
+    })),
+    eventCount: vigrestadSnapshotDedupe.events.length,
     importSummary: {
       ...importSummary,
-
       snapshotDedupe: {
-        organizer:
-          "Vigrestad Misjonshus",
-
-        duplicateGroups:
-          vigrestadSnapshotDedupe
-            .duplicateGroups,
-
-        overlapGroups:
-          vigrestadSnapshotDedupe
-            .overlapGroups,
-
-        removedFromSnapshot:
-          vigrestadSnapshotDedupe
-            .removed,
-
-        baserowRowsChanged:
-          0
+        organizer: "Vigrestad Misjonshus",
+        duplicateGroups: vigrestadSnapshotDedupe.duplicateGroups,
+        overlapGroups: vigrestadSnapshotDedupe.overlapGroups,
+        removedFromSnapshot: vigrestadSnapshotDedupe.removed,
+        baserowRowsChanged: 0
       }
     },
-
-    events:
-      vigrestadSnapshotDedupe.events
+    events: vigrestadSnapshotDedupe.events
   };
 }
 
-console.log(
-  `Arrangementer import engine: ${ARRANGEMENT_ENGINE_VERSION}`
+console.log(`Arrangementer import engine: ${ARRANGEMENT_ENGINE_VERSION}`);
+console.log("Starter multi-area import: Felles + Sandnes...");
+
+// Importene kjøres sekvensielt. Det er bevisst:
+// ARR_TABLE/ARR_F peker på ett område om gangen, og sekvensiell kjøring
+// gjør områdebyttet deterministisk og enkelt å feilsøke.
+const defaultResult = await arrImportAllSources(env, {
+  cleanup: false,
+  area: "default"
+});
+
+const sandnesResult = await arrImportAllSources(env, {
+  cleanup: false,
+  area: "sandnes"
+});
+
+const areaResults = [
+  { key: "default", result: defaultResult },
+  { key: "sandnes", result: sandnesResult }
+];
+
+const sourceResults = areaResults.flatMap(({key, result}) =>
+  (Array.isArray(result.sources) ? result.sources : []).map(row => ({
+    ...row,
+    area: key
+  }))
 );
 
-console.log(
-  "Starter full import uten Cloudflare Worker CPU-grense..."
-);
-
-// Viktig: cleanup:false.
-// Vi sletter aldri historikk før ny import er validert.
-// En vellykket source kan fortsatt deaktivere egne arrangementer som faktisk
-// er forsvunnet fra kilden; en source som feiler beholder eksisterende data.
-const result =
-  await arrImportAllSources(
-    env,
-    {
-      cleanup: false
-    }
-  );
-
-const sourceResults =
-  Array.isArray(result.sources)
-    ? result.sources
-    : [];
-
-const activeSources =
-  await arrListAllRows(
-    env,
-    ARR_TABLE.SOURCES
-  );
-
-// V403:
-// Ikke kjør destruktiv/deaktiverende Vigrestad-dedupe i Baserow.
-// Dedupe skjer kun i snapshotet som publiseres til frontend.
+// Ingen destruktiv Vigrestad-dedupe i Baserow.
 const dedupe = {
   ok: true,
   mode: "snapshot-only",
   baserowRowsChanged: 0,
-  note:
-    "Vigrestad-duplikater fjernes kun fra arrangementer-data.json."
+  note: "Vigrestad-duplikater fjernes kun fra arrangementer-data.json."
 };
 
 const summary = {
-  ok:
-    result.ok,
-
-  startedAt:
-    result.startedAt,
-
-  finishedAt:
-    result.finishedAt,
-
-  created:
-    result.created,
-
-  updated:
-    result.updated,
-
-  errors:
-    result.errors,
-
-  sourceCount:
-    sourceResults.length,
-
-  successfulSources:
-    sourceResults.filter(
-      row => !row.error
-    ).length,
-
-  failedSources:
-    sourceResults
-      .filter(
-        row => row.error
-      )
-      .map(
-        row => ({
-          sourceId:
-            row.sourceId,
-
-          name:
-            row.name,
-
-          error:
-            row.error
-        })
-      ),
-
+  ok: areaResults.every(({result}) => result.ok),
+  startedAt: areaResults
+    .map(({result}) => result.startedAt)
+    .filter(Boolean)
+    .sort()[0] || null,
+  finishedAt: areaResults
+    .map(({result}) => result.finishedAt)
+    .filter(Boolean)
+    .sort()
+    .at(-1) || null,
+  created: areaResults.reduce((sum, {result}) => sum + Number(result.created || 0), 0),
+  updated: areaResults.reduce((sum, {result}) => sum + Number(result.updated || 0), 0),
+  errors: areaResults.reduce((sum, {result}) => sum + Number(result.errors || 0), 0),
+  sourceCount: sourceResults.length,
+  successfulSources: sourceResults.filter(row => !row.error).length,
+  failedSources: sourceResults
+    .filter(row => row.error)
+    .map(row => ({
+      area: row.area,
+      sourceId: row.sourceId,
+      name: row.name,
+      error: row.error
+    })),
+  areas: areaResults.map(({key, result}) => ({
+    key,
+    name: ARR_AREAS[key].name,
+    eventsTable: ARR_AREAS[key].tables.EVENTS,
+    sourcesTable: ARR_AREAS[key].tables.SOURCES,
+    created: result.created,
+    updated: result.updated,
+    errors: result.errors,
+    sourceCount: Array.isArray(result.sources) ? result.sources.length : 0
+  })),
   dedupe
 };
 
-const snapshot =
-  await buildSnapshot(summary);
+const snapshot = await buildSnapshot(summary);
+await fs.writeFile(outputPath, JSON.stringify(snapshot, null, 2) + "\n", "utf8");
 
-await fs.writeFile(
-  outputPath,
-  JSON.stringify(
-    snapshot,
-    null,
-    2
-  ) + "\n",
-  "utf8"
-);
+console.log(JSON.stringify(summary, null, 2));
+console.log(`Skrev ${snapshot.eventCount} arrangementer fra ${snapshot.areas.length} områder til ${outputPath}.`);
 
-console.log(
-  JSON.stringify(
-    summary,
-    null,
-    2
-  )
-);
-
-console.log(
-  `Skrev ${snapshot.eventCount} arrangementer til ${outputPath}.`
-);
-
-// Workflowen skal fortsatt fullføres selv om enkelte kilder feiler.
-// Kildevernet beholder da de eksisterende radene.
-if (
-  summary.failedSources.length
-) {
-  console.warn(
-    `${summary.failedSources.length} kilde(r) feilet, eksisterende data er beholdt.`
-  );
+if (summary.failedSources.length) {
+  console.warn(`${summary.failedSources.length} kilde(r) feilet, eksisterende data er beholdt.`);
 }
