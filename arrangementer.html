@@ -433,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v414-sandnes-sentrum-rename-2026-08-21";
+  const FRONTEND_VERSION = "v415-normalize-sandnes-sentrum-events-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -545,6 +545,19 @@
       });
       if (changed) saveFavorites(migrated);
     } catch (_) {}
+  }
+
+  function normalizeEventSettlementName(event) {
+    if (!event || typeof event !== "object") return event;
+
+    if (
+      event.municipality === "Sandnes" &&
+      event.settlement === "Sentrum"
+    ) {
+      return {...event, settlement:"Sandnes sentrum"};
+    }
+
+    return event;
   }
 
   function reconcileFavoritesWithCurrentEvents() {
@@ -718,7 +731,7 @@
 
     events = snapshot.events
       .filter(e => e && e.active !== false)
-      .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
+      .map(e => normalizeEventSettlementName({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
       .filter(e => asDate(e.startTime))
       .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
 
@@ -1578,7 +1591,7 @@
       const loadedEvents = data.events;
       events = loadedEvents
         .filter(e => e.active !== false)
-        .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
+        .map(e => normalizeEventSettlementName({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
         .filter(e => asDate(e.startTime))
         .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
 
@@ -1605,7 +1618,7 @@
       if (snapshot && Array.isArray(snapshot.events) && snapshot.events.length) {
         events = snapshot.events
           .filter(e => e.active !== false)
-          .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
+          .map(e => normalizeEventSettlementName({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
           .filter(e => asDate(e.startTime))
           .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
 
