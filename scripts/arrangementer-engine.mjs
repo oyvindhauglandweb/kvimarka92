@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v427-lye-multi-month-ics-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v428-lye-list-jsonld-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -1367,7 +1367,7 @@ async function arrLoadSourceEvents(source) {
   // inneværende måned og gjennom importvinduet (+400 dager), i stedet for
   // bare måneden som vises akkurat nå.
   if (/lyeforsamlingshus\.no/i.test(url)) {
-    return arrFetchAndParseLyeMultiMonthIcal(url);
+    return arrFetchAndParseLyeList(url);
   }
 
   // Accept the human-readable values used in the Sources table.
@@ -1768,54 +1768,152 @@ async function arrFetchAndParseVigrestad() {
 }
 
 
-async function arrFetchAndParseLyeMultiMonthIcal(url) {
+async function arrFetchAndParseLyeList(url) {
   const parsedUrl = new URL(url);
   const origin = parsedUrl.origin;
+  const startDate = new Date();
+  const startKey = startDate.toISOString().slice(0,10);
 
-  const now = new Date();
-  const end = new Date(Date.now() + 400 * 86400000);
-
-  const firstMonth = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    1
-  ));
-  const lastMonth = new Date(Date.UTC(
-    end.getUTCFullYear(),
-    end.getUTCMonth(),
-    1
-  ));
-
+  // The Events Calendar sin måneds-ICS er bare én måned og de daterte
+  // ICS-endepunktene kan time ut fra GitHub Actions. Listevisningen er vanlig
+  // HTML og inneholder ferdige schema.org/Event-objekter i JSON-LD.
+  let nextUrl = `${origin}/events/liste/?tribe-bar-date=${startKey}`;
+  const visited = new Set();
   const all = [];
+  let pages = 0;
 
-  for (
-    let cursor = new Date(firstMonth);
-    cursor <= lastMonth;
-    cursor.setUTCMonth(cursor.getUTCMonth() + 1)
-  ) {
-    const yyyy = cursor.getUTCFullYear();
-    const mm = String(cursor.getUTCMonth() + 1).padStart(2, "0");
-    const monthUrl = `${origin}/events/maned/${yyyy}-${mm}/?ical=1`;
+  const maxTs = Date.now() + 400 * 86400000;
+  const minTs = Date.now() - 7 * 86400000;
 
-    const monthItems = await arrFetchAndParseIcal(monthUrl);
-    all.push(...monthItems);
+  function extractJsonLdEvents(html, pageUrl) {
+    const found = [];
+    const scriptRe = /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+    let m;
+
+    while ((m = scriptRe.exec(html)) !== null) {
+      const raw = String(m[1] || "").trim();
+      if (!raw) continue;
+
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (_) {
+        continue;
+      }
+
+      const queue = Array.isArray(data) ? [...data] : [data];
+
+      while (queue.length) {
+        const item = queue.shift();
+        if (!item || typeof item !== "object") continue;
+
+        if (Array.isArray(item)) {
+          queue.push(...item);
+          continue;
+        }
+
+        if (item["@graph"] && Array.isArray(item["@graph"])) {
+          queue.push(...item["@graph"]);
+        }
+
+        const type = Array.isArray(item["@type"]) ? item["@type"] : [item["@type"]];
+        if (!type.some(v => String(v || "").toLowerCase() === "event")) continue;
+
+        const title = arrClean(item.name || "");
+        const startTime = arrClean(item.startDate || "");
+        if (!title || !startTime) continue;
+
+        const ts = new Date(startTime).getTime();
+        if (!Number.isFinite(ts) || ts < minTs || ts > maxTs) continue;
+
+        const eventUrl = arrClean(item.url || pageUrl);
+        const location =
+          arrClean(item.location?.name || item.location || "");
+        const organizer =
+          arrClean(item.organizer?.name || item.organizer || "");
+        const description =
+          arrClean(arrHtmlToLines(String(item.description || "")));
+
+        found.push({
+          sourceEventId: eventUrl
+            ? `lye-${eventUrl.replace(/^https?:\/\//i,"").replace(/[^a-z0-9æøå]+/gi,"-").replace(/^-|-$/g,"").slice(-120)}`
+            : null,
+          title,
+          startTime,
+          endTime: arrClean(item.endDate || "") || null,
+          organizer,
+          location,
+          description,
+          sourceUrl: eventUrl || pageUrl,
+          municipalityHint: "Time",
+          settlementHint: "Lye"
+        });
+      }
+    }
+
+    return found;
   }
 
-  // Samme arrangement kan i enkelte kalenderoppsett dukke opp i flere
-  // måneds-eksporter. Dedupliser derfor på Source Event ID + starttid.
+  function extractNextListUrl(html, pageUrl) {
+    const anchors = [...html.matchAll(/<a\b([^>]*?)href=["']([^"']+)["']([^>]*)>/gi)];
+
+    for (const m of anchors) {
+      const attrs = `${m[1] || ""} ${m[3] || ""}`;
+      const href = arrDecodeEntities(m[2] || "").replace(/&amp;/g,"&");
+
+      if (
+        /\brel=["'][^"']*\bnext\b/i.test(attrs) ||
+        /tribe-events-c-nav__next/i.test(attrs)
+      ) {
+        try {
+          const absolute = new URL(href, pageUrl).href;
+          if (/\/events\/liste\//i.test(absolute)) return absolute;
+        } catch (_) {}
+      }
+    }
+
+    return null;
+  }
+
+  while (nextUrl && pages < 60) {
+    if (visited.has(nextUrl)) break;
+    visited.add(nextUrl);
+    pages++;
+
+    const html = await arrFetchText(nextUrl);
+    const pageItems = extractJsonLdEvents(html, nextUrl);
+    all.push(...pageItems);
+
+    // Hvis siden allerede inneholder arrangementer etter importvinduet trenger
+    // vi ikke følge pagineringen videre.
+    const pageDates = pageItems
+      .map(item => new Date(item.startTime).getTime())
+      .filter(Number.isFinite);
+
+    if (pageDates.length && Math.max(...pageDates) >= maxTs) break;
+
+    const candidate = extractNextListUrl(html, nextUrl);
+    if (!candidate || visited.has(candidate)) break;
+    nextUrl = candidate;
+  }
+
+  // Dedupliser. Event-URL er normalt unik i The Events Calendar.
   const seen = new Set();
   const unique = [];
 
   for (const item of all) {
-    const key = [
-      arrClean(item.sourceEventId || ""),
-      arrClean(item.startTime || ""),
-      arrNormalize(item.title || "")
-    ].join("|");
+    if (!item.sourceEventId) {
+      item.sourceEventId = `lye-${await arrStableKey("LYE", item.startTime, item.title)}`;
+    }
 
+    const key = `${item.sourceEventId}|${item.startTime}`;
     if (seen.has(key)) continue;
     seen.add(key);
     unique.push(item);
+  }
+
+  if (!unique.length) {
+    throw new Error(`Lye-parser fant ingen arrangementer i listevisningen (${pages} side(r) lest)`);
   }
 
   return arrFilterParsedEventWindow(unique);
