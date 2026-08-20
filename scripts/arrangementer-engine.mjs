@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v426-ical-query-direct-feed-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v427-lye-multi-month-ics-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -1362,6 +1362,14 @@ async function arrLoadSourceEvents(source) {
     return arrFetchAndParseEbeneser();
   }
 
+  // V427: The Events Calendar sin ?ical=1-eksport på Lye er knyttet til
+  // den månedsvisningen URL-en gjelder. Hent derfor alle måneder fra
+  // inneværende måned og gjennom importvinduet (+400 dager), i stedet for
+  // bare måneden som vises akkurat nå.
+  if (/lyeforsamlingshus\.no/i.test(url)) {
+    return arrFetchAndParseLyeMultiMonthIcal(url);
+  }
+
   // Accept the human-readable values used in the Sources table.
   if (["ical","ics","i cal","i-calendar","ics/ical","ical/ics"].includes(method)) {
     return arrFetchAndParseIcalFromPage(url);
@@ -1757,6 +1765,60 @@ async function arrFetchAndParseVigrestad() {
   const deduped = arrDedupeParsed(all);
   if (!deduped.length) throw new Error("Vigrestad-parser fant ingen offentlige arrangementer");
   return deduped;
+}
+
+
+async function arrFetchAndParseLyeMultiMonthIcal(url) {
+  const parsedUrl = new URL(url);
+  const origin = parsedUrl.origin;
+
+  const now = new Date();
+  const end = new Date(Date.now() + 400 * 86400000);
+
+  const firstMonth = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    1
+  ));
+  const lastMonth = new Date(Date.UTC(
+    end.getUTCFullYear(),
+    end.getUTCMonth(),
+    1
+  ));
+
+  const all = [];
+
+  for (
+    let cursor = new Date(firstMonth);
+    cursor <= lastMonth;
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1)
+  ) {
+    const yyyy = cursor.getUTCFullYear();
+    const mm = String(cursor.getUTCMonth() + 1).padStart(2, "0");
+    const monthUrl = `${origin}/events/maned/${yyyy}-${mm}/?ical=1`;
+
+    const monthItems = await arrFetchAndParseIcal(monthUrl);
+    all.push(...monthItems);
+  }
+
+  // Samme arrangement kan i enkelte kalenderoppsett dukke opp i flere
+  // måneds-eksporter. Dedupliser derfor på Source Event ID + starttid.
+  const seen = new Set();
+  const unique = [];
+
+  for (const item of all) {
+    const key = [
+      arrClean(item.sourceEventId || ""),
+      arrClean(item.startTime || ""),
+      arrNormalize(item.title || "")
+    ].join("|");
+
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(item);
+  }
+
+  return arrFilterParsedEventWindow(unique);
 }
 
 async function arrFetchAndParseIcalFromPage(url) {
