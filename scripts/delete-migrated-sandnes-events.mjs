@@ -70,9 +70,29 @@ async function deleteRow(token, tableId, rowId) {
     method: "DELETE",
     headers: headers(token)
   });
-  if (!(r.ok || r.status === 204)) {
-    throw new Error(`DELETE ${tableId}/${rowId} failed ${r.status}: ${await r.text()}`);
+
+  if (r.ok || r.status === 204) {
+    return { deleted: true, alreadyDeleted: false };
   }
+
+  const detail = await r.text();
+
+  // Idempotent cleanup:
+  // Baserow can answer 400 ERROR_CANNOT_DELETE_ALREADY_DELETED_ITEM if a row
+  // was already removed earlier. That is already the desired end state, so
+  // do not abort the whole cleanup job.
+  if (
+    r.status === 404 ||
+    (
+      r.status === 400 &&
+      /ERROR_CANNOT_DELETE_ALREADY_DELETED_ITEM|already been deleted/i.test(detail)
+    )
+  ) {
+    console.log(`Rad ${rowId} var allerede slettet – hopper videre.`);
+    return { deleted: false, alreadyDeleted: true };
+  }
+
+  throw new Error(`DELETE ${tableId}/${rowId} failed ${r.status}: ${detail}`);
 }
 
 async function main() {
@@ -159,17 +179,30 @@ async function main() {
   }
 
   let deleted = 0;
+  let alreadyDeleted = 0;
+  let processed = 0;
+
   for (const row of candidates) {
-    await deleteRow(OLD_TOKEN, OLD_EVENTS_TABLE, row.id);
-    deleted++;
-    if (deleted % 50 === 0 || deleted === candidates.length) {
-      console.log(`Slettet ${deleted}/${candidates.length} gamle Sandnes-events`);
+    const result = await deleteRow(OLD_TOKEN, OLD_EVENTS_TABLE, row.id);
+    processed++;
+
+    if (result.deleted) deleted++;
+    if (result.alreadyDeleted) alreadyDeleted++;
+
+    if (processed % 50 === 0 || processed === candidates.length) {
+      console.log(
+        `Behandlet ${processed}/${candidates.length} gamle Sandnes-events ` +
+        `(slettet=${deleted}, allerede slettet=${alreadyDeleted})`
+      );
     }
   }
 
   console.log(JSON.stringify({
     ok: true,
+    candidates: candidates.length,
+    processed,
     deleted,
+    alreadyDeleted,
     table: OLD_EVENTS_TABLE,
     newSandnesWorkspaceChanged: false
   }, null, 2));
