@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v415-settlement-specific-before-municipality-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v416-import-history-2026-08-20";
 
 const ARR_AREAS = {
   default: {

@@ -29,6 +29,7 @@ if (!env.ARRANGEMENT_BASEROW_TOKEN_SANDNES) {
 }
 
 const outputPath = process.env.ARRANGEMENT_DATA_PATH || "arrangementer-data.json";
+const historyPath = process.env.ARRANGEMENT_HISTORY_PATH || "arrangementer-import-history.json";
 
 
 function envForArea(areaKey) {
@@ -580,6 +581,15 @@ const summary = {
       name: row.name,
       error: row.error
     })),
+  sourceResults: sourceResults.map(row => ({
+    area: row.area,
+    sourceId: row.sourceId,
+    name: row.name,
+    created: Number(row.created || 0),
+    updated: Number(row.updated || 0),
+    skipped: Number(row.skipped || 0),
+    error: row.error || null
+  })),
   areas: areaResults.map(({key, result}) => ({
     key,
     name: ARR_AREAS[key].name,
@@ -599,6 +609,60 @@ const summary = {
 
 const snapshot = await buildSnapshot(summary);
 await fs.writeFile(outputPath, JSON.stringify(snapshot, null, 2) + "\n", "utf8");
+
+// V416: Behold en kompakt historikk over de siste fem importene.
+// Historikken ligger i GitHub sammen med snapshotet og bruker ingen Baserow-rader.
+let previousHistory = [];
+try {
+  const rawHistory = await fs.readFile(historyPath, "utf8");
+  const parsedHistory = JSON.parse(rawHistory);
+  previousHistory = Array.isArray(parsedHistory?.imports)
+    ? parsedHistory.imports
+    : Array.isArray(parsedHistory)
+      ? parsedHistory
+      : [];
+} catch (_) {
+  previousHistory = [];
+}
+
+const historyEntry = {
+  generatedAt: snapshot.generatedAt,
+  engineVersion: ARRANGEMENT_ENGINE_VERSION,
+  ok: summary.ok,
+  startedAt: summary.startedAt,
+  finishedAt: summary.finishedAt,
+  eventCount: snapshot.eventCount,
+  created: summary.created,
+  updated: summary.updated,
+  errors: summary.errors,
+  sourceCount: summary.sourceCount,
+  successfulSources: summary.successfulSources,
+  failedSources: summary.failedSources,
+  areas: summary.areas.map(area => ({
+    key: area.key,
+    name: area.name,
+    eventsTable: area.eventsTable,
+    sourcesTable: area.sourcesTable,
+    created: Number(area.created || 0),
+    updated: Number(area.updated || 0),
+    errors: Number(area.errors || 0),
+    sourceCount: Number(area.sourceCount || 0)
+  })),
+  sourceResults: summary.sourceResults,
+  migrations: summary.migrations,
+  snapshotDedupe: snapshot.importSummary?.snapshotDedupe || null
+};
+
+const history = {
+  schemaVersion: 1,
+  generatedAt: snapshot.generatedAt,
+  imports: [
+    historyEntry,
+    ...previousHistory.filter(row => row?.generatedAt !== historyEntry.generatedAt)
+  ].slice(0, 5)
+};
+
+await fs.writeFile(historyPath, JSON.stringify(history, null, 2) + "\n", "utf8");
 
 console.log(JSON.stringify(summary, null, 2));
 console.log(`Skrev ${snapshot.eventCount} arrangementer fra ${snapshot.areas.length} områder til ${outputPath}.`);
