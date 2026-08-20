@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v417-import-history-created-rows-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v419-sandnes-settlement-rules-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -1014,6 +1014,12 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
     ? settlementRules.filter(rule => rule.municipalityNormalized === municipalityHint)
     : settlementRules;
 
+  const findRuleByName = (name, rules=rulesForMunicipality) => {
+    const wanted = arrNormalize(name || "");
+    if (!wanted) return null;
+    return rules.find(rule => rule.normalized === wanted) || null;
+  };
+
   const findBest = (value, rules=rulesForMunicipality, options={}) => {
     const text = arrNormalize(value || "");
     if (!text) return null;
@@ -1025,9 +1031,6 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
       const needle = rule.normalized;
       if (!needle) continue;
 
-      // I kommuner der kommunenavnet også er et Settlement-navn, f.eks.
-      // Sandnes kommune / Sandnes by, skal "Sandnes" være siste fallback.
-      // Et mer spesifikt sted som Ganddal, Bogafjell, Hana, Lura osv. vinner.
       if (
         excludeMunicipalityName &&
         municipalityHint &&
@@ -1060,9 +1063,58 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
     return candidates[0].rule;
   };
 
-  // Sjekk først eksplisitte treff mot ALLE settlements i riktig kommune,
-  // inkludert deaktiverte. Da vil et eksplisitt deaktivert område fortsatt
-  // stoppe arrangementet i stedet for å falle tilbake til et annet sted.
+  const defaultIds = arrLinkedIds(source[ARR_F.sources.defaultSettlement])
+    .map(Number)
+    .filter(Number.isFinite);
+
+  const allowedDefaultIds = municipalityHint
+    ? defaultIds.filter(id =>
+        rulesForMunicipality.some(rule => Number(rule.rowId) === id)
+      )
+    : defaultIds;
+
+  // V419 regel 1:
+  // Hvis Sources har nøyaktig ETT gyldig Settlement, er det eksplisitt
+  // konfigurasjon og skal overstyre alt annet.
+  // Eksempel: Fredheim Arena -> Soma.
+  if (allowedDefaultIds.length === 1) {
+    const defaultId = Number(allowedDefaultIds[0]);
+
+    if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
+      return null;
+    }
+
+    return [defaultId];
+  }
+
+  // V419: eksplisitte lokale aliaser der kilden bruker navn som ikke er
+  // identisk med bydelen i Settlements.
+  //
+  // Gand sokn / Gand kirke ligger i Sandved bydel.
+  // "Sandnes" som tidligere Settlement-navn er nå Sentrum, men Sentrum skal
+  // fortsatt være siste fallback og ikke slå mer spesifikke bydeler.
+  if (municipalityHint === "sandnes") {
+    const aliasText = arrNormalize([
+      item.organizer,
+      item.location,
+      item.title,
+      item.description,
+      item.settlementHint
+    ].filter(Boolean).join(" "));
+
+    const gandRe = /(^|[^a-z0-9æøå])gand(?:\s+sokn|\s+kirke)?($|[^a-z0-9æøå])/i;
+    if (gandRe.test(aliasText)) {
+      const sandved = findRuleByName("Sandved", allRulesForMunicipality);
+      if (sandved) {
+        if (sandved.active === false) return null;
+        return [sandved.rowId];
+      }
+    }
+  }
+
+  // Sjekk eksplisitte treff mot ALLE settlements i riktig kommune,
+  // inkludert deaktiverte. Et deaktivert eksplisitt sted skal ikke falle
+  // tilbake til en annen bydel.
   const explicitSpecific =
     findBest(item.location, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
     findBest(item.title, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
@@ -1077,8 +1129,7 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
     return [explicitSpecific.rowId];
   }
 
-  // Deretter kan et strukturert settlementHint brukes hvis det ikke bare er
-  // kommunenavnet. Eksempel: Hommersåk skal slå Sandnes.
+  // Strukturert settlementHint før generelle fallback-regler.
   let matched = findBest(
     item.settlementHint,
     rulesForMunicipality,
@@ -1086,33 +1137,7 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
   );
   if (matched) return [matched.rowId];
 
-  // Kildens Default Settlement brukes bare direkte når det er ett entydig valg.
-  // Har kilden flere tillatte settlements (som Den norske kirke – Sandnes),
-  // velger vi IKKE tilfeldig første rad.
-  const defaultIds = arrLinkedIds(source[ARR_F.sources.defaultSettlement])
-    .map(Number)
-    .filter(Number.isFinite);
-
-  const allowedDefaultIds = municipalityHint
-    ? defaultIds.filter(id =>
-        rulesForMunicipality.some(rule => Number(rule.rowId) === id)
-      )
-    : defaultIds;
-
-  if (allowedDefaultIds.length === 1) {
-    const defaultId = Number(allowedDefaultIds[0]);
-
-    if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
-      return null;
-    }
-
-    return [defaultId];
-  }
-
-  // Nå får kommunenavnet selv lov til å matche. Dette er bevisst sent.
-  // Eksempel Sandnes:
-  //   Ganddal/Bogafjell/Hana/Lura/Hommersåk/... er prøvd først.
-  //   Bare arrangementer uten mer presist sted ender på Sandnes.
+  // Tillat deretter eksplisitt bruk av et aktivt Settlement-navn.
   matched =
     findBest(item.location, rulesForMunicipality) ||
     findBest(item.title, rulesForMunicipality) ||
@@ -1121,8 +1146,16 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
 
   if (matched) return [matched.rowId];
 
-  // Hvis kommunen er kjent og det finnes et aktivt Settlement med nøyaktig
-  // samme navn som kommunen, brukes dette som absolutt siste kommune-fallback.
+  // V419: Sandnes bydel "Sandnes" er omdøpt til "Sentrum".
+  // Sentrum er ABSOLUTT siste fallback for Sandnes kommune når kilden har
+  // flere mulige Settlements og eventet ikke kan knyttes til en annen bydel.
+  if (municipalityHint === "sandnes") {
+    const sentrum = findRuleByName("Sentrum", rulesForMunicipality);
+    if (sentrum) return [sentrum.rowId];
+  }
+
+  // Generisk kommune-fallback beholdes for andre kommuner der kommunenavnet
+  // også finnes som Settlement.
   if (municipalityHint) {
     const municipalitySettlement = rulesForMunicipality.find(
       rule => rule.normalized === municipalityHint
@@ -1131,12 +1164,6 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
     if (municipalitySettlement) {
       return [municipalitySettlement.rowId];
     }
-  }
-
-  // Uten municipality-named Settlement: dersom kilden har flere defaults,
-  // ikke gjett. Hvis ett av dem fortsatt er entydig etter filtrering, bruk det.
-  if (allowedDefaultIds.length === 1) {
-    return [Number(allowedDefaultIds[0])];
   }
 
   return [];
