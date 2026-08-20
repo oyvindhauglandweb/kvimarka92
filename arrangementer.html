@@ -343,9 +343,6 @@
         <button id="contactBtn" class="square-btn" type="button" title="Kontakt" aria-label="Kontakt">
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h17v13h-17z"/><path d="m4 6 8 7 8-7"/></svg>
         </button>
-        <button id="refreshTopBtn" class="square-btn" type="button" title="Kjør full oppdatering" aria-label="Kjør full oppdatering">
-          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8.2A7 7 0 0 1 18 6l2 2M18 15.8A7 7 0 0 1 6 18l-2-2"/></svg>
-        </button>
         <button id="clearFiltersBtn" class="square-btn clear-filters-btn" type="button" title="Nullstill filtre" aria-label="Nullstill filtre" hidden>
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg>
         </button>
@@ -381,7 +378,6 @@
       <div class="view-buttons legacy-view-buttons" aria-label="Visning">
         <button id="listBtn" class="active" type="button">Liste</button>
         <button id="calBtn" type="button">Kalender</button>
-        <button id="refreshBtn" type="button">Oppdater</button>
       </div>
       <div id="favoritesRow" class="favorites-row" aria-label="Favorittarrangører">
         <div id="favoritesButtons" style="display:flex;gap:7px;flex-wrap:wrap"></div>
@@ -437,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v406-organizer-prefers-specific-settlement-2026-08-20";
+  const FRONTEND_VERSION = "v407-public-no-manual-import-2026-08-20";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -445,7 +441,6 @@
   // - kontaktskjema sendes via samme Worker
   const API_BASE = "https://kvimarka92-arrangementer-api.oyvind-haugland.workers.dev";
   const STATIC_EVENTS_URL = "./arrangementer-data.json";
-  const IMPORT_START_API = `${API_BASE}/arrangementer/import-start`;
 
   const FILTER_STORAGE_KEY = "arrangementer.filters.v1";
   const SNAPSHOT_STORAGE_KEY = "arrangementer.snapshot.v1";
@@ -677,13 +672,12 @@
 
   // Nøkkelen brukes bare for å tillate start av GitHub Actions-jobben.
   // Selve Baserow-tokenet finnes kun som GitHub Secret og eksponeres ikke i frontend.
-  const IMPORT_KEY = "oD0likwHw5ZpGJsNtRXg6eRp9jN7C9FR";
 
   const $ = (id) => document.getElementById(id);
   const els = {
     search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
     viewToggleBtn:$("viewToggleBtn"), searchToggleBtn:$("searchToggleBtn"), themeToggleBtn:$("themeToggleBtn"),
-    favoriteToggleBtn:$("favoriteToggleBtn"), contactBtn:$("contactBtn"), refreshTopBtn:$("refreshTopBtn"),
+    favoriteToggleBtn:$("favoriteToggleBtn"), contactBtn:$("contactBtn"),
     clearFiltersBtn:$("clearFiltersBtn"),
     contactModal:$("contactModal"), contactForm:$("contactForm"), contactCloseBtn:$("contactCloseBtn"), contactCancelBtn:$("contactCancelBtn"),
     contactSubject:$("contactSubject"), contactMessage:$("contactMessage"), contactName:$("contactName"), contactEmail:$("contactEmail"), contactWebsite:$("contactWebsite"), contactStatus:$("contactStatus"), contactSubmitBtn:$("contactSubmitBtn"),
@@ -1452,68 +1446,7 @@
 
     try {
       if (isManualRefresh) {
-        els.refreshBtn.disabled = true;
-        els.refreshBtn.textContent = "Oppdaterer…";
-        els.status.className = "status";
-        els.status.textContent = "Starter import i GitHub Actions…";
-
-        const startedAt = Date.now();
-
-        const startRes = await fetch(IMPORT_START_API, {
-          method:"POST",
-          headers:{
-            "Accept":"application/json",
-            "x-import-key":IMPORT_KEY
-          },
-          cache:"no-store"
-        });
-
-        const startData = await startRes.json().catch(() => ({}));
-
-        if (!startRes.ok || startData?.ok === false) {
-          throw new Error(
-            startData?.error || `Kunne ikke starte import (HTTP ${startRes.status}).`
-          );
-        }
-
-        // Poll statisk snapshot. Ingen Cloudflare/Baserow-import skjer i nettleseren.
-        // Vi venter til generatedAt er nyere enn tidspunktet da importen ble startet.
-        const deadline = Date.now() + 4 * 60 * 1000;
-        let snapshot = null;
-
-        while (Date.now() < deadline) {
-          els.status.textContent = "Import kjører i GitHub Actions – venter på nytt datasett…";
-
-          await new Promise(resolve => setTimeout(resolve, 5000));
-
-          const pollRes = await fetch(
-            `${STATIC_EVENTS_URL}?t=${Date.now()}`,
-            { cache:"no-store" }
-          );
-
-          if (!pollRes.ok) continue;
-
-          const candidate = await pollRes.json().catch(() => null);
-          const generatedMs = new Date(candidate?.generatedAt || 0).getTime();
-
-          if (
-            candidate &&
-            Array.isArray(candidate.events) &&
-            Number.isFinite(generatedMs) &&
-            generatedMs >= startedAt - 2000
-          ) {
-            snapshot = candidate;
-            break;
-          }
-        }
-
-        if (!snapshot) {
-          throw new Error(
-            "Importen ble startet, men nytt snapshot var ikke publisert innen 4 minutter."
-          );
-        }
-
-        window.__arrangementerFreshSnapshot = snapshot;
+        throw new Error("Manuell import er flyttet til Admin → Importhistorikk.");
       }
 
       const data = window.__arrangementerFreshSnapshot || await (async () => {
@@ -1584,10 +1517,7 @@
         els.list.innerHTML = "";
       }
     } finally {
-      if (isManualRefresh) {
-        els.refreshBtn.disabled = false;
-        els.refreshBtn.textContent = "Oppdater";
-      }
+      // Manuell import finnes ikke på den offentlige siden.
     }
   }
 
@@ -1763,7 +1693,6 @@
   els.contactModal.addEventListener("click", event => { if(event.target === els.contactModal) closeContactModal(); });
   els.clearFiltersBtn.addEventListener("click", clearAllFilters);
 
-  els.refreshBtn.addEventListener("click", () => load(true));
   els.prevMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()-12,1); renderCalendar(); });
   els.nextMonth.addEventListener("click", () => { monthCursor = new Date(monthCursor.getFullYear(),monthCursor.getMonth()+12,1); renderCalendar(); });
 
@@ -1772,7 +1701,6 @@
     if (els.organizerCustom.classList.contains("open")) closeOrganizerCustom();
     else openOrganizerCustom();
   });
-  els.refreshTopBtn.addEventListener("click", () => els.refreshBtn.click());
   els.organizerCustomMenu.addEventListener("click", event => event.stopPropagation());
   document.addEventListener("click", closeOrganizerCustom);
   document.addEventListener("keydown", event => {

@@ -36,6 +36,13 @@ a,button{color:var(--text)}
 .small{font-size:13px;color:var(--muted);line-height:1.5}
 details{border-top:1px solid var(--line);padding:11px 0 0;margin-top:10px}
 summary{cursor:pointer;font-weight:700}
+.created-details{border:0;padding:0;margin:0}
+.created-details>summary{display:inline-block;list-style:none;white-space:nowrap}
+.created-details>summary::-webkit-details-marker{display:none}
+.created-details>summary::before{content:"▶ ";font-size:.75em}
+.created-details[open]>summary::before{content:"▼ "}
+.import-running{color:var(--warn)}
+.refresh:disabled{opacity:.65;cursor:wait}
 table{width:100%;border-collapse:collapse;margin-top:9px;font-size:13px}
 th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{color:var(--muted)}
@@ -56,7 +63,7 @@ th{color:var(--muted)}
   <div class="top">
     <a class="back" href="./arrangementer.html">← Arrangementer</a>
     <div>
-      <button class="refresh" id="refreshBtn">↻ Oppdater</button>
+      <button class="refresh" id="refreshBtn" title="Start ny Arrangementer-import">↻ Oppdater</button>
       <div class="status" id="status"></div>
     </div>
   </div>
@@ -66,6 +73,9 @@ th{color:var(--muted)}
 (() => {
   "use strict";
   const HISTORY_URL="./arrangementer-import-history.json";
+  const API_BASE="https://kvimarka92-arrangementer-api.oyvind-haugland.workers.dev";
+  const IMPORT_START_API=`${API_BASE}/arrangementer/import-start`;
+  const IMPORT_KEY="oD0likwHw5ZpGJsNtRXg6eRp9jN7C9FR";
   const content=document.getElementById("content");
   const status=document.getElementById("status");
   const refreshBtn=document.getElementById("refreshBtn");
@@ -103,7 +113,7 @@ th{color:var(--muted)}
             <tbody>${sourceRows.map(s=>{
               const createdEvents=Array.isArray(s.createdEvents)?s.createdEvents:[];
               const createdCell=Number(s.created||0)>0
-                ? `<details>
+                ? `<details class="created-details">
                     <summary class="created">${Number(s.created||0)} – vis rader</summary>
                     ${createdEvents.length ? `
                       <div style="overflow:auto;max-width:900px">
@@ -178,23 +188,90 @@ th{color:var(--muted)}
     }).join("");
   }
 
+  async function fetchHistory(){
+    const r=await fetch(`${HISTORY_URL}?t=${Date.now()}`,{cache:"no-store"});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  }
+
   async function load(){
     status.textContent="Henter historikk…";
     try{
-      const r=await fetch(HISTORY_URL,{cache:"no-store"});
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      const data=await r.json();
+      const data=await fetchHistory();
       render(data);
       status.textContent=`Oppdatert ${new Intl.DateTimeFormat("no-NO",{timeStyle:"medium"}).format(new Date())}`;
+      return data;
     }catch(err){
       console.error(err);
-      content.innerHTML='<div class="empty">Kunne ikke hente importhistorikken. Den opprettes ved neste import etter at V416 er lagt inn.</div>';
+      content.innerHTML='<div class="empty">Kunne ikke hente importhistorikken.</div>';
       status.textContent="Kunne ikke hente historikk";
+      throw err;
     }
   }
 
-  refreshBtn.addEventListener("click",load);
-  load();
+  async function startImport(){
+    refreshBtn.disabled=true;
+    refreshBtn.textContent="↻ Import kjører…";
+    status.classList.add("import-running");
+    status.textContent="Starter import i GitHub Actions…";
+
+    try{
+      let beforeGeneratedAt=0;
+      try{
+        const before=await fetchHistory();
+        beforeGeneratedAt=new Date(before?.generatedAt||0).getTime()||0;
+      }catch(_){}
+
+      const startedAt=Date.now();
+      const startRes=await fetch(IMPORT_START_API,{
+        method:"POST",
+        headers:{
+          "Accept":"application/json",
+          "x-import-key":IMPORT_KEY
+        },
+        cache:"no-store"
+      });
+
+      const startData=await startRes.json().catch(()=>({}));
+      if(!startRes.ok || startData?.ok===false){
+        throw new Error(startData?.error || `Kunne ikke starte import (HTTP ${startRes.status}).`);
+      }
+
+      const deadline=Date.now()+8*60*1000;
+
+      while(Date.now()<deadline){
+        status.textContent="Import kjører i GitHub Actions – venter på ny historikk…";
+        await new Promise(resolve=>setTimeout(resolve,5000));
+
+        try{
+          const data=await fetchHistory();
+          const generatedAt=new Date(data?.generatedAt||0).getTime()||0;
+
+          if(
+            generatedAt>beforeGeneratedAt &&
+            generatedAt>=startedAt-2000
+          ){
+            render(data);
+            status.classList.remove("import-running");
+            status.textContent=`Import ferdig · ${new Intl.DateTimeFormat("no-NO",{timeStyle:"medium"}).format(new Date())}`;
+            return;
+          }
+        }catch(_){}
+      }
+
+      throw new Error("Importen ble startet, men ny historikk ble ikke publisert innen 8 minutter.");
+    }catch(err){
+      console.error(err);
+      status.classList.remove("import-running");
+      status.textContent=err?.message || "Kunne ikke starte import";
+    }finally{
+      refreshBtn.disabled=false;
+      refreshBtn.textContent="↻ Oppdater";
+    }
+  }
+
+  refreshBtn.addEventListener("click",startImport);
+  load().catch(()=>{});
 })();
 </script>
 </body>
