@@ -17,6 +17,8 @@ const env = {
   ARRANGEMENT_BASEROW_TOKEN: process.env.ARRANGEMENT_BASEROW_TOKEN || "",
   ARRANGEMENT_BASEROW_TOKEN_SANDNES:
     process.env.ARRANGEMENT_BASEROW_TOKEN_SANDNES || "",
+  ARRANGEMENT_BASEROW_TOKEN_STAVANGER:
+    process.env.ARRANGEMENT_BASEROW_TOKEN_STAVANGER || "",
   BASEROW_API_BASE: process.env.BASEROW_API_BASE || "https://api.baserow.io"
 };
 
@@ -28,6 +30,10 @@ if (!env.ARRANGEMENT_BASEROW_TOKEN_SANDNES) {
   throw new Error("ARRANGEMENT_BASEROW_TOKEN_SANDNES mangler.");
 }
 
+if (!env.ARRANGEMENT_BASEROW_TOKEN_STAVANGER) {
+  throw new Error("ARRANGEMENT_BASEROW_TOKEN_STAVANGER mangler.");
+}
+
 const outputPath = process.env.ARRANGEMENT_DATA_PATH || "arrangementer-data.json";
 const historyPath = process.env.ARRANGEMENT_HISTORY_PATH || "arrangementer-import-history.json";
 
@@ -37,6 +43,13 @@ function envForArea(areaKey) {
     return {
       ...env,
       ARRANGEMENT_BASEROW_TOKEN: env.ARRANGEMENT_BASEROW_TOKEN_SANDNES
+    };
+  }
+
+  if (areaKey === "stavanger") {
+    return {
+      ...env,
+      ARRANGEMENT_BASEROW_TOKEN: env.ARRANGEMENT_BASEROW_TOKEN_STAVANGER
     };
   }
 
@@ -474,7 +487,7 @@ async function readAreaSnapshotEvents(areaKey) {
 }
 
 async function buildSnapshot(importSummary) {
-  const areaKeys = ["default", "sandnes"];
+  const areaKeys = ["default", "sandnes", "stavanger"];
   const allEvents = [];
 
   for (const areaKey of areaKeys) {
@@ -511,7 +524,7 @@ async function buildSnapshot(importSummary) {
 }
 
 console.log(`Arrangementer import engine: ${ARRANGEMENT_ENGINE_VERSION}`);
-console.log("Starter multi-area import: Felles + Sandnes...");
+console.log("Starter multi-area import: Felles + Sandnes + Stavanger...");
 
 // Importene kjøres sekvensielt. Det er bevisst:
 // ARR_TABLE/ARR_F peker på ett område om gangen, og sekvensiell kjøring
@@ -532,14 +545,24 @@ const sandnesResult = await arrImportAllSources(
   }
 );
 
-// V410: Når Sandnes er importert til sitt eget workspace, sørger vi automatisk
+const stavangerResult = await arrImportAllSources(
+  envForArea("stavanger"),
+  {
+    cleanup: false,
+    area: "stavanger"
+  }
+);
+
+// Når et område er importert til sitt eget workspace, sørger vi automatisk
 // for at de samme kildene ikke lenger er aktive i gammel fellesdatabase.
 // Dette er idempotent: bare fortsatt aktive kilder/events blir PATCH-et.
 const sandnesMigration = await migrateAreaOutOfDefault("sandnes");
+const stavangerMigration = await migrateAreaOutOfDefault("stavanger");
 
 const areaResults = [
   { key: "default", result: defaultResult },
-  { key: "sandnes", result: sandnesResult }
+  { key: "sandnes", result: sandnesResult },
+  { key: "stavanger", result: stavangerResult }
 ];
 
 const sourceResults = areaResults.flatMap(({key, result}) =>
@@ -603,7 +626,8 @@ const summary = {
     diagnostics: result.diagnostics || undefined
   })),
   migrations: [
-    sandnesMigration
+    sandnesMigration,
+    stavangerMigration
   ],
   dedupe
 };

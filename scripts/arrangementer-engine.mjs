@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v419-sandnes-settlement-rules-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v421-stavanger-workspace-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -115,6 +115,65 @@ const ARR_AREAS = {
       },
     },
   },
+
+  stavanger: {
+    name: "Stavanger",
+    databaseId: 529669,
+    tables: {
+      EVENTS: 1146207,
+      SOURCES: 1146151,
+      MEETING_TYPES: 1146150,
+      SETTLEMENTS: 1146149,
+    },
+    fields: {
+      events: {
+        eventId: "field_10266377",
+        title: "field_10266378",
+        startTime: "field_10266379",
+        endTime: "field_10266380",
+        meetingType: "field_10266381",
+        organizer: "field_10266382",
+        location: "field_10266383",
+        description: "field_10266384",
+        source: "field_10266385",
+        sourceUrl: "field_10266386",
+        sourceEventId: "field_10266387",
+        lastSeen: "field_10266388",
+        active: "field_10266389",
+        manuallyEdited: "field_10266390",
+        settlement: "field_10266392",
+      },
+      sources: {
+        sourceId: "field_10265707",
+        name: "field_10265708",
+        website: "field_10265709",
+        calendarUrl: "field_10265710",
+        sourceType: "field_10265711",
+        enabled: "field_10265712",
+        importMethod: "field_10265713",
+        lastImport: "field_10265714",
+        importStatus: "field_10265715",
+        defaultSettlement: "field_10265716",
+      },
+      meetingTypes: {
+        typeId: "field_10265697",
+        name: "field_10265698",
+        description: "field_10265699",
+        keywords: "field_10265700",
+        priority: "field_10265701",
+        active: "field_10265702",
+        sortOrder: "field_10265703",
+      },
+      settlements: {
+        settlementId: "field_10265688",
+        name: "field_10265689",
+        municipality: "field_10265690",
+        active: "field_10265691",
+        sortOrder: "field_10265692",
+      },
+    },
+  },
+
 };
 
 let ARR_CURRENT_AREA = "default";
@@ -620,7 +679,7 @@ async function arrImportAllSources(env, options={}) {
     errors:0,
     requestedSourceIds:[...requestedSourceIds],
     includeDisabled,
-    diagnostics: areaKey === "sandnes" ? {
+    diagnostics: (areaKey === "sandnes" || areaKey === "stavanger") ? {
       tables: {
         events: ARR_TABLE.EVENTS,
         sources: ARR_TABLE.SOURCES,
@@ -670,7 +729,7 @@ async function arrImportAllSources(env, options={}) {
     };
     const now = new Date().toISOString();
 
-    const sourceDiagnostic = areaKey === "sandnes" ? {
+    const sourceDiagnostic = (areaKey === "sandnes" || areaKey === "stavanger") ? {
       sourceId: arrClean(source[ARR_F.sources.sourceId] || ""),
       name: arrClean(source[ARR_F.sources.name] || ""),
       rawDefaultSettlement: source[ARR_F.sources.defaultSettlement] ?? null,

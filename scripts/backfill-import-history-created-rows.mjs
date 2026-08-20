@@ -33,6 +33,21 @@ const AREAS = {
       sourceEventId: "field_10252561",
       active: "field_10252563"
     }
+  },
+  stavanger: {
+    token: String(process.env.ARRANGEMENT_BASEROW_TOKEN_STAVANGER || "").trim(),
+    eventsTable: 1146207,
+    fields: {
+      eventId: "field_10266377",
+      title: "field_10266378",
+      startTime: "field_10266379",
+      endTime: "field_10266380",
+      organizer: "field_10266382",
+      location: "field_10266383",
+      source: "field_10266385",
+      sourceEventId: "field_10266387",
+      active: "field_10266389"
+    }
   }
 };
 
