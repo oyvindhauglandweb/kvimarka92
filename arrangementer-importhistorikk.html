@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arrangementer – importhistorikk</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#101111;--panel:#1d1e1f;--line:#35393b;--text:#f2f2f2;--muted:#b8c2c7;
+  --accent:#65b8d2;--ok:#5fd17b;--warn:#f0b24f;--bad:#ef6a6a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 18px 50px}
+h1{font-size:34px;margin:0 0 6px;text-align:center}
+.lead{text-align:center;color:var(--muted);margin:0 0 24px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+a,button{color:var(--text)}
+.back,.refresh{border:1px solid var(--line);background:#223137;padding:10px 13px;border-radius:8px;text-decoration:none;font-weight:700}
+.refresh{cursor:pointer}
+.status{color:var(--muted);font-size:14px}
+.import{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:14px 0;overflow:hidden}
+.import-head{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.import-title{font-size:19px;font-weight:800}
+.ok{color:var(--ok)} .bad{color:var(--bad)}
+.time{color:var(--muted);font-size:13px;margin-top:4px}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(100px,1fr));gap:1px;background:var(--line)}
+.metric{background:var(--panel);padding:12px 14px}
+.metric b{display:block;font-size:20px;margin-top:3px}
+.metric span{font-size:12px;color:var(--muted)}
+.body{padding:14px 17px}
+.area-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:12px}
+.area{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.area strong{display:block;margin-bottom:5px}
+.small{font-size:13px;color:var(--muted);line-height:1.5}
+details{border-top:1px solid var(--line);padding:11px 0 0;margin-top:10px}
+summary{cursor:pointer;font-weight:700}
+table{width:100%;border-collapse:collapse;margin-top:9px;font-size:13px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted)}
+.created{font-weight:800;color:var(--ok)}
+.error{color:var(--bad)}
+.empty{padding:30px;text-align:center;color:var(--muted);border:1px solid var(--line);border-radius:10px}
+@media(max-width:720px){
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .import-head{display:block}
+  table{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Importhistorikk</h1>
+  <p class="lead">De siste fem kjøringene av Arrangementer-importen.</p>
+  <div class="top">
+    <a class="back" href="./arrangementer.html">← Arrangementer</a>
+    <div>
+      <button class="refresh" id="refreshBtn">↻ Oppdater</button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+  <div id="content"></div>
+</div>
+<script>
+(() => {
+  "use strict";
+  const HISTORY_URL="./arrangementer-import-history.json";
+  const content=document.getElementById("content");
+  const status=document.getElementById("status");
+  const refreshBtn=document.getElementById("refreshBtn");
+
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const dt=v=>{
+    if(!v) return "";
+    const d=new Date(v);
+    return Number.isNaN(d.getTime())?String(v):new Intl.DateTimeFormat("no-NO",{dateStyle:"medium",timeStyle:"medium"}).format(d);
+  };
+  const duration=(a,b)=>{
+    const x=new Date(a).getTime(), y=new Date(b).getTime();
+    if(!Number.isFinite(x)||!Number.isFinite(y)||y<x) return "";
+    const sec=Math.round((y-x)/1000);
+    return sec<60?`${sec} sek`:`${Math.floor(sec/60)} min ${sec%60} sek`;
+  };
+
+  function render(data){
+    const imports=Array.isArray(data?.imports)?data.imports:[];
+    if(!imports.length){
+      content.innerHTML='<div class="empty">Ingen importhistorikk er registrert ennå.</div>';
+      return;
+    }
+
+    content.innerHTML=imports.map((run,index)=>{
+      const sourceRows=(run.sourceResults||[])
+        .filter(s=>Number(s.created||0)>0 || s.error)
+        .sort((a,b)=>Number(b.created||0)-Number(a.created||0));
+
+      const sourcesHtml=sourceRows.length ? `
+        <details ${index===0 ? "open" : ""}>
+          <summary>Kilder med nye rader eller feil</summary>
+          <table>
+            <thead><tr><th>Område</th><th>Kilde</th><th>Nye</th><th>Oppdatert</th><th>Status</th></tr></thead>
+            <tbody>${sourceRows.map(s=>`
+              <tr>
+                <td>${esc(s.area||"")}</td>
+                <td>${esc(s.name||s.sourceId||"")}</td>
+                <td class="${Number(s.created||0)>0?"created":""}">${Number(s.created||0)}</td>
+                <td>${Number(s.updated||0)}</td>
+                <td class="${s.error?"error":""}">${s.error?esc(s.error):"OK"}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>
+        </details>` : "";
+
+      const failed=(run.failedSources||[]);
+      const failedHtml=failed.length ? `
+        <details>
+          <summary class="error">${failed.length} kilde(r) med feil</summary>
+          <table><tbody>${failed.map(f=>`
+            <tr><td>${esc(f.area||"")}</td><td>${esc(f.name||f.sourceId||"")}</td><td class="error">${esc(f.error||"")}</td></tr>
+          `).join("")}</tbody></table>
+        </details>` : "";
+
+      return `
+      <section class="import">
+        <div class="import-head">
+          <div>
+            <div class="import-title ${run.ok?"ok":"bad"}">${run.ok?"✓":"✕"} Import ${imports.length-index} ${index===0?"– nyeste":""}</div>
+            <div class="time">${esc(dt(run.generatedAt))}${duration(run.startedAt,run.finishedAt)?` · ${esc(duration(run.startedAt,run.finishedAt))}`:""}</div>
+          </div>
+          <div class="small">${esc(run.engineVersion||"")}</div>
+        </div>
+        <div class="metrics">
+          <div class="metric"><span>Publiserte events</span><b>${Number(run.eventCount||0)}</b></div>
+          <div class="metric"><span>Nye rader</span><b>${Number(run.created||0)}</b></div>
+          <div class="metric"><span>Oppdaterte</span><b>${Number(run.updated||0)}</b></div>
+          <div class="metric"><span>Feil</span><b>${Number(run.errors||0)}</b></div>
+          <div class="metric"><span>Kilder OK</span><b>${Number(run.successfulSources||0)}/${Number(run.sourceCount||0)}</b></div>
+        </div>
+        <div class="body">
+          <div class="area-grid">
+            ${(run.areas||[]).map(a=>`
+              <div class="area">
+                <strong>${esc(a.name||a.key||"")}</strong>
+                <div class="small">Nye: <b>${Number(a.created||0)}</b> · Oppdatert: <b>${Number(a.updated||0)}</b> · Feil: <b>${Number(a.errors||0)}</b> · Kilder: <b>${Number(a.sourceCount||0)}</b></div>
+              </div>`).join("")}
+          </div>
+          ${sourcesHtml}
+          ${failedHtml}
+        </div>
+      </section>`;
+    }).join("");
+  }
+
+  async function load(){
+    status.textContent="Henter historikk…";
+    try{
+      const r=await fetch(HISTORY_URL,{cache:"no-store"});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data=await r.json();
+      render(data);
+      status.textContent=`Oppdatert ${new Intl.DateTimeFormat("no-NO",{timeStyle:"medium"}).format(new Date())}`;
+    }catch(err){
+      console.error(err);
+      content.innerHTML='<div class="empty">Kunne ikke hente importhistorikken. Den opprettes ved neste import etter at V416 er lagt inn.</div>';
+      status.textContent="Kunne ikke hente historikk";
+    }
+  }
+
+  refreshBtn.addEventListener("click",load);
+  load();
+})();
+</script>
+</body>
+</html>
