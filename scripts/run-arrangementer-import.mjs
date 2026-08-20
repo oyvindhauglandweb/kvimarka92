@@ -588,7 +588,8 @@ const summary = {
     created: result.created,
     updated: result.updated,
     errors: result.errors,
-    sourceCount: Array.isArray(result.sources) ? result.sources.length : 0
+    sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
+    diagnostics: result.diagnostics || undefined
   })),
   migrations: [
     sandnesMigration

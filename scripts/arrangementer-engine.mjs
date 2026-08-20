@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v411-sandnes-settlement-resolution-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v412-sandnes-link-diagnostics-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -552,6 +552,28 @@ async function arrImportAllSources(env, options={}) {
     errors:0,
     requestedSourceIds:[...requestedSourceIds],
     includeDisabled,
+    diagnostics: areaKey === "sandnes" ? {
+      tables: {
+        events: ARR_TABLE.EVENTS,
+        sources: ARR_TABLE.SOURCES,
+        meetingTypes: ARR_TABLE.MEETING_TYPES,
+        settlements: ARR_TABLE.SETTLEMENTS
+      },
+      rowsRead: {
+        sources: sources.length,
+        activeSources: activeSources.length,
+        meetingTypes: meetingTypes.length,
+        settlements: settlements.length,
+        activeSettlements: settlementRules.length
+      },
+      settlementRows: settlementRules.slice(0, 50).map(rule => ({
+        rowId: rule.rowId,
+        name: rule.name,
+        municipality: rule.municipalityNormalized,
+        sortOrder: rule.sortOrder
+      })),
+      sources: []
+    } : null,
     cleanup:{
       enabled:doCleanup,
       keepHistoryDays:7,
@@ -563,6 +585,20 @@ async function arrImportAllSources(env, options={}) {
   for (const source of activeSources) {
     const sourceResult = {sourceId:source[ARR_F.sources.sourceId], name:source[ARR_F.sources.name], created:0, updated:0, skipped:0, error:null};
     const now = new Date().toISOString();
+
+    const sourceDiagnostic = areaKey === "sandnes" ? {
+      sourceId: arrClean(source[ARR_F.sources.sourceId] || ""),
+      name: arrClean(source[ARR_F.sources.name] || ""),
+      rawDefaultSettlement: source[ARR_F.sources.defaultSettlement] ?? null,
+      extractedDefaultSettlementIds: arrLinkedIds(
+        source[ARR_F.sources.defaultSettlement]
+      ).map(Number).filter(Number.isFinite),
+      sampleEvents: []
+    } : null;
+
+    if (sourceDiagnostic && result.diagnostics) {
+      result.diagnostics.sources.push(sourceDiagnostic);
+    }
 
     try {
       const parsedRaw = await arrLoadSourceEvents(source);
@@ -615,6 +651,35 @@ async function arrImportAllSources(env, options={}) {
           allSettlementRules,
           activeSettlementIds
         );
+
+        if (
+          sourceDiagnostic &&
+          sourceDiagnostic.sampleEvents.length < 12
+        ) {
+          const resolvedRules = Array.isArray(settlementIds)
+            ? settlementIds.map(id => {
+                const rule = allSettlementRules.find(
+                  candidate => Number(candidate.rowId) === Number(id)
+                );
+                return {
+                  rowId: Number(id),
+                  name: rule?.name || "",
+                  municipality: rule?.municipalityNormalized || ""
+                };
+              })
+            : null;
+
+          sourceDiagnostic.sampleEvents.push({
+            title: arrClean(item.title || ""),
+            location: arrClean(item.location || ""),
+            settlementHint: arrClean(item.settlementHint || ""),
+            municipalityHint: arrClean(item.municipalityHint || ""),
+            meetingTypeHint: arrClean(item.meetingTypeHint || ""),
+            resolvedSettlementIds: settlementIds,
+            resolvedSettlements: resolvedRules,
+            classifiedMeetingTypeIds: typeIds
+          });
+        }
 
         // Settlement.Active = false fungerer som geografisk av/på-bryter.
         if (settlementIds === null) {
