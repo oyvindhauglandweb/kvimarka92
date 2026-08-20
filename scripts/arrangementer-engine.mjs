@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v429-naerbo-gamle-sokn-alias-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v430-authoritative-source-settlement-by-area-2026-08-21";
 
 const ARR_AREAS = {
   default: {
@@ -1149,8 +1149,8 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
   // kilde-Settlement derimot IKKE slå et konkret sted i selve arrangementet.
   // Der brukes den først som fallback senere.
   const singleSourceSettlementIsAuthoritative =
-    municipalityHint === "sandnes" ||
-    municipalityHint === "stavanger";
+    ARR_CURRENT_AREA === "sandnes" ||
+    ARR_CURRENT_AREA === "stavanger";
 
   if (singleSourceSettlementIsAuthoritative && allowedDefaultIds.length === 1) {
     const defaultId = Number(allowedDefaultIds[0]);
