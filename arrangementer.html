@@ -437,7 +437,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v404-github-actions-production-2026-08-19";
+  const FRONTEND_VERSION = "v405-dependent-settlement-organizer-2026-08-20";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1598,7 +1598,14 @@
 
   els.settlement.addEventListener("change", () => {
     combinedFavoritesActive = false;
+
+    // Når brukeren velger et nytt tettsted skal ikke en tidligere valgt
+    // arrangør "henge igjen". Bygg arrangørlisten på nytt fra tettstedet.
+    // refreshOrganizerOptions() velger automatisk arrangøren dersom det
+    // bare finnes én arrangør for valgt kommune + tettsted.
+    els.organizer.value = "";
     refreshOrganizerOptions();
+
     saveFilters();
     applyFilters();
     renderFavoriteButtons();
