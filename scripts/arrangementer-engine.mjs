@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v430-authoritative-source-settlement-by-area-2026-08-21";
+const ARRANGEMENT_ENGINE_VERSION = "v431-sandnes-sentrum-rename-2026-08-21";
 
 const ARR_AREAS = {
   default: {
@@ -1166,7 +1166,7 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
   // identisk med bydelen i Settlements.
   //
   // Gand sokn / Gand kirke ligger i Sandved bydel.
-  // "Sandnes" som tidligere Settlement-navn er nå Sentrum, men Sentrum skal
+  // "Sandnes" som tidligere Settlement-navn er nå Sandnes sentrum, men Sandnes sentrum skal
   // fortsatt være siste fallback og ikke slå mer spesifikke bydeler.
   if (municipalityHint === "sandnes") {
     const aliasText = arrNormalize([
@@ -1235,11 +1235,11 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
 
   if (matched) return [matched.rowId];
 
-  // V419: Sandnes bydel "Sandnes" er omdøpt til "Sentrum".
-  // Sentrum er ABSOLUTT siste fallback for Sandnes kommune når kilden har
+  // V419: Sandnes bydel "Sandnes" er omdøpt til "Sandnes sentrum".
+  // Sandnes sentrum er ABSOLUTT siste fallback for Sandnes kommune når kilden har
   // flere mulige Settlements og eventet ikke kan knyttes til en annen bydel.
   if (municipalityHint === "sandnes") {
-    const sentrum = findRuleByName("Sentrum", rulesForMunicipality);
+    const sentrum = findRuleByName("Sandnes sentrum", rulesForMunicipality);
     if (sentrum) return [sentrum.rowId];
   }
 
