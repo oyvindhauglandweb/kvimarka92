@@ -26,6 +26,14 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Backfill tidligere nye rader i historikk
+        env:
+          ARRANGEMENT_BASEROW_TOKEN: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN }}
+          ARRANGEMENT_BASEROW_TOKEN_SANDNES: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_SANDNES }}
+          BASEROW_API_BASE: https://api.baserow.io
+          ARRANGEMENT_HISTORY_PATH: arrangementer-import-history.json
+        run: node scripts/backfill-import-history-created-rows.mjs
+
       - name: Import arrangementer
         env:
           ARRANGEMENT_BASEROW_TOKEN: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN }}
