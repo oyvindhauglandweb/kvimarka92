@@ -433,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v412-two-way-dependent-filters-2026-08-21";
+  const FRONTEND_VERSION = "v413-organizer-settlement-resolution-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1621,6 +1621,66 @@
     renderFavoriteButtons();
   });
 
+  function preferredSettlementForOrganizer(organizer, settlements, municipality) {
+    const normalize = value => String(value || "")
+      .trim()
+      .toLocaleLowerCase("no")
+      .replace(/\s+/g," ");
+
+    const organizerNorm = normalize(organizer);
+    const municipalityNorm = normalize(municipality);
+
+    // Ikke la et gammelt kommune-navn som Settlement vinne over en mer
+    // spesifikk bydel/tettsted.
+    const specific = settlements.filter(
+      settlement => normalize(settlement) !== municipalityNorm
+    );
+
+    // 1. Sterkeste generelle regel:
+    // Hvis selve arrangørnavnet inneholder nøyaktig ett Settlement-navn,
+    // er dette det naturlige valget:
+    // Hana sokn -> Hana, Høyland sokn -> Høyland,
+    // Ogna sokn -> Ogna, Varhaug sokn -> Varhaug.
+    const nameMatches = specific.filter(settlement => {
+      const settlementNorm = normalize(settlement);
+      if (!settlementNorm) return false;
+      const escaped = settlementNorm.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+      return new RegExp(`(^|[^a-z0-9æøå])${escaped}($|[^a-z0-9æøå])`,"i")
+        .test(organizerNorm);
+    });
+
+    if (nameMatches.length === 1) {
+      return nameMatches[0];
+    }
+
+    // 2. Kjente organisatoriske navn som ikke inneholder tettstedsnavnet.
+    // Disse følger samme geografiske konfigurasjon som i Sources/engine.
+    const aliases = new Map([
+      ["fredheim arena","Soma"],
+      ["sandnes sokn","Sentrum"]
+    ]);
+
+    const alias = aliases.get(organizerNorm);
+    if (alias && settlements.some(s => normalize(s) === normalize(alias))) {
+      return settlements.find(s => normalize(s) === normalize(alias));
+    }
+
+    // 3. Hvis bare ett spesifikt sted gjenstår, velg det.
+    if (specific.length === 1) {
+      return specific[0];
+    }
+
+    // 4. Hvis det totalt bare finnes ett sted, velg det.
+    if (settlements.length === 1) {
+      return settlements[0];
+    }
+
+    // Flere reelle tettsteder: behold "Alle tettsteder".
+    // OBS Bedehus er et eksempel på en arrangør/kilde som faktisk kan
+    // dekke flere steder.
+    return "";
+  }
+
   function syncDependentFiltersFromOrganizer() {
     const organizer = els.organizer.value;
     if (!organizer) return;
@@ -1653,15 +1713,14 @@
       "Alle tettsteder"
     );
 
-    // Hvis arrangøren har både kommunenavnet og ett mer spesifikt tettsted,
-    // skal det spesifikke velges.
-    if (organizerSettlements.length > 1 && els.municipality.value) {
-      const specific = organizerSettlements.filter(
-        s => s !== els.municipality.value
-      );
-      if (specific.length === 1) {
-        els.settlement.value = specific[0];
-      }
+    const preferredSettlement = preferredSettlementForOrganizer(
+      organizer,
+      organizerSettlements,
+      els.municipality.value
+    );
+
+    if (preferredSettlement) {
+      els.settlement.value = preferredSettlement;
     }
 
     refreshOrganizerOptions();
