@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v422-time-specific-settlement-priority-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v423-eventcalendarapp-direct-ics-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -1132,20 +1132,11 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
       )
     : defaultIds;
 
-  // V422:
-  // I de dedikerte kommune-workspacene Sandnes og Stavanger er én eneste
-  // Sources.Settlements-kobling eksplisitt administrativ konfigurasjon og
-  // skal overstyre alt annet (f.eks. Fredheim Arena -> Soma,
-  // IMI-kirken -> Tjensvoll).
-  //
-  // I den gamle/felles workspacen (bl.a. Time og Hå) skal en enkelt
-  // kilde-Settlement derimot IKKE slå et konkret sted i selve arrangementet.
-  // Der brukes den først som fallback senere.
-  const singleSourceSettlementIsAuthoritative =
-    municipalityHint === "sandnes" ||
-    municipalityHint === "stavanger";
-
-  if (singleSourceSettlementIsAuthoritative && allowedDefaultIds.length === 1) {
+  // V419 regel 1:
+  // Hvis Sources har nøyaktig ETT gyldig Settlement, er det eksplisitt
+  // konfigurasjon og skal overstyre alt annet.
+  // Eksempel: Fredheim Arena -> Soma.
+  if (allowedDefaultIds.length === 1) {
     const defaultId = Number(allowedDefaultIds[0]);
 
     if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
@@ -1195,20 +1186,6 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
 
   if (explicitSpecific && explicitSpecific.active !== false) {
     return [explicitSpecific.rowId];
-  }
-
-  // I felles-workspacen brukes én enkelt Source.Settlement først NÅ,
-  // etter at konkrete stedsnavn i arrangementet har fått mulighet til å vinne.
-  // Eksempel: et arrangement hos Undheim sokn med "Undheim" i location
-  // skal bli Undheim, selv om kilden har Bryne som generell/default kobling.
-  if (!singleSourceSettlementIsAuthoritative && allowedDefaultIds.length === 1) {
-    const defaultId = Number(allowedDefaultIds[0]);
-
-    if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
-      return null;
-    }
-
-    return [defaultId];
   }
 
   // Strukturert settlementHint før generelle fallback-regler.
@@ -1760,7 +1737,13 @@ async function arrFetchAndParseVigrestad() {
 }
 
 async function arrFetchAndParseIcalFromPage(url) {
-  if (/calendar\.google\.com\/calendar\/ical\//i.test(url) || /\.ics(?:\?|$)/i.test(url)) {
+  // Direkte iCal-feeder har ikke alltid .ics som filendelse.
+  // Event Calendar App bruker f.eks. /ics/<calendar>/<uuid>.
+  if (
+    /calendar\.google\.com\/calendar\/ical\//i.test(url) ||
+    /api\.eventcalendarapp\.com\/ics\//i.test(url) ||
+    /\.ics(?:\?|$)/i.test(url)
+  ) {
     return arrFetchAndParseIcal(url);
   }
 
