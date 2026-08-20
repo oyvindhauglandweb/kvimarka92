@@ -437,7 +437,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v405-dependent-settlement-organizer-2026-08-20";
+  const FRONTEND_VERSION = "v406-organizer-prefers-specific-settlement-2026-08-20";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1632,12 +1632,32 @@
       refreshSettlementOptions();
     }
 
-    // Hvis arrangøren bare finnes på ett tettsted, velg det automatisk.
+    // Velg det mest spesifikke tettstedet for arrangøren.
+    //
+    // Noen arrangører kan ha både kommunenavnet og ett konkret tettsted i
+    // historiske/importerte data, f.eks. Fredheim Arena:
+    //   Sandnes + Soma
+    // Da skal Soma vinne. Kommunenavnet er bare geografisk fallback.
+    let preferredSettlement = "";
+
+    if (settlements.length === 1) {
+      preferredSettlement = settlements[0];
+    } else if (municipalities.length === 1) {
+      const municipalityName = municipalities[0];
+      const specificSettlements = settlements.filter(
+        settlement => settlement !== municipalityName
+      );
+
+      if (specificSettlements.length === 1) {
+        preferredSettlement = specificSettlements[0];
+      }
+    }
+
     if (
-      settlements.length === 1 &&
-      [...els.settlement.options].some(o => o.value === settlements[0])
+      preferredSettlement &&
+      [...els.settlement.options].some(o => o.value === preferredSettlement)
     ) {
-      els.settlement.value = settlements[0];
+      els.settlement.value = preferredSettlement;
     }
 
     // Bygg arrangørlisten på nytt etter geofeltene og gjenvelg arrangøren.
