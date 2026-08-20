@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v414-sandnes-correct-link-field-ids-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v415-settlement-specific-before-municipality-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -982,134 +982,143 @@ function arrBuildSettlementRules(rows, includeInactive=false) {
 }
 
 function arrResolveSettlementIds(item, source, settlementRules, allSettlementRules=settlementRules, activeSettlementIds=null) {
-  // V288: Strukturerte kilder kan gi korrekt kommune direkte.
-  // Den skal være en hard avgrensning slik at f.eks. Ganddal sokn (Sandnes)
-  // aldri kan havne under Hå selv om arrangementet er medarrangert av en Hå-enhet.
   const municipalityHint = arrNormalizeMunicipalityName(item.municipalityHint || "");
 
   const allRulesForMunicipality = municipalityHint
     ? allSettlementRules.filter(rule => rule.municipalityNormalized === municipalityHint)
     : allSettlementRules;
 
-  // V323: Finn først om kilden eksplisitt peker på et deaktivert tettsted.
-  // Dette må skje FØR fallback til et annet aktivt tettsted i samme kommune,
-  // ellers kunne f.eks. et deaktivert Nærbø-arrangement feilaktig havne på Varhaug.
-  const findExplicitRule = (value, rules=allRulesForMunicipality) => {
-    const text = arrNormalize(value || "");
-    if (!text) return null;
-
-    const candidates = [];
-    for (const rule of rules) {
-      const needle = rule.normalized;
-      if (!needle) continue;
-      const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const re = new RegExp(`(^|[^a-z0-9æøå])${escaped}($|[^a-z0-9æøå])`, "i");
-      const m = re.exec(text);
-      if (m) {
-        const start = m.index + (m[1] ? m[1].length : 0);
-        candidates.push({rule,start});
-      }
-    }
-
-    if (!candidates.length) return null;
-    candidates.sort((a,b) =>
-      a.start-b.start ||
-      b.rule.normalized.length-a.rule.normalized.length ||
-      a.rule.sortOrder-b.rule.sortOrder
-    );
-    return candidates[0].rule;
-  };
-
-  const explicit =
-    findExplicitRule(item.settlementHint) ||
-    findExplicitRule(item.location) ||
-    findExplicitRule(item.title);
-
-  if (explicit && explicit.active === false) {
-    return null; // null = arrangementet ligger i et deaktivert geografisk område.
-  }
-
   const rulesForMunicipality = municipalityHint
     ? settlementRules.filter(rule => rule.municipalityNormalized === municipalityHint)
     : settlementRules;
 
-  const findBest = (value, rules=rulesForMunicipality) => {
+  const findBest = (value, rules=rulesForMunicipality, options={}) => {
     const text = arrNormalize(value || "");
     if (!text) return null;
 
+    const excludeMunicipalityName = options.excludeMunicipalityName === true;
     const candidates = [];
+
     for (const rule of rules) {
       const needle = rule.normalized;
       if (!needle) continue;
 
+      // I kommuner der kommunenavnet også er et Settlement-navn, f.eks.
+      // Sandnes kommune / Sandnes by, skal "Sandnes" være siste fallback.
+      // Et mer spesifikt sted som Ganddal, Bogafjell, Hana, Lura osv. vinner.
+      if (
+        excludeMunicipalityName &&
+        municipalityHint &&
+        needle === municipalityHint
+      ) {
+        continue;
+      }
+
       const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const re = new RegExp(`(^|[^a-z0-9æøå])${escaped}($|[^a-z0-9æøå])`, "i");
       const m = re.exec(text);
+
       if (m) {
-        const start = m.index + (m[1] ? m[1].length : 0);
-        candidates.push({rule, start});
+        const matchStart = m.index + (m[1] ? m[1].length : 0);
+        candidates.push({
+          rule,
+          start: matchStart
+        });
       }
     }
 
     if (!candidates.length) return null;
+
     candidates.sort((a,b) =>
       a.start-b.start ||
       b.rule.normalized.length-a.rule.normalized.length ||
       a.rule.sortOrder-b.rule.sortOrder
     );
+
     return candidates[0].rule;
   };
 
-  // 1) Strukturert tettsted fra kilden.
-  let matched = findBest(item.settlementHint);
+  // Sjekk først eksplisitte treff mot ALLE settlements i riktig kommune,
+  // inkludert deaktiverte. Da vil et eksplisitt deaktivert område fortsatt
+  // stoppe arrangementet i stedet for å falle tilbake til et annet sted.
+  const explicitSpecific =
+    findBest(item.location, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+    findBest(item.title, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+    findBest(item.description, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+    findBest(item.settlementHint, allRulesForMunicipality, {excludeMunicipalityName:true});
+
+  if (explicitSpecific && explicitSpecific.active === false) {
+    return null;
+  }
+
+  if (explicitSpecific && explicitSpecific.active !== false) {
+    return [explicitSpecific.rowId];
+  }
+
+  // Deretter kan et strukturert settlementHint brukes hvis det ikke bare er
+  // kommunenavnet. Eksempel: Hommersåk skal slå Sandnes.
+  let matched = findBest(
+    item.settlementHint,
+    rulesForMunicipality,
+    {excludeMunicipalityName:true}
+  );
   if (matched) return [matched.rowId];
 
-  // 2) Eksplisitt Location, men bare innen riktig kommune når den er kjent.
-  matched = findBest(item.location);
-  if (matched) return [matched.rowId];
-
-  // 3) Tittel, samme kommunebegrensning.
-  matched = findBest(item.title);
-  if (matched) return [matched.rowId];
-
-  // 4) Default Settlement kan brukes også når kommunen er kjent,
-  // men da bare hvis default-raden faktisk ligger i samme kommune.
-  // Dette gjør nye workspaces selvstendige uten å risikere krysskommune-match.
+  // Kildens Default Settlement brukes bare direkte når det er ett entydig valg.
+  // Har kilden flere tillatte settlements (som Den norske kirke – Sandnes),
+  // velger vi IKKE tilfeldig første rad.
   const defaultIds = arrLinkedIds(source[ARR_F.sources.defaultSettlement])
     .map(Number)
     .filter(Number.isFinite);
 
-  if (defaultIds.length) {
-    const allowedDefaultIds = municipalityHint
-      ? defaultIds.filter(id =>
-          rulesForMunicipality.some(rule => Number(rule.rowId) === id)
-        )
-      : defaultIds;
+  const allowedDefaultIds = municipalityHint
+    ? defaultIds.filter(id =>
+        rulesForMunicipality.some(rule => Number(rule.rowId) === id)
+      )
+    : defaultIds;
 
-    if (allowedDefaultIds.length) {
-      const defaultId = Number(allowedDefaultIds[0]);
-      if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
-        return null;
-      }
-      return [defaultId];
+  if (allowedDefaultIds.length === 1) {
+    const defaultId = Number(allowedDefaultIds[0]);
+
+    if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
+      return null;
+    }
+
+    return [defaultId];
+  }
+
+  // Nå får kommunenavnet selv lov til å matche. Dette er bevisst sent.
+  // Eksempel Sandnes:
+  //   Ganddal/Bogafjell/Hana/Lura/Hommersåk/... er prøvd først.
+  //   Bare arrangementer uten mer presist sted ender på Sandnes.
+  matched =
+    findBest(item.location, rulesForMunicipality) ||
+    findBest(item.title, rulesForMunicipality) ||
+    findBest(item.settlementHint, rulesForMunicipality) ||
+    findBest(item.description, rulesForMunicipality);
+
+  if (matched) return [matched.rowId];
+
+  // Hvis kommunen er kjent og det finnes et aktivt Settlement med nøyaktig
+  // samme navn som kommunen, brukes dette som absolutt siste kommune-fallback.
+  if (municipalityHint) {
+    const municipalitySettlement = rulesForMunicipality.find(
+      rule => rule.normalized === municipalityHint
+    );
+
+    if (municipalitySettlement) {
+      return [municipalitySettlement.rowId];
     }
   }
 
-  // 5) Hvis kommunen er kjent og vi fortsatt ikke har en konkret match,
-  // bruk første aktive settlement i den kommunen som siste strukturerte fallback.
-  if (municipalityHint && rulesForMunicipality.length) {
-    const municipalityMatch = [...rulesForMunicipality]
-      .sort((a,b) => a.sortOrder-b.sortOrder || a.name.localeCompare(b.name))[0];
-    if (municipalityMatch) return [municipalityMatch.rowId];
+  // Uten municipality-named Settlement: dersom kilden har flere defaults,
+  // ikke gjett. Hvis ett av dem fortsatt er entydig etter filtrering, bruk det.
+  if (allowedDefaultIds.length === 1) {
+    return [Number(allowedDefaultIds[0])];
   }
-
-  // 6) Beskrivelse er siste fritekstreserve.
-  matched = findBest(item.description);
-  if (matched) return [matched.rowId];
 
   return [];
 }
-
 
 function arrFilterParsedEventWindow(items, nowMs=Date.now()) {
   const fromMs = nowMs - 7 * 86400000;
