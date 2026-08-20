@@ -43,6 +43,9 @@ summary{cursor:pointer;font-weight:700}
 .created-details[open]>summary::before{content:"▼ "}
 .import-running{color:var(--warn)}
 .refresh:disabled{opacity:.65;cursor:wait}
+.import-progress-wrap{margin-top:8px;width:100%;max-width:360px;height:8px;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel)}
+.import-progress-bar{height:100%;width:0%;background:currentColor;transition:width .6s linear}
+.import-progress-text{margin-top:4px;font-size:.86rem;color:var(--muted);white-space:nowrap}
 table{width:100%;border-collapse:collapse;margin-top:9px;font-size:13px}
 th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{color:var(--muted)}
@@ -65,6 +68,10 @@ th{color:var(--muted)}
     <div>
       <button class="refresh" id="refreshBtn" title="Start ny Arrangementer-import">↻ Oppdater</button>
       <div class="status" id="status"></div>
+      <div id="importProgressWrap" class="import-progress-wrap" hidden>
+        <div id="importProgressBar" class="import-progress-bar"></div>
+      </div>
+      <div id="importProgressText" class="import-progress-text" hidden></div>
     </div>
   </div>
   <div id="content"></div>
@@ -79,6 +86,84 @@ th{color:var(--muted)}
   const content=document.getElementById("content");
   const status=document.getElementById("status");
   const refreshBtn=document.getElementById("refreshBtn");
+  const importProgressWrap=document.getElementById("importProgressWrap");
+  const importProgressBar=document.getElementById("importProgressBar");
+  const importProgressText=document.getElementById("importProgressText");
+
+  let progressTimer=null;
+
+  function previousImportSeconds(history){
+    const imports=Array.isArray(history?.imports)?history.imports:[];
+    const latest=imports[0];
+    if(!latest) return 0;
+
+    if(latest.startedAt && latest.finishedAt){
+      const a=new Date(latest.startedAt).getTime();
+      const b=new Date(latest.finishedAt).getTime();
+      if(Number.isFinite(a) && Number.isFinite(b) && b>a){
+        return Math.max(1,Math.round((b-a)/1000));
+      }
+    }
+    return 0;
+  }
+
+  function stopProgress(){
+    if(progressTimer){
+      clearInterval(progressTimer);
+      progressTimer=null;
+    }
+  }
+
+  function formatShortDuration(seconds){
+    const s=Math.max(0,Math.round(seconds));
+    const m=Math.floor(s/60);
+    const rest=s%60;
+    return m ? `${m} min ${rest} sek` : `${rest} sek`;
+  }
+
+  function showProgress(expectedSeconds){
+    stopProgress();
+    const expected=Math.max(30,Number(expectedSeconds)||300);
+    const started=Date.now();
+
+    importProgressWrap.hidden=false;
+    importProgressText.hidden=false;
+    importProgressBar.style.width="1%";
+
+    const tick=()=>{
+      const elapsed=(Date.now()-started)/1000;
+      // Estimat basert på forrige import. Hold igjen på 95 % til ny historikk faktisk finnes.
+      const ratio=Math.min(.95,(elapsed/expected)*.95);
+      const pct=Math.max(1,Math.round(ratio*100));
+      const remaining=Math.max(0,expected-elapsed);
+
+      importProgressBar.style.width=`${pct}%`;
+
+      if(remaining>0){
+        importProgressText.textContent=
+          `Ca. ${pct}% · forrige import ${formatShortDuration(expected)} · anslått ${formatShortDuration(remaining)} igjen`;
+      }else{
+        importProgressText.textContent=
+          `Ca. ${pct}% · forrige import ${formatShortDuration(expected)} · kjører litt over estimert tid`;
+      }
+    };
+
+    tick();
+    progressTimer=setInterval(tick,1000);
+  }
+
+  function completeProgress(){
+    stopProgress();
+    importProgressWrap.hidden=false;
+    importProgressText.hidden=false;
+    importProgressBar.style.width="100%";
+    importProgressText.textContent="100% · import ferdig";
+    setTimeout(()=>{
+      importProgressWrap.hidden=true;
+      importProgressText.hidden=true;
+      importProgressBar.style.width="0%";
+    },5000);
+  }
 
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const dt=v=>{
@@ -217,11 +302,14 @@ th{color:var(--muted)}
 
     try{
       let beforeGeneratedAt=0;
+      let expectedSeconds=300;
       try{
         const before=await fetchHistory();
         beforeGeneratedAt=new Date(before?.generatedAt||0).getTime()||0;
+        expectedSeconds=previousImportSeconds(before) || expectedSeconds;
       }catch(_){}
 
+      showProgress(expectedSeconds);
       const startedAt=Date.now();
       const startRes=await fetch(IMPORT_START_API,{
         method:"POST",
@@ -254,6 +342,7 @@ th{color:var(--muted)}
             render(data);
             status.classList.remove("import-running");
             status.textContent=`Import ferdig · ${new Intl.DateTimeFormat("no-NO",{timeStyle:"medium"}).format(new Date())}`;
+            completeProgress();
             return;
           }
         }catch(_){}
@@ -262,6 +351,10 @@ th{color:var(--muted)}
       throw new Error("Importen ble startet, men ny historikk ble ikke publisert innen 8 minutter.");
     }catch(err){
       console.error(err);
+      stopProgress();
+      importProgressWrap.hidden=true;
+      importProgressText.hidden=true;
+      importProgressBar.style.width="0%";
       status.classList.remove("import-running");
       status.textContent=err?.message || "Kunne ikke starte import";
     }finally{
