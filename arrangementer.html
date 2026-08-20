@@ -433,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v408-mobile-dropdown-scroll-2026-08-20";
+  const FRONTEND_VERSION = "v409-favorite-geo-reconcile-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -513,6 +513,41 @@
 
       localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(unique));
     } catch (_) {}
+  }
+
+  function reconcileFavoritesWithCurrentEvents() {
+    const favorites = loadFavorites();
+    if (!favorites.length || !events.length) return;
+
+    let changed = false;
+
+    const reconciled = favorites.map(fav => {
+      if (!fav?.organizer) return fav;
+
+      const matching = events.filter(e => e.organizer === fav.organizer);
+      if (!matching.length) return fav;
+
+      const municipalities = [...new Set(matching.map(e => e.municipality).filter(Boolean))];
+      const settlements = [...new Set(matching.map(e => e.settlement).filter(Boolean))];
+
+      const next = {...fav};
+
+      // Hvis arrangøren nå entydig tilhører et annet område enn da favoritten
+      // ble lagret, oppdateres den lagrede favoritten automatisk.
+      if (municipalities.length === 1 && next.municipality !== municipalities[0]) {
+        next.municipality = municipalities[0];
+        changed = true;
+      }
+
+      if (settlements.length === 1 && next.settlement !== settlements[0]) {
+        next.settlement = settlements[0];
+        changed = true;
+      }
+
+      return next;
+    });
+
+    if (changed) saveFavorites(reconciled);
   }
 
   function currentFavoriteDefinition() {
@@ -650,6 +685,7 @@
       .filter(e => asDate(e.startTime))
       .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
 
+    reconcileFavoritesWithCurrentEvents();
     populateFilters();
     restoreRememberedFilterControls();
     applyFilters();
@@ -1502,6 +1538,8 @@
         .map(e => ({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
         .filter(e => asDate(e.startTime))
         .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
+
+      reconcileFavoritesWithCurrentEvents();
       populateFilters();
 
       if (!isManualRefresh) {
