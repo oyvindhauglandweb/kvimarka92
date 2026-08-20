@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v423-eventcalendarapp-direct-ics-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v425-robust-ics-fetch-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -1132,11 +1132,20 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
       )
     : defaultIds;
 
-  // V419 regel 1:
-  // Hvis Sources har nøyaktig ETT gyldig Settlement, er det eksplisitt
-  // konfigurasjon og skal overstyre alt annet.
-  // Eksempel: Fredheim Arena -> Soma.
-  if (allowedDefaultIds.length === 1) {
+  // V422:
+  // I de dedikerte kommune-workspacene Sandnes og Stavanger er én eneste
+  // Sources.Settlements-kobling eksplisitt administrativ konfigurasjon og
+  // skal overstyre alt annet (f.eks. Fredheim Arena -> Soma,
+  // IMI-kirken -> Tjensvoll).
+  //
+  // I den gamle/felles workspacen (bl.a. Time og Hå) skal en enkelt
+  // kilde-Settlement derimot IKKE slå et konkret sted i selve arrangementet.
+  // Der brukes den først som fallback senere.
+  const singleSourceSettlementIsAuthoritative =
+    municipalityHint === "sandnes" ||
+    municipalityHint === "stavanger";
+
+  if (singleSourceSettlementIsAuthoritative && allowedDefaultIds.length === 1) {
     const defaultId = Number(allowedDefaultIds[0]);
 
     if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
@@ -1186,6 +1195,20 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
 
   if (explicitSpecific && explicitSpecific.active !== false) {
     return [explicitSpecific.rowId];
+  }
+
+  // I felles-workspacen brukes én enkelt Source.Settlement først NÅ,
+  // etter at konkrete stedsnavn i arrangementet har fått mulighet til å vinne.
+  // Eksempel: et arrangement hos Undheim sokn med "Undheim" i location
+  // skal bli Undheim, selv om kilden har Bryne som generell/default kobling.
+  if (!singleSourceSettlementIsAuthoritative && allowedDefaultIds.length === 1) {
+    const defaultId = Number(allowedDefaultIds[0]);
+
+    if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
+      return null;
+    }
+
+    return [defaultId];
   }
 
   // Strukturert settlementHint før generelle fallback-regler.
@@ -1738,7 +1761,6 @@ async function arrFetchAndParseVigrestad() {
 
 async function arrFetchAndParseIcalFromPage(url) {
   // Direkte iCal-feeder har ikke alltid .ics som filendelse.
-  // Event Calendar App bruker f.eks. /ics/<calendar>/<uuid>.
   if (
     /calendar\.google\.com\/calendar\/ical\//i.test(url) ||
     /api\.eventcalendarapp\.com\/ics\//i.test(url) ||
@@ -1763,9 +1785,54 @@ async function arrFetchAndParseIcalFromPage(url) {
 }
 
 async function arrFetchText(url) {
-  const r = await fetch(url,{headers:{"User-Agent":"Kvimarka92-Arrangementskalender/1.0","Accept":"text/html,text/calendar,text/plain;q=0.9,*/*;q=0.5"}});
-  if (!r.ok) throw new Error(`Kilde svarte HTTP ${r.status}: ${url}`);
-  return r.text();
+  const headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+    "Accept": "text/calendar,text/plain,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "nb-NO,nb;q=0.9,no;q=0.8,en;q=0.7",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache"
+  };
+
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
+      let r;
+      try {
+        r = await fetch(url, {
+          headers,
+          redirect: "follow",
+          signal: controller.signal
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+
+      if (!r.ok) {
+        throw new Error(`HTTP ${r.status} ${r.statusText || ""}`.trim());
+      }
+
+      return await r.text();
+    } catch (err) {
+      lastError = err;
+
+      if (attempt < 3) {
+        await new Promise(resolve => setTimeout(resolve, attempt * 1500));
+      }
+    }
+  }
+
+  const cause =
+    lastError?.cause?.code ||
+    lastError?.cause?.message ||
+    lastError?.name ||
+    lastError?.message ||
+    "ukjent nettverksfeil";
+
+  throw new Error(`Kunne ikke hente kilde etter 3 forsøk (${cause}): ${url}`);
 }
 
 async function arrFetchAndParseIcal(url) {
