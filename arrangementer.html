@@ -433,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v413-organizer-settlement-resolution-2026-08-21";
+  const FRONTEND_VERSION = "v414-sandnes-sentrum-rename-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -512,6 +512,38 @@
       }
 
       localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(unique));
+    } catch (_) {}
+  }
+
+  function migrateSandnesSentrumSavedState() {
+    // Settlement-raden er omdøpt i Baserow. Migrer gamle lokale valg/favoritter.
+    try {
+      const remembered = loadFilters();
+      if (
+        remembered &&
+        remembered.municipality === "Sandnes" &&
+        remembered.settlement === "Sentrum"
+      ) {
+        remembered.settlement = "Sandnes sentrum";
+        localStorage.setItem(FILTERS_KEY, JSON.stringify(remembered));
+      }
+    } catch (_) {}
+
+    try {
+      const favorites = loadFavorites();
+      let changed = false;
+      const migrated = favorites.map(fav => {
+        if (
+          fav &&
+          fav.municipality === "Sandnes" &&
+          fav.settlement === "Sentrum"
+        ) {
+          changed = true;
+          return {...fav, settlement:"Sandnes sentrum"};
+        }
+        return fav;
+      });
+      if (changed) saveFavorites(migrated);
     } catch (_) {}
   }
 
@@ -1657,7 +1689,7 @@
     // Disse følger samme geografiske konfigurasjon som i Sources/engine.
     const aliases = new Map([
       ["fredheim arena","Soma"],
-      ["sandnes sokn","Sentrum"]
+      ["sandnes sokn","Sandnes sentrum"]
     ]);
 
     const alias = aliases.get(organizerNorm);
@@ -1868,6 +1900,7 @@
 
   window.addEventListener("beforeunload", saveFilters);
 
+  migrateSandnesSentrumSavedState();
   restoreUiState();
   renderFavoriteButtons();
   updateClearFiltersButton();
