@@ -1,0 +1,34 @@
+name: Delete migrated Sandnes events
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Skriv DELETE-SANDNES for å bekrefte fysisk sletting'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Delete old Sandnes events safely
+        env:
+          ARRANGEMENT_BASEROW_TOKEN: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN }}
+          ARRANGEMENT_BASEROW_TOKEN_SANDNES: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_SANDNES }}
+          BASEROW_API_BASE: https://api.baserow.io
+          CONFIRM_DELETE_SANDNES: ${{ inputs.confirm }}
+        run: node scripts/delete-migrated-sandnes-events.mjs
