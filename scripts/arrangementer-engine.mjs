@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v412-sandnes-link-diagnostics-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v413-sandnes-link-write-verify-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -352,6 +352,74 @@ function arrLinkedNames(v) {
   return v.map(x => typeof x === "string" ? x : x?.value ?? x?.name).filter(Boolean);
 }
 
+function arrSortedLinkedIds(v) {
+  return [...new Set(arrLinkedIds(v).map(Number).filter(Number.isFinite))]
+    .sort((a,b) => a-b);
+}
+
+function arrSameIds(a,b) {
+  const aa = [...new Set((a || []).map(Number).filter(Number.isFinite))].sort((x,y)=>x-y);
+  const bb = [...new Set((b || []).map(Number).filter(Number.isFinite))].sort((x,y)=>x-y);
+  return aa.length === bb.length && aa.every((v,i) => v === bb[i]);
+}
+
+function arrRecordSandnesWriteVerification(result, requestItem, responseRow) {
+  const diag = result?.diagnostics?.linkWriteVerification;
+  if (!diag || diag.checked >= 24 || !requestItem || !responseRow) return;
+
+  const requestedSettlementIds =
+    Array.isArray(requestItem[ARR_F.events.settlement])
+      ? requestItem[ARR_F.events.settlement].map(Number).filter(Number.isFinite)
+      : [];
+
+  const requestedMeetingTypeIds =
+    Array.isArray(requestItem[ARR_F.events.meetingType])
+      ? requestItem[ARR_F.events.meetingType].map(Number).filter(Number.isFinite)
+      : [];
+
+  const actualSettlementIds =
+    arrSortedLinkedIds(responseRow[ARR_F.events.settlement]);
+
+  const actualMeetingTypeIds =
+    arrSortedLinkedIds(responseRow[ARR_F.events.meetingType]);
+
+  const settlementMatch =
+    arrSameIds(requestedSettlementIds, actualSettlementIds);
+
+  const meetingTypeMatch =
+    arrSameIds(requestedMeetingTypeIds, actualMeetingTypeIds);
+
+  diag.checked++;
+  if (settlementMatch) diag.settlementMatches++;
+  else diag.settlementMismatches++;
+
+  if (meetingTypeMatch) diag.meetingTypeMatches++;
+  else diag.meetingTypeMismatches++;
+
+  diag.samples.push({
+    rowId: Number(responseRow.id || requestItem.id || 0),
+    title: String(
+      responseRow[ARR_F.events.title] ??
+      requestItem[ARR_F.events.title] ??
+      ""
+    ),
+    requestedSettlementIds,
+    actualSettlementIds,
+    requestedMeetingTypeIds,
+    actualMeetingTypeIds,
+    rawSettlementReturned:
+      responseRow[ARR_F.events.settlement] ?? null,
+    rawMeetingTypeReturned:
+      responseRow[ARR_F.events.meetingType] ?? null,
+    returnedKeys: Object.keys(responseRow).filter(
+      key =>
+        key === ARR_F.events.settlement ||
+        key === ARR_F.events.meetingType ||
+        /10252565|10252555|settlement|meeting/i.test(key)
+    )
+  });
+}
+
 
 async function arrPurgeOldEventPage(env) {
   const cutoffDate = new Date(Date.now() - 7 * 86400000);
@@ -565,6 +633,14 @@ async function arrImportAllSources(env, options={}) {
         meetingTypes: meetingTypes.length,
         settlements: settlements.length,
         activeSettlements: settlementRules.length
+      },
+      linkWriteVerification: {
+        checked: 0,
+        settlementMatches: 0,
+        settlementMismatches: 0,
+        meetingTypeMatches: 0,
+        meetingTypeMismatches: 0,
+        samples: []
       },
       settlementRows: settlementRules.slice(0, 50).map(rule => ({
         rowId: rule.rowId,
@@ -796,9 +872,35 @@ async function arrImportAllSources(env, options={}) {
         const key = createKeys[i];
         if (key) existingBySourceEventId.set(key, createdRows[i]);
 
+        if (areaKey === "sandnes") {
+          arrRecordSandnesWriteVerification(
+            result,
+            createItems[i],
+            createdRows[i]
+          );
+        }
       }
+
       if (updateItems.length) {
-        await arrUpdateRowsBatch(env, ARR_TABLE.EVENTS, updateItems);
+        const updatedRows = await arrUpdateRowsBatch(
+          env,
+          ARR_TABLE.EVENTS,
+          updateItems
+        );
+
+        if (areaKey === "sandnes") {
+          const requestById = new Map(
+            updateItems.map(item => [Number(item.id), item])
+          );
+
+          for (const row of updatedRows) {
+            arrRecordSandnesWriteVerification(
+              result,
+              requestById.get(Number(row.id)),
+              row
+            );
+          }
+        }
       }
 
       sourceResult.created = createItems.length;
