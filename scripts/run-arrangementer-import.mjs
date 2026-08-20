@@ -588,7 +588,8 @@ const summary = {
     created: Number(row.created || 0),
     updated: Number(row.updated || 0),
     skipped: Number(row.skipped || 0),
-    error: row.error || null
+    error: row.error || null,
+    createdEvents: Array.isArray(row.createdEvents) ? row.createdEvents : []
   })),
   areas: areaResults.map(({key, result}) => ({
     key,

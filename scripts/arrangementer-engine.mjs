@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v416-import-history-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v417-import-history-created-rows-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -659,7 +659,15 @@ async function arrImportAllSources(env, options={}) {
   };
 
   for (const source of activeSources) {
-    const sourceResult = {sourceId:source[ARR_F.sources.sourceId], name:source[ARR_F.sources.name], created:0, updated:0, skipped:0, error:null};
+    const sourceResult = {
+      sourceId:source[ARR_F.sources.sourceId],
+      name:source[ARR_F.sources.name],
+      created:0,
+      updated:0,
+      skipped:0,
+      error:null,
+      createdEvents:[]
+    };
     const now = new Date().toISOString();
 
     const sourceDiagnostic = areaKey === "sandnes" ? {
@@ -868,6 +876,20 @@ async function arrImportAllSources(env, options={}) {
       }
 
       const createdRows = await arrCreateRowsBatch(env, ARR_TABLE.EVENTS, createItems);
+
+      sourceResult.createdEvents = createdRows.map(row => ({
+        rowId: Number(row.id || 0),
+        eventId: arrClean(row[ARR_F.events.eventId] || ""),
+        title: arrClean(row[ARR_F.events.title] || ""),
+        startTime: arrClean(row[ARR_F.events.startTime] || ""),
+        endTime: arrClean(row[ARR_F.events.endTime] || ""),
+        organizer: arrClean(row[ARR_F.events.organizer] || ""),
+        location: arrClean(row[ARR_F.events.location] || ""),
+        source: arrClean(row[ARR_F.events.source] || ""),
+        sourceEventId: arrClean(row[ARR_F.events.sourceEventId] || ""),
+        active: row[ARR_F.events.active] !== false
+      }));
+
       for (let i=0; i<createdRows.length; i++) {
         const key = createKeys[i];
         if (key) existingBySourceEventId.set(key, createdRows[i]);
