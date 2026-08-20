@@ -100,14 +100,40 @@ th{color:var(--muted)}
           <summary>Kilder med nye rader eller feil</summary>
           <table>
             <thead><tr><th>Område</th><th>Kilde</th><th>Nye</th><th>Oppdatert</th><th>Status</th></tr></thead>
-            <tbody>${sourceRows.map(s=>`
+            <tbody>${sourceRows.map(s=>{
+              const createdEvents=Array.isArray(s.createdEvents)?s.createdEvents:[];
+              const createdCell=Number(s.created||0)>0
+                ? `<details>
+                    <summary class="created">${Number(s.created||0)} – vis rader</summary>
+                    ${createdEvents.length ? `
+                      <div style="overflow:auto;max-width:900px">
+                        <table>
+                          <thead><tr><th>Row ID</th><th>Event ID</th><th>Start</th><th>Tittel</th><th>Arrangør</th><th>Sted</th></tr></thead>
+                          <tbody>${createdEvents.map(e=>`
+                            <tr>
+                              <td>${Number(e.rowId||0)}</td>
+                              <td>${esc(e.eventId||"")}</td>
+                              <td>${esc(dt(e.startTime))}</td>
+                              <td>${esc(e.title||"")}</td>
+                              <td>${esc(e.organizer||"")}</td>
+                              <td>${esc(e.location||"")}</td>
+                            </tr>`).join("")}
+                          </tbody>
+                        </table>
+                      </div>`
+                    : `<div class="small">Detaljene ble ikke lagret for denne eldre importen.</div>`}
+                  </details>`
+                : "0";
+
+              return `
               <tr>
                 <td>${esc(s.area||"")}</td>
                 <td>${esc(s.name||s.sourceId||"")}</td>
-                <td class="${Number(s.created||0)>0?"created":""}">${Number(s.created||0)}</td>
+                <td>${createdCell}</td>
                 <td>${Number(s.updated||0)}</td>
                 <td class="${s.error?"error":""}">${s.error?esc(s.error):"OK"}</td>
-              </tr>`).join("")}
+              </tr>`;
+            }).join("")}
             </tbody>
           </table>
         </details>` : "";
