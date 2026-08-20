@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v410-multi-area-sandnes-auto-migration-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v411-sandnes-settlement-resolution-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -789,6 +789,15 @@ function arrClassifyMeetingTypes(item, rules) {
   return [...new Set(ids)];
 }
 
+function arrNormalizeMunicipalityName(value) {
+  // Structured sources may return values such as "Sandnes kommune",
+  // while Settlements.Municipality contains "Sandnes".
+  // Normalize only the administrative suffix; do not broaden geography.
+  return arrNormalize(value || "")
+    .replace(/\s+kommune$/i, "")
+    .trim();
+}
+
 function arrBuildSettlementRules(rows, includeInactive=false) {
   return rows
     .filter(r => includeInactive || r[ARR_F.settlements.active] !== false)
@@ -797,7 +806,7 @@ function arrBuildSettlementRules(rows, includeInactive=false) {
       name:String(r[ARR_F.settlements.name] || ""),
       normalized:arrNormalize(r[ARR_F.settlements.name] || ""),
       municipality:String(r[ARR_F.settlements.municipality] || ""),
-      municipalityNormalized:arrNormalize(r[ARR_F.settlements.municipality] || ""),
+      municipalityNormalized:arrNormalizeMunicipalityName(r[ARR_F.settlements.municipality] || ""),
       sortOrder:Number(r[ARR_F.settlements.sortOrder] || 0),
       active:r[ARR_F.settlements.active] !== false,
     }))
@@ -809,7 +818,7 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
   // V288: Strukturerte kilder kan gi korrekt kommune direkte.
   // Den skal være en hard avgrensning slik at f.eks. Ganddal sokn (Sandnes)
   // aldri kan havne under Hå selv om arrangementet er medarrangert av en Hå-enhet.
-  const municipalityHint = arrNormalize(item.municipalityHint || "");
+  const municipalityHint = arrNormalizeMunicipalityName(item.municipalityHint || "");
 
   const allRulesForMunicipality = municipalityHint
     ? allSettlementRules.filter(rule => rule.municipalityNormalized === municipalityHint)
@@ -896,24 +905,35 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
   matched = findBest(item.title);
   if (matched) return [matched.rowId];
 
-  // 4) Hvis kommunen er kjent, bruk et eksisterende tettsted i DEN kommunen
-  // før vi vurderer kildens Default Settlement.
-  if (municipalityHint && rulesForMunicipality.length) {
-    const municipalityMatch = [...rulesForMunicipality]
-      .sort((a,b) => a.sortOrder-b.sortOrder || a.name.localeCompare(b.name))[0];
-    if (municipalityMatch) return [municipalityMatch.rowId];
-  }
+  // 4) Default Settlement kan brukes også når kommunen er kjent,
+  // men da bare hvis default-raden faktisk ligger i samme kommune.
+  // Dette gjør nye workspaces selvstendige uten å risikere krysskommune-match.
+  const defaultIds = arrLinkedIds(source[ARR_F.sources.defaultSettlement])
+    .map(Number)
+    .filter(Number.isFinite);
 
-  // 5) Default Settlement er bare fallback når kilden ikke ga kommune.
-  if (!municipalityHint) {
-    const defaultIds = arrLinkedIds(source[ARR_F.sources.defaultSettlement]);
-    if (defaultIds.length) {
-      const defaultId = Number(defaultIds[0]);
+  if (defaultIds.length) {
+    const allowedDefaultIds = municipalityHint
+      ? defaultIds.filter(id =>
+          rulesForMunicipality.some(rule => Number(rule.rowId) === id)
+        )
+      : defaultIds;
+
+    if (allowedDefaultIds.length) {
+      const defaultId = Number(allowedDefaultIds[0]);
       if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
         return null;
       }
       return [defaultId];
     }
+  }
+
+  // 5) Hvis kommunen er kjent og vi fortsatt ikke har en konkret match,
+  // bruk første aktive settlement i den kommunen som siste strukturerte fallback.
+  if (municipalityHint && rulesForMunicipality.length) {
+    const municipalityMatch = [...rulesForMunicipality]
+      .sort((a,b) => a.sortOrder-b.sortOrder || a.name.localeCompare(b.name))[0];
+    if (municipalityMatch) return [municipalityMatch.rowId];
   }
 
   // 6) Beskrivelse er siste fritekstreserve.
