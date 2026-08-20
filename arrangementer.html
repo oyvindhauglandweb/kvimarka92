@@ -433,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v411-organizer-sync-all-paths-2026-08-21";
+  const FRONTEND_VERSION = "v412-two-way-dependent-filters-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1608,10 +1608,11 @@
   els.settlement.addEventListener("change", () => {
     combinedFavoritesActive = false;
 
+    // Tettsted -> kommune når koblingen er entydig.
+    syncMunicipalityFromSettlement();
+
     // Når brukeren velger et nytt tettsted skal ikke en tidligere valgt
-    // arrangør "henge igjen". Bygg arrangørlisten på nytt fra tettstedet.
-    // refreshOrganizerOptions() velger automatisk arrangøren dersom det
-    // bare finnes én arrangør for valgt kommune + tettsted.
+    // arrangør henge igjen.
     els.organizer.value = "";
     refreshOrganizerOptions();
 
@@ -1631,50 +1632,41 @@
       matching.map(e => e.municipality).filter(Boolean)
     )];
 
-    const settlements = [...new Set(
-      matching.map(e => e.settlement).filter(Boolean)
-    )];
-
+    // Arrangørens kommune er entydig -> velg den.
     if (municipalities.length === 1) {
       els.municipality.value = municipalities[0];
-      refreshSettlementOptions();
     }
 
-    let preferredSettlement = "";
+    // Viktig: Når arrangør er valgt skal Tettsted-listen bygges fra akkurat
+    // denne arrangørens arrangementer, ikke fra alle arrangementer i kommunen.
+    // Dermed blir Fredheim Arena -> Soma deterministisk.
+    const organizerSettlements = [...new Set(
+      matching
+        .filter(e => !els.municipality.value || e.municipality === els.municipality.value)
+        .map(e => e.settlement)
+        .filter(Boolean)
+    )].sort((a,b) => a.localeCompare(b,"no"));
 
-    if (settlements.length === 1) {
-      preferredSettlement = settlements[0];
-    } else if (municipalities.length === 1) {
-      const municipalityName = municipalities[0];
-      const specificSettlements = settlements.filter(
-        settlement => settlement !== municipalityName
+    addOptions(
+      els.settlement,
+      organizerSettlements,
+      "Alle tettsteder"
+    );
+
+    // Hvis arrangøren har både kommunenavnet og ett mer spesifikt tettsted,
+    // skal det spesifikke velges.
+    if (organizerSettlements.length > 1 && els.municipality.value) {
+      const specific = organizerSettlements.filter(
+        s => s !== els.municipality.value
       );
-
-      if (specificSettlements.length === 1) {
-        preferredSettlement = specificSettlements[0];
+      if (specific.length === 1) {
+        els.settlement.value = specific[0];
       }
-    }
-
-    if (preferredSettlement) {
-      // Hvis arrangøren entydig peker på et tettsted, skal dette alltid
-      // gjenspeiles i dropdownen. Legg inn valget hvis kommune-listen av en
-      // eller annen grunn ikke allerede inneholder det.
-      let option = [...els.settlement.options].find(
-        o => o.value === preferredSettlement
-      );
-
-      if (!option) {
-        option = document.createElement("option");
-        option.value = preferredSettlement;
-        option.textContent = preferredSettlement;
-        els.settlement.appendChild(option);
-      }
-
-      els.settlement.value = preferredSettlement;
     }
 
     refreshOrganizerOptions();
 
+    // refreshOrganizerOptions kan bygge selecten på nytt; behold arrangøren.
     if ([...els.organizer.options].some(o => o.value === organizer)) {
       els.organizer.value = organizer;
     }
@@ -1685,9 +1677,32 @@
     );
   }
 
+  function syncMunicipalityFromSettlement() {
+    const settlement = els.settlement.value;
+    if (!settlement) return;
+
+    const matching = events.filter(e => e.settlement === settlement);
+    const municipalities = [...new Set(
+      matching.map(e => e.municipality).filter(Boolean)
+    )];
+
+    // Et tettsted tilhører normalt én kommune. Velg kommunen automatisk når
+    // koblingen er entydig, f.eks. Nærbø -> Hå.
+    if (municipalities.length === 1) {
+      els.municipality.value = municipalities[0];
+    }
+  }
+
   els.organizer.addEventListener("change", () => {
     combinedFavoritesActive = false;
-    syncDependentFiltersFromOrganizer();
+
+    if (els.organizer.value) {
+      syncDependentFiltersFromOrganizer();
+    } else {
+      refreshSettlementOptions();
+      refreshOrganizerOptions();
+    }
+
     saveFilters();
     applyFilters();
     renderFavoriteButtons();
