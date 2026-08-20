@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v413-sandnes-link-write-verify-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v414-sandnes-correct-link-field-ids-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -83,7 +83,7 @@ const ARR_AREAS = {
         lastSeen: "field_10252562",
         active: "field_10252563",
         manuallyEdited: "field_10252564",
-        settlement: "field_10252565",
+        settlement: "field_10252776",
       },
       sources: {
         sourceId: "field_10252702",
@@ -95,7 +95,7 @@ const ARR_AREAS = {
         importMethod: "field_10252708",
         lastImport: "field_10252709",
         importStatus: "field_10252710",
-        defaultSettlement: "field_10252711",
+        defaultSettlement: "field_10252777",
       },
       meetingTypes: {
         typeId: "field_10252723",
