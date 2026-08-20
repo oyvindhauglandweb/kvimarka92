@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v425-robust-ics-fetch-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v426-ical-query-direct-feed-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -1764,7 +1764,8 @@ async function arrFetchAndParseIcalFromPage(url) {
   if (
     /calendar\.google\.com\/calendar\/ical\//i.test(url) ||
     /api\.eventcalendarapp\.com\/ics\//i.test(url) ||
-    /\.ics(?:\?|$)/i.test(url)
+    /\.ics(?:\?|$)/i.test(url) ||
+    /[?&]ical=1(?:&|$)/i.test(url)
   ) {
     return arrFetchAndParseIcal(url);
   }
