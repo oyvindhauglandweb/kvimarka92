@@ -46,9 +46,9 @@
     .organizer-custom-button{width:100%;height:42px;border-radius:7px;border:1px solid #40464a;background:#16191b;color:var(--text);padding:0 36px 0 11px;text-align:left;position:relative;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .organizer-custom-button::after{content:"⌄";position:absolute;right:11px;top:50%;transform:translateY(-53%);font-size:21px;color:#ddd}
     .organizer-custom.open .organizer-custom-button{border-color:var(--accent)}
-    .organizer-custom-menu{display:none;position:absolute;z-index:50;left:0;right:0;top:calc(100% + 5px);max-height:320px;overflow:auto;background:#191b1c;border:1px solid #485158;border-radius:9px;box-shadow:0 14px 35px rgba(0,0,0,.55);padding:5px}
+    .organizer-custom-menu{display:none;position:absolute;z-index:50;left:0;right:0;top:calc(100% + 5px);max-height:320px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;background:#191b1c;border:1px solid #485158;border-radius:9px;box-shadow:0 14px 35px rgba(0,0,0,.55);padding:5px}
     .organizer-custom.open .organizer-custom-menu{display:block}
-    .organizer-custom-option{width:100%;min-height:42px;height:auto;background:transparent;border:0;border-radius:6px;text-align:left;padding:8px 10px;font-weight:700;line-height:1.25;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    .organizer-custom-option{width:100%;min-height:42px;height:auto;background:transparent;border:0;border-radius:6px;text-align:left;padding:8px 10px;font-weight:700;line-height:1.25;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
     .organizer-custom-option:hover,.organizer-custom-option.selected{background:#272b2d}
 
     .status{min-height:24px;margin:14px 2px 8px;color:var(--muted);font-size:14px}
@@ -433,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v407-public-no-manual-import-2026-08-20";
+  const FRONTEND_VERSION = "v408-mobile-dropdown-scroll-2026-08-20";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -822,12 +822,42 @@
         updateFavoriteTopButton();
       };
 
-      // Mobil Safari kan være upålitelig når en button i en absolutt dropdown
-      // kun bruker click. pointerup gir direkte respons, mens click beholdes
-      // som fallback for tastatur/desktop.
+      // Mobil: et fingerdrag for å skrolle listen må aldri tolkes som valg.
+      // Vi velger derfor bare på pointerup når fingeren i praksis ikke har
+      // flyttet seg. click beholdes som tastatur/desktop-fallback.
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let pointerMoved = false;
       let handledByPointer = false;
+      const TAP_MOVE_LIMIT = 8;
+
+      btn.addEventListener("pointerdown", event => {
+        pointerStartX = event.clientX;
+        pointerStartY = event.clientY;
+        pointerMoved = false;
+        handledByPointer = false;
+      });
+
+      btn.addEventListener("pointermove", event => {
+        if (
+          Math.abs(event.clientX - pointerStartX) > TAP_MOVE_LIMIT ||
+          Math.abs(event.clientY - pointerStartY) > TAP_MOVE_LIMIT
+        ) {
+          pointerMoved = true;
+        }
+      });
+
+      btn.addEventListener("pointercancel", () => {
+        pointerMoved = true;
+      });
 
       btn.addEventListener("pointerup", event => {
+        if (pointerMoved) {
+          handledByPointer = true;
+          setTimeout(() => { handledByPointer = false; }, 0);
+          return;
+        }
+
         handledByPointer = true;
         chooseOrganizer(event);
         setTimeout(() => { handledByPointer = false; }, 0);
