@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v428-lye-list-jsonld-2026-08-20";
+const ARRANGEMENT_ENGINE_VERSION = "v429-naerbo-gamle-sokn-alias-2026-08-20";
 
 const ARR_AREAS = {
   default: {
@@ -518,8 +518,15 @@ async function arrPurgeOldEventPage(env) {
 
 function arrResolveHaaFellesraadOrganizer(title, organizer) {
   const current = arrClean(organizer || "");
+  const normalizedCurrent = arrNormalize(current);
 
-  if (arrNormalize(current) !== arrNormalize("Hå Kyrkjelege Fellesråd")) {
+  // V429: "Nærbø gamle sokn" finnes ikke som eget sokn.
+  // Alle slike arrangørverdier skal normaliseres til Nærbø sokn.
+  if (normalizedCurrent === arrNormalize("Nærbø gamle sokn")) {
+    return "Nærbø sokn";
+  }
+
+  if (normalizedCurrent !== arrNormalize("Hå Kyrkjelege Fellesråd")) {
     return current;
   }
 
