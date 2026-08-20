@@ -433,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v410-organizer-sync-settlement-2026-08-21";
+  const FRONTEND_VERSION = "v411-organizer-sync-all-paths-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -665,6 +665,11 @@
 
     if (remembered.organizer && [...els.organizer.options].some(o => o.value === remembered.organizer)) {
       els.organizer.value = remembered.organizer;
+
+      // V411: også programmatisk gjenopprettet arrangør skal oppdatere
+      // kommune/tettsted. Tidligere skjedde dette bare ved manuelt valg.
+      syncDependentFiltersFromOrganizer();
+
       updateOrganizerSelectColor();
       renderOrganizerCustom(
         [...els.organizer.options].map(o => o.value).filter(Boolean)
@@ -1394,6 +1399,12 @@
             [...els.organizer.options].some(o => o.value === fav.organizer)
               ? fav.organizer
               : "";
+
+          // V411: favorittvalg er også et arrangørvalg og må kjøre samme
+          // avhengige kommune/tettsted-logikk som dropdownen.
+          if (els.organizer.value) {
+            syncDependentFiltersFromOrganizer();
+          }
         }
 
         updateOrganizerSelectColor();
