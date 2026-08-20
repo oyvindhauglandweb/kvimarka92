@@ -32,19 +32,18 @@ jobs:
           ARRANGEMENT_BASEROW_TOKEN_SANDNES: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_SANDNES }}
           BASEROW_API_BASE: https://api.baserow.io
           ARRANGEMENT_DATA_PATH: arrangementer-data.json
+          ARRANGEMENT_HISTORY_PATH: arrangementer-import-history.json
         run: node scripts/run-arrangementer-import.mjs
 
-      - name: Commit oppdatert snapshot
+      - name: Commit oppdatert snapshot og historikk
         run: |
-          # git diff ser ikke nye, untracked filer.
-          # git status --porcelain gjør det.
-          if [ -z "$(git status --porcelain -- arrangementer-data.json)" ]; then
-            echo "Ingen endringer i arrangementer-data.json"
+          if [ -z "$(git status --porcelain -- arrangementer-data.json arrangementer-import-history.json)" ]; then
+            echo "Ingen endringer i arrangementer-data.json eller arrangementer-import-history.json"
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add arrangementer-data.json
+          git add arrangementer-data.json arrangementer-import-history.json
           git commit -m "Update arrangementer data"
           git push
