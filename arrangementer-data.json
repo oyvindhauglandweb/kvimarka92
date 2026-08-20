@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
-  "engineVersion": "v425-robust-ics-fetch-2026-08-20",
-  "generatedAt": "2026-08-20T16:27:11.128Z",
+  "engineVersion": "v426-ical-query-direct-feed-2026-08-20",
+  "generatedAt": "2026-08-20T16:35:59.260Z",
   "areas": [
     {
       "key": "default",
@@ -19,22 +19,34 @@
       "eventsTable": 1146207
     }
   ],
-  "eventCount": 4755,
+  "eventCount": 4759,
   "importSummary": {
     "ok": false,
-    "startedAt": "2026-08-20T16:23:18.839Z",
-    "finishedAt": "2026-08-20T16:26:43.059Z",
-    "created": 0,
-    "updated": 3910,
-    "errors": 1,
+    "startedAt": "2026-08-20T16:32:14.789Z",
+    "finishedAt": "2026-08-20T16:35:27.835Z",
+    "created": 6,
+    "updated": 2969,
+    "errors": 3,
     "sourceCount": 28,
-    "successfulSources": 27,
+    "successfulSources": 25,
     "failedSources": [
       {
         "area": "default",
-        "sourceId": "SRC-0028",
-        "name": "Lye Forsamlingshus",
-        "error": "Fant ingen iCal/ICS-lenke på https://www.lyeforsamlingshus.no/events/maned/?ical=1"
+        "sourceId": "SRC-0001",
+        "name": "Nærbø Bedehus",
+        "error": "Nærbø-parser fant ingen arrangementer"
+      },
+      {
+        "area": "default",
+        "sourceId": "SRC-0002",
+        "name": "Pinsemenigheten Betel",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://pinsebetel.no/hva-skjer/"
+      },
+      {
+        "area": "default",
+        "sourceId": "SRC-0015",
+        "name": "Kleppe Bedehus",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://kleppebedehus.no/calendar/kalender/"
       }
     ],
     "sourceResults": [
@@ -43,9 +55,9 @@
         "sourceId": "SRC-0001",
         "name": "Nærbø Bedehus",
         "created": 0,
-        "updated": 82,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
+        "error": "Nærbø-parser fant ingen arrangementer",
         "createdEvents": []
       },
       {
@@ -53,9 +65,9 @@
         "sourceId": "SRC-0002",
         "name": "Pinsemenigheten Betel",
         "created": 0,
-        "updated": 335,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://pinsebetel.no/hva-skjer/",
         "createdEvents": []
       },
       {
@@ -153,9 +165,9 @@
         "sourceId": "SRC-0015",
         "name": "Kleppe Bedehus",
         "created": 0,
-        "updated": 523,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://kleppebedehus.no/calendar/kalender/",
         "createdEvents": []
       },
       {
@@ -272,18 +284,91 @@
         "area": "default",
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
-        "created": 0,
+        "created": 6,
         "updated": 0,
         "skipped": 0,
-        "error": "Fant ingen iCal/ICS-lenke på https://www.lyeforsamlingshus.no/events/maned/?ical=1",
-        "createdEvents": []
+        "error": null,
+        "createdEvents": [
+          {
+            "rowId": 75332,
+            "eventId": "EVT-F3D4BE4C5645",
+            "title": "Varden",
+            "startTime": "2026-08-21T17:00:00Z",
+            "endTime": "2026-08-21T21:00:00Z",
+            "organizer": "Lye Forsamlingshus",
+            "location": "Lye forsamlingshus",
+            "source": "Lye Forsamlingshus",
+            "sourceEventId": "20181-1787338800-1787353200@www.lyeforsamlingshus.no",
+            "active": true
+          },
+          {
+            "rowId": 75333,
+            "eventId": "EVT-239C40A04055",
+            "title": "Gudsteneste INN-kyrkja",
+            "startTime": "2026-08-23T08:00:00Z",
+            "endTime": "2026-08-23T11:30:00Z",
+            "organizer": "Lye Forsamlingshus",
+            "location": "Lye Forsamlingshus",
+            "source": "Lye Forsamlingshus",
+            "sourceEventId": "19657-1787479200-1787491800@www.lyeforsamlingshus.no",
+            "active": true
+          },
+          {
+            "rowId": 75334,
+            "eventId": "EVT-1F8FC8F3D01C",
+            "title": "Foreldremøte konfirmantar",
+            "startTime": "2026-08-24T16:00:00Z",
+            "endTime": "2026-08-24T18:30:00Z",
+            "organizer": "Lye Forsamlingshus",
+            "location": "Lye forsamlingshus",
+            "source": "Lye Forsamlingshus",
+            "sourceEventId": "20088-1787594400-1787603400@www.lyeforsamlingshus.no",
+            "active": true
+          },
+          {
+            "rowId": 75335,
+            "eventId": "EVT-4488A34DD720",
+            "title": "Konfirmantsamling",
+            "startTime": "2026-08-26T15:30:00Z",
+            "endTime": "2026-08-26T19:00:00Z",
+            "organizer": "Lye Forsamlingshus",
+            "location": "Lye forsamlingshus",
+            "source": "Lye Forsamlingshus",
+            "sourceEventId": "20090-1787765400-1787778000@www.lyeforsamlingshus.no",
+            "active": true
+          },
+          {
+            "rowId": 75336,
+            "eventId": "EVT-EF23D9C0EA98",
+            "title": "Felles mannssamling",
+            "startTime": "2026-08-27T18:00:00Z",
+            "endTime": "2026-08-27T20:00:00Z",
+            "organizer": "Lye Forsamlingshus",
+            "location": "Hovedsal",
+            "source": "Lye Forsamlingshus",
+            "sourceEventId": "19794-1787860800-1787868000@www.lyeforsamlingshus.no",
+            "active": true
+          },
+          {
+            "rowId": 75337,
+            "eventId": "EVT-E004539C2833",
+            "title": "Gudsteneste DNK",
+            "startTime": "2026-08-30T08:30:00Z",
+            "endTime": "2026-08-30T09:30:00Z",
+            "organizer": "Lye Forsamlingshus",
+            "location": "Lye forsamlingshus",
+            "source": "Lye Forsamlingshus",
+            "sourceEventId": "20070-1788085800-1788089400@www.lyeforsamlingshus.no",
+            "active": true
+          }
+        ]
       },
       {
         "area": "sandnes",
         "sourceId": "SRC-0009",
         "name": "Fredheim Arena",
         "created": 0,
-        "updated": 330,
+        "updated": 329,
         "skipped": 0,
         "error": null,
         "createdEvents": []
@@ -325,9 +410,9 @@
         "name": "Felles",
         "eventsTable": 1137493,
         "sourcesTable": 1137506,
-        "created": 0,
-        "updated": 2333,
-        "errors": 1,
+        "created": 6,
+        "updated": 1393,
+        "errors": 3,
         "sourceCount": 24
       },
       {
@@ -336,7 +421,7 @@
         "eventsTable": 1144908,
         "sourcesTable": 1144922,
         "created": 0,
-        "updated": 1493,
+        "updated": 1492,
         "errors": 0,
         "sourceCount": 3,
         "diagnostics": {
@@ -1345,23 +1430,23 @@
                   ]
                 },
                 {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+                  "title": "Zoom Hjemme hos",
+                  "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
                   "resolvedSettlementIds": [
-                    21
+                    14
                   ],
                   "resolvedSettlements": [
                     {
-                      "rowId": 21,
-                      "name": "Soma",
+                      "rowId": 14,
+                      "name": "Lura",
                       "municipality": "sandnes"
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    13
                   ]
                 },
                 {
@@ -2775,40 +2860,6 @@
   },
   "events": [
     {
-      "id": "EVT-C8B735B0FC85",
-      "title": "Andakt Forsand bo- og aktivitetsenter",
-      "startTime": "2026-08-20T10:30:00Z",
-      "endTime": "2026-08-20T11:30:00Z",
-      "meetingTypes": [
-        "Annet"
-      ],
-      "organizer": "Forsand sokn",
-      "location": "Forsand bo og aktivitetsenter (Forsandheimen), Øyren 1, 4110 Forsand",
-      "settlement": "Forsand",
-      "municipality": "Sandnes",
-      "description": "Andakt på Forsand bo- og aktivitetsenter. For dei som bur der, og for alle andre som har lyst å koma:)",
-      "sourceUrl": "https://skjerikirken.no/arrangement/andakt-forsand-bo-og-aktivitetsenter-23dc862e8b35",
-      "source": "Den norske kirke – Sandnes",
-      "active": true
-    },
-    {
-      "id": "EVT-C8B735B0FC85",
-      "title": "Andakt Forsand bo- og aktivitetsenter",
-      "startTime": "2026-08-20T10:30:00Z",
-      "endTime": "2026-08-20T11:30:00Z",
-      "meetingTypes": [
-        "Annet"
-      ],
-      "organizer": "Forsand sokn",
-      "location": "Forsand bo og aktivitetsenter (Forsandheimen), Øyren 1, 4110 Forsand",
-      "settlement": "Forsand",
-      "municipality": "Sandnes",
-      "description": "Andakt på Forsand bo- og aktivitetsenter. For dei som bur der, og for alle andre som har lyst å koma:)",
-      "sourceUrl": "https://skjerikirken.no/arrangement/andakt-forsand-bo-og-aktivitetsenter-23dc862e8b35",
-      "source": "Den norske kirke – Sandnes",
-      "active": true
-    },
-    {
       "id": "EVT-679B5DD3EC52",
       "title": "babysang",
       "startTime": "2026-08-20T12:00:00Z",
@@ -3186,6 +3237,23 @@
       "active": true
     },
     {
+      "id": "EVT-F3D4BE4C5645",
+      "title": "Varden",
+      "startTime": "2026-08-21T17:00:00Z",
+      "endTime": "2026-08-21T21:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizer": "Lye Forsamlingshus",
+      "location": "Lye forsamlingshus",
+      "settlement": "Lye",
+      "municipality": "Time",
+      "description": "",
+      "sourceUrl": "https://www.lyeforsamlingshus.no/event/varden/",
+      "source": "Lye Forsamlingshus",
+      "active": true
+    },
+    {
       "id": "EVT-A3DE80E5837D",
       "title": "Alive ungdomsklubb",
       "startTime": "2026-08-21T18:00:00Z",
@@ -3269,6 +3337,23 @@
       "description": "Latest event details: https://imikirken.eventcalendarapp.com/u/20203/456434 --- Ungdomsgudstjeneste",
       "sourceUrl": "https://api.eventcalendarapp.com/ics/5583/e4776c64-6c86-49b3-809d-26187346ac52",
       "source": "IMI-kirken",
+      "active": true
+    },
+    {
+      "id": "EVT-239C40A04055",
+      "title": "Gudsteneste INN-kyrkja",
+      "startTime": "2026-08-23T08:00:00Z",
+      "endTime": "2026-08-23T11:30:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizer": "Lye Forsamlingshus",
+      "location": "Lye Forsamlingshus",
+      "settlement": "Lye",
+      "municipality": "Time",
+      "description": "",
+      "sourceUrl": "https://www.lyeforsamlingshus.no/event/gudsteneste-inn-kyrkja-6/",
+      "source": "Lye Forsamlingshus",
       "active": true
     },
     {
@@ -4290,6 +4375,23 @@
       "active": true
     },
     {
+      "id": "EVT-1F8FC8F3D01C",
+      "title": "Foreldremøte konfirmantar",
+      "startTime": "2026-08-24T16:00:00Z",
+      "endTime": "2026-08-24T18:30:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizer": "Lye Forsamlingshus",
+      "location": "Lye forsamlingshus",
+      "settlement": "Lye",
+      "municipality": "Time",
+      "description": "",
+      "sourceUrl": "https://www.lyeforsamlingshus.no/event/foreldremote-konfirmantar/",
+      "source": "Lye Forsamlingshus",
+      "active": true
+    },
+    {
       "id": "EVT-1242DE10672B",
       "title": "Bønnemøte (i matsalen)",
       "startTime": "2026-08-24T17:00:00Z",
@@ -5181,6 +5283,23 @@
       "active": true
     },
     {
+      "id": "EVT-4488A34DD720",
+      "title": "Konfirmantsamling",
+      "startTime": "2026-08-26T15:30:00Z",
+      "endTime": "2026-08-26T19:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizer": "Lye Forsamlingshus",
+      "location": "Lye forsamlingshus",
+      "settlement": "Lye",
+      "municipality": "Time",
+      "description": "",
+      "sourceUrl": "https://www.lyeforsamlingshus.no/event/konfirmantsamling/",
+      "source": "Lye Forsamlingshus",
+      "active": true
+    },
+    {
       "id": "EVT-7CA63A349EFF",
       "title": "Oppstartsøvelse Emmaus",
       "startTime": "2026-08-26T16:00:00Z",
@@ -5851,6 +5970,23 @@
       "active": true
     },
     {
+      "id": "EVT-EF23D9C0EA98",
+      "title": "Felles mannssamling",
+      "startTime": "2026-08-27T18:00:00Z",
+      "endTime": "2026-08-27T20:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizer": "Lye Forsamlingshus",
+      "location": "Hovedsal",
+      "settlement": "Lye",
+      "municipality": "Time",
+      "description": "",
+      "sourceUrl": "https://www.lyeforsamlingshus.no/event/felles-mannssamling-2/",
+      "source": "Lye Forsamlingshus",
+      "active": true
+    },
+    {
       "id": "EVT-51E53D55385D",
       "title": "Torsdag 18",
       "startTime": "2026-08-27T18:00:00Z",
@@ -6413,6 +6549,23 @@
       "description": "Tekle",
       "sourceUrl": "https://www.google.com/calendar/event?eid=M21tdGhvZW40bDQycWNkYmk2YWludGlhODQgYjhpbzNkOGdxYmhhZHBjdXZlb3ZoZHExZmNAZw&ctz=Europe/Oslo",
       "source": "Kleppe Bedehus",
+      "active": true
+    },
+    {
+      "id": "EVT-E004539C2833",
+      "title": "Gudsteneste DNK",
+      "startTime": "2026-08-30T08:30:00Z",
+      "endTime": "2026-08-30T09:30:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizer": "Lye Forsamlingshus",
+      "location": "Lye forsamlingshus",
+      "settlement": "Lye",
+      "municipality": "Time",
+      "description": "",
+      "sourceUrl": "https://www.lyeforsamlingshus.no/event/gudsteneste-dnk/",
+      "source": "Lye Forsamlingshus",
       "active": true
     },
     {
