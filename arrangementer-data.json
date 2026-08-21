@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
-  "engineVersion": "v435-anchor-markup-cleanup-2026-08-21",
-  "generatedAt": "2026-08-21T18:59:36.730Z",
+  "engineVersion": "v436-authoritative-single-source-settlement-2026-08-21",
+  "generatedAt": "2026-08-21T19:15:40.746Z",
   "areas": [
     {
       "key": "default",
@@ -22,13 +22,13 @@
   "eventCount": 3777,
   "importSummary": {
     "ok": false,
-    "startedAt": "2026-08-21T18:55:59.719Z",
-    "finishedAt": "2026-08-21T18:59:06.424Z",
+    "startedAt": "2026-08-21T19:11:50.278Z",
+    "finishedAt": "2026-08-21T19:15:02.572Z",
     "created": 0,
-    "updated": 2509,
-    "errors": 5,
+    "updated": 2912,
+    "errors": 3,
     "sourceCount": 29,
-    "successfulSources": 24,
+    "successfulSources": 26,
     "failedSources": [
       {
         "area": "default",
@@ -47,18 +47,6 @@
         "sourceId": "SRC-0015",
         "name": "Kleppe Bedehus",
         "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://kleppebedehus.no/calendar/kalender/"
-      },
-      {
-        "area": "default",
-        "sourceId": "SRC-0028",
-        "name": "Lye Forsamlingshus",
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)"
-      },
-      {
-        "area": "sandnes",
-        "sourceId": "SRC-0009",
-        "name": "Fredheim Arena",
-        "error": "terminated"
       }
     ],
     "sourceResults": [
@@ -297,9 +285,9 @@
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
         "created": 0,
-        "updated": 0,
+        "updated": 74,
         "skipped": 0,
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
+        "error": null,
         "createdEvents": []
       },
       {
@@ -317,9 +305,9 @@
         "sourceId": "SRC-0009",
         "name": "Fredheim Arena",
         "created": 0,
-        "updated": 0,
+        "updated": 329,
         "skipped": 0,
-        "error": "terminated",
+        "error": null,
         "createdEvents": []
       },
       {
@@ -360,8 +348,8 @@
         "eventsTable": 1137493,
         "sourcesTable": 1137506,
         "created": 0,
-        "updated": 1255,
-        "errors": 4,
+        "updated": 1329,
+        "errors": 3,
         "sourceCount": 25
       },
       {
@@ -370,8 +358,8 @@
         "eventsTable": 1144908,
         "sourcesTable": 1144922,
         "created": 0,
-        "updated": 1163,
-        "errors": 1,
+        "updated": 1492,
+        "errors": 0,
         "sourceCount": 3,
         "diagnostics": {
           "tables": {
@@ -395,30 +383,44 @@
             "meetingTypeMismatches": 0,
             "samples": [
               {
-                "rowId": 5279,
-                "title": "Samlingsfest",
+                "rowId": 3754,
+                "title": "KickOff",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
+                  4,
+                  8,
                   12,
                   13
                 ],
                 "actualMeetingTypeIds": [
+                  4,
+                  8,
                   12,
                   13
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
+                  {
+                    "id": 4,
+                    "value": "MT-0004",
+                    "order": "4.00000000000000000000"
+                  },
+                  {
+                    "id": 8,
+                    "value": "MT-0008",
+                    "order": "8.00000000000000000000"
+                  },
                   {
                     "id": 12,
                     "value": "MT-0012",
@@ -436,39 +438,32 @@
                 ]
               },
               {
-                "rowId": 5280,
-                "title": "Bønnemøte",
+                "rowId": 3755,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 3,
-                    "value": "MT-0003",
-                    "order": "3.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -477,32 +472,32 @@
                 ]
               },
               {
-                "rowId": 5281,
-                "title": "Røyrvik aktivitetsklubb",
+                "rowId": 3756,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -511,39 +506,32 @@
                 ]
               },
               {
-                "rowId": 5282,
-                "title": "Familiemøte",
+                "rowId": 3757,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  7,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  7,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 7,
-                    "value": "MT-0007",
-                    "order": "7.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -552,39 +540,32 @@
                 ]
               },
               {
-                "rowId": 5283,
-                "title": "Bønnemøte",
+                "rowId": 3758,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 3,
-                    "value": "MT-0003",
-                    "order": "3.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -593,32 +574,32 @@
                 ]
               },
               {
-                "rowId": 5284,
-                "title": "Pensjonisttreff",
+                "rowId": 3759,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -627,32 +608,32 @@
                 ]
               },
               {
-                "rowId": 5285,
-                "title": "Røyrvik aktivitetsklubb",
+                "rowId": 3760,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -661,32 +642,32 @@
                 ]
               },
               {
-                "rowId": 5286,
-                "title": "Nattverdmøte",
+                "rowId": 3761,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -695,39 +676,32 @@
                 ]
               },
               {
-                "rowId": 5287,
-                "title": "Bønnemøte",
+                "rowId": 3762,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 3,
-                    "value": "MT-0003",
-                    "order": "3.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -736,32 +710,32 @@
                 ]
               },
               {
-                "rowId": 5288,
-                "title": "Røyrvik aktivitetsklubb",
+                "rowId": 3763,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -770,32 +744,32 @@
                 ]
               },
               {
-                "rowId": 5289,
-                "title": "Søndagsmøte",
+                "rowId": 3764,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -804,39 +778,32 @@
                 ]
               },
               {
-                "rowId": 5290,
-                "title": "Bønnemøte",
+                "rowId": 3765,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 3,
-                    "value": "MT-0003",
-                    "order": "3.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -845,32 +812,32 @@
                 ]
               },
               {
-                "rowId": 5291,
-                "title": "Røyrvik aktivitetsklubb",
+                "rowId": 3766,
+                "title": "Barnekirka",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -879,32 +846,32 @@
                 ]
               },
               {
-                "rowId": 5292,
-                "title": "Lørdagsbønn",
+                "rowId": 3767,
+                "title": "ÅpenGymsal",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  13
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  13
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 13,
+                    "value": "MT-0013",
+                    "order": "13.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -913,32 +880,32 @@
                 ]
               },
               {
-                "rowId": 5293,
-                "title": "Søndagsmøte",
+                "rowId": 3768,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -947,39 +914,32 @@
                 ]
               },
               {
-                "rowId": 5294,
-                "title": "Bønnemøte",
+                "rowId": 3769,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 3,
-                    "value": "MT-0003",
-                    "order": "3.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -988,32 +948,32 @@
                 ]
               },
               {
-                "rowId": 5295,
-                "title": "Røyrvik aktivitetsklubb",
+                "rowId": 3770,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -1022,39 +982,32 @@
                 ]
               },
               {
-                "rowId": 5296,
-                "title": "Bibeltime",
+                "rowId": 3771,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  4,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  4,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 4,
-                    "value": "MT-0004",
-                    "order": "4.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -1063,39 +1016,32 @@
                 ]
               },
               {
-                "rowId": 5297,
-                "title": "Familiemøte",
+                "rowId": 3772,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  7,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  7,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 7,
-                    "value": "MT-0007",
-                    "order": "7.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -1104,39 +1050,32 @@
                 ]
               },
               {
-                "rowId": 5298,
-                "title": "Bønnemøte",
+                "rowId": 3773,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 3,
-                    "value": "MT-0003",
-                    "order": "3.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -1145,32 +1084,32 @@
                 ]
               },
               {
-                "rowId": 5299,
-                "title": "Røyrvik aktivitetsklubb",
+                "rowId": 3774,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -1179,32 +1118,32 @@
                 ]
               },
               {
-                "rowId": 5300,
-                "title": "nattverdmøte",
+                "rowId": 3775,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -1213,39 +1152,32 @@
                 ]
               },
               {
-                "rowId": 5301,
-                "title": "Bønnemøte",
+                "rowId": 3776,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  3,
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 3,
-                    "value": "MT-0003",
-                    "order": "3.00000000000000000000"
-                  },
-                  {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -1254,32 +1186,32 @@
                 ]
               },
               {
-                "rowId": 5302,
-                "title": "Søndagsmøte",
+                "rowId": 3777,
+                "title": "TRE18",
                 "requestedSettlementIds": [
-                  11
+                  21
                 ],
                 "actualSettlementIds": [
-                  11
+                  21
                 ],
                 "requestedMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  12
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
-                    "id": 11,
-                    "value": "SET-0011",
-                    "order": "11.00000000000000000000"
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
                   }
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 12,
-                    "value": "MT-0012",
-                    "order": "12.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -1415,6 +1347,26 @@
               ],
               "sampleEvents": [
                 {
+                  "title": "Alphamiddag",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    13
+                  ]
+                },
+                {
                   "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
@@ -1431,14 +1383,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    1,
-                    4,
-                    6,
-                    13
+                    1
                   ]
                 },
                 {
-                  "title": "ÅpenGymsal",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1454,11 +1403,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    13
+                    1
                   ]
                 },
                 {
-                  "title": "Zoom juleavslutning",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1474,31 +1423,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "TRE18 Nyttårsfeiring",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ]
-                },
-                {
-                  "title": "BASAR",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1514,12 +1443,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    6,
-                    13
+                    1
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1535,11 +1463,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1555,11 +1483,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1575,11 +1503,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1595,11 +1523,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1615,11 +1543,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1635,11 +1563,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1655,7 +1583,7 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 }
               ]
@@ -2998,7 +2926,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Ope hus på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -3049,7 +2977,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Åpen kjellar er ca ein fredag i månaden og er for 5-7 klasse. Me held til i kyrkjekjellaren og kvar gong er det ein liten andakt. Her kan dei spele brettspel og bordhockey, og me har bordtennis og biljard. Kvar gong sel me pizza og brus, sjokolade og chips.",
       "sourceUrl": "https://skjerikirken.no/arrangement/apen-kjellar-79b7f3363ce8",
@@ -3205,7 +3133,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=a72b02fe-edd3-4455-8066-412896117932&OccurenceId=a72b02fe-edd3-4455-8066-412896117932",
@@ -3222,7 +3150,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=521d93d0-02e4-470c-a59f-84c66c3ece0c&OccurenceId=521d93d0-02e4-470c-a59f-84c66c3ece0c",
@@ -3364,7 +3292,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-baea95001999",
@@ -3674,7 +3602,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=1244c3ac-427f-4d8a-afea-2d4cde5d8a0c&OccurenceId=1244c3ac-427f-4d8a-afea-2d4cde5d8a0c",
@@ -3743,7 +3671,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-b2f3b90428d8",
@@ -3930,7 +3858,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Lye barnegospel er for barn frå og med fylte 4 år, til og med 4. klasse. Øving annankvar måndag kl. 17.15-18.00 på Lye forsamlingshus.",
       "sourceUrl": "https://skjerikirken.no/arrangement/lye-barnegospel-0ab1c3cadc12",
@@ -3981,7 +3909,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-ebaff5f2985e",
@@ -4271,7 +4199,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "NMS-forening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -4411,7 +4339,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-greensax-ec608bf71e98",
@@ -4496,7 +4424,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-c06dc43ee455",
@@ -5146,7 +5074,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=016d11d8-7103-43cc-9bca-6d3aa4367a4c&OccurenceId=016d11d8-7103-43cc-9bca-6d3aa4367a4c",
@@ -5163,7 +5091,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Vigrestad misjonshus",
-      "settlement": "Vigrestad",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=0c014115-0c32-4a73-97c9-e0cea971e8bc&OccurenceId=0c014115-0c32-4a73-97c9-e0cea971e8bc",
@@ -5471,7 +5399,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-6cf9347139c0",
@@ -5591,7 +5519,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=06646d3a-bb02-4182-807a-f9fece530a14&OccurenceId=06646d3a-bb02-4182-807a-f9fece530a14",
@@ -5781,7 +5709,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-0e8c906832d5",
@@ -5798,7 +5726,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-ef7354967402",
@@ -6004,7 +5932,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Velkommen til bursdagsfest for kyrkja som fyller 25 år! Det blir gratis mat, aktivitetar, kaffi, kake, is, hoppeslott og kahoot. Kom og bli med, store og små, unge og gamle.",
       "sourceUrl": "https://skjerikirken.no/arrangement/bursdagsfest-kyrkja-fyller-ar-b8261487ad4e",
@@ -6535,7 +6463,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Bønnemøte på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -6858,7 +6786,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Jenteforening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -7049,7 +6977,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Brønn på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -7134,7 +7062,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=025c789a-da35-4485-adb2-078d40337bea&OccurenceId=025c789a-da35-4485-adb2-078d40337bea",
@@ -7185,7 +7113,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=c84fe37c-0b48-47f5-89fb-d7bf6e6b0dd5&OccurenceId=c84fe37c-0b48-47f5-89fb-d7bf6e6b0dd5",
@@ -7598,7 +7526,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-c20f369d3fb1",
@@ -7856,7 +7784,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "NLM-møte på Fotland bedehus. Med Magne Vatland. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -8149,7 +8077,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Ope hus på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -8253,7 +8181,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Åpen kjellar er ca ein fredag i månaden og er for 5-7 klasse. Me held til i kyrkjekjellaren og kvar gong er det ein liten andakt. Her kan dei spele brettspel og bordhockey, og me har bordtennis og biljard. Kvar gong sel me pizza og brus, sjokolade og chips.",
       "sourceUrl": "https://skjerikirken.no/arrangement/apen-kjellar-05e6b54cd67e",
@@ -8305,7 +8233,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Dugnad inne og ute",
       "sourceUrl": "https://skjerikirken.no/arrangement/dugnad-5d2de61e6777",
@@ -8445,7 +8373,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=ce8da9aa-3aca-4ab4-9c3a-ae7a0c37ee45&OccurenceId=ce8da9aa-3aca-4ab4-9c3a-ae7a0c37ee45",
@@ -8462,7 +8390,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=30e4977a-c619-49ae-9e59-32f9e9f2bc46&OccurenceId=30e4977a-c619-49ae-9e59-32f9e9f2bc46",
@@ -8774,7 +8702,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-696713f59084",
@@ -8999,7 +8927,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Tale, vitnesbyrd, lovsong, kaffi, te og twist. Sundagskveld i kyrkjesalen kl.19.30. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/kveldsmote-i-kyrkjesalen-d3afd4e0b9f2",
@@ -9067,7 +8995,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=3ac3627f-e7f3-4e87-8d28-e3b7ddf5bf0f&OccurenceId=3ac3627f-e7f3-4e87-8d28-e3b7ddf5bf0f",
@@ -9153,7 +9081,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-5a630161ffc1",
@@ -9357,7 +9285,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Lye barnegospel er for barn frå og med fylte 4 år, til og med 4. klasse. Øving annankvar måndag kl. 17.15-18.00 på Lye forsamlingshus.",
       "sourceUrl": "https://skjerikirken.no/arrangement/lye-barnegospel-50966c72f213",
@@ -9408,7 +9336,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-9e41653f08eb",
@@ -9821,7 +9749,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-greensax-2bd4d68c0ef0",
@@ -9974,7 +9902,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-477fccaf1087",
@@ -9991,7 +9919,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Me har samling annakvar onsdag. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-undheim-9b51c7ceaf3f",
@@ -10145,7 +10073,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Samling for 3-åringar",
       "sourceUrl": "https://skjerikirken.no/arrangement/krollekveld-16fbe5945157",
@@ -10334,7 +10262,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-lye-e9d7ae589b35",
@@ -10488,7 +10416,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/krollekveld-1d3b71505f66",
@@ -10692,7 +10620,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=db620c2b-81ab-43c8-aa6e-f8e438b4b704&OccurenceId=db620c2b-81ab-43c8-aa6e-f8e438b4b704",
@@ -10726,7 +10654,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Velkommen til eit enkelt Pizzamåltid i lag med kjekke folk! God mat, god drøs, godt selskap! For heile familien, og folk i alle aldre, med eller utan tilknytning til kyrkja.",
       "sourceUrl": "https://skjerikirken.no/arrangement/pizzakveld-141feda7fbae",
@@ -10864,7 +10792,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=255281ac-e5d5-4a69-9761-3e5d7fc9e6a3&OccurenceId=255281ac-e5d5-4a69-9761-3e5d7fc9e6a3",
@@ -11019,7 +10947,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-db6bc010ba28",
@@ -11105,7 +11033,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=3ba4a8d8-89bc-4b74-b889-d91b3a8e0801&OccurenceId=3ba4a8d8-89bc-4b74-b889-d91b3a8e0801",
@@ -11277,7 +11205,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-69fba31776ad",
@@ -11294,7 +11222,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-a740da3a4da3",
@@ -11604,7 +11532,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Temakveld på Fotland bedehus. Med Lars Tønnesen. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -11997,7 +11925,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkjesal, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/smabarnstrall-med-kveldsmat-1c0806152e8a",
@@ -12099,7 +12027,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Bønnemøte på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -12406,7 +12334,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Jenteforening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -12560,7 +12488,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Brønn på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -12645,7 +12573,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=b85a8f73-d333-43a9-818e-4695bbd6f2e6&OccurenceId=b85a8f73-d333-43a9-818e-4695bbd6f2e6",
@@ -12696,7 +12624,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=fbeafd81-0daf-42dd-86f4-06791db8ddc9&OccurenceId=fbeafd81-0daf-42dd-86f4-06791db8ddc9",
@@ -12850,7 +12778,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Laust og fast er eit ope arrangement for alle som har anledning til å komma. Innhaldet og arrangementet er retta mot dei som er 60+. Det kjem folk frå heile distriktet vårt. Me syng i lag, har noko å bite i, høyrer på ein invitert foredragshaldar og har eit ord for dagen. Laust og fast varer frå 14.00 til 16.00, og me held til i kjellaren i Undheim kyrkje. Det er eigen inngang nede på sørsida. Gjest: Håkon Urstad",
       "sourceUrl": "https://skjerikirken.no/arrangement/laust-og-fast-f1b6bfcce570",
@@ -13007,7 +12935,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=5945a233-ec34-4960-afb7-3ff0fd2796d9&OccurenceId=5945a233-ec34-4960-afb7-3ff0fd2796d9",
@@ -13177,7 +13105,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-75ea83dab7a2",
@@ -13674,7 +13602,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Ope hus på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -13965,7 +13893,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=a08d5d5b-528f-4f2e-a21c-3ba946eaa5c9&OccurenceId=a08d5d5b-528f-4f2e-a21c-3ba946eaa5c9",
@@ -13982,7 +13910,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=2a1b8097-ec7a-4ace-87ac-3b76144c2b2d&OccurenceId=2a1b8097-ec7a-4ace-87ac-3b76144c2b2d",
@@ -14156,7 +14084,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-515401cfe31d",
@@ -14533,7 +14461,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=b462af67-edb8-447a-8eab-83b13df01f5c&OccurenceId=b462af67-edb8-447a-8eab-83b13df01f5c",
@@ -14619,7 +14547,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-7504c9d5e56b",
@@ -14840,7 +14768,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Lye barnegospel er for barn frå og med fylte 4 år, til og med 4. klasse. Øving annankvar måndag kl. 17.15-18.00 på Lye forsamlingshus.",
       "sourceUrl": "https://skjerikirken.no/arrangement/lye-barnegospel-e1394255fe86",
@@ -14925,7 +14853,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-9311b1c5e31a",
@@ -15423,7 +15351,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Me har samling annakvar onsdag. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-undheim-1f5c983f38b2",
@@ -15732,7 +15660,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-lye-fbdd5bf208b5",
@@ -16230,7 +16158,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=44b73ba2-7c1a-4167-9db7-9b14898d96e1&OccurenceId=44b73ba2-7c1a-4167-9db7-9b14898d96e1",
@@ -16247,7 +16175,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Vigrestad misjonshus",
-      "settlement": "Vigrestad",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=f5815c77-2a12-40d0-b8d6-5d341ae64a58&OccurenceId=f5815c77-2a12-40d0-b8d6-5d341ae64a58",
@@ -16400,7 +16328,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Basar på Fotland bedehus. Svein Kåre Harestad. Sang av en gruppe fra Brønn. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -16486,7 +16414,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Åpen kjellar er ca ein fredag i månaden og er for 5-7 klasse. Me held til i kyrkjekjellaren og kvar gong er det ein liten andakt. Her kan dei spele brettspel og bordhockey, og me har bordtennis og biljard. Kvar gong sel me pizza og brus, sjokolade og chips.",
       "sourceUrl": "https://skjerikirken.no/arrangement/apen-kjellar-d666fbd73a0d",
@@ -16708,7 +16636,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=7c53ae00-d08a-436f-8332-0980791aff92&OccurenceId=7c53ae00-d08a-436f-8332-0980791aff92",
@@ -16881,7 +16809,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-d20e5f5b236f",
@@ -16898,7 +16826,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-567c7d3e38eb",
@@ -17619,7 +17547,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Bønnemøte på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -17977,7 +17905,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Jenteforening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -18096,7 +18024,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkjesal, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/undretur-a94f156b860e",
@@ -18130,7 +18058,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "NMS-forening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -18199,7 +18127,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Brønn på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -18284,7 +18212,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=65fd2d22-860a-416e-9989-a4e422fe24f2&OccurenceId=65fd2d22-860a-416e-9989-a4e422fe24f2",
@@ -18335,7 +18263,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=f1176316-6511-4252-9c75-3c6f32fe9002&OccurenceId=f1176316-6511-4252-9c75-3c6f32fe9002",
@@ -19211,7 +19139,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Ope hus på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -19365,7 +19293,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=ffd820e4-4c2d-485a-bfc1-062151ddfb85&OccurenceId=ffd820e4-4c2d-485a-bfc1-062151ddfb85",
@@ -19382,7 +19310,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=65366709-0528-479a-b5d2-eb06c8fa0b74&OccurenceId=65366709-0528-479a-b5d2-eb06c8fa0b74",
@@ -19504,7 +19432,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-2af4fc3dcf31",
@@ -19812,7 +19740,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Tale, vitnesbyrd, lovsong, kaffi, te og twist. Sundagskveld i kyrkjesalen kl.19.30. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/kveldsmote-i-kyrkjesalen-4d30380a5623",
@@ -19897,7 +19825,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-eb8ddc44f924",
@@ -19999,7 +19927,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-a1f5272c4915",
@@ -20259,7 +20187,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-greensax-59d95bfbddc0",
@@ -20361,7 +20289,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-fc9a61c5c27d",
@@ -20941,7 +20869,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-2f25b2c757d5",
@@ -20992,7 +20920,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=6c8c1051-5a78-49ae-a2ea-a58fa97cb9cd&OccurenceId=6c8c1051-5a78-49ae-a2ea-a58fa97cb9cd",
@@ -21165,7 +21093,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-c0607353ce7d",
@@ -21182,7 +21110,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-a00c65bc69ca",
@@ -21199,7 +21127,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Den norske kirke – Hå",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=7eb781e8-f246-4445-97cc-bf555d589d44&OccurenceId=7eb781e8-f246-4445-97cc-bf555d589d44",
@@ -21866,7 +21794,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Bønnemøte på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -22156,7 +22084,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Jenteforening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -22258,7 +22186,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Samling for 4-åringane (saman med føresette) som skal få bibel på gudstenesta.",
       "sourceUrl": "https://skjerikirken.no/arrangement/firearsklubb-576443130bcb",
@@ -22361,7 +22289,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Brønn på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -22446,7 +22374,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=fb8d2a72-10b0-4ff7-a8f4-cb5a411d4b9c&OccurenceId=fb8d2a72-10b0-4ff7-a8f4-cb5a411d4b9c",
@@ -22497,7 +22425,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=89cff86c-c2f6-4291-b00a-aa021114b41a&OccurenceId=89cff86c-c2f6-4291-b00a-aa021114b41a",
@@ -23269,7 +23197,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Velkommen til eit enkelt Pizzamåltid i lag med kjekke folk! God mat, god drøs, godt selskap! For heile familien, og folk i alle aldre, med eller utan tilknytning til kyrkja.",
       "sourceUrl": "https://skjerikirken.no/arrangement/pizzakveld-c6a75b8adf3c",
@@ -23337,7 +23265,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Ope hus på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -23459,7 +23387,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Samling for fireåringane som skal få bibel på gudstenesta.",
       "sourceUrl": "https://skjerikirken.no/arrangement/firearsklubb-fef0f00e5b33",
@@ -23614,7 +23542,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=7f4ec83b-b717-44dc-b607-8d2ac2f18328&OccurenceId=7f4ec83b-b717-44dc-b607-8d2ac2f18328",
@@ -23631,7 +23559,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=d486785d-4579-4719-a9f9-5b833fb00f40&OccurenceId=d486785d-4579-4719-a9f9-5b833fb00f40",
@@ -24066,7 +23994,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "NLM-møte på Fotland bedehus. Med Steinar Harestad. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -24134,7 +24062,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=5fe7e7a4-9101-4571-a97f-76331c49c7da&OccurenceId=5fe7e7a4-9101-4571-a97f-76331c49c7da",
@@ -24202,7 +24130,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-9296f3359436",
@@ -24423,7 +24351,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Lye barnegospel er for barn frå og med fylte 4 år, til og med 4. klasse. Øving annankvar måndag kl. 17.15-18.00 på Lye forsamlingshus.",
       "sourceUrl": "https://skjerikirken.no/arrangement/lye-barnegospel-8c4cd14fdf96",
@@ -24509,7 +24437,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-ca1807e74d27",
@@ -24905,7 +24833,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-greensax-ffeb6bdc9079",
@@ -25024,7 +24952,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-7b5b814234b2",
@@ -25041,7 +24969,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Me har samling annakvar onsdag. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-undheim-15f6fd9fb6c3",
@@ -25127,7 +25055,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Laust og fast er eit ope arrangement for alle som har anledning til å komma. Innhaldet og arrangementet er retta mot dei som er 60+. Det kjem folk frå heile distriktet vårt. Me syng i lag, har noko å bite i, høyrer på ein invitert foredragshaldar og har eit ord for dagen. Laust og fast varer frå 14.00 til 16.00, og me held til i kjellaren i Undheim kyrkje. Det er eigen inngang nede på sørsida. Gjest: Tora Aasland Haug",
       "sourceUrl": "https://skjerikirken.no/arrangement/laust-og-fast-5da8768256b5",
@@ -25385,7 +25313,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-lye-20aa2c8ae728",
@@ -25573,7 +25501,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkjesal, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/smabarnstrall-med-kveldsmat-f5d28d968c4a",
@@ -25762,7 +25690,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=8fd2d680-1348-4e36-b46c-fab3554acd3b&OccurenceId=8fd2d680-1348-4e36-b46c-fab3554acd3b",
@@ -25779,7 +25707,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Vigrestad misjonshus",
-      "settlement": "Vigrestad",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=aed78a1c-5369-4198-8b10-0aae726ffc97&OccurenceId=aed78a1c-5369-4198-8b10-0aae726ffc97",
@@ -25984,7 +25912,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Konsert med gratis inngang. Kollekt til Mama's House på Fillipinene. Musikk ved Green Sax og Nashville Sound.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nashville-sound-green-sax-konsert-38afb8e471e9",
@@ -26086,7 +26014,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-a27d682d53b8",
@@ -26189,7 +26117,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=1af111c6-034d-4284-8735-902ff0aabf00&OccurenceId=1af111c6-034d-4284-8735-902ff0aabf00",
@@ -26345,7 +26273,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-514e7859ccde",
@@ -26362,7 +26290,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-7db4109ce549",
@@ -26550,7 +26478,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Dåpsfest Silje Merete og Aksel sitt dåpsbarn feires etter sundagskulen er ferdig",
       "sourceUrl": "https://skjerikirken.no/arrangement/dapsfest-i-kjellaren-5b330bf51f3d",
@@ -26619,7 +26547,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=792efd3f-2f91-4cb5-b443-c9a3d2c081d8&OccurenceId=792efd3f-2f91-4cb5-b443-c9a3d2c081d8",
@@ -26688,7 +26616,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Temakveld på Fotland bedehus. Med Egil Vigdel. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -27115,7 +27043,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Bønnemøte på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -27456,7 +27384,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Jenteforening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -27559,7 +27487,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "NMS-forening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -27627,7 +27555,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Brønn på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -27678,7 +27606,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=c55194ce-ad82-449b-92d1-c2e4072f00c1&OccurenceId=c55194ce-ad82-449b-92d1-c2e4072f00c1",
@@ -27746,7 +27674,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=ddd9d67d-9de6-4cd2-b055-3a665cc94ae1&OccurenceId=ddd9d67d-9de6-4cd2-b055-3a665cc94ae1",
@@ -28161,7 +28089,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-80dc3d4105a4",
@@ -28710,7 +28638,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Ope hus på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -28797,7 +28725,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Åpen kjellar er ca ein fredag i månaden og er for 5-7 klasse. Me held til i kyrkjekjellaren og kvar gong er det ein liten andakt. Her kan dei spele brettspel og bordhockey, og me har bordtennis og biljard. Kvar gong sel me pizza og brus, sjokolade og chips.",
       "sourceUrl": "https://skjerikirken.no/arrangement/apen-kjellar-675ecd745cf0",
@@ -28899,7 +28827,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Laurdag 2. november er det open kyrkje i Time kyrkje. Kl. 12.00 til 13.00 blir det \"ord og tonar til håp og trøyst\". Heidi Strand Harboe les dikt og Per Olav Egeland spelar orgel. Det er ope frå 11.00 til 14.00. Me har tid til samtale om du har behov for det. Du kan tenna lys, sitja i ro i kyrkja og få ein kopp kaffi og noko å bita i.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-0e815769e77c",
@@ -28933,7 +28861,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/dapsgudsteneste-c8bae0a4c630",
@@ -29019,7 +28947,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=da9d34ab-1736-4c11-b45d-a3376795403c&OccurenceId=da9d34ab-1736-4c11-b45d-a3376795403c",
@@ -29159,7 +29087,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-a5b108f52843",
@@ -29401,7 +29329,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=ff7fc392-b828-4593-8f96-a914156f59b3&OccurenceId=ff7fc392-b828-4593-8f96-a914156f59b3",
@@ -29538,7 +29466,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Tale, vitnesbyrd, lovsong, kaffi, te og twist. Sundagskveld i kyrkjesalen kl.19.30. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/kveldsmote-i-kyrkjesalen-49aa94a1b022",
@@ -29606,7 +29534,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=f4e47ac2-4d1e-4038-b61f-42841123f1f5&OccurenceId=f4e47ac2-4d1e-4038-b61f-42841123f1f5",
@@ -29657,7 +29585,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-f738cdfb3549",
@@ -29776,7 +29704,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Lye barnegospel er for barn frå og med fylte 4 år, til og med 4. klasse. Øving annankvar måndag kl. 17.15-18.00 på Lye forsamlingshus.",
       "sourceUrl": "https://skjerikirken.no/arrangement/lye-barnegospel-f370143266a4",
@@ -29912,7 +29840,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-52a9daa33a17",
@@ -30308,7 +30236,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-greensax-ada41279af5f",
@@ -30427,7 +30355,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-3b215afcd0f8",
@@ -30444,7 +30372,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Me har samling annakvar onsdag. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-undheim-8146e70d636f",
@@ -30824,7 +30752,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-lye-7ef9286e3c99",
@@ -31251,7 +31179,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/jubileumsfest-undheim-kyrkje-5d0b6729dea6",
@@ -31285,7 +31213,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=3b4c172a-e522-4af3-83ab-570cc25fa290&OccurenceId=3b4c172a-e522-4af3-83ab-570cc25fa290",
@@ -31525,7 +31453,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-15f428a9c663",
@@ -31646,7 +31574,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=6c9f0902-aec4-4136-8ada-e48a8c7c5250&OccurenceId=6c9f0902-aec4-4136-8ada-e48a8c7c5250",
@@ -31801,7 +31729,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-a440d1ae6e2f",
@@ -31818,7 +31746,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-29a6c9abc666",
@@ -32077,7 +32005,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Temakveld på Fotland bedehus. Med Harry Waldeland. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -32470,7 +32398,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Bønnemøte på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -32760,7 +32688,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Jenteforening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -32931,7 +32859,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Brønn på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -32999,7 +32927,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=3eb467bd-0ede-4739-8575-b15489424caa&OccurenceId=3eb467bd-0ede-4739-8575-b15489424caa",
@@ -33050,7 +32978,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=07dee450-4a5f-440b-b447-c8843112a4a9&OccurenceId=07dee450-4a5f-440b-b447-c8843112a4a9",
@@ -33169,7 +33097,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Samling for fireåringane (saman med føresette) som skal få bibel på gudstenesta 22. november.",
       "sourceUrl": "https://skjerikirken.no/arrangement/firearsklubb-ad6bbc79304c",
@@ -33428,7 +33356,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-a824484cec5d",
@@ -33993,7 +33921,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Ope hus på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -34198,7 +34126,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=9c39766f-9833-4c67-b723-b701e544b5ca&OccurenceId=9c39766f-9833-4c67-b723-b701e544b5ca",
@@ -34215,7 +34143,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=ad1fab09-8330-47eb-8226-64c756824abd&OccurenceId=ad1fab09-8330-47eb-8226-64c756824abd",
@@ -34337,7 +34265,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-7dce159515d9",
@@ -34662,7 +34590,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=cb3dad68-579b-42af-93a7-f20f8379307d&OccurenceId=cb3dad68-579b-42af-93a7-f20f8379307d",
@@ -34713,7 +34641,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-b09f7d5cabbb",
@@ -34832,7 +34760,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Lye barnegospel er for barn frå og med fylte 4 år, til og med 4. klasse. Øving annankvar måndag kl. 17.15-18.00 på Lye forsamlingshus.",
       "sourceUrl": "https://skjerikirken.no/arrangement/lye-barnegospel-0e6c94c06e47",
@@ -34968,7 +34896,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-00d9a8d8917b",
@@ -35172,7 +35100,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/supermix-859ac3508dda",
@@ -35347,7 +35275,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-greensax-bf1f11e078b5",
@@ -35467,7 +35395,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-bb1b09fe8163",
@@ -35484,7 +35412,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Me har samling annakvar onsdag. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-undheim-c35ded97e2e3",
@@ -35553,7 +35481,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Laust og fast er eit ope arrangement for alle som har anledning til å komma. Innhaldet og arrangementet er retta mot dei som er 60+. Det kjem folk frå heile distriktet vårt. Me syng i lag, har noko å bite i, høyrer på ein invitert foredragshaldar og har eit ord for dagen. Laust og fast varer frå 14.00 til 16.00, og me held til i kjellaren i Undheim kyrkje. Det er eigen inngang nede på sørsida. Gjest: Tarald Magne Oma",
       "sourceUrl": "https://skjerikirken.no/arrangement/laust-og-fast-6ddddc00c120",
@@ -35811,7 +35739,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "NLM-møte på Fotland bedehus. Med Kari Anne Vatland. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -35896,7 +35824,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Babysong og møteplass for foreldre som er heime med små barn. Etter songsamlinga har me felles lunsj. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/babysong-lye-d83272e5fe98",
@@ -36049,7 +35977,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkjesal, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/smabarnstrall-med-kveldsmat-898a5dd19951",
@@ -36258,7 +36186,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=f1e68233-e4e4-4983-a5dd-db6701d71c2b&OccurenceId=f1e68233-e4e4-4983-a5dd-db6701d71c2b",
@@ -36275,7 +36203,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Vigrestad misjonshus",
-      "settlement": "Vigrestad",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=003225ab-6c03-40bb-aa02-ea32a9c1436a&OccurenceId=003225ab-6c03-40bb-aa02-ea32a9c1436a",
@@ -36445,7 +36373,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Åpen kjellar er ca ein fredag i månaden og er for 5-7 klasse. Me held til i kyrkjekjellaren og kvar gong er det ein liten andakt. Her kan dei spele brettspel og bordhockey, og me har bordtennis og biljard. Kvar gong sel me pizza og brus, sjokolade og chips.",
       "sourceUrl": "https://skjerikirken.no/arrangement/apen-kjellar-7eeda53fbb97",
@@ -36496,7 +36424,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=0e6b8479-7939-4025-8578-683ec5325971&OccurenceId=0e6b8479-7939-4025-8578-683ec5325971",
@@ -36632,7 +36560,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-6666c01893b8",
@@ -36701,7 +36629,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=6589c233-f310-4384-b990-f7d78c51f55d&OccurenceId=6589c233-f310-4384-b990-f7d78c51f55d",
@@ -36943,7 +36871,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-med-utdeling-av-bibel-til-firearingane-cf7c23a1685f",
@@ -36960,7 +36888,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-for-store-og-sma-9cf782bbb0cb",
@@ -36977,7 +36905,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=e9ff1d54-3524-4109-9a6d-5b9b84abeae5&OccurenceId=e9ff1d54-3524-4109-9a6d-5b9b84abeae5",
@@ -37629,7 +37557,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Bønnemøte på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -37918,7 +37846,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Jenteforening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -38038,7 +37966,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "NMS-forening på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -38106,7 +38034,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Jubileumsfest UGLA 50 år!",
       "sourceUrl": "https://skjerikirken.no/arrangement/jubileumsfest-ugla-ar-ce0f82654e4e",
@@ -38123,7 +38051,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Brønn på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -38209,7 +38137,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=79c53523-046b-4ec0-b517-95810d904c6d&OccurenceId=79c53523-046b-4ec0-b517-95810d904c6d",
@@ -38277,7 +38205,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=49dfa8eb-ef4b-40fd-b1ee-88ad981ae541&OccurenceId=49dfa8eb-ef4b-40fd-b1ee-88ad981ae541",
@@ -38397,7 +38325,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Vigrestad misjonshus",
-      "settlement": "Vigrestad",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=66179afb-6a8b-43db-83f4-bda4e3333359&OccurenceId=66179afb-6a8b-43db-83f4-bda4e3333359",
@@ -38707,7 +38635,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-ac76f2a030f2",
@@ -39102,7 +39030,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Velkommen til eit enkelt Pizzamåltid i lag med kjekke folk! God mat, god drøs, godt selskap! For heile familien, og folk i alle aldre, med eller utan tilknytning til kyrkja.",
       "sourceUrl": "https://skjerikirken.no/arrangement/pizzakveld-9e481a5d7b18",
@@ -39188,7 +39116,7 @@
       ],
       "organizer": "Fotland Bedehus",
       "location": "Fossevegen 131, 4346 Bryne",
-      "settlement": "Bryne",
+      "settlement": "Fotland",
       "municipality": "Time",
       "description": "Ope hus på Fotland bedehus. Mer info: https://www.facebook.com/groups/fotland/",
       "sourceUrl": "https://www.facebook.com/groups/fotland/",
@@ -39413,7 +39341,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=3d06e41b-e783-4804-9241-3d9761b4237d&OccurenceId=3d06e41b-e783-4804-9241-3d9761b4237d",
@@ -39430,7 +39358,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=ae4395f4-ead1-42cf-a142-0399cd48b56e&OccurenceId=ae4395f4-ead1-42cf-a142-0399cd48b56e",
@@ -39554,7 +39482,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-fabbeaec6a40",
@@ -39845,7 +39773,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Tale, vitnesbyrd, lovsong, kaffi, te og twist. Sundagskveld i kyrkjesalen kl.19.30. Velkommen!",
       "sourceUrl": "https://skjerikirken.no/arrangement/kveldsmote-i-kyrkjesalen-e7e885b83feb",
@@ -39913,7 +39841,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=7bade4f0-117e-4861-af77-ed38ee46ffab&OccurenceId=7bade4f0-117e-4861-af77-ed38ee46ffab",
@@ -39964,7 +39892,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-12826d87fc9e",
@@ -40083,7 +40011,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Lye barnegospel er for barn frå og med fylte 4 år, til og med 4. klasse. Øving annankvar måndag kl. 17.15-18.00 på Lye forsamlingshus.",
       "sourceUrl": "https://skjerikirken.no/arrangement/lye-barnegospel-0659347ea250",
@@ -40202,7 +40130,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Annankvar måndag er alle velkomne til åpne bønesamlingar i kyrkjerommet. Morgonbøn kl. 10:00: Me samlast i «enkelhet og glede» Opplegget varer ca 20-30 minutt med faste bøner som vert lest, veksellesing frå Bibelen, enkel sang og stillhet. Ingen krav - men ein stad å koma for å søkja Gud - åleine, men og i lag. Ver så lenge du vil og har tid. Stopp gjerne igjen om det vil vere godt å få forbøn, eller bare for å ta imot velsigning. Ca lunsj-tid set me oss ned med nistepakke og sosialt. Kveldsbøn kl. 19:00: Same dag, med tilnærma same program. ca 20-30 minutt. Tidebøn for kvelden. Faste bøner, veksel-lesing, enkel sang, fred og stillhet . Muleg å få forbøn og verta velsigna her og, men utan niste og kaffi. Bibelen har utruleg mange løfter knytte til bøn. Og i ei tid som denne, i ei uroleg og usikker verd, treng me ekstra å koma saman. På Undheim er der mange som har bedd opp gjennom åra. Mange kan fortelja om fine bønesvar, mange har vorte friske etter forbøn, og mange har sterke opplevingar når det kjem til det å be. Gud er aktiv gjennom sin Heilage Ande og Ordet sitt i dag og. Den same krafta som reiste Jesus opp frå grava er like sterk i dag. Velkomne til bønefellesskap i Undheimkyrkja!",
       "sourceUrl": "https://skjerikirken.no/arrangement/bonnehus-90cca3806d10",
@@ -40547,7 +40475,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-greensax-fd64693dff92",
@@ -40650,7 +40578,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-a018ae82e8ac",
@@ -40858,7 +40786,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Julekonsert med TT-koret og band. For heile familien.",
       "sourceUrl": "https://skjerikirken.no/arrangement/julekonsert-tt-koret-1b33ba586f00",
@@ -41591,7 +41519,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-610ae54936f5",
@@ -41711,7 +41639,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=6b309a84-4588-4509-bfe6-3957cb2f49b8&OccurenceId=6b309a84-4588-4509-bfe6-3957cb2f49b8",
@@ -41934,7 +41862,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-3fdc1a1ed832",
@@ -42517,7 +42445,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/adventsklubb-for-aringar-d3876d198fde",
@@ -42928,7 +42856,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=6c40be31-927c-4671-8d8b-f21134a2f374&OccurenceId=6c40be31-927c-4671-8d8b-f21134a2f374",
@@ -42979,7 +42907,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Stokkalandsmarka Menighetshus",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=028f878b-b9ba-4d35-b55d-474546655fb3&OccurenceId=028f878b-b9ba-4d35-b55d-474546655fb3",
@@ -43286,7 +43214,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Kyrkja er åpen, og diakon Praxedes tar imot dei som vil innom for ein prat om stort og smått, be åleine eller i lag, og dei som berre vil tenne eit lys eller sitje i stilla litt.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-e0ac9159fd9b",
@@ -43354,7 +43282,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/adventsklubb-for-aringar-acc04397ebfa",
@@ -43731,7 +43659,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Åpen kjellar er ca ein fredag i månaden og er for 5-7 klasse. Me held til i kyrkjekjellaren og kvar gong er det ein liten andakt. Her kan dei spele brettspel og bordhockey, og me har bordtennis og biljard. Kvar gong sel me pizza og brus, sjokolade og chips.",
       "sourceUrl": "https://skjerikirken.no/arrangement/apen-kjellar-1039a9d83470",
@@ -43885,7 +43813,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=d771df10-3925-4abb-8bf9-7cb762e53b9a&OccurenceId=d771df10-3925-4abb-8bf9-7cb762e53b9a",
@@ -43902,7 +43830,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=8733d787-e95e-42fa-a419-fd76f886831b&OccurenceId=8733d787-e95e-42fa-a419-fd76f886831b",
@@ -44042,7 +43970,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-78ece6daf186",
@@ -44229,7 +44157,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-69ab7c4d79b0",
@@ -44401,7 +44329,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=5cbf25bd-4187-419c-8d2f-46f2a4431822&OccurenceId=5cbf25bd-4187-419c-8d2f-46f2a4431822",
@@ -44538,7 +44466,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Lye barnegospel er for barn frå og med fylte 4 år, til og med 4. klasse. Øving annankvar måndag kl. 17.15-18.00 på Lye forsamlingshus.",
       "sourceUrl": "https://skjerikirken.no/arrangement/lye-barnegospel-e2697c6c0693",
@@ -44797,7 +44725,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-greensax-af515da3cfe8",
@@ -45498,7 +45426,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=dcc07efe-d38b-477b-b503-664f61c251ea&OccurenceId=dcc07efe-d38b-477b-b503-664f61c251ea",
@@ -45619,7 +45547,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Øving Jorunn Undheim",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-jorunn-undheim-2487a9db2246",
@@ -45774,7 +45702,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/me-syng-jula-inn-388964553f12",
@@ -45945,7 +45873,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "Konsert Jorunn Undheim",
       "sourceUrl": "https://skjerikirken.no/arrangement/julekonsert-jorunn-undheim-512839767c9e",
@@ -46115,7 +46043,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=adc43247-87af-48ed-947c-57c13616ee16&OccurenceId=adc43247-87af-48ed-947c-57c13616ee16",
@@ -46166,7 +46094,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=41fc0af0-cd33-4f62-9823-78ebb05afe24&OccurenceId=41fc0af0-cd33-4f62-9823-78ebb05afe24",
@@ -46269,7 +46197,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=740bfcf8-0f9a-4dd6-b1ef-64a2450be04d&OccurenceId=740bfcf8-0f9a-4dd6-b1ef-64a2450be04d",
@@ -46337,7 +46265,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-eadab203f65a",
@@ -46575,7 +46503,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/julegudsteneste-17db619602a9",
@@ -46592,7 +46520,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=1273ed95-cd74-4415-b4cc-3c5adfe973e6&OccurenceId=1273ed95-cd74-4415-b4cc-3c5adfe973e6",
@@ -46677,7 +46605,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-992455a7895b",
@@ -46830,7 +46758,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=35137354-ea68-4182-8d00-cbacfb6885ec&OccurenceId=35137354-ea68-4182-8d00-cbacfb6885ec",
@@ -46847,7 +46775,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=0edea8e2-262c-4f2b-8b36-d443af783581&OccurenceId=0edea8e2-262c-4f2b-8b36-d443af783581",
@@ -46898,7 +46826,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/hogtidsgudsteneste-55d04d8873a4",
@@ -47443,7 +47371,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=a5566d03-c47e-4b7c-b742-a0cf5d1f1bcf&OccurenceId=a5566d03-c47e-4b7c-b742-a0cf5d1f1bcf",
@@ -47528,7 +47456,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/nyttarsgudsteneste-2283139d58e8",
@@ -47614,7 +47542,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=909bb324-fbe9-4f5d-9924-38dfa88c130d&OccurenceId=909bb324-fbe9-4f5d-9924-38dfa88c130d",
@@ -47701,7 +47629,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-42ef4ec9f310",
@@ -47769,7 +47697,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-13ad0c39a2eb",
@@ -48436,7 +48364,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-9d8f7b8e0883",
@@ -49171,7 +49099,7 @@
       ],
       "organizer": "Ogna sokn",
       "location": "Ogna kyrkje",
-      "settlement": "Ogna",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=e1745d17-d3fa-4767-b284-56e8cc7fee29&OccurenceId=e1745d17-d3fa-4767-b284-56e8cc7fee29",
@@ -49240,7 +49168,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-ec4d67536277",
@@ -49513,7 +49441,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/supermix-c0a699b23b66",
@@ -49957,7 +49885,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=47a19daf-f544-47f9-9878-f5bea26a29a7&OccurenceId=47a19daf-f544-47f9-9878-f5bea26a29a7",
@@ -50059,7 +49987,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-5e1eac6e6a38",
@@ -50877,7 +50805,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-00cb05c3b8cb",
@@ -51150,7 +51078,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=00715d78-9438-4398-bd89-0517644dd10a&OccurenceId=00715d78-9438-4398-bd89-0517644dd10a",
@@ -51698,7 +51626,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-680350e8f9f0",
@@ -51971,7 +51899,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=cd314944-51e3-4415-8f2a-09f149f5e5a4&OccurenceId=cd314944-51e3-4415-8f2a-09f149f5e5a4",
@@ -53134,7 +53062,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-1236f619589f",
@@ -53406,7 +53334,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=b2146ce9-9e3a-4639-9018-db052315d1ae&OccurenceId=b2146ce9-9e3a-4639-9018-db052315d1ae",
@@ -54157,7 +54085,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=6cc528de-dd25-4884-ab72-8c77e169222e&OccurenceId=6cc528de-dd25-4884-ab72-8c77e169222e",
@@ -54655,7 +54583,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-2d181384919e",
@@ -54893,7 +54821,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkje,Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=b044d6df-b687-4154-84a3-1af376aca4af&OccurenceId=b044d6df-b687-4154-84a3-1af376aca4af",
@@ -55371,7 +55299,7 @@
       ],
       "organizer": "Varhaug sokn",
       "location": "Varhaug kyrkjestove",
-      "settlement": "Varhaug",
+      "settlement": "Nærbø",
       "municipality": "Hå",
       "description": "",
       "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=d79b2d54-851f-4634-858a-73f4a375820a&OccurenceId=d79b2d54-851f-4634-858a-73f4a375820a",
@@ -56209,7 +56137,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-f2b3099434c4",
@@ -56719,7 +56647,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-e1833a7dc551",
@@ -57385,7 +57313,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-99b2e6b01d69",
@@ -58651,7 +58579,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-f6533ab8f2ce",
@@ -59844,7 +59772,7 @@
       ],
       "organizer": "Undheim sokn",
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-      "settlement": "Undheim",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/konfirmasjonsfeiringi-kjellaren-a05f04c3f4a0",
@@ -59947,7 +59875,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-ceaab5bf8e0b",
@@ -61363,7 +61291,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/nasjonaldagsgudsteneste-2c2371c89ba6",
@@ -61380,7 +61308,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-9d24ed9e247e",
@@ -61856,7 +61784,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-29af64bd721a",
@@ -62522,7 +62450,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-32abffddf5e0",
@@ -63169,7 +63097,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Time kyrkje, Vestlyvegen 1, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-44d09fae1ad3",
@@ -63803,7 +63731,7 @@
       ],
       "organizer": "Time sokn",
       "location": "Lye forsamlingshus, Kvartsvegen 4, 4347 Lye",
-      "settlement": "Lye",
+      "settlement": "Bryne",
       "municipality": "Time",
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/gudsteneste-42fcf0475fa2",
