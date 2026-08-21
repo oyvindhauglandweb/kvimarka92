@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v434-html-markup-cleanup-2026-08-21";
+const ARRANGEMENT_ENGINE_VERSION = "v435-anchor-markup-cleanup-2026-08-21";
 
 const ARR_AREAS = {
   default: {
@@ -4506,7 +4506,22 @@ function arrLooksLikeNarboNoise(line) {
 }
 
 function arrHtmlToLines(html) {
-  return arrDecodeEntities(String(html ?? "")
+  let value = arrDecodeEntities(String(html ?? ""));
+
+  // Bevar lenkeadressen før øvrig HTML fjernes. Enkelte kilder leverer
+  // f.eks. <a href="URL"><u>URL</u></a> som tekst i DESCRIPTION.
+  value = value.replace(
+    /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
+    (_, href, label) => {
+      const cleanHref = arrDecodeEntities(String(href || "")).trim();
+      const cleanLabel = String(label || "").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+      if (!cleanHref) return cleanLabel;
+      if (!cleanLabel || cleanLabel === cleanHref) return cleanHref;
+      return `${cleanLabel} (${cleanHref})`;
+    }
+  );
+
+  return value
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,"\n")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,"\n")
     .replace(/<br\s*\/?>/gi,"\n")
@@ -4515,7 +4530,7 @@ function arrHtmlToLines(html) {
     .replace(/<\/?(?:ul|ol)\b[^>]*>/gi,"\n")
     .replace(/<\/p>|<\/div>|<\/h[1-6]>|<\/tr>/gi,"\n")
     .replace(/<[^>]+>/g," ")
-    .replace(/\r/g,""))
+    .replace(/\r/g,"")
     .split("\n")
     .map(x=>x.replace(/\s+/g," ").trim())
     .filter(Boolean)
