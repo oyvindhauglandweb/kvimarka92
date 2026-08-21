@@ -433,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v415-normalize-sandnes-sentrum-events-2026-08-21";
+  const FRONTEND_VERSION = "v416-html-entity-cleanup-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -547,17 +547,50 @@
     } catch (_) {}
   }
 
+  function decodeHtmlEntities(value) {
+    if (typeof value !== "string" || !value.includes("&")) return value;
+
+    let decoded = value;
+    const textarea = document.createElement("textarea");
+
+    // Noen kilder er dobbelt-/trippel-HTML-encoded.
+    for (let pass = 0; pass < 4; pass++) {
+      const before = decoded;
+      textarea.innerHTML = decoded;
+      decoded = textarea.value;
+      if (decoded === before) break;
+    }
+
+    return decoded;
+  }
+
   function normalizeEventSettlementName(event) {
     if (!event || typeof event !== "object") return event;
 
-    if (
-      event.municipality === "Sandnes" &&
-      event.settlement === "Sentrum"
-    ) {
-      return {...event, settlement:"Sandnes sentrum"};
+    const normalized = {...event};
+
+    for (const field of [
+      "title",
+      "organizer",
+      "location",
+      "description",
+      "source",
+      "settlement",
+      "municipality"
+    ]) {
+      if (typeof normalized[field] === "string") {
+        normalized[field] = decodeHtmlEntities(normalized[field]);
+      }
     }
 
-    return event;
+    if (
+      normalized.municipality === "Sandnes" &&
+      normalized.settlement === "Sentrum"
+    ) {
+      normalized.settlement = "Sandnes sentrum";
+    }
+
+    return normalized;
   }
 
   function reconcileFavoritesWithCurrentEvents() {
