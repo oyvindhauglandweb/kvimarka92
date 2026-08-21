@@ -252,6 +252,46 @@ function dedupeVigrestadSnapshot(events) {
   };
 }
 
+
+function dedupeExactSnapshotEvents(events) {
+  const seen = new Set();
+  const output = [];
+  let removed = 0;
+
+  const clean = value => String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLocaleLowerCase("no");
+
+  const iso = value => {
+    const d = new Date(value || "");
+    return Number.isNaN(d.getTime()) ? clean(value) : d.toISOString();
+  };
+
+  for (const event of Array.isArray(events) ? events : []) {
+    const key = [
+      iso(event.startTime || event.start),
+      iso(event.endTime || event.end),
+      clean(event.title),
+      clean(event.organizer),
+      clean(event.location),
+      clean(event.settlement),
+      clean(event.municipality),
+      clean(event.description)
+    ].join("|");
+
+    if (seen.has(key)) {
+      removed++;
+      continue;
+    }
+
+    seen.add(key);
+    output.push(event);
+  }
+
+  return { events: output, removed };
+}
+
 async function migrateAreaOutOfDefault(areaKey) {
   if (areaKey === "default") {
     throw new Error("Kan ikke migrere default-området ut av seg selv.");
@@ -499,6 +539,12 @@ async function buildSnapshot(importSummary) {
   // Vigrestad-dedupe skjer fortsatt kun i publisert snapshot.
   const vigrestadSnapshotDedupe = dedupeVigrestadSnapshot(allEvents);
 
+  // Fjern deretter kun helt identiske publiserte arrangementer generelt.
+  // Databasen røres ikke; dette gjelder bare arrangementer-data.json.
+  const exactSnapshotDedupe = dedupeExactSnapshotEvents(
+    vigrestadSnapshotDedupe.events
+  );
+
   return {
     schemaVersion: 4,
     engineVersion: ARRANGEMENT_ENGINE_VERSION,
@@ -508,7 +554,7 @@ async function buildSnapshot(importSummary) {
       name: ARR_AREAS[key].name,
       eventsTable: ARR_AREAS[key].tables.EVENTS
     })),
-    eventCount: vigrestadSnapshotDedupe.events.length,
+    eventCount: exactSnapshotDedupe.events.length,
     importSummary: {
       ...importSummary,
       snapshotDedupe: {
@@ -516,10 +562,11 @@ async function buildSnapshot(importSummary) {
         duplicateGroups: vigrestadSnapshotDedupe.duplicateGroups,
         overlapGroups: vigrestadSnapshotDedupe.overlapGroups,
         removedFromSnapshot: vigrestadSnapshotDedupe.removed,
+        exactDuplicatesRemoved: exactSnapshotDedupe.removed,
         baserowRowsChanged: 0
       }
     },
-    events: vigrestadSnapshotDedupe.events
+    events: exactSnapshotDedupe.events
   };
 }
 
