@@ -437,7 +437,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v422-calendar-render-fix-2026-08-21";
+  const FRONTEND_VERSION = "v423-calendar-private-reminder-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1314,11 +1314,17 @@
       `DTSTART:${icsDateTime(start)}`,
       `DTEND:${icsDateTime(end)}`,
       `SUMMARY:${icsEscape(e.title || "Arrangement")}`,
+      "CLASS:PRIVATE",
       location ? `LOCATION:${icsEscape(location)}` : "",
       descriptionParts.length
         ? `DESCRIPTION:${icsEscape(descriptionParts.join("\n\n"))}`
         : "",
       e.sourceUrl ? `URL:${icsEscape(e.sourceUrl)}` : "",
+      "BEGIN:VALARM",
+      "TRIGGER:-PT1H",
+      "ACTION:DISPLAY",
+      `DESCRIPTION:${icsEscape(`Påminnelse: ${e.title || "Arrangement"}`)}`,
+      "END:VALARM",
       "END:VEVENT",
       "END:VCALENDAR"
     ].filter(Boolean);
