@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v435-anchor-markup-cleanup-2026-08-21";
+const ARRANGEMENT_ENGINE_VERSION = "v436-authoritative-single-source-settlement-2026-08-21";
 
 const ARR_AREAS = {
   default: {
@@ -1139,20 +1139,19 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
       )
     : defaultIds;
 
-  // V422:
-  // I de dedikerte kommune-workspacene Sandnes og Stavanger er én eneste
-  // Sources.Settlements-kobling eksplisitt administrativ konfigurasjon og
-  // skal overstyre alt annet (f.eks. Fredheim Arena -> Soma,
-  // IMI-kirken -> Tjensvoll).
+  // V436:
+  // Én eneste Sources.Settlements-kobling er eksplisitt administrativ
+  // konfigurasjon og skal overstyre teksttolking av sted, uansett workspace.
+  // Eksempler:
+  //   Fredheim Arena -> Soma
+  //   IMI-kirken -> Tjensvoll
+  //   Fotland bedehus -> Fotland
   //
-  // I den gamle/felles workspacen (bl.a. Time og Hå) skal en enkelt
-  // kilde-Settlement derimot IKKE slå et konkret sted i selve arrangementet.
-  // Der brukes den først som fallback senere.
+  // Hvis kilden har flere Settlements, brukes fortsatt ordinær resolver.
   const singleSourceSettlementIsAuthoritative =
-    ARR_CURRENT_AREA === "sandnes" ||
-    ARR_CURRENT_AREA === "stavanger";
+    allowedDefaultIds.length === 1;
 
-  if (singleSourceSettlementIsAuthoritative && allowedDefaultIds.length === 1) {
+  if (singleSourceSettlementIsAuthoritative) {
     const defaultId = Number(allowedDefaultIds[0]);
 
     if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
@@ -1202,20 +1201,6 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
 
   if (explicitSpecific && explicitSpecific.active !== false) {
     return [explicitSpecific.rowId];
-  }
-
-  // I felles-workspacen brukes én enkelt Source.Settlement først NÅ,
-  // etter at konkrete stedsnavn i arrangementet har fått mulighet til å vinne.
-  // Eksempel: et arrangement hos Undheim sokn med "Undheim" i location
-  // skal bli Undheim, selv om kilden har Bryne som generell/default kobling.
-  if (!singleSourceSettlementIsAuthoritative && allowedDefaultIds.length === 1) {
-    const defaultId = Number(allowedDefaultIds[0]);
-
-    if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
-      return null;
-    }
-
-    return [defaultId];
   }
 
   // Strukturert settlementHint før generelle fallback-regler.
