@@ -437,7 +437,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v421-direct-calendar-link-2026-08-21";
+  const FRONTEND_VERSION = "v422-calendar-render-fix-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1186,6 +1186,24 @@
     }
   }
 
+  function uniqueMetaValues(values) {
+    const seen = new Set();
+    const out = [];
+
+    for (const value of values || []) {
+      const clean = String(value ?? "").trim();
+      if (!clean) continue;
+
+      const key = clean.toLocaleLowerCase("no");
+      if (seen.has(key)) continue;
+
+      seen.add(key);
+      out.push(clean);
+    }
+
+    return out;
+  }
+
   const calendarBlobUrls = new Map();
 
   function clearCalendarBlobUrls() {
@@ -1268,7 +1286,7 @@
       end = new Date(start.getTime() + 60 * 60 * 1000);
     }
 
-    const location = uniqueMeta([
+    const location = uniqueMetaValues([
       e.location,
       e.settlement,
       e.municipality
