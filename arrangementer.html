@@ -433,7 +433,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v417-linkify-description-2026-08-21";
+  const FRONTEND_VERSION = "v419-anchor-markup-cleanup-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -564,8 +564,46 @@
     return decoded;
   }
 
+  function cleanDescriptionMarkup(value) {
+    let text = String(value ?? "");
+    if (!text) return "";
+
+    text = decodeHtmlEntities(text);
+
+    // Ta vare på href før HTML-taggen fjernes. Da kan linkifyText gjøre
+    // adressen klikkbar etterpå.
+    text = text.replace(
+      /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
+      (_, href, label) => {
+        const cleanHref = decodeHtmlEntities(String(href || "")).trim();
+        const cleanLabel = String(label || "")
+          .replace(/<[^>]+>/g," ")
+          .replace(/\s+/g," ")
+          .trim();
+
+        if (!cleanHref) return cleanLabel;
+        if (!cleanLabel || cleanLabel === cleanHref) return cleanHref;
+        return `${cleanLabel} (${cleanHref})`;
+      }
+    );
+
+    return text
+      .replace(/<br\s*\/?>/gi,"\n")
+      .replace(/<li\b[^>]*>/gi,"\n• ")
+      .replace(/<\/li>/gi,"")
+      .replace(/<\/?(?:ul|ol)\b[^>]*>/gi,"\n")
+      .replace(/<\/p>/gi,"\n")
+      .replace(/<\/div>/gi,"\n")
+      .replace(/<[^>]+>/g," ")
+      .replace(/[ \t]+\n/g,"\n")
+      .replace(/\n[ \t]+/g,"\n")
+      .replace(/[ \t]{2,}/g," ")
+      .replace(/\n{3,}/g,"\n\n")
+      .trim();
+  }
+
   function linkifyText(value) {
-    const text = String(value ?? "");
+    const text = cleanDescriptionMarkup(value);
     if (!text) return "";
 
     const escaped = text
