@@ -85,6 +85,9 @@
     .tag{display:inline-flex;align-items:center;min-height:25px;padding:2px 8px;border-radius:999px;background:#263338;border:1px solid #34464d;color:#dff6ff;font-size:12px}
     .event-desc{margin-top:8px;color:#d3d3d3;font-size:14px;line-height:1.45;white-space:pre-line}
     .source-link{white-space:nowrap;font-size:13px;text-decoration:none;border:0;padding:0;color:#dff6ff;opacity:.92}
+    .calendar-add-btn{font:inherit;font-size:12px;line-height:1.2;padding:4px 8px;min-height:25px;border-radius:999px;border:1px solid #40545d;background:#243238;color:#dff6ff;cursor:pointer;white-space:nowrap}
+    .calendar-add-btn:hover{filter:brightness(1.12)}
+
 
     .calendar{display:none;background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
     .calendar.active{display:block}
@@ -287,6 +290,7 @@
     html[data-theme="light"] .organizer-custom-option.selected{background:var(--dropdown-hover)}
     html[data-theme="light"] .event-desc{color:#3f474b}
     html[data-theme="light"] .source-link{color:#174b5e}
+    html[data-theme="light"] .calendar-add-btn{background:#eef5f7;color:#174b5e;border-color:#b9cbd1}
     html[data-theme="light"] .tag{background:#e8f2f5;border-color:#bed2d9;color:#174b5e}
 
     @media (max-width:900px){
@@ -433,7 +437,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v419-anchor-markup-cleanup-2026-08-21";
+  const FRONTEND_VERSION = "v420-add-to-calendar-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1182,6 +1186,136 @@
     }
   }
 
+  function calendarEventKey(e) {
+    return String(
+      e?.eventId ||
+      e?.sourceEventId ||
+      `${e?.startTime || ""}|${e?.title || ""}|${e?.organizer || ""}`
+    );
+  }
+
+  function icsEscape(value) {
+    return String(value ?? "")
+      .replace(/\\/g,"\\\\")
+      .replace(/\r?\n/g,"\\n")
+      .replace(/,/g,"\\,")
+      .replace(/;/g,"\\;");
+  }
+
+  function icsDateTime(value) {
+    const d = asDate(value);
+    if (!d || Number.isNaN(d.getTime())) return "";
+
+    const pad = n => String(n).padStart(2,"0");
+
+    return (
+      d.getUTCFullYear() +
+      pad(d.getUTCMonth()+1) +
+      pad(d.getUTCDate()) +
+      "T" +
+      pad(d.getUTCHours()) +
+      pad(d.getUTCMinutes()) +
+      pad(d.getUTCSeconds()) +
+      "Z"
+    );
+  }
+
+  function foldIcsLine(line) {
+    // Enkel RFC5545 folding. Holder oss godt under 75 tegn per linje.
+    const chunks = [];
+    let rest = String(line);
+
+    while (rest.length > 70) {
+      chunks.push(rest.slice(0,70));
+      rest = " " + rest.slice(70);
+    }
+
+    chunks.push(rest);
+    return chunks.join("\r\n");
+  }
+
+  function buildEventIcs(e) {
+    const start = asDate(e.startTime);
+    if (!start) return "";
+
+    let end = asDate(e.endTime);
+    if (!end || end <= start) {
+      end = new Date(start.getTime() + 60 * 60 * 1000);
+    }
+
+    const location = uniqueMeta([
+      e.location,
+      e.settlement,
+      e.municipality
+    ]).join(", ");
+
+    const descriptionParts = [
+      e.organizer ? `Arrangør: ${e.organizer}` : "",
+      e.description ? cleanDescriptionMarkup(e.description) : "",
+      e.sourceUrl ? `Kilde: ${e.sourceUrl}` : ""
+    ].filter(Boolean);
+
+    const uidBase = calendarEventKey(e)
+      .replace(/[^a-zA-Z0-9._-]+/g,"-")
+      .slice(0,120);
+
+    const lines = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Kvimarka92//Arrangementer//NO",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      `UID:${icsEscape(uidBase)}@kvimarka92.carstereogarage.com`,
+      `DTSTAMP:${icsDateTime(new Date())}`,
+      `DTSTART:${icsDateTime(start)}`,
+      `DTEND:${icsDateTime(end)}`,
+      `SUMMARY:${icsEscape(e.title || "Arrangement")}`,
+      location ? `LOCATION:${icsEscape(location)}` : "",
+      descriptionParts.length
+        ? `DESCRIPTION:${icsEscape(descriptionParts.join("\n\n"))}`
+        : "",
+      e.sourceUrl ? `URL:${icsEscape(e.sourceUrl)}` : "",
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ].filter(Boolean);
+
+    return lines.map(foldIcsLine).join("\r\n") + "\r\n";
+  }
+
+  function safeIcsFilename(e) {
+    const start = asDate(e.startTime);
+    const date = start
+      ? `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,"0")}-${String(start.getDate()).padStart(2,"0")}`
+      : "arrangement";
+
+    const title = String(e.title || "arrangement")
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g," ")
+      .replace(/\s+/g," ")
+      .trim()
+      .slice(0,80);
+
+    return `${date} - ${title || "arrangement"}.ics`;
+  }
+
+  function addEventToCalendar(e) {
+    const ics = buildEventIcs(e);
+    if (!ics) return;
+
+    const blob = new Blob([ics], {type:"text/calendar;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = safeIcsFilename(e);
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+
   function renderList() {
     if (!filtered.length) {
       els.list.innerHTML = '<div class="empty">Ingen arrangementer passer med valgte filtre.</div>';
@@ -1241,10 +1375,16 @@
         return `<article class="event" style="--organizer-color:${color.border}">
           <div class="time">${escapeHtml(timeRange)}</div>
 
-          ${(e.sourceUrl || tags) ? `<div class="event-actions">
+          <div class="event-actions">
+            <button
+              type="button"
+              class="calendar-add-btn"
+              data-calendar-event="${escapeHtml(calendarEventKey(e))}"
+              title="Legg arrangementet til i kalender"
+            >＋ Kalender</button>
             ${e.sourceUrl ? `<a class="source-link" href="${escapeHtml(e.sourceUrl)}" target="_blank" rel="noopener">Kilde ↗</a>` : ""}
             ${tags ? `<div class="tags">${tags}</div>` : ""}
-          </div>` : ""}
+          </div>
 
           <div class="event-body">
             <div class="event-main">
@@ -1974,6 +2114,18 @@
       els.contactSubmitBtn.disabled = false;
     }
   }
+
+  els.list.addEventListener("click", event => {
+    const btn = event.target.closest(".calendar-add-btn");
+    if (!btn) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const key = btn.dataset.calendarEvent || "";
+    const item = events.find(e => calendarEventKey(e) === key);
+    if (item) addEventToCalendar(item);
+  });
 
   els.listBtn.addEventListener("click", () => setView("list"));
   els.calBtn.addEventListener("click", () => setView("calendar"));
