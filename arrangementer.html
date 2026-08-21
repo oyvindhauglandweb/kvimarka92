@@ -436,7 +436,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v424-calendar-icon-left-2026-08-21";
+  const FRONTEND_VERSION = "v425-desktop-outlook-mobile-ics-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1212,7 +1212,67 @@
     calendarBlobUrls.clear();
   }
 
+  function useOutlookWebForCalendar() {
+    const ua = navigator.userAgent || "";
+    const isMobile =
+      /Android|iPhone|iPad|iPod|Mobile/i.test(ua) ||
+      (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua));
+
+    // På Windows-PC åpner vi en ferdig Outlook-oppføring i nettleseren.
+    // På mobil beholdes ICS, som håndteres bedre av telefonens kalender.
+    return !isMobile && /Windows/i.test(ua);
+  }
+
+  function outlookDateTime(value) {
+    const d = asDate(value);
+    return d && !Number.isNaN(d.getTime()) ? d.toISOString() : "";
+  }
+
+  function outlookCalendarHref(e) {
+    const start = asDate(e.startTime);
+    if (!start) return "#";
+
+    let end = asDate(e.endTime);
+    if (!end || end <= start) {
+      end = new Date(start.getTime() + 60 * 60 * 1000);
+    }
+
+    const location = uniqueMetaValues([
+      e.location,
+      e.settlement,
+      e.municipality
+    ]).join(", ");
+
+    const body = [
+      e.organizer ? `Arrangør: ${e.organizer}` : "",
+      e.description ? cleanDescriptionMarkup(e.description) : "",
+      e.sourceUrl ? `Kilde: ${e.sourceUrl}` : ""
+    ].filter(Boolean).join("\n\n");
+
+    const params = new URLSearchParams({
+      path: "/calendar/action/compose",
+      rru: "addevent",
+      subject: e.title || "Arrangement",
+      startdt: outlookDateTime(start),
+      enddt: outlookDateTime(end),
+      location,
+      body
+    });
+
+    return `https://outlook.office.com/calendar/deeplink/compose?${params.toString()}`;
+  }
+
+  function calendarDownloadAttribute(e) {
+    return useOutlookWebForCalendar()
+      ? ""
+      : ` download="${escapeHtml(safeIcsFilename(e))}"`;
+  }
+
   function calendarHrefForEvent(e) {
+    if (useOutlookWebForCalendar()) {
+      return outlookCalendarHref(e);
+    }
+
     const key = calendarEventKey(e);
 
     if (calendarBlobUrls.has(key)) {
@@ -1427,11 +1487,10 @@
             <div class="time">${escapeHtml(timeRange)}</div>
             <a
               class="calendar-add-btn"
-              href="${escapeHtml(calendarHrefForEvent(e))}"
-              download="${escapeHtml(safeIcsFilename(e))}"
+              href="${escapeHtml(calendarHrefForEvent(e))}"${calendarDownloadAttribute(e)}
               target="_blank"
               rel="noopener"
-              title="Legg til i kalender"
+              title="${useOutlookWebForCalendar() ? "Åpne i Outlook" : "Legg til i kalender"}"
               aria-label="Legg til i kalender"
             >
               <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
