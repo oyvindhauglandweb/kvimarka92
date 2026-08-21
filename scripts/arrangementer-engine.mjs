@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v438-narbo-classification-repair-2026-08-22";
+const ARRANGEMENT_ENGINE_VERSION = "v439-narbo-meetingtype-name-match-2026-08-22";
 
 const ARR_AREAS = {
   default: {
@@ -1052,6 +1052,19 @@ function arrBuildTypeRules(rows) {
   })).sort((a,b) => b.priority-a.priority);
 }
 
+function arrMeetingTypeNameKey(value) {
+  // Match controlled Meeting Type names while ignoring harmless formatting
+  // differences such as "Sang/Musikk" vs "Sang / musikk".
+  return arrNormalize(value || "")
+    .replace(/[^a-z0-9æøå]+/gi, "");
+}
+
+function arrFindMeetingTypeRuleByName(rules, name) {
+  const key = arrMeetingTypeNameKey(name);
+  if (!key) return null;
+  return rules.find(rule => arrMeetingTypeNameKey(rule.name) === key) || null;
+}
+
 function arrNarboExplicitMeetingTypeHint(item) {
   const sourceUrl = arrNormalize(item?.sourceUrl || "");
   const title = arrNormalize(item?.title || "");
@@ -1070,7 +1083,7 @@ function arrNarboExplicitMeetingTypeHint(item) {
     title.includes("emmaus") ||
     title.includes("nærbø musikklag") ||
     title.includes("narbo musikklag")
-  ) return "Sang/Musikk";
+  ) return "Sang / musikk";
 
   if (
     title.includes("kvisten") ||
@@ -1096,13 +1109,13 @@ function arrClassifyMeetingTypes(item, rules) {
   // aktivitets-/tittelklassifisering skal derfor vinne over generelle keywords.
   const narboHint = arrNormalize(arrNarboExplicitMeetingTypeHint(item));
   if (narboHint) {
-    const exact = rules.find(rule => arrNormalize(rule.name) === narboHint);
+    const exact = arrFindMeetingTypeRuleByName(rules, narboHint);
     if (exact) return [exact.rowId];
   }
 
   const hint = arrNormalize(item.meetingTypeHint || "");
   if (hint) {
-    const exact = rules.find(rule => arrNormalize(rule.name) === hint);
+    const exact = arrFindMeetingTypeRuleByName(rules, hint);
     if (exact) return [exact.rowId];
   }
 
@@ -1146,7 +1159,7 @@ async function arrRepairExistingNarboMeetingTypes(env, source, existingEvents, t
     });
     if (!hint) continue;
 
-    const target = typeRules.find(rule => arrNormalize(rule.name) === arrNormalize(hint));
+    const target = arrFindMeetingTypeRuleByName(typeRules, hint);
     if (!target) continue;
 
     const currentIds = arrLinkedIds(row[ARR_F.events.meetingType])
@@ -4595,8 +4608,8 @@ function arrParseNarboHtml(html, sourceUrl, meetingTypeHint="") {
 async function arrFetchAndParseNarbo(url) {
   const sources = [
     {url:"https://narbobedehus.no/calendar/moter/", meetingTypeHint:""},
-    {url:"https://narbobedehus.no/glad-sang/", meetingTypeHint:"Sang/Musikk"},
-    {url:"https://narbobedehus.no/emmaus/", meetingTypeHint:"Sang/Musikk"},
+    {url:"https://narbobedehus.no/glad-sang/", meetingTypeHint:"Sang / musikk"},
+    {url:"https://narbobedehus.no/emmaus/", meetingTypeHint:"Sang / musikk"},
     {url:"https://narbobedehus.no/kvisten-barnelag/", meetingTypeHint:"Barn"},
     {url:"https://narbobedehus.no/maks-klubben/", meetingTypeHint:"Barn"}
   ];
