@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v432-lye-list-fallback-2026-08-21";
+const ARRANGEMENT_ENGINE_VERSION = "v433-html-entity-cleanup-2026-08-21";
 
 const ARR_AREAS = {
   default: {
@@ -4517,15 +4517,33 @@ function arrHtmlToLines(html) {
 }
 
 function arrDecodeEntities(s) {
-  return s
-    .replace(/&nbsp;|&#160;/gi," ")
-    .replace(/&amp;/gi,"&")
-    .replace(/&quot;/gi,'"')
-    .replace(/&#39;|&apos;/gi,"'")
-    .replace(/&aring;/gi,"å").replace(/&oslash;/gi,"ø").replace(/&aelig;/gi,"æ")
-    .replace(/&Aring;/g,"Å").replace(/&Oslash;/g,"Ø").replace(/&AElig;/g,"Æ")
-    .replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)))
-    .replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCodePoint(parseInt(n,16)));
+  let value = String(s ?? "");
+
+  // Enkelte kilder leverer HTML-entiteter i flere lag, f.eks.
+  // &amp;quot; eller &amp;amp;quot;. Dekod noen få runder slik at
+  // sluttresultatet blir vanlig tekst uten å risikere en endeløs løkke.
+  for (let pass = 0; pass < 4; pass++) {
+    const before = value;
+
+    value = value
+      .replace(/&nbsp;|&#160;/gi," ")
+      .replace(/&quot;/gi,'"')
+      .replace(/&#39;|&apos;/gi,"'")
+      .replace(/&ndash;/gi,"–")
+      .replace(/&mdash;/gi,"—")
+      .replace(/&hellip;/gi,"…")
+      .replace(/&laquo;/gi,"«")
+      .replace(/&raquo;/gi,"»")
+      .replace(/&aring;/gi,"å").replace(/&oslash;/gi,"ø").replace(/&aelig;/gi,"æ")
+      .replace(/&Aring;/g,"Å").replace(/&Oslash;/g,"Ø").replace(/&AElig;/g,"Æ")
+      .replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)))
+      .replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCodePoint(parseInt(n,16)))
+      .replace(/&amp;/gi,"&");
+
+    if (value === before) break;
+  }
+
+  return value;
 }
 
 function arrDedupeParsed(rows) {
