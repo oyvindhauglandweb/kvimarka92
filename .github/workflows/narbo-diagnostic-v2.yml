@@ -1,0 +1,48 @@
+name: Nærbø diagnostic V2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Run Nærbø diagnostic V2
+        run: node scripts/diagnose-narbo-v2.mjs
+
+      - name: Show compact report
+        if: always()
+        run: |
+          if [ -f narbo-diagnostic-v2.json ]; then
+            node -e '
+              const r=require("./narbo-diagnostic-v2.json");
+              console.log("Candidate pages:",r.candidateCount);
+              for(const p of r.pages.filter(x=>x.eventCount>0).sort((a,b)=>b.eventCount-a.eventCount)){
+                console.log(`${p.eventCount} events | ${p.firstEvent} -> ${p.lastEvent} | ${p.url}`);
+              }
+              console.log("UNION count:",r.union?.eventCount);
+              console.log("UNION first:",r.union?.firstEvent);
+              console.log("UNION last:",r.union?.lastEvent);
+            '
+          fi
+
+      - name: Upload diagnostic report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narbo-diagnostic-v2
+          path: narbo-diagnostic-v2.json
+          if-no-files-found: warn
