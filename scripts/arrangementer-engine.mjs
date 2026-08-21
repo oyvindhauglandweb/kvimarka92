@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v431-sandnes-sentrum-rename-2026-08-21";
+const ARRANGEMENT_ENGINE_VERSION = "v432-lye-list-fallback-2026-08-21";
 
 const ARR_AREAS = {
   default: {
@@ -1779,7 +1779,7 @@ async function arrFetchAndParseLyeList(url) {
   const parsedUrl = new URL(url);
   const origin = parsedUrl.origin;
   const startDate = new Date();
-  const startKey = startDate.toISOString().slice(0,10);
+  const startKey = `${startDate.getUTCFullYear()}-${String(startDate.getUTCMonth()+1).padStart(2,"0")}-01`;
 
   // The Events Calendar sin måneds-ICS er bare én måned og de daterte
   // ICS-endepunktene kan time ut fra GitHub Actions. Listevisningen er vanlig
@@ -1882,26 +1882,53 @@ async function arrFetchAndParseLyeList(url) {
     return null;
   }
 
-  while (nextUrl && pages < 60) {
-    if (visited.has(nextUrl)) break;
-    visited.add(nextUrl);
-    pages++;
+  async function crawlFrom(startUrl) {
+    let currentUrl = startUrl;
 
-    const html = await arrFetchText(nextUrl);
-    const pageItems = extractJsonLdEvents(html, nextUrl);
-    all.push(...pageItems);
+    while (currentUrl && pages < 60) {
+      if (visited.has(currentUrl)) break;
+      visited.add(currentUrl);
+      pages++;
 
-    // Hvis siden allerede inneholder arrangementer etter importvinduet trenger
-    // vi ikke følge pagineringen videre.
-    const pageDates = pageItems
-      .map(item => new Date(item.startTime).getTime())
-      .filter(Number.isFinite);
+      const html = await arrFetchText(currentUrl);
+      const pageItems = extractJsonLdEvents(html, currentUrl);
+      all.push(...pageItems);
 
-    if (pageDates.length && Math.max(...pageDates) >= maxTs) break;
+      // Hvis siden allerede inneholder arrangementer etter importvinduet trenger
+      // vi ikke følge pagineringen videre.
+      const pageDates = pageItems
+        .map(item => new Date(item.startTime).getTime())
+        .filter(Number.isFinite);
 
-    const candidate = extractNextListUrl(html, nextUrl);
-    if (!candidate || visited.has(candidate)) break;
-    nextUrl = candidate;
+      if (pageDates.length && Math.max(...pageDates) >= maxTs) break;
+
+      const candidate = extractNextListUrl(html, currentUrl);
+      if (!candidate || visited.has(candidate)) break;
+      currentUrl = candidate;
+    }
+  }
+
+  await crawlFrom(nextUrl);
+
+  // V432: The Events Calendar kan av og til svare med en gyldig side uten
+  // Event-JSON-LD / paginering. Da prøver vi alternative, stabile innganger
+  // før vi erklærer kildefeil. Eksisterende kildevern sørger fortsatt for at
+  // gamle data beholdes hvis alle forsøkene skulle feile.
+  if (!all.length) {
+    const todayKey = new Date().toISOString().slice(0,10);
+    const fallbacks = [
+      `${origin}/events/liste/?tribe-bar-date=${todayKey}`,
+      `${origin}/events/liste/`,
+      `${origin}/events/maned/`
+    ];
+
+    for (const fallbackUrl of fallbacks) {
+      if (all.length) break;
+      if (visited.has(fallbackUrl)) continue;
+
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      await crawlFrom(fallbackUrl);
+    }
   }
 
   // Dedupliser. Event-URL er normalt unik i The Events Calendar.

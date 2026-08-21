@@ -635,7 +635,7 @@ const summary = {
 const snapshot = await buildSnapshot(summary);
 await fs.writeFile(outputPath, JSON.stringify(snapshot, null, 2) + "\n", "utf8");
 
-// V416: Behold en kompakt historikk over de siste fem importene.
+// V422: Behold en kompakt historikk over de siste 50 importene.
 // Historikken ligger i GitHub sammen med snapshotet og bruker ingen Baserow-rader.
 let previousHistory = [];
 try {
@@ -684,7 +684,7 @@ const history = {
   imports: [
     historyEntry,
     ...previousHistory.filter(row => row?.generatedAt !== historyEntry.generatedAt)
-  ].slice(0, 5)
+  ].slice(0, 50)
 };
 
 await fs.writeFile(historyPath, JSON.stringify(history, null, 2) + "\n", "utf8");
