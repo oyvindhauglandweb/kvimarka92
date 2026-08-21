@@ -65,7 +65,7 @@
       border-bottom:1px solid var(--line);
       align-items:start
     }
-    .event>.time{grid-column:1;grid-row:1}
+    .event>.time-block{grid-column:1;grid-row:1;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
     .event>.event-body{grid-column:2;grid-row:1}
     .event>.event-actions{
       grid-column:1/-1;
@@ -85,8 +85,7 @@
     .tag{display:inline-flex;align-items:center;min-height:25px;padding:2px 8px;border-radius:999px;background:#263338;border:1px solid #34464d;color:#dff6ff;font-size:12px}
     .event-desc{margin-top:8px;color:#d3d3d3;font-size:14px;line-height:1.45;white-space:pre-line}
     .source-link{white-space:nowrap;font-size:13px;text-decoration:none;border:0;padding:0;color:#dff6ff;opacity:.92}
-    .calendar-add-btn{font:inherit;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;line-height:1.2;padding:4px 8px;min-height:25px;border-radius:999px;border:1px solid #40545d;background:#243238;color:#dff6ff;cursor:pointer;white-space:nowrap}
-    .calendar-add-btn:hover{filter:brightness(1.12)}
+    .calendar-add-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:0;background:transparent;color:#dff6ff;cursor:pointer;text-decoration:none;opacity:.9}.calendar-add-btn:hover{opacity:1;filter:brightness(1.15)}.calendar-add-btn svg{width:27px;height:27px;display:block}
 
 
     .calendar{display:none;background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
@@ -290,7 +289,7 @@
     html[data-theme="light"] .organizer-custom-option.selected{background:var(--dropdown-hover)}
     html[data-theme="light"] .event-desc{color:#3f474b}
     html[data-theme="light"] .source-link{color:#174b5e}
-    html[data-theme="light"] .calendar-add-btn{background:#eef5f7;color:#174b5e;border-color:#b9cbd1}
+    html[data-theme="light"] .calendar-add-btn{color:#174b5e;background:transparent;border:0}
     html[data-theme="light"] .tag{background:#e8f2f5;border-color:#bed2d9;color:#174b5e}
 
     @media (max-width:900px){
@@ -437,7 +436,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v423-calendar-private-reminder-2026-08-21";
+  const FRONTEND_VERSION = "v424-calendar-icon-left-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1424,17 +1423,28 @@
         const color = organizerColor(e.organizer);
 
         return `<article class="event" style="--organizer-color:${color.border}">
-          <div class="time">${escapeHtml(timeRange)}</div>
-
-          <div class="event-actions">
+          <div class="time-block">
+            <div class="time">${escapeHtml(timeRange)}</div>
             <a
               class="calendar-add-btn"
               href="${escapeHtml(calendarHrefForEvent(e))}"
               download="${escapeHtml(safeIcsFilename(e))}"
               target="_blank"
               rel="noopener"
-              title="Åpne kalenderoppføring"
-            >＋ Kalender</a>
+              title="Legg til i kalender"
+              aria-label="Legg til i kalender"
+            >
+              <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                <g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4.5" y="7.5" width="20" height="18" rx="2.5"></rect>
+                  <path d="M9 4.5v6M20 4.5v6M4.5 12.5h20"></path>
+                  <path d="M18.5 22.5h9M23 18v9"></path>
+                </g>
+              </svg>
+            </a>
+          </div>
+
+          <div class="event-actions">
             ${e.sourceUrl ? `<a class="source-link" href="${escapeHtml(e.sourceUrl)}" target="_blank" rel="noopener">Kilde ↗</a>` : ""}
             ${tags ? `<div class="tags">${tags}</div>` : ""}
           </div>
