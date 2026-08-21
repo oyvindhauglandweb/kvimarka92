@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v433-html-entity-cleanup-2026-08-21";
+const ARRANGEMENT_ENGINE_VERSION = "v434-html-markup-cleanup-2026-08-21";
 
 const ARR_AREAS = {
   default: {
@@ -4506,14 +4506,20 @@ function arrLooksLikeNarboNoise(line) {
 }
 
 function arrHtmlToLines(html) {
-  return arrDecodeEntities(html
+  return arrDecodeEntities(String(html ?? "")
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,"\n")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,"\n")
     .replace(/<br\s*\/?>/gi,"\n")
-    .replace(/<\/p>|<\/li>|<\/div>|<\/h[1-6]>|<\/tr>/gi,"\n")
+    .replace(/<li\b[^>]*>/gi,"\n• ")
+    .replace(/<\/li>/gi,"")
+    .replace(/<\/?(?:ul|ol)\b[^>]*>/gi,"\n")
+    .replace(/<\/p>|<\/div>|<\/h[1-6]>|<\/tr>/gi,"\n")
     .replace(/<[^>]+>/g," ")
     .replace(/\r/g,""))
-    .split("\n").map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean).join("\n");
+    .split("\n")
+    .map(x=>x.replace(/\s+/g," ").trim())
+    .filter(Boolean)
+    .join("\n");
 }
 
 function arrDecodeEntities(s) {
