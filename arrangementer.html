@@ -85,7 +85,7 @@
     .tag{display:inline-flex;align-items:center;min-height:25px;padding:2px 8px;border-radius:999px;background:#263338;border:1px solid #34464d;color:#dff6ff;font-size:12px}
     .event-desc{margin-top:8px;color:#d3d3d3;font-size:14px;line-height:1.45;white-space:pre-line}
     .source-link{white-space:nowrap;font-size:13px;text-decoration:none;border:0;padding:0;color:#dff6ff;opacity:.92}
-    .calendar-add-btn{font:inherit;font-size:12px;line-height:1.2;padding:4px 8px;min-height:25px;border-radius:999px;border:1px solid #40545d;background:#243238;color:#dff6ff;cursor:pointer;white-space:nowrap}
+    .calendar-add-btn{font:inherit;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;line-height:1.2;padding:4px 8px;min-height:25px;border-radius:999px;border:1px solid #40545d;background:#243238;color:#dff6ff;cursor:pointer;white-space:nowrap}
     .calendar-add-btn:hover{filter:brightness(1.12)}
 
 
@@ -437,7 +437,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v420-add-to-calendar-2026-08-21";
+  const FRONTEND_VERSION = "v421-direct-calendar-link-2026-08-21";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1186,6 +1186,31 @@
     }
   }
 
+  const calendarBlobUrls = new Map();
+
+  function clearCalendarBlobUrls() {
+    for (const url of calendarBlobUrls.values()) {
+      try { URL.revokeObjectURL(url); } catch (_) {}
+    }
+    calendarBlobUrls.clear();
+  }
+
+  function calendarHrefForEvent(e) {
+    const key = calendarEventKey(e);
+
+    if (calendarBlobUrls.has(key)) {
+      return calendarBlobUrls.get(key);
+    }
+
+    const ics = buildEventIcs(e);
+    if (!ics) return "#";
+
+    const blob = new Blob([ics], {type:"text/calendar;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    calendarBlobUrls.set(key, url);
+    return url;
+  }
+
   function calendarEventKey(e) {
     return String(
       e?.eventId ||
@@ -1317,6 +1342,8 @@
   }
 
   function renderList() {
+    clearCalendarBlobUrls();
+
     if (!filtered.length) {
       els.list.innerHTML = '<div class="empty">Ingen arrangementer passer med valgte filtre.</div>';
       return;
@@ -1376,12 +1403,14 @@
           <div class="time">${escapeHtml(timeRange)}</div>
 
           <div class="event-actions">
-            <button
-              type="button"
+            <a
               class="calendar-add-btn"
-              data-calendar-event="${escapeHtml(calendarEventKey(e))}"
-              title="Legg arrangementet til i kalender"
-            >＋ Kalender</button>
+              href="${escapeHtml(calendarHrefForEvent(e))}"
+              download="${escapeHtml(safeIcsFilename(e))}"
+              target="_blank"
+              rel="noopener"
+              title="Åpne kalenderoppføring"
+            >＋ Kalender</a>
             ${e.sourceUrl ? `<a class="source-link" href="${escapeHtml(e.sourceUrl)}" target="_blank" rel="noopener">Kilde ↗</a>` : ""}
             ${tags ? `<div class="tags">${tags}</div>` : ""}
           </div>
@@ -2114,18 +2143,6 @@
       els.contactSubmitBtn.disabled = false;
     }
   }
-
-  els.list.addEventListener("click", event => {
-    const btn = event.target.closest(".calendar-add-btn");
-    if (!btn) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const key = btn.dataset.calendarEvent || "";
-    const item = events.find(e => calendarEventKey(e) === key);
-    if (item) addEventToCalendar(item);
-  });
 
   els.listBtn.addEventListener("click", () => setView("list"));
   els.calBtn.addEventListener("click", () => setView("calendar"));
