@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v437-narbo-multi-source-classification-2026-08-21";
+const ARRANGEMENT_ENGINE_VERSION = "v438-narbo-classification-repair-2026-08-22";
 
 const ARR_AREAS = {
   default: {
@@ -750,6 +750,26 @@ async function arrImportAllSources(env, options={}) {
       result.diagnostics.sources.push(sourceDiagnostic);
     }
 
+    let preRepairUpdated = 0;
+    try {
+      preRepairUpdated = await arrRepairExistingNarboMeetingTypes(
+        env,
+        source,
+        existingEvents,
+        typeRules
+      );
+      if (preRepairUpdated) {
+        sourceResult.updated += preRepairUpdated;
+        result.updated += preRepairUpdated;
+      }
+    } catch (repairErr) {
+      // Klassifiseringsreparasjon skal ikke stoppe selve kildeimporten.
+      console.warn(
+        "Nærbø Meeting Type-reparasjon feilet:",
+        repairErr?.message || repairErr
+      );
+    }
+
     try {
       const parsedRaw = await arrLoadSourceEvents(source);
       const mergeOnly = parsedRaw && parsedRaw._mergeOnly === true;
@@ -992,9 +1012,12 @@ async function arrImportAllSources(env, options={}) {
       }
 
       sourceResult.created = createItems.length;
-      sourceResult.updated = updateItems.filter(item => Object.keys(item).length > 2 || item[ARR_F.events.lastSeen]).length;
+      const normalUpdated = updateItems.filter(
+        item => Object.keys(item).length > 2 || item[ARR_F.events.lastSeen]
+      ).length;
+      sourceResult.updated = preRepairUpdated + normalUpdated;
       result.created += createItems.length;
-      result.updated += sourceResult.updated;
+      result.updated += normalUpdated;
 
       await arrUpdateRow(env,ARR_TABLE.SOURCES,source.id,{
         [ARR_F.sources.lastImport]:now,
@@ -1029,7 +1052,54 @@ function arrBuildTypeRules(rows) {
   })).sort((a,b) => b.priority-a.priority);
 }
 
+function arrNarboExplicitMeetingTypeHint(item) {
+  const sourceUrl = arrNormalize(item?.sourceUrl || "");
+  const title = arrNormalize(item?.title || "");
+  const location = arrNormalize(item?.location || "");
+
+  // Bare bruk disse eksplisitte reglene på Nærbø-data.
+  const isNarbo =
+    sourceUrl.includes("narbobedehus.no") ||
+    location.includes("nærbø bedehus") ||
+    location.includes("narbo bedehus");
+
+  if (!isNarbo) return "";
+
+  if (
+    title.includes("glad sang") ||
+    title.includes("emmaus") ||
+    title.includes("nærbø musikklag") ||
+    title.includes("narbo musikklag")
+  ) return "Sang/Musikk";
+
+  if (
+    title.includes("kvisten") ||
+    title.includes("maks-klubben") ||
+    title.includes("maks klubben")
+  ) return "Barn";
+
+  if (
+    title.includes("nkul") ||
+    title.includes("nærbø kristelige ungdomslag") ||
+    title.includes("narbo kristelige ungdomslag") ||
+    title === "ungdomslaget" ||
+    title.startsWith("ungdomslaget ")
+  ) return "Ungdom";
+
+  if (title.includes("vi over 60")) return "Senior";
+
+  return "";
+}
+
 function arrClassifyMeetingTypes(item, rules) {
+  // Nærbø har mange arrangementer fra samme arrangør. Eksplisitt
+  // aktivitets-/tittelklassifisering skal derfor vinne over generelle keywords.
+  const narboHint = arrNormalize(arrNarboExplicitMeetingTypeHint(item));
+  if (narboHint) {
+    const exact = rules.find(rule => arrNormalize(rule.name) === narboHint);
+    if (exact) return [exact.rowId];
+  }
+
   const hint = arrNormalize(item.meetingTypeHint || "");
   if (hint) {
     const exact = rules.find(rule => arrNormalize(rule.name) === hint);
@@ -1048,6 +1118,62 @@ function arrClassifyMeetingTypes(item, rules) {
   }
 
   return [...new Set(ids)];
+}
+
+function arrIsNarboBedehusSource(source) {
+  const name = arrNormalize(source?.[ARR_F.sources.name] || "");
+  const id = arrNormalize(source?.[ARR_F.sources.sourceId] || "");
+  return name.includes("nærbø bedehus") || name.includes("narbo bedehus") || id === "nærbø bedehus";
+}
+
+async function arrRepairExistingNarboMeetingTypes(env, source, existingEvents, typeRules) {
+  if (!arrIsNarboBedehusSource(source)) return 0;
+
+  const sourceName = arrClean(source[ARR_F.sources.name] || "");
+  const sourceId = arrClean(source[ARR_F.sources.sourceId] || "");
+  const updates = [];
+
+  for (const row of existingEvents) {
+    if (row[ARR_F.events.manuallyEdited] === true) continue;
+
+    const eventSource = arrClean(row[ARR_F.events.source] || "");
+    if (eventSource !== sourceName && eventSource !== sourceId) continue;
+
+    const hint = arrNarboExplicitMeetingTypeHint({
+      title: row[ARR_F.events.title],
+      location: row[ARR_F.events.location],
+      sourceUrl: row[ARR_F.events.sourceUrl],
+    });
+    if (!hint) continue;
+
+    const target = typeRules.find(rule => arrNormalize(rule.name) === arrNormalize(hint));
+    if (!target) continue;
+
+    const currentIds = arrLinkedIds(row[ARR_F.events.meetingType])
+      .map(Number)
+      .filter(Number.isFinite);
+
+    if (currentIds.length === 1 && currentIds[0] === Number(target.rowId)) continue;
+
+    updates.push({
+      id: row.id,
+      [ARR_F.events.meetingType]: [Number(target.rowId)]
+    });
+  }
+
+  if (!updates.length) return 0;
+
+  await arrUpdateRowsBatch(env, ARR_TABLE.EVENTS, updates);
+
+  // Hold den lokale kopien synkron slik at en vellykket kildeimport i samme
+  // kjøring ikke arbeider videre med gammel Meeting Type.
+  const targetById = new Map(updates.map(u => [Number(u.id), u[ARR_F.events.meetingType]]));
+  for (const row of existingEvents) {
+    const ids = targetById.get(Number(row.id));
+    if (ids) row[ARR_F.events.meetingType] = ids;
+  }
+
+  return updates.length;
 }
 
 function arrNormalizeMunicipalityName(value) {
