@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v436-authoritative-single-source-settlement-2026-08-21";
+const ARRANGEMENT_ENGINE_VERSION = "v437-narbo-multi-source-classification-2026-08-21";
 
 const ARR_AREAS = {
   default: {
@@ -1030,6 +1030,12 @@ function arrBuildTypeRules(rows) {
 }
 
 function arrClassifyMeetingTypes(item, rules) {
+  const hint = arrNormalize(item.meetingTypeHint || "");
+  if (hint) {
+    const exact = rules.find(rule => arrNormalize(rule.name) === hint);
+    if (exact) return [exact.rowId];
+  }
+
   const text = arrNormalize([item.title,item.description,item.location].filter(Boolean).join(" "));
   const ids = [];
   for (const rule of rules) {
@@ -4408,7 +4414,7 @@ function arrLooksLikeHaaTitle(line) {
   return true;
 }
 
-function arrParseNarboHtml(html, sourceUrl) {
+function arrParseNarboHtml(html, sourceUrl, meetingTypeHint="") {
   const lines = arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
   const out = [];
 
@@ -4453,6 +4459,7 @@ function arrParseNarboHtml(html, sourceUrl) {
       endTime:m[7] ? arrOsloLocalIso(year,month,day,Number(m[7]),Number(m[8]),0) : null,
       location:"Nærbø bedehus",
       sourceUrl,
+      meetingTypeHint,
     });
   }
 
@@ -4460,29 +4467,58 @@ function arrParseNarboHtml(html, sourceUrl) {
 }
 
 async function arrFetchAndParseNarbo(url) {
-  // V264: De samlede kalenderlistene er bevisst korte. Nærbø publiserer derimot
-  // lange arrangementsserier på de enkelte aktivitetssidene. Vi bruker derfor:
-  // - Møter-kalenderen
-  // - Glad Sang (publisert langt inn i 2027)
-  // - Kvisten barnelag (publisert langt inn i 2027)
-  // og beholder den samlede aktivitetssiden som supplement.
-  const urls = [
-    "https://narbobedehus.no/calendar/moter/",
-    "https://narbobedehus.no/glad-sang/",
-    "https://narbobedehus.no/kvisten-barnelag/",
-    "https://narbobedehus.no/barnelag-og-kor/",
+  const sources = [
+    {url:"https://narbobedehus.no/calendar/moter/", meetingTypeHint:""},
+    {url:"https://narbobedehus.no/glad-sang/", meetingTypeHint:"Sang/Musikk"},
+    {url:"https://narbobedehus.no/emmaus/", meetingTypeHint:"Sang/Musikk"},
+    {url:"https://narbobedehus.no/kvisten-barnelag/", meetingTypeHint:"Barn"},
+    {url:"https://narbobedehus.no/maks-klubben/", meetingTypeHint:"Barn"}
   ];
 
   const out = [];
-  for (const sourceUrl of urls) {
+  const stats = [];
+
+  for (const source of sources) {
     try {
-      const html = await arrFetchText(sourceUrl);
-      out.push(...arrParseNarboHtml(html, sourceUrl));
-    } catch (_) {}
+      const html = await arrFetchText(source.url);
+      const parsed = arrParseNarboHtml(html, source.url, source.meetingTypeHint);
+      out.push(...parsed);
+      stats.push({
+        url:source.url,
+        count:parsed.length,
+        first:parsed[0]?.startTime || null,
+        last:parsed.at(-1)?.startTime || null
+      });
+    } catch (err) {
+      stats.push({
+        url:source.url,
+        count:0,
+        error:arrClean(err?.message || String(err))
+      });
+    }
   }
 
   const deduped = arrDedupeParsed(out);
-  if (!deduped.length) throw new Error("Nærbø-parser fant ingen arrangementer");
+
+  if (!deduped.length) {
+    throw new Error("Nærbø-parser fant ingen arrangementer. " + JSON.stringify(stats));
+  }
+
+  const nowMs = Date.now();
+  const future = deduped
+    .map(item => new Date(item.startTime).getTime())
+    .filter(ts => Number.isFinite(ts) && ts >= nowMs);
+
+  const lastFuture = future.length ? Math.max(...future) : 0;
+  const daysAhead = lastFuture ? (lastFuture - nowMs) / 86400000 : 0;
+
+  if (future.length < 20 || daysAhead < 90) {
+    throw new Error(
+      `Nærbø-parser ga mistenkelig lav dekning: ${future.length} kommende arrangementer, ` +
+      `siste ${Math.round(daysAhead)} dager frem. Kilder=${JSON.stringify(stats)}`
+    );
+  }
+
   return deduped;
 }
 
