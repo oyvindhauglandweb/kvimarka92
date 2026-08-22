@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v440-event-rules-2026-08-22";
+const ARRANGEMENT_ENGINE_VERSION = "v441-event-rules-const-fix-2026-08-22";
 
 const ARR_AREAS = {
   default: {
@@ -1115,7 +1115,7 @@ async function arrImportAllSources(env, options={}) {
         }
       }
 
-      for (const item of parsed) {
+      for (let item of parsed) {
         if (!item.title || !item.startTime) {
           sourceResult.skipped++;
           continue;
