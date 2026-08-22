@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "engineVersion": "v441-event-rules-const-fix-2026-08-22",
-  "generatedAt": "2026-08-22T10:23:10.255Z",
+  "generatedAt": "2026-08-22T10:43:57.904Z",
   "areas": [
     {
       "key": "default",
@@ -21,22 +21,29 @@
   ],
   "eventCount": 3757,
   "importSummary": {
-    "ok": true,
-    "startedAt": "2026-08-22T10:19:28.164Z",
-    "finishedAt": "2026-08-22T10:22:39.025Z",
-    "created": 1,
-    "updated": 4000,
-    "errors": 0,
+    "ok": false,
+    "startedAt": "2026-08-22T10:39:56.743Z",
+    "finishedAt": "2026-08-22T10:43:22.011Z",
+    "created": 0,
+    "updated": 3981,
+    "errors": 1,
     "sourceCount": 29,
-    "successfulSources": 29,
-    "failedSources": [],
+    "successfulSources": 28,
+    "failedSources": [
+      {
+        "area": "default",
+        "sourceId": "SRC-0028",
+        "name": "Lye Forsamlingshus",
+        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)"
+      }
+    ],
     "sourceResults": [
       {
         "area": "default",
         "sourceId": "SRC-0001",
         "name": "Nærbø Bedehus",
         "created": 0,
-        "updated": 99,
+        "updated": 153,
         "skipped": 0,
         "error": null,
         "createdEvents": []
@@ -266,9 +273,9 @@
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
         "created": 0,
-        "updated": 74,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
+        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
         "createdEvents": []
       },
       {
@@ -285,24 +292,11 @@
         "area": "sandnes",
         "sourceId": "SRC-0009",
         "name": "Fredheim Arena",
-        "created": 1,
-        "updated": 329,
+        "created": 0,
+        "updated": 330,
         "skipped": 0,
         "error": null,
-        "createdEvents": [
-          {
-            "rowId": 6445,
-            "eventId": "EVT-E69E621FC0F7",
-            "title": "Gudstjeneste kl.11.00-12.30",
-            "startTime": "2027-09-26T09:00:00Z",
-            "endTime": "2027-09-26T10:30:00Z",
-            "organizer": "Fredheim Arena",
-            "location": "Fredheim Arena",
-            "source": "Fredheim Arena",
-            "sourceEventId": "4sus1m7hicie9urmjvkq7lm8oj@google.com::2027-09-26T11:00:00+02:00",
-            "active": true
-          }
-        ]
+        "createdEvents": []
       },
       {
         "area": "sandnes",
@@ -342,8 +336,8 @@
         "eventsTable": 1137493,
         "sourcesTable": 1137506,
         "created": 0,
-        "updated": 2417,
-        "errors": 0,
+        "updated": 2397,
+        "errors": 1,
         "sourceCount": 25
       },
       {
@@ -351,8 +345,8 @@
         "name": "Sandnes",
         "eventsTable": 1144908,
         "sourcesTable": 1144922,
-        "created": 1,
-        "updated": 1492,
+        "created": 0,
+        "updated": 1493,
         "errors": 0,
         "sourceCount": 3,
         "diagnostics": {
@@ -376,40 +370,6 @@
             "meetingTypeMatches": 24,
             "meetingTypeMismatches": 0,
             "samples": [
-              {
-                "rowId": 6445,
-                "title": "Gudstjeneste kl.11.00-12.30",
-                "requestedSettlementIds": [
-                  21
-                ],
-                "actualSettlementIds": [
-                  21
-                ],
-                "requestedMeetingTypeIds": [
-                  1
-                ],
-                "actualMeetingTypeIds": [
-                  1
-                ],
-                "rawSettlementReturned": [
-                  {
-                    "id": 21,
-                    "value": "SET-0020",
-                    "order": "20.00000000000000000000"
-                  }
-                ],
-                "rawMeetingTypeReturned": [
-                  {
-                    "id": 1,
-                    "value": "MT-0001",
-                    "order": "1.00000000000000000000"
-                  }
-                ],
-                "returnedKeys": [
-                  "field_10252555",
-                  "field_10252776"
-                ]
-              },
               {
                 "rowId": 3754,
                 "title": "KickOff",
@@ -1212,6 +1172,40 @@
                   "field_10252555",
                   "field_10252776"
                 ]
+              },
+              {
+                "rowId": 3777,
+                "title": "TRE18",
+                "requestedSettlementIds": [
+                  21
+                ],
+                "actualSettlementIds": [
+                  21
+                ],
+                "requestedMeetingTypeIds": [
+                  15
+                ],
+                "actualMeetingTypeIds": [
+                  15
+                ],
+                "rawSettlementReturned": [
+                  {
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
+                  }
+                ],
+                "rawMeetingTypeReturned": [
+                  {
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
+                  }
+                ],
+                "returnedKeys": [
+                  "field_10252555",
+                  "field_10252776"
+                ]
               }
             ]
           },
@@ -1341,27 +1335,7 @@
               ],
               "sampleEvents": [
                 {
-                  "title": "TRE18 Nyttårsfeiring",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ]
-                },
-                {
-                  "title": "Unge voksne",
+                  "title": "Superlørdag",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1381,7 +1355,7 @@
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Zoom juleavslutning",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1401,7 +1375,7 @@
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Camp Fredheim",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1421,7 +1395,7 @@
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1437,11 +1411,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1457,11 +1431,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1477,11 +1451,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1497,11 +1471,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1517,11 +1491,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1537,11 +1511,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1557,11 +1531,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ]
                 },
                 {
-                  "title": "Unge voksne",
+                  "title": "Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1577,7 +1551,27 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
+                  ]
+                },
+                {
+                  "title": "Gudstjeneste kl.11.00-12.30",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    1
                   ]
                 }
               ]
