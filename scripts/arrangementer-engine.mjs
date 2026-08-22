@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v439-narbo-meetingtype-name-match-2026-08-22";
+const ARRANGEMENT_ENGINE_VERSION = "v440-event-rules-2026-08-22";
 
 const ARR_AREAS = {
   default: {
@@ -175,6 +175,43 @@ const ARR_AREAS = {
   },
 
 };
+
+
+// V440: Felles regelbase i hoved-workspacet Arrangementskalender.
+// Tabellen leses alltid med default-tokenet, også når Sandnes/Stavanger importeres.
+const ARR_EVENT_RULES_TABLE = 1150075;
+const ARR_EVENT_RULES_F = {
+  ruleId: "field_10306627",
+  active: "field_10306628",
+  priority: "field_10306629",
+  ruleType: "field_10306630",
+  sourceIdMatch: "field_10306631",
+  sourceNameMatch: "field_10306632",
+  sourceNameMatchType: "field_10306633",
+  organizerMatch: "field_10306634",
+  organizerMatchType: "field_10306635",
+  titleMatch: "field_10306636",
+  titleMatchType: "field_10306637",
+  descriptionMatch: "field_10306638",
+  descriptionMatchType: "field_10306639",
+  locationMatch: "field_10306640",
+  locationMatchType: "field_10306641",
+  addMeetingTypes: "field_10306642",
+  removeMeetingTypes: "field_10306643",
+  replaceMeetingTypes: "field_10306644",
+  descriptionAppend: "field_10306645",
+  descriptionOverride: "field_10306646",
+  sourceUrlOverride: "field_10306647",
+  organizerOverride: "field_10306648",
+  locationOverride: "field_10306649",
+  settlementOverride: "field_10306650",
+  titleOverride: "field_10306651",
+  stopProcessing: "field_10306652",
+  validFrom: "field_10306653",
+  validUntil: "field_10306654",
+  notes: "field_10306655",
+};
+let ARR_EVENT_RULE_ROWS_CACHE = null;
 
 let ARR_CURRENT_AREA = "default";
 let ARR_TABLE = ARR_AREAS.default.tables;
@@ -560,6 +597,273 @@ function arrResolveHaaFellesraadOrganizer(title, organizer) {
   return "Varhaug sokn";
 }
 
+
+function arrSelectText(value) {
+  if (value == null) return "";
+  if (typeof value === "string") return arrClean(value);
+  if (typeof value === "object") return arrClean(value.value ?? value.name ?? "");
+  return arrClean(String(value));
+}
+
+function arrRuleCsvValues(value) {
+  return String(value ?? "")
+    .split(",")
+    .map(v => arrClean(v))
+    .filter(Boolean);
+}
+
+function arrRuleMatchValue(actual, expected, matchType) {
+  const wanted = arrNormalize(expected || "");
+  if (!wanted) return true;
+
+  const text = arrNormalize(actual || "");
+  const type = arrNormalize(arrSelectText(matchType) || "Exact");
+
+  if (type === "contains") return text.includes(wanted);
+  if (type === "starts with") return text.startsWith(wanted);
+  return text === wanted;
+}
+
+function arrRuleDateOnly(value) {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().slice(0,10);
+}
+
+function arrRuleAppliesToEvent(rule, item, source) {
+  if (rule[ARR_EVENT_RULES_F.active] === false) return false;
+
+  const eventDate = arrRuleDateOnly(item.startTime);
+  const validFrom = arrRuleDateOnly(rule[ARR_EVENT_RULES_F.validFrom]);
+  const validUntil = arrRuleDateOnly(rule[ARR_EVENT_RULES_F.validUntil]);
+
+  if (eventDate && validFrom && eventDate < validFrom) return false;
+  if (eventDate && validUntil && eventDate > validUntil) return false;
+
+  const sourceId = arrClean(source?.[ARR_F.sources.sourceId] || "");
+  const sourceName = arrClean(source?.[ARR_F.sources.name] || "");
+  const organizer = arrClean(item.organizer || sourceName);
+  const title = arrClean(item.title || "");
+  const description = arrClean(item.description || "");
+  const location = arrClean(item.location || "");
+
+  if (!arrRuleMatchValue(
+    sourceId,
+    rule[ARR_EVENT_RULES_F.sourceIdMatch],
+    "Exact"
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    sourceName,
+    rule[ARR_EVENT_RULES_F.sourceNameMatch],
+    rule[ARR_EVENT_RULES_F.sourceNameMatchType]
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    organizer,
+    rule[ARR_EVENT_RULES_F.organizerMatch],
+    rule[ARR_EVENT_RULES_F.organizerMatchType]
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    title,
+    rule[ARR_EVENT_RULES_F.titleMatch],
+    rule[ARR_EVENT_RULES_F.titleMatchType]
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    description,
+    rule[ARR_EVENT_RULES_F.descriptionMatch],
+    rule[ARR_EVENT_RULES_F.descriptionMatchType]
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    location,
+    rule[ARR_EVENT_RULES_F.locationMatch],
+    rule[ARR_EVENT_RULES_F.locationMatchType]
+  )) return false;
+
+  return true;
+}
+
+async function arrLoadEventRules(env) {
+  if (ARR_EVENT_RULE_ROWS_CACHE) return ARR_EVENT_RULE_ROWS_CACHE;
+
+  const token =
+    env.ARRANGEMENT_BASEROW_TOKEN_DEFAULT ||
+    env.ARRANGEMENT_BASEROW_TOKEN;
+
+  if (!token) {
+    throw new Error("Event Rules: default Baserow-token mangler.");
+  }
+
+  const centralEnv = {
+    ...env,
+    ARRANGEMENT_BASEROW_TOKEN: token
+  };
+
+  const rows = await arrListAllRows(centralEnv, ARR_EVENT_RULES_TABLE);
+
+  ARR_EVENT_RULE_ROWS_CACHE = rows
+    .filter(row => row[ARR_EVENT_RULES_F.active] !== false)
+    .sort((a,b) =>
+      Number(a[ARR_EVENT_RULES_F.priority] || 100) -
+      Number(b[ARR_EVENT_RULES_F.priority] || 100) ||
+      String(a[ARR_EVENT_RULES_F.ruleId] || "").localeCompare(
+        String(b[ARR_EVENT_RULES_F.ruleId] || ""),
+        "nb"
+      )
+    );
+
+  return ARR_EVENT_RULE_ROWS_CACHE;
+}
+
+function arrFindMeetingTypeRuleStrict(rules, name) {
+  const wanted = arrClean(name || "");
+  if (!wanted) return null;
+  return rules.find(rule => arrClean(rule.name) === wanted) || null;
+}
+
+function arrApplyEventRules(item, source, eventRules, typeRules) {
+  const working = {...item};
+  const appliedRuleIds = [];
+  let replaceMeetingTypes = false;
+  let addMeetingTypeNames = [];
+  let removeMeetingTypeNames = [];
+  let settlementOverride = "";
+
+  for (const rule of eventRules) {
+    if (!arrRuleAppliesToEvent(rule, working, source)) continue;
+
+    const ruleId = arrClean(rule[ARR_EVENT_RULES_F.ruleId] || `row-${rule.id}`);
+    appliedRuleIds.push(ruleId);
+
+    const adds = arrRuleCsvValues(rule[ARR_EVENT_RULES_F.addMeetingTypes]);
+    const removes = arrRuleCsvValues(rule[ARR_EVENT_RULES_F.removeMeetingTypes]);
+
+    if (rule[ARR_EVENT_RULES_F.replaceMeetingTypes] === true) {
+      replaceMeetingTypes = true;
+      addMeetingTypeNames = [];
+      removeMeetingTypeNames = [];
+    }
+
+    addMeetingTypeNames.push(...adds);
+    removeMeetingTypeNames.push(...removes);
+
+    const descriptionOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.descriptionOverride] || ""
+    );
+    if (descriptionOverride) working.description = descriptionOverride;
+
+    const descriptionAppend = arrClean(
+      rule[ARR_EVENT_RULES_F.descriptionAppend] || ""
+    );
+    if (descriptionAppend) {
+      const existing = arrClean(working.description || "");
+      if (!arrNormalize(existing).includes(arrNormalize(descriptionAppend))) {
+        working.description = existing
+          ? `${existing}\n\n${descriptionAppend}`
+          : descriptionAppend;
+      }
+    }
+
+    const sourceUrlOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.sourceUrlOverride] || ""
+    );
+    if (sourceUrlOverride) working.sourceUrl = sourceUrlOverride;
+
+    const organizerOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.organizerOverride] || ""
+    );
+    if (organizerOverride) working.organizer = organizerOverride;
+
+    const locationOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.locationOverride] || ""
+    );
+    if (locationOverride) working.location = locationOverride;
+
+    const titleOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.titleOverride] || ""
+    );
+    if (titleOverride) working.title = titleOverride;
+
+    const settlement = arrClean(
+      rule[ARR_EVENT_RULES_F.settlementOverride] || ""
+    );
+    if (settlement) settlementOverride = settlement;
+
+    if (rule[ARR_EVENT_RULES_F.stopProcessing] === true) break;
+  }
+
+  // Validate only rules that actually matched this event.
+  const unknownMeetingTypes = [...new Set(
+    [...addMeetingTypeNames, ...removeMeetingTypeNames].filter(
+      name => !arrFindMeetingTypeRuleStrict(typeRules, name)
+    )
+  )];
+
+  if (unknownMeetingTypes.length) {
+    throw new Error(
+      `Event Rules: ukjent Meeting Type [${unknownMeetingTypes.join(", ")}] ` +
+      `for regel/regler ${appliedRuleIds.join(", ")}. ` +
+      `Navn må stemme nøyaktig med Meeting Types.Name i ${ARR_CURRENT_AREA}.`
+    );
+  }
+
+  return {
+    item: working,
+    appliedRuleIds,
+    replaceMeetingTypes,
+    addMeetingTypeNames: [...new Set(addMeetingTypeNames)],
+    removeMeetingTypeNames: [...new Set(removeMeetingTypeNames)],
+    settlementOverride
+  };
+}
+
+function arrApplyRuleMeetingTypes(baseIds, ruleResult, typeRules) {
+  let ids = ruleResult.replaceMeetingTypes ? [] : [...(baseIds || [])];
+
+  for (const name of ruleResult.addMeetingTypeNames) {
+    const target = arrFindMeetingTypeRuleStrict(typeRules, name);
+    if (target) ids.push(Number(target.rowId));
+  }
+
+  const removeIds = new Set();
+  for (const name of ruleResult.removeMeetingTypeNames) {
+    const target = arrFindMeetingTypeRuleStrict(typeRules, name);
+    if (target) removeIds.add(Number(target.rowId));
+  }
+
+  ids = ids
+    .map(Number)
+    .filter(Number.isFinite)
+    .filter(id => !removeIds.has(id));
+
+  return [...new Set(ids)];
+}
+
+function arrResolveRuleSettlementOverride(
+  settlementName,
+  settlementRules,
+  allSettlementRules,
+  activeSettlementIds
+) {
+  const wanted = arrNormalize(settlementName || "");
+  if (!wanted) return undefined;
+
+  const rule = allSettlementRules.find(r => r.normalized === wanted);
+  if (!rule) {
+    throw new Error(
+      `Event Rules: ukjent Settlement "${settlementName}" i ${ARR_CURRENT_AREA}.`
+    );
+  }
+
+  const id = Number(rule.rowId);
+  if (activeSettlementIds && !activeSettlementIds.has(id)) return null;
+  return [id];
+}
+
 async function arrImportAllSources(env, options={}) {
   const areaKey = String(options.area || "default").trim().toLowerCase();
   arrUseArea(areaKey);
@@ -577,6 +881,7 @@ async function arrImportAllSources(env, options={}) {
   const sources = await arrListAllRows(env,ARR_TABLE.SOURCES);
   const meetingTypes = await arrListAllRows(env,ARR_TABLE.MEETING_TYPES);
   const settlements = await arrListAllRows(env,ARR_TABLE.SETTLEMENTS);
+  const eventRules = await arrLoadEventRules(env);
 
   const activeSources = sources.filter(r => {
     const sourceId = String(r[ARR_F.sources.sourceId] || '').trim();
@@ -686,6 +991,12 @@ async function arrImportAllSources(env, options={}) {
     errors:0,
     requestedSourceIds:[...requestedSourceIds],
     includeDisabled,
+    ruleEngine:{
+      tableId:ARR_EVENT_RULES_TABLE,
+      activeRules:eventRules.length,
+      appliedMatches:0,
+      matchedRuleIds:[]
+    },
     diagnostics: (areaKey === "sandnes" || areaKey === "stavanger") ? {
       tables: {
         events: ARR_TABLE.EVENTS,
@@ -810,17 +1121,45 @@ async function arrImportAllSources(env, options={}) {
           continue;
         }
 
+        const ruleResult = arrApplyEventRules(
+          item,
+          source,
+          eventRules,
+          typeRules
+        );
+        item = ruleResult.item;
+
+        if (ruleResult.appliedRuleIds.length) {
+          result.ruleEngine.appliedMatches += ruleResult.appliedRuleIds.length;
+          result.ruleEngine.matchedRuleIds.push(...ruleResult.appliedRuleIds);
+        }
+
         const sourceEventId = item.sourceEventId || await arrStableKey(source[ARR_F.sources.sourceId], item.startTime, item.title);
         seenKeys.add(sourceEventId);
 
-        const typeIds = arrClassifyMeetingTypes(item, typeRules);
-        const settlementIds = arrResolveSettlementIds(
-          item,
-          source,
+        const baseTypeIds = arrClassifyMeetingTypes(item, typeRules);
+        const typeIds = arrApplyRuleMeetingTypes(
+          baseTypeIds,
+          ruleResult,
+          typeRules
+        );
+
+        const settlementIdsFromRule = arrResolveRuleSettlementOverride(
+          ruleResult.settlementOverride,
           settlementRules,
           allSettlementRules,
           activeSettlementIds
         );
+
+        const settlementIds = settlementIdsFromRule !== undefined
+          ? settlementIdsFromRule
+          : arrResolveSettlementIds(
+              item,
+              source,
+              settlementRules,
+              allSettlementRules,
+              activeSettlementIds
+            );
 
         if (
           sourceDiagnostic &&
@@ -1038,6 +1377,7 @@ async function arrImportAllSources(env, options={}) {
     result.sources.push(sourceResult);
   }
 
+  result.ruleEngine.matchedRuleIds = [...new Set(result.ruleEngine.matchedRuleIds)];
   result.finishedAt = new Date().toISOString();
   result.ok = result.errors === 0;
   return result;
