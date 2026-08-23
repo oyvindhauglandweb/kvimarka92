@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v441-event-rules-const-fix-2026-08-22";
+const ARRANGEMENT_ENGINE_VERSION = "v442-remove-annet-when-specific-2026-08-22";
 
 const ARR_AREAS = {
   default: {
@@ -840,7 +840,21 @@ function arrApplyRuleMeetingTypes(baseIds, ruleResult, typeRules) {
     .filter(Number.isFinite)
     .filter(id => !removeIds.has(id));
 
-  return [...new Set(ids)];
+  ids = [...new Set(ids)];
+
+  // "Annet" er kun fallback. Så snart arrangementet har minst én
+  // konkret Meeting Type skal "Annet" fjernes.
+  if (ids.length > 1) {
+    const annetRule = typeRules.find(
+      rule => arrNormalize(rule.name) === "annet"
+    );
+    if (annetRule) {
+      const annetId = Number(annetRule.rowId);
+      ids = ids.filter(id => id !== annetId);
+    }
+  }
+
+  return ids;
 }
 
 function arrResolveRuleSettlementOverride(
