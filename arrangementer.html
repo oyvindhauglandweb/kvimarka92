@@ -1123,15 +1123,67 @@
     }
   }
 
+  function refreshOrganizationOptions() {
+    const old = els.organization.value || "";
+    const q = els.search.value.trim().toLocaleLowerCase("no");
+    const type = els.type.value;
+    const municipality = els.municipality.value;
+    const settlement = els.settlement.value;
+    const organizer = els.organizer.value;
+
+    // Facettert filter: Organisasjon-listen skal vise organisasjoner som
+    // faktisk finnes blant arrangementene som gjenstår etter ALLE de andre
+    // aktive filtrene. Organisasjon-filteret selv tas bevisst ikke med.
+    const relevant = events.filter(e => {
+      if (type && !(e.meetingTypes || []).includes(type)) return false;
+      if (municipality && e.municipality !== municipality) return false;
+      if (settlement && e.settlement !== settlement) return false;
+      if (organizer && e.organizer !== organizer) return false;
+
+      if (q) {
+        const hay = [
+          e.title,
+          e.organizer,
+          e.location,
+          e.settlement,
+          e.municipality,
+          e.description,
+          ...(e.meetingTypes || []),
+          ...(e.organizations || [])
+        ].join(" ").toLocaleLowerCase("no");
+
+        if (!hay.includes(q)) return false;
+      }
+
+      return true;
+    });
+
+    const values = [...new Set(
+      relevant.flatMap(e => e.organizations || []).filter(Boolean)
+    )].sort((a,b) => a.localeCompare(b,"no"));
+
+    addOptions(els.organization, values, "Alle organisasjoner");
+
+    // Behold valgt organisasjon bare dersom den fortsatt er relevant.
+    if (old && values.includes(old)) {
+      els.organization.value = old;
+    } else {
+      els.organization.value = "";
+    }
+  }
+
   function populateFilters() {
     addOptions(els.type, events.flatMap(e => e.meetingTypes || []), "Alle møtetyper");
     addOptions(els.municipality, events.map(e => e.municipality), "Alle kommuner");
-    addOptions(els.organization, events.flatMap(e => e.organizations || []), "Alle organisasjoner");
     refreshSettlementOptions();
     refreshOrganizerOptions();
+    refreshOrganizationOptions();
   }
 
   function applyFilters() {
+    // Oppdater først Organisasjon-listen ut fra de andre filtrene. Dermed
+    // kan en organisasjon som ikke lenger er relevant automatisk fjernes.
+    refreshOrganizationOptions();
     const q = els.search.value.trim().toLocaleLowerCase("no");
     const type = els.type.value;
     const municipality = els.municipality.value;
