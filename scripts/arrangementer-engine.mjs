@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v446-organization-ids-backfill-2026-08-23";
+const ARRANGEMENT_ENGINE_VERSION = "v449-organization-alias-description-2026-08-23";
 
 const ARR_AREAS = {
   default: {
@@ -808,6 +808,57 @@ function arrValidateOrganizationIds(ids, organizations, context="Event Rules") {
   }
 }
 
+function arrOrganizationAliasValues(value) {
+  return String(value || "")
+    .split(/[;\n]/)
+    .map(v => arrClean(v))
+    .filter(Boolean);
+}
+
+function arrEscapeRegExp(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function arrDescriptionMatchesOrganizationAlias(description, alias) {
+  const text = arrClean(description || "");
+  const wanted = arrClean(alias || "");
+  if (!text || !wanted) return false;
+
+  // To-tegns forkortelser blir for tvetydige til automatisk klassifisering.
+  if (wanted.length < 3) return false;
+
+  // Korte forkortelser som NLM/NMS/NLL/IMF/NOR skal bare treffe som eget ord.
+  if (wanted.length <= 4 && !/\s/.test(wanted)) {
+    const escaped = arrEscapeRegExp(wanted);
+    return new RegExp(
+      `(^|[^\\p{L}\\p{N}])${escaped}([^\\p{L}\\p{N}]|$)`,
+      "iu"
+    ).test(text);
+  }
+
+  return arrNormalize(text).includes(arrNormalize(wanted));
+}
+
+function arrOrganizationIdsFromDescriptionAliases(description, organizations) {
+  const ids = [];
+
+  for (const organization of organizations || []) {
+    const organizationId = arrClean(organization?.id || "").toUpperCase();
+    if (!organizationId) continue;
+
+    const aliases = arrOrganizationAliasValues(organization?.aliases || "");
+    if (!aliases.length) continue;
+
+    if (aliases.some(alias =>
+      arrDescriptionMatchesOrganizationAlias(description, alias)
+    )) {
+      ids.push(organizationId);
+    }
+  }
+
+  return [...new Set(ids)];
+}
+
 function arrFindMeetingTypeRuleStrict(rules, name) {
   const wanted = arrClean(name || "");
   if (!wanted) return null;
@@ -995,9 +1046,24 @@ function arrApplyOrganizationRulesOnly(item, source, eventRules, organizations) 
     if (rule[ARR_EVENT_RULES_F.stopProcessing] === true) break;
   }
 
+  const aliasOrganizationIds = arrOrganizationIdsFromDescriptionAliases(
+    working.description,
+    organizations
+  );
+
+  if (aliasOrganizationIds.length) {
+    working.organizationIds = arrApplyOrganizationIds(
+      working.organizationIds,
+      aliasOrganizationIds.join("; "),
+      "",
+      false
+    ).join("; ");
+  }
+
   return {
     organizationIds: arrOrganizationIds(working.organizationIds).join("; "),
-    appliedRuleIds
+    appliedRuleIds,
+    aliasOrganizationIds
   };
 }
 
@@ -1020,6 +1086,7 @@ async function arrBackfillEventOrganizationIds(env, eventRules, organizations) {
   const updates = [];
   const matchedRuleIds = [];
   let matchedEvents = 0;
+  let aliasMatchedEvents = 0;
 
   for (const row of events) {
     const sourceText = arrClean(row[ARR_F.events.source] || "");
@@ -1052,6 +1119,9 @@ async function arrBackfillEventOrganizationIds(env, eventRules, organizations) {
       matchedEvents++;
       matchedRuleIds.push(...applied.appliedRuleIds);
     }
+    if (Array.isArray(applied.aliasOrganizationIds) && applied.aliasOrganizationIds.length) {
+      aliasMatchedEvents++;
+    }
 
     const before = arrOrganizationIds(row[ARR_F.events.organizationIds] || "").join("; ");
     const after = applied.organizationIds;
@@ -1071,6 +1141,7 @@ async function arrBackfillEventOrganizationIds(env, eventRules, organizations) {
   return {
     scanned: events.length,
     matchedEvents,
+    aliasMatchedEvents,
     updated: updates.length,
     matchedRuleIds: [...new Set(matchedRuleIds)]
   };
@@ -5523,6 +5594,7 @@ export {
   arrHeaders,
   arrListAllRows,
   arrUpdateRowsBatch,
+  arrLoadOrganizations,
   arrImportAllSources,
   arrDedupeExistingVigrestad,
   arrClean,

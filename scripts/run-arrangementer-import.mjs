@@ -7,6 +7,7 @@ import {
   arrUseArea,
   arrListAllRows,
   arrUpdateRowsBatch,
+  arrLoadOrganizations,
   arrImportAllSources,
   arrClean,
   arrNormalize,
@@ -59,6 +60,15 @@ function envForArea(areaKey) {
     ...env,
     ARRANGEMENT_BASEROW_TOKEN: env.ARRANGEMENT_BASEROW_TOKEN
   };
+}
+
+function textOrganizationIds(value) {
+  return [...new Set(
+    String(value || "")
+      .split(/[;,]/)
+      .map(v => arrClean(v).toUpperCase())
+      .filter(v => /^ORG-\d{4,}$/.test(v))
+  )];
 }
 
 function linkedNames(linkValue, byRowId, byPublicId) {
@@ -412,7 +422,7 @@ async function migrateAreaOutOfDefault(areaKey) {
   };
 }
 
-async function readAreaSnapshotEvents(areaKey) {
+async function readAreaSnapshotEvents(areaKey, organizationNameById) {
   arrUseArea(areaKey);
   const areaEnv = envForArea(areaKey);
 
@@ -505,12 +515,21 @@ async function readAreaSnapshotEvents(areaKey) {
       meetingTypeNameByPublicId
     );
 
+    const organizationIds = textOrganizationIds(
+      row[ARR_F.events.organizationIds] || ""
+    );
+    const organizationNames = organizationIds
+      .map(id => organizationNameById.get(id) || "")
+      .filter(Boolean);
+
     events.push({
       id: row[ARR_F.events.eventId] || String(row.id),
       title: row[ARR_F.events.title] || "",
       startTime,
       endTime: row[ARR_F.events.endTime] || null,
       meetingTypes: typeNames,
+      organizationIds,
+      organizations: organizationNames,
       organizer: arrResolveHaaFellesraadOrganizer(
         row[ARR_F.events.title] || "",
         row[ARR_F.events.organizer] || source || ""
@@ -532,8 +551,13 @@ async function buildSnapshot(importSummary) {
   const areaKeys = ["default", "sandnes", "stavanger"];
   const allEvents = [];
 
+  const organizations = await arrLoadOrganizations(envForArea("default"));
+  const organizationNameById = new Map(
+    organizations.map(row => [String(row.id || "").toUpperCase(), row.name || row.id])
+  );
+
   for (const areaKey of areaKeys) {
-    allEvents.push(...await readAreaSnapshotEvents(areaKey));
+    allEvents.push(...await readAreaSnapshotEvents(areaKey, organizationNameById));
   }
 
   allEvents.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
@@ -548,7 +572,7 @@ async function buildSnapshot(importSummary) {
   );
 
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
     engineVersion: ARRANGEMENT_ENGINE_VERSION,
     generatedAt: new Date().toISOString(),
     areas: areaKeys.map(key => ({
