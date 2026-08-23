@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v442-remove-annet-when-specific-2026-08-22";
+const ARRANGEMENT_ENGINE_VERSION = "v443-organization-rule-match-2026-08-23";
 
 const ARR_AREAS = {
   default: {
@@ -33,6 +33,7 @@ const ARR_AREAS = {
         website: "field_10177447",
         calendarUrl: "field_10177474",
         sourceType: "field_10177498",
+        organization: "field_10326887",
         enabled: "field_10177499",
         importMethod: "field_10177503",
         lastImport: "field_10177505",
@@ -91,6 +92,7 @@ const ARR_AREAS = {
         website: "field_10252704",
         calendarUrl: "field_10252705",
         sourceType: "field_10252706",
+        organization: "field_10326888",
         enabled: "field_10252707",
         importMethod: "field_10252708",
         lastImport: "field_10252709",
@@ -149,6 +151,7 @@ const ARR_AREAS = {
         website: "field_10265709",
         calendarUrl: "field_10265710",
         sourceType: "field_10265711",
+        organization: "field_10326892",
         enabled: "field_10265712",
         importMethod: "field_10265713",
         lastImport: "field_10265714",
@@ -188,6 +191,8 @@ const ARR_EVENT_RULES_F = {
   sourceIdMatch: "field_10306631",
   sourceNameMatch: "field_10306632",
   sourceNameMatchType: "field_10306633",
+  organizationMatch: "field_10326958",
+  organizationMatchType: "field_10326977",
   organizerMatch: "field_10306634",
   organizerMatchType: "field_10306635",
   titleMatch: "field_10306636",
@@ -643,6 +648,7 @@ function arrRuleAppliesToEvent(rule, item, source) {
 
   const sourceId = arrClean(source?.[ARR_F.sources.sourceId] || "");
   const sourceName = arrClean(source?.[ARR_F.sources.name] || "");
+  const organization = arrClean(source?.[ARR_F.sources.organization] || "");
   const organizer = arrClean(item.organizer || sourceName);
   const title = arrClean(item.title || "");
   const description = arrClean(item.description || "");
@@ -658,6 +664,12 @@ function arrRuleAppliesToEvent(rule, item, source) {
     sourceName,
     rule[ARR_EVENT_RULES_F.sourceNameMatch],
     rule[ARR_EVENT_RULES_F.sourceNameMatchType]
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    organization,
+    rule[ARR_EVENT_RULES_F.organizationMatch],
+    rule[ARR_EVENT_RULES_F.organizationMatchType]
   )) return false;
 
   if (!arrRuleMatchValue(
