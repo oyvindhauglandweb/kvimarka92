@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v443-organization-rule-match-2026-08-23";
+const ARRANGEMENT_ENGINE_VERSION = "v444-event-organizations-rule-engine-2026-08-23";
 
 const ARR_AREAS = {
   default: {
@@ -25,6 +25,7 @@ const ARR_AREAS = {
         lastSeen: "field_10177439",
         active: "field_10177442",
         manuallyEdited: "field_10177443",
+        organizations: "field_10328066",
         settlement: "field_10178013",
       },
       sources: {
@@ -84,6 +85,7 @@ const ARR_AREAS = {
         lastSeen: "field_10252562",
         active: "field_10252563",
         manuallyEdited: "field_10252564",
+        organizations: "field_10328050",
         settlement: "field_10252776",
       },
       sources: {
@@ -143,6 +145,7 @@ const ARR_AREAS = {
         lastSeen: "field_10266388",
         active: "field_10266389",
         manuallyEdited: "field_10266390",
+        organizations: "field_10328031",
         settlement: "field_10266392",
       },
       sources: {
@@ -192,7 +195,8 @@ const ARR_EVENT_RULES_F = {
   sourceNameMatch: "field_10306632",
   sourceNameMatchType: "field_10306633",
   organizationMatch: "field_10326958",
-  organizationMatchType: "field_10326977",
+  organizationMatchType: "field_10326977", // legacy/unused from V444
+  sourceOrganizationMatch: "field_10328747",
   organizerMatch: "field_10306634",
   organizerMatchType: "field_10306635",
   titleMatch: "field_10306636",
@@ -204,6 +208,9 @@ const ARR_EVENT_RULES_F = {
   addMeetingTypes: "field_10306642",
   removeMeetingTypes: "field_10306643",
   replaceMeetingTypes: "field_10306644",
+  addOrganizations: "field_10328278",
+  removeOrganizations: "field_10328281",
+  replaceOrganizations: "field_10328284",
   descriptionAppend: "field_10306645",
   descriptionOverride: "field_10306646",
   sourceUrlOverride: "field_10306647",
@@ -215,6 +222,7 @@ const ARR_EVENT_RULES_F = {
   validFrom: "field_10306653",
   validUntil: "field_10306654",
   notes: "field_10306655",
+  organizationNotes: "field_10328882",
 };
 let ARR_EVENT_RULE_ROWS_CACHE = null;
 
@@ -617,6 +625,54 @@ function arrRuleCsvValues(value) {
     .filter(Boolean);
 }
 
+// V444: Normaliserer Baserow Multiple select, tekst og kommaseparert tekst til navn.
+function arrRuleSelectValues(value) {
+  if (value == null || value === "") return [];
+
+  const raw = Array.isArray(value) ? value : [value];
+  const values = [];
+
+  for (const entry of raw) {
+    if (entry == null) continue;
+
+    if (typeof entry === "object") {
+      const text = arrClean(entry.value ?? entry.name ?? entry.label ?? "");
+      if (text) values.push(text);
+      continue;
+    }
+
+    for (const part of String(entry).split(",")) {
+      const text = arrClean(part);
+      if (text) values.push(text);
+    }
+  }
+
+  return [...new Set(values)];
+}
+
+function arrRuleMultiSelectMatch(actual, expected) {
+  const wanted = arrRuleSelectValues(expected).map(arrNormalize);
+  if (!wanted.length) return true;
+
+  const actualSet = new Set(arrRuleSelectValues(actual).map(arrNormalize));
+  return wanted.some(value => actualSet.has(value));
+}
+
+function arrApplyOrganizationSelection(current, add, remove, replace=false) {
+  let values = replace ? [] : arrRuleSelectValues(current);
+  values.push(...arrRuleSelectValues(add));
+
+  const removeSet = new Set(arrRuleSelectValues(remove).map(arrNormalize));
+  const seen = new Set();
+
+  return values.filter(value => {
+    const key = arrNormalize(value);
+    if (!key || removeSet.has(key) || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function arrRuleMatchValue(actual, expected, matchType) {
   const wanted = arrNormalize(expected || "");
   if (!wanted) return true;
@@ -648,7 +704,8 @@ function arrRuleAppliesToEvent(rule, item, source) {
 
   const sourceId = arrClean(source?.[ARR_F.sources.sourceId] || "");
   const sourceName = arrClean(source?.[ARR_F.sources.name] || "");
-  const organization = arrClean(source?.[ARR_F.sources.organization] || "");
+  const sourceOrganizations = source?.[ARR_F.sources.organization] || [];
+  const eventOrganizations = item.organizations || [];
   const organizer = arrClean(item.organizer || sourceName);
   const title = arrClean(item.title || "");
   const description = arrClean(item.description || "");
@@ -666,10 +723,16 @@ function arrRuleAppliesToEvent(rule, item, source) {
     rule[ARR_EVENT_RULES_F.sourceNameMatchType]
   )) return false;
 
-  if (!arrRuleMatchValue(
-    organization,
-    rule[ARR_EVENT_RULES_F.organizationMatch],
-    rule[ARR_EVENT_RULES_F.organizationMatchType]
+  // V444: Organization Match gjelder Events.Organizations.
+  // Source Organization Match gjelder Sources.Organization(s).
+  if (!arrRuleMultiSelectMatch(
+    eventOrganizations,
+    rule[ARR_EVENT_RULES_F.organizationMatch]
+  )) return false;
+
+  if (!arrRuleMultiSelectMatch(
+    sourceOrganizations,
+    rule[ARR_EVENT_RULES_F.sourceOrganizationMatch]
   )) return false;
 
   if (!arrRuleMatchValue(
@@ -738,7 +801,10 @@ function arrFindMeetingTypeRuleStrict(rules, name) {
 }
 
 function arrApplyEventRules(item, source, eventRules, typeRules) {
-  const working = {...item};
+  const working = {
+    ...item,
+    organizations: arrRuleSelectValues(item.organizations || [])
+  };
   const appliedRuleIds = [];
   let replaceMeetingTypes = false;
   let addMeetingTypeNames = [];
@@ -762,6 +828,15 @@ function arrApplyEventRules(item, source, eventRules, typeRules) {
 
     addMeetingTypeNames.push(...adds);
     removeMeetingTypeNames.push(...removes);
+
+    // V444: Organization-regler anvendes sekvensielt slik at en senere regel
+    // kan bruke Organization Match på organisasjoner satt av en tidligere regel.
+    working.organizations = arrApplyOrganizationSelection(
+      working.organizations,
+      rule[ARR_EVENT_RULES_F.addOrganizations],
+      rule[ARR_EVENT_RULES_F.removeOrganizations],
+      rule[ARR_EVENT_RULES_F.replaceOrganizations] === true
+    );
 
     const descriptionOverride = arrClean(
       rule[ARR_EVENT_RULES_F.descriptionOverride] || ""
@@ -1212,7 +1287,8 @@ async function arrImportAllSources(env, options={}) {
             meetingTypeHint: arrClean(item.meetingTypeHint || ""),
             resolvedSettlementIds: settlementIds,
             resolvedSettlements: resolvedRules,
-            classifiedMeetingTypeIds: typeIds
+            classifiedMeetingTypeIds: typeIds,
+            organizations: arrRuleSelectValues(item.organizations || [])
           });
         }
 
@@ -1227,6 +1303,7 @@ async function arrImportAllSources(env, options={}) {
           [ARR_F.events.startTime]: arrIsoOrNull(item.startTime),
           [ARR_F.events.endTime]: arrIsoOrNull(item.endTime),
           [ARR_F.events.meetingType]: typeIds,
+          [ARR_F.events.organizations]: arrRuleSelectValues(item.organizations || []),
           [ARR_F.events.organizer]: arrResolveHaaFellesraadOrganizer(
             item.title,
             item.organizer || source[ARR_F.sources.name]
