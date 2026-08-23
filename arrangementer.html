@@ -233,7 +233,7 @@
     #favoriteToggleBtn .menu-icon{fill:none}
     #favoriteToggleBtn.favorite-on .menu-icon{fill:none}
 
-    .toolbar{grid-template-columns:repeat(4,minmax(150px,1fr));}
+    .toolbar{grid-template-columns:repeat(5,minmax(140px,1fr));}
     .search-field{display:none;grid-column:1/-1}
     .search-field.visible{display:block}
     .legacy-view-buttons{display:none!important}
@@ -377,6 +377,10 @@
           <button id="organizerCustomButton" class="organizer-custom-button" type="button" aria-haspopup="listbox" aria-expanded="false">Alle arrangører</button>
           <div id="organizerCustomMenu" class="organizer-custom-menu" role="listbox"></div>
         </div>
+      </div>
+      <div class="field">
+        <label for="organizationFilter">Organisasjon</label>
+        <select id="organizationFilter"><option value="">Alle organisasjoner</option></select>
       </div>
       <div class="view-buttons legacy-view-buttons" aria-label="Visning">
         <button id="listBtn" class="active" type="button">Liste</button>
@@ -659,6 +663,10 @@
       }
     }
 
+    if (!Array.isArray(normalized.organizations)) {
+      normalized.organizations = [];
+    }
+
     if (
       normalized.municipality === "Sandnes" &&
       normalized.settlement === "Sentrum"
@@ -770,6 +778,7 @@
         municipality:els.municipality.value || "",
         settlement:els.settlement.value || "",
         organizer:els.organizer.value || "",
+        organization:els.organization.value || "",
         view:els.calendar.classList.contains("active") ? "calendar" : "list",
         scrollY:Math.max(0,Math.round(window.scrollY || 0))
       }));
@@ -830,6 +839,10 @@
       );
     }
 
+    if (remembered.organization && [...els.organization.options].some(o => o.value === remembered.organization)) {
+      els.organization.value = remembered.organization;
+    }
+
     if (remembered.view === "calendar") setView("calendar");
     else setView("list");
   }
@@ -870,7 +883,7 @@
 
   const $ = (id) => document.getElementById(id);
   const els = {
-    search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"),
+    search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"), organization: $("organizationFilter"),
     viewToggleBtn:$("viewToggleBtn"), searchToggleBtn:$("searchToggleBtn"), themeToggleBtn:$("themeToggleBtn"),
     favoriteToggleBtn:$("favoriteToggleBtn"), contactBtn:$("contactBtn"),
     clearFiltersBtn:$("clearFiltersBtn"),
@@ -1113,6 +1126,7 @@
   function populateFilters() {
     addOptions(els.type, events.flatMap(e => e.meetingTypes || []), "Alle møtetyper");
     addOptions(els.municipality, events.map(e => e.municipality), "Alle kommuner");
+    addOptions(els.organization, events.flatMap(e => e.organizations || []), "Alle organisasjoner");
     refreshSettlementOptions();
     refreshOrganizerOptions();
   }
@@ -1123,13 +1137,14 @@
     const municipality = els.municipality.value;
     const settlement = els.settlement.value;
     const organizer = els.organizer.value;
+    const organization = els.organization.value;
 
     // V339: Felles-favoritter gjelder bare så lenge ingen ordinære filtre
     // er valgt. Så snart brukeren bruker søk eller et nedtrekksfilter,
     // nullstilles felles-favorittmodus automatisk og de vanlige filtrene
     // får styre resultatet.
     const explicitFilterActive = Boolean(
-      q || type || municipality || settlement || organizer
+      q || type || municipality || settlement || organizer || organization
     );
 
     const combinedWasReset =
@@ -1151,6 +1166,7 @@
         if (municipality && e.municipality !== municipality) return false;
         if (settlement && e.settlement !== settlement) return false;
         if (organizer && e.organizer !== organizer) return false;
+        if (organization && !(e.organizations || []).includes(organization)) return false;
       }
 
       if (q) {
@@ -1161,7 +1177,8 @@
           e.settlement,
           e.municipality,
           e.description,
-          ...(e.meetingTypes || [])
+          ...(e.meetingTypes || []),
+          ...(e.organizations || [])
         ].join(" ").toLocaleLowerCase("no");
 
         if (!hay.includes(q)) return false;
@@ -1886,7 +1903,8 @@
       els.type.value ||
       els.municipality.value ||
       els.settlement.value ||
-      els.organizer.value
+      els.organizer.value ||
+      els.organization.value
     );
   }
 
@@ -1905,6 +1923,7 @@
 
     refreshOrganizerOptions();
     els.organizer.value = "";
+    els.organization.value = "";
 
     updateOrganizerSelectColor();
     renderOrganizerCustom(
@@ -2013,7 +2032,8 @@
     }
   }
 
-  [els.search,els.type].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", () => {
+  [els.search,els.type,els.organization].forEach(el => el.addEventListener(el.tagName === "INPUT" ? "input" : "change", () => {
+    combinedFavoritesActive = false;
     saveFilters();
     applyFilters();
   }));
