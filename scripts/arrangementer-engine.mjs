@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v444-event-organizations-rule-engine-2026-08-23";
+const ARRANGEMENT_ENGINE_VERSION = "v445-organization-ids-events-2026-08-23";
 
 const ARR_AREAS = {
   default: {
@@ -25,8 +25,8 @@ const ARR_AREAS = {
         lastSeen: "field_10177439",
         active: "field_10177442",
         manuallyEdited: "field_10177443",
-        organizations: "field_10328066",
         settlement: "field_10178013",
+        organizationIds: "field_10328066",
       },
       sources: {
         sourceId: "field_10177445",
@@ -34,7 +34,7 @@ const ARR_AREAS = {
         website: "field_10177447",
         calendarUrl: "field_10177474",
         sourceType: "field_10177498",
-        organization: "field_10326887",
+        organizationIds: "field_10326887",
         enabled: "field_10177499",
         importMethod: "field_10177503",
         lastImport: "field_10177505",
@@ -85,8 +85,8 @@ const ARR_AREAS = {
         lastSeen: "field_10252562",
         active: "field_10252563",
         manuallyEdited: "field_10252564",
-        organizations: "field_10328050",
         settlement: "field_10252776",
+        organizationIds: "field_10328050",
       },
       sources: {
         sourceId: "field_10252702",
@@ -94,7 +94,7 @@ const ARR_AREAS = {
         website: "field_10252704",
         calendarUrl: "field_10252705",
         sourceType: "field_10252706",
-        organization: "field_10326888",
+        organizationIds: "field_10326888",
         enabled: "field_10252707",
         importMethod: "field_10252708",
         lastImport: "field_10252709",
@@ -145,8 +145,8 @@ const ARR_AREAS = {
         lastSeen: "field_10266388",
         active: "field_10266389",
         manuallyEdited: "field_10266390",
-        organizations: "field_10328031",
         settlement: "field_10266392",
+        organizationIds: "field_10328031",
       },
       sources: {
         sourceId: "field_10265707",
@@ -154,7 +154,7 @@ const ARR_AREAS = {
         website: "field_10265709",
         calendarUrl: "field_10265710",
         sourceType: "field_10265711",
-        organization: "field_10326892",
+        organizationIds: "field_10326892",
         enabled: "field_10265712",
         importMethod: "field_10265713",
         lastImport: "field_10265714",
@@ -186,6 +186,13 @@ const ARR_AREAS = {
 // V440: Felles regelbase i hoved-workspacet Arrangementskalender.
 // Tabellen leses alltid med default-tokenet, også når Sandnes/Stavanger importeres.
 const ARR_EVENT_RULES_TABLE = 1150075;
+const ARR_ORGANIZATIONS_TABLE = 1151956;
+const ARR_ORGANIZATIONS_F = {
+  organizationId: "field_10329028",
+  name: "field_10329029",
+  aliases: "field_10329030",
+  active: "field_10329033",
+};
 const ARR_EVENT_RULES_F = {
   ruleId: "field_10306627",
   active: "field_10306628",
@@ -195,7 +202,6 @@ const ARR_EVENT_RULES_F = {
   sourceNameMatch: "field_10306632",
   sourceNameMatchType: "field_10306633",
   organizationMatch: "field_10326958",
-  organizationMatchType: "field_10326977", // legacy/unused from V444
   sourceOrganizationMatch: "field_10328747",
   organizerMatch: "field_10306634",
   organizerMatchType: "field_10306635",
@@ -225,6 +231,7 @@ const ARR_EVENT_RULES_F = {
   organizationNotes: "field_10328882",
 };
 let ARR_EVENT_RULE_ROWS_CACHE = null;
+let ARR_ORGANIZATION_ROWS_CACHE = null;
 
 let ARR_CURRENT_AREA = "default";
 let ARR_TABLE = ARR_AREAS.default.tables;
@@ -625,52 +632,28 @@ function arrRuleCsvValues(value) {
     .filter(Boolean);
 }
 
-// V444: Normaliserer Baserow Multiple select, tekst og kommaseparert tekst til navn.
-function arrRuleSelectValues(value) {
-  if (value == null || value === "") return [];
 
-  const raw = Array.isArray(value) ? value : [value];
-  const values = [];
-
-  for (const entry of raw) {
-    if (entry == null) continue;
-
-    if (typeof entry === "object") {
-      const text = arrClean(entry.value ?? entry.name ?? entry.label ?? "");
-      if (text) values.push(text);
-      continue;
-    }
-
-    for (const part of String(entry).split(",")) {
-      const text = arrClean(part);
-      if (text) values.push(text);
-    }
-  }
-
-  return [...new Set(values)];
+function arrOrganizationIds(value) {
+  return [...new Set(
+    String(value || "")
+      .split(/[;,]/)
+      .map(v => arrClean(v).toUpperCase())
+      .filter(v => /^ORG-\d{4,}$/.test(v))
+  )];
 }
 
-function arrRuleMultiSelectMatch(actual, expected) {
-  const wanted = arrRuleSelectValues(expected).map(arrNormalize);
-  if (!wanted.length) return true;
-
-  const actualSet = new Set(arrRuleSelectValues(actual).map(arrNormalize));
-  return wanted.some(value => actualSet.has(value));
+function arrOrganizationIdsMatch(actualValue, expectedValue) {
+  const expected = arrOrganizationIds(expectedValue);
+  if (!expected.length) return true;
+  const actual = new Set(arrOrganizationIds(actualValue));
+  return expected.some(id => actual.has(id));
 }
 
-function arrApplyOrganizationSelection(current, add, remove, replace=false) {
-  let values = replace ? [] : arrRuleSelectValues(current);
-  values.push(...arrRuleSelectValues(add));
-
-  const removeSet = new Set(arrRuleSelectValues(remove).map(arrNormalize));
-  const seen = new Set();
-
-  return values.filter(value => {
-    const key = arrNormalize(value);
-    if (!key || removeSet.has(key) || seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+function arrApplyOrganizationIds(currentValue, addValue, removeValue, replace) {
+  let ids = replace ? [] : arrOrganizationIds(currentValue);
+  ids.push(...arrOrganizationIds(addValue));
+  const remove = new Set(arrOrganizationIds(removeValue));
+  return [...new Set(ids)].filter(id => !remove.has(id));
 }
 
 function arrRuleMatchValue(actual, expected, matchType) {
@@ -704,8 +687,8 @@ function arrRuleAppliesToEvent(rule, item, source) {
 
   const sourceId = arrClean(source?.[ARR_F.sources.sourceId] || "");
   const sourceName = arrClean(source?.[ARR_F.sources.name] || "");
-  const sourceOrganizations = source?.[ARR_F.sources.organization] || [];
-  const eventOrganizations = item.organizations || [];
+  const sourceOrganizationIds = source?.[ARR_F.sources.organizationIds] || "";
+  const eventOrganizationIds = item.organizationIds || "";
   const organizer = arrClean(item.organizer || sourceName);
   const title = arrClean(item.title || "");
   const description = arrClean(item.description || "");
@@ -723,15 +706,13 @@ function arrRuleAppliesToEvent(rule, item, source) {
     rule[ARR_EVENT_RULES_F.sourceNameMatchType]
   )) return false;
 
-  // V444: Organization Match gjelder Events.Organizations.
-  // Source Organization Match gjelder Sources.Organization(s).
-  if (!arrRuleMultiSelectMatch(
-    eventOrganizations,
+  if (!arrOrganizationIdsMatch(
+    eventOrganizationIds,
     rule[ARR_EVENT_RULES_F.organizationMatch]
   )) return false;
 
-  if (!arrRuleMultiSelectMatch(
-    sourceOrganizations,
+  if (!arrOrganizationIdsMatch(
+    sourceOrganizationIds,
     rule[ARR_EVENT_RULES_F.sourceOrganizationMatch]
   )) return false;
 
@@ -794,17 +775,48 @@ async function arrLoadEventRules(env) {
   return ARR_EVENT_RULE_ROWS_CACHE;
 }
 
+
+async function arrLoadOrganizations(env) {
+  if (ARR_ORGANIZATION_ROWS_CACHE) return ARR_ORGANIZATION_ROWS_CACHE;
+
+  const token =
+    env.ARRANGEMENT_BASEROW_TOKEN_DEFAULT ||
+    env.ARRANGEMENT_BASEROW_TOKEN;
+
+  if (!token) throw new Error("Organizations: default Baserow-token mangler.");
+
+  const centralEnv = {...env, ARRANGEMENT_BASEROW_TOKEN: token};
+  const rows = await arrListAllRows(centralEnv, ARR_ORGANIZATIONS_TABLE);
+
+  ARR_ORGANIZATION_ROWS_CACHE = rows
+    .filter(row => row[ARR_ORGANIZATIONS_F.active] !== false)
+    .map(row => ({
+      id: arrClean(row[ARR_ORGANIZATIONS_F.organizationId] || "").toUpperCase(),
+      name: arrClean(row[ARR_ORGANIZATIONS_F.name] || ""),
+      aliases: arrClean(row[ARR_ORGANIZATIONS_F.aliases] || "")
+    }))
+    .filter(row => row.id);
+
+  return ARR_ORGANIZATION_ROWS_CACHE;
+}
+
+function arrValidateOrganizationIds(ids, organizations, context="Event Rules") {
+  const known = new Set((organizations || []).map(row => row.id));
+  const unknown = arrOrganizationIds(ids).filter(id => !known.has(id));
+  if (unknown.length) {
+    throw new Error(`${context}: ukjent Organization ID [${unknown.join(", ")}].`);
+  }
+}
+
 function arrFindMeetingTypeRuleStrict(rules, name) {
   const wanted = arrClean(name || "");
   if (!wanted) return null;
   return rules.find(rule => arrClean(rule.name) === wanted) || null;
 }
 
-function arrApplyEventRules(item, source, eventRules, typeRules) {
-  const working = {
-    ...item,
-    organizations: arrRuleSelectValues(item.organizations || [])
-  };
+function arrApplyEventRules(item, source, eventRules, typeRules, organizations) {
+  const working = {...item};
+  working.organizationIds = arrOrganizationIds(working.organizationIds).join("; ");
   const appliedRuleIds = [];
   let replaceMeetingTypes = false;
   let addMeetingTypeNames = [];
@@ -829,14 +841,16 @@ function arrApplyEventRules(item, source, eventRules, typeRules) {
     addMeetingTypeNames.push(...adds);
     removeMeetingTypeNames.push(...removes);
 
-    // V444: Organization-regler anvendes sekvensielt slik at en senere regel
-    // kan bruke Organization Match på organisasjoner satt av en tidligere regel.
-    working.organizations = arrApplyOrganizationSelection(
-      working.organizations,
-      rule[ARR_EVENT_RULES_F.addOrganizations],
-      rule[ARR_EVENT_RULES_F.removeOrganizations],
+    const addOrganizationIds = rule[ARR_EVENT_RULES_F.addOrganizations] || "";
+    const removeOrganizationIds = rule[ARR_EVENT_RULES_F.removeOrganizations] || "";
+    arrValidateOrganizationIds(addOrganizationIds, organizations, `Event Rules ${ruleId}`);
+    arrValidateOrganizationIds(removeOrganizationIds, organizations, `Event Rules ${ruleId}`);
+    working.organizationIds = arrApplyOrganizationIds(
+      working.organizationIds,
+      addOrganizationIds,
+      removeOrganizationIds,
       rule[ARR_EVENT_RULES_F.replaceOrganizations] === true
-    );
+    ).join("; ");
 
     const descriptionOverride = arrClean(
       rule[ARR_EVENT_RULES_F.descriptionOverride] || ""
@@ -982,6 +996,7 @@ async function arrImportAllSources(env, options={}) {
   const sources = await arrListAllRows(env,ARR_TABLE.SOURCES);
   const meetingTypes = await arrListAllRows(env,ARR_TABLE.MEETING_TYPES);
   const settlements = await arrListAllRows(env,ARR_TABLE.SETTLEMENTS);
+  const organizations = await arrLoadOrganizations(env);
   const eventRules = await arrLoadEventRules(env);
 
   const activeSources = sources.filter(r => {
@@ -1226,7 +1241,8 @@ async function arrImportAllSources(env, options={}) {
           item,
           source,
           eventRules,
-          typeRules
+          typeRules,
+          organizations
         );
         item = ruleResult.item;
 
@@ -1288,7 +1304,7 @@ async function arrImportAllSources(env, options={}) {
             resolvedSettlementIds: settlementIds,
             resolvedSettlements: resolvedRules,
             classifiedMeetingTypeIds: typeIds,
-            organizations: arrRuleSelectValues(item.organizations || [])
+            organizationIds: arrOrganizationIds(item.organizationIds)
           });
         }
 
@@ -1303,7 +1319,6 @@ async function arrImportAllSources(env, options={}) {
           [ARR_F.events.startTime]: arrIsoOrNull(item.startTime),
           [ARR_F.events.endTime]: arrIsoOrNull(item.endTime),
           [ARR_F.events.meetingType]: typeIds,
-          [ARR_F.events.organizations]: arrRuleSelectValues(item.organizations || []),
           [ARR_F.events.organizer]: arrResolveHaaFellesraadOrganizer(
             item.title,
             item.organizer || source[ARR_F.sources.name]
@@ -1316,6 +1331,7 @@ async function arrImportAllSources(env, options={}) {
           [ARR_F.events.lastSeen]: now,
           [ARR_F.events.active]: true,
           [ARR_F.events.settlement]: settlementIds.slice(0,1),
+          [ARR_F.events.organizationIds]: arrOrganizationIds(item.organizationIds).join("; "),
         };
 
         let existing = existingBySourceEventId.get(sourceEventId);
