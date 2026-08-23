@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v449-organization-alias-description-2026-08-23";
+const ARRANGEMENT_ENGINE_VERSION = "v450-organization-alias-title-and-fallback-2026-08-24";
 
 const ARR_AREAS = {
   default: {
@@ -643,9 +643,16 @@ function arrOrganizationIds(value) {
 }
 
 function arrOrganizationIdsMatch(actualValue, expectedValue) {
+  const rawExpected = arrClean(expectedValue || "").toUpperCase();
+  const actualIds = arrOrganizationIds(actualValue);
+
+  if (rawExpected === "NONE" || rawExpected === "EMPTY") {
+    return actualIds.length === 0;
+  }
+
   const expected = arrOrganizationIds(expectedValue);
   if (!expected.length) return true;
-  const actual = new Set(arrOrganizationIds(actualValue));
+  const actual = new Set(actualIds);
   return expected.some(id => actual.has(id));
 }
 
@@ -839,7 +846,7 @@ function arrDescriptionMatchesOrganizationAlias(description, alias) {
   return arrNormalize(text).includes(arrNormalize(wanted));
 }
 
-function arrOrganizationIdsFromDescriptionAliases(description, organizations) {
+function arrOrganizationIdsFromAliases(title, description, organizations) {
   const ids = [];
 
   for (const organization of organizations || []) {
@@ -850,6 +857,7 @@ function arrOrganizationIdsFromDescriptionAliases(description, organizations) {
     if (!aliases.length) continue;
 
     if (aliases.some(alias =>
+      arrDescriptionMatchesOrganizationAlias(title, alias) ||
       arrDescriptionMatchesOrganizationAlias(description, alias)
     )) {
       ids.push(organizationId);
@@ -868,6 +876,21 @@ function arrFindMeetingTypeRuleStrict(rules, name) {
 function arrApplyEventRules(item, source, eventRules, typeRules, organizations) {
   const working = {...item};
   working.organizationIds = arrOrganizationIds(working.organizationIds).join("; ");
+
+  const aliasOrganizationIds = arrOrganizationIdsFromAliases(
+    working.title,
+    working.description,
+    organizations
+  );
+  if (aliasOrganizationIds.length) {
+    working.organizationIds = arrApplyOrganizationIds(
+      working.organizationIds,
+      aliasOrganizationIds.join("; "),
+      "",
+      false
+    ).join("; ");
+  }
+
   const appliedRuleIds = [];
   let replaceMeetingTypes = false;
   let addMeetingTypeNames = [];
@@ -1015,6 +1038,21 @@ function arrApplyOrganizationRulesOnly(item, source, eventRules, organizations) 
   working.organizationIds = arrOrganizationIds(working.organizationIds).join("; ");
   const appliedRuleIds = [];
 
+  const aliasOrganizationIds = arrOrganizationIdsFromAliases(
+    working.title,
+    working.description,
+    organizations
+  );
+
+  if (aliasOrganizationIds.length) {
+    working.organizationIds = arrApplyOrganizationIds(
+      working.organizationIds,
+      aliasOrganizationIds.join("; "),
+      "",
+      false
+    ).join("; ");
+  }
+
   for (const rule of eventRules) {
     if (!arrRuleAppliesToEvent(rule, working, source)) continue;
 
@@ -1044,20 +1082,6 @@ function arrApplyOrganizationRulesOnly(item, source, eventRules, organizations) 
     appliedRuleIds.push(ruleId);
 
     if (rule[ARR_EVENT_RULES_F.stopProcessing] === true) break;
-  }
-
-  const aliasOrganizationIds = arrOrganizationIdsFromDescriptionAliases(
-    working.description,
-    organizations
-  );
-
-  if (aliasOrganizationIds.length) {
-    working.organizationIds = arrApplyOrganizationIds(
-      working.organizationIds,
-      aliasOrganizationIds.join("; "),
-      "",
-      false
-    ).join("; ");
   }
 
   return {
