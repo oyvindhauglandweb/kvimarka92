@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v445-organization-ids-events-2026-08-23";
+const ARRANGEMENT_ENGINE_VERSION = "v446-organization-ids-backfill-2026-08-23";
 
 const ARR_AREAS = {
   default: {
@@ -958,6 +958,124 @@ function arrApplyRuleMeetingTypes(baseIds, ruleResult, typeRules) {
   return ids;
 }
 
+
+function arrApplyOrganizationRulesOnly(item, source, eventRules, organizations) {
+  const working = {...item};
+  working.organizationIds = arrOrganizationIds(working.organizationIds).join("; ");
+  const appliedRuleIds = [];
+
+  for (const rule of eventRules) {
+    if (!arrRuleAppliesToEvent(rule, working, source)) continue;
+
+    const addOrganizationIds = rule[ARR_EVENT_RULES_F.addOrganizations] || "";
+    const removeOrganizationIds = rule[ARR_EVENT_RULES_F.removeOrganizations] || "";
+    const replaceOrganizations = rule[ARR_EVENT_RULES_F.replaceOrganizations] === true;
+
+    if (
+      !arrOrganizationIds(addOrganizationIds).length &&
+      !arrOrganizationIds(removeOrganizationIds).length &&
+      !replaceOrganizations
+    ) {
+      continue;
+    }
+
+    const ruleId = arrClean(rule[ARR_EVENT_RULES_F.ruleId] || `row-${rule.id}`);
+    arrValidateOrganizationIds(addOrganizationIds, organizations, `Event Rules ${ruleId}`);
+    arrValidateOrganizationIds(removeOrganizationIds, organizations, `Event Rules ${ruleId}`);
+
+    working.organizationIds = arrApplyOrganizationIds(
+      working.organizationIds,
+      addOrganizationIds,
+      removeOrganizationIds,
+      replaceOrganizations
+    ).join("; ");
+
+    appliedRuleIds.push(ruleId);
+
+    if (rule[ARR_EVENT_RULES_F.stopProcessing] === true) break;
+  }
+
+  return {
+    organizationIds: arrOrganizationIds(working.organizationIds).join("; "),
+    appliedRuleIds
+  };
+}
+
+async function arrBackfillEventOrganizationIds(env, eventRules, organizations) {
+  const [events, sources] = await Promise.all([
+    arrListAllRows(env, ARR_TABLE.EVENTS),
+    arrListAllRows(env, ARR_TABLE.SOURCES),
+  ]);
+
+  const sourcesByName = new Map();
+  const sourcesById = new Map();
+
+  for (const source of sources) {
+    const name = arrClean(source[ARR_F.sources.name] || "");
+    const id = arrClean(source[ARR_F.sources.sourceId] || "");
+    if (name) sourcesByName.set(arrNormalize(name), source);
+    if (id) sourcesById.set(arrNormalize(id), source);
+  }
+
+  const updates = [];
+  const matchedRuleIds = [];
+  let matchedEvents = 0;
+
+  for (const row of events) {
+    const sourceText = arrClean(row[ARR_F.events.source] || "");
+    const source =
+      sourcesByName.get(arrNormalize(sourceText)) ||
+      sourcesById.get(arrNormalize(sourceText)) ||
+      {
+        [ARR_F.sources.name]: sourceText,
+        [ARR_F.sources.sourceId]: "",
+        [ARR_F.sources.organizationIds]: ""
+      };
+
+    const item = {
+      title: row[ARR_F.events.title] || "",
+      startTime: row[ARR_F.events.startTime] || "",
+      organizer: row[ARR_F.events.organizer] || "",
+      description: row[ARR_F.events.description] || "",
+      location: row[ARR_F.events.location] || "",
+      organizationIds: row[ARR_F.events.organizationIds] || "",
+    };
+
+    const applied = arrApplyOrganizationRulesOnly(
+      item,
+      source,
+      eventRules,
+      organizations
+    );
+
+    if (applied.appliedRuleIds.length) {
+      matchedEvents++;
+      matchedRuleIds.push(...applied.appliedRuleIds);
+    }
+
+    const before = arrOrganizationIds(row[ARR_F.events.organizationIds] || "").join("; ");
+    const after = applied.organizationIds;
+
+    if (before !== after) {
+      updates.push({
+        id: row.id,
+        [ARR_F.events.organizationIds]: after
+      });
+    }
+  }
+
+  if (updates.length) {
+    await arrUpdateRowsBatch(env, ARR_TABLE.EVENTS, updates);
+  }
+
+  return {
+    scanned: events.length,
+    matchedEvents,
+    updated: updates.length,
+    matchedRuleIds: [...new Set(matchedRuleIds)]
+  };
+}
+
 function arrResolveRuleSettlementOverride(
   settlementName,
   settlementRules,
@@ -1111,6 +1229,12 @@ async function arrImportAllSources(env, options={}) {
       tableId:ARR_EVENT_RULES_TABLE,
       activeRules:eventRules.length,
       appliedMatches:0,
+      matchedRuleIds:[]
+    },
+    organizationIdsBackfill:{
+      scanned:0,
+      matchedEvents:0,
+      updated:0,
       matchedRuleIds:[]
     },
     diagnostics: (areaKey === "sandnes" || areaKey === "stavanger") ? {
@@ -1497,6 +1621,24 @@ async function arrImportAllSources(env, options={}) {
   }
 
   result.ruleEngine.matchedRuleIds = [...new Set(result.ruleEngine.matchedRuleIds)];
+
+  try {
+    result.organizationIdsBackfill = await arrBackfillEventOrganizationIds(
+      env,
+      eventRules,
+      organizations
+    );
+  } catch (organizationBackfillError) {
+    result.errors++;
+    result.organizationIdsBackfill = {
+      scanned:0,
+      matchedEvents:0,
+      updated:0,
+      matchedRuleIds:[],
+      error:String(organizationBackfillError?.message || organizationBackfillError)
+    };
+  }
+
   result.finishedAt = new Date().toISOString();
   result.ok = result.errors === 0;
   return result;
