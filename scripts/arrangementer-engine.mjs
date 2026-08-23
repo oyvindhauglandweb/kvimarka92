@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v450-organization-alias-title-and-fallback-2026-08-24";
+const ARRANGEMENT_ENGINE_VERSION = "v451-narbo-simple-calendar-grid-2026-08-24";
 
 const ARR_AREAS = {
   default: {
@@ -5249,6 +5249,115 @@ function arrLooksLikeHaaTitle(line) {
   return true;
 }
 
+
+function arrParseNarboSimpleCalendarHtml(html, sourceUrl) {
+  const out = [];
+  const raw = String(html || "");
+
+  const blockRe =
+    /<li\b([^>]*\bclass=["'][^"']*\bsimcal-event\b[^"']*["'][^>]*)>([\s\S]*?)<\/li>/gi;
+  let m;
+
+  while ((m = blockRe.exec(raw)) !== null) {
+    const attrs = m[1];
+    const body = m[2];
+
+    let startSec = Number(arrBetelAttr(attrs,"data-start") || 0);
+    let endSec = Number(arrBetelAttr(attrs,"data-end") || 0);
+    const eventId =
+      arrBetelAttr(attrs,"data-event-id") ||
+      arrBetelAttr(attrs,"data-id") ||
+      "";
+
+    if (!startSec) {
+      const sm = body.match(/\bdata-event-start=["'](\d{9,13})["']/i);
+      if (sm) startSec = Number(sm[1]);
+    }
+    if (!endSec) {
+      const em = body.match(/\bdata-event-end=["'](\d{9,13})["']/i);
+      if (em) endSec = Number(em[1]);
+    }
+
+    if (startSec > 9999999999) startSec = Math.floor(startSec / 1000);
+    if (endSec > 9999999999) endSec = Math.floor(endSec / 1000);
+
+    const titleMatch =
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-title\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i) ||
+      body.match(/itemprop=["']name["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    const title = titleMatch ? arrBetelStrip(titleMatch[1]) : "";
+    if (!title || !startSec) continue;
+
+    const descMatch =
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-description\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    const hrefMatch =
+      body.match(/<a\b[^>]*href=["']([^"']+)["'][^>]*>\s*(?:Se flere detaljer|More details)/i);
+
+    out.push({
+      sourceEventId:
+        eventId ||
+        `narbo-simcal-${startSec}-${arrNormalize(title).slice(0,60)}`,
+      title,
+      startTime:new Date(startSec*1000).toISOString(),
+      endTime:endSec ? new Date(endSec*1000).toISOString() : null,
+      location:"Nærbø bedehus",
+      description:descMatch ? arrBetelStrip(descMatch[1]) : "",
+      sourceUrl:hrefMatch
+        ? new URL(arrDecodeEntities(hrefMatch[1]),sourceUrl).href
+        : sourceUrl,
+      settlementHint:"Nærbø",
+      municipalityHint:"Hå"
+    });
+  }
+
+  return arrDedupeParsed(out);
+}
+
+async function arrFetchNarboMainCalendar() {
+  // V451: Den aktive Nærbø-siden /39-2/ inneholder to Simple Calendar-visninger.
+  // Listevisningen (calendar 48) viser bare et kort tidsrom, mens grid-kalenderen
+  // (calendar 109 per 2026-08-24) har langt større datodekning. Vi oppdager
+  // grid-ID fra HTML og henter månedene direkte via Simple Calendar AJAX.
+  const pageUrl = "https://narbobedehus.no/39-2/";
+  const ajaxUrl = "https://narbobedehus.no/wp-admin/admin-ajax.php";
+
+  const html = await arrFetchText(pageUrl);
+  const out = [...arrParseNarboSimpleCalendarHtml(html,pageUrl)];
+
+  const gridTagMatch = String(html).match(
+    /<div\b[^>]*class=["'][^"']*\bsimcal-default-calendar-grid\b[^"']*["'][^>]*>/i
+  );
+  const gridTag = gridTagMatch ? gridTagMatch[0] : "";
+  const calendarId = Number(arrBetelAttr(gridTag,"data-calendar-id") || 0);
+
+  if (!calendarId) {
+    throw new Error("Nærbø hovedkalender: fant ikke Simple Calendar grid-ID.");
+  }
+
+  const now = new Date();
+  let cursor = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+
+  // 15 måneder dekker hele det eksisterende importvinduet med god margin.
+  for (let i=0; i<15; i++) {
+    const month = cursor.getUTCMonth() + 1;
+    const year = cursor.getUTCFullYear();
+
+    const pageHtml = await arrFetchSimpleCalendarGridPage({
+      baseUrl:ajaxUrl,
+      referer:pageUrl,
+      calendarId,
+      month,
+      year
+    });
+
+    out.push(...arrParseNarboSimpleCalendarHtml(pageHtml,pageUrl));
+    cursor = new Date(Date.UTC(year, month, 1));
+  }
+
+  return arrDedupeParsed(out);
+}
+
 function arrParseNarboHtml(html, sourceUrl, meetingTypeHint="") {
   const lines = arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
   const out = [];
@@ -5303,7 +5412,6 @@ function arrParseNarboHtml(html, sourceUrl, meetingTypeHint="") {
 
 async function arrFetchAndParseNarbo(url) {
   const sources = [
-    {url:"https://narbobedehus.no/calendar/moter/", meetingTypeHint:""},
     {url:"https://narbobedehus.no/glad-sang/", meetingTypeHint:"Sang / musikk"},
     {url:"https://narbobedehus.no/emmaus/", meetingTypeHint:"Sang / musikk"},
     {url:"https://narbobedehus.no/kvisten-barnelag/", meetingTypeHint:"Barn"},
@@ -5312,6 +5420,27 @@ async function arrFetchAndParseNarbo(url) {
 
   const out = [];
   const stats = [];
+
+  // V451: hovedkalenderen hentes fra den faktiske aktive Møter-siden og
+  // Simple Calendar GRID-AJAX. Dette erstatter den ustabile /calendar/moter/-URL-en.
+  try {
+    const parsed = await arrFetchNarboMainCalendar();
+    out.push(...parsed);
+    stats.push({
+      url:"https://narbobedehus.no/39-2/",
+      method:"simple-calendar-grid",
+      count:parsed.length,
+      first:parsed[0]?.startTime || null,
+      last:parsed.at(-1)?.startTime || null
+    });
+  } catch (err) {
+    stats.push({
+      url:"https://narbobedehus.no/39-2/",
+      method:"simple-calendar-grid",
+      count:0,
+      error:arrClean(err?.message || String(err))
+    });
+  }
 
   for (const source of sources) {
     try {
