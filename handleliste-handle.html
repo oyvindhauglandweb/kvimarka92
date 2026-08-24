@@ -2515,7 +2515,45 @@ if(activeStoreLock){
 setShoppingCachePreviewActive(false);renderShoppingAreaButtons();render();if(!silent && !pendingNewItemTimer && !newItemsStatusActive){
   showPlacementStatus();
 }
-updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");return true;}catch(error){updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+(error.message||String(error))},"Feil i loadItems");if(!silent){if(isApiAccessBootstrapError(error)){setStatus(apiAccessBootstrapMessage(shoppingCachePreviewActive),"error");}else if(shoppingCachePreviewActive){setStatus(`Kunne ikke oppdatere – viser sist lagrede handleliste.<br><br>${esc(error.message)}`,"error");}else{setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(error.message)}`,"error");}}return false;}}
+updateActivateStandardNotificationButtonState();autoCheckStoreOnMobile();startShoppingItemsPolling();updateNewItemDebug({loadItems:"ok"},"loadItems ferdig");return true;}catch(error){
+  const errorMessage=String(error&&error.message||error||"Ukjent feil");
+  const httpStatus=Number(error&&error.httpStatus||0);
+  const requestUrl=String(error&&error.requestUrl||`${API_BASE}/shopping/items`);
+  const requestMethod=String(error&&error.requestMethod||"GET");
+  const responseText=String(error&&error.responseText||"");
+  const accessBootstrapError=isApiAccessBootstrapError(error);
+  updateNewItemDebug({loadItems:"feil",lastError:"shopping/items: "+errorMessage},"Feil i loadItems");
+  void logHandlelisteError({
+    name:"Kunne ikke hente handlelisten",
+    errorType:httpStatus?"API/HTTP":"Fetch/network",
+    error,
+    errorMessage,
+    stackTrace:error&&error.stack,
+    fingerprint:`handleliste-handle-loadItems|${httpStatus||"network"}|${errorMessage}`,
+    context:{
+      stage:"loadItems -> shopping/items",
+      requestUrl,
+      requestMethod,
+      httpStatus:httpStatus||null,
+      responseText:responseText.slice(0,2000),
+      attempt:Number(error&&error.attempt||0)||null,
+      maxAttempts:Number(error&&error.maxAttempts||0)||null,
+      accessBootstrapError,
+      cachePreviewActive:!!shoppingCachePreviewActive,
+      selectedShoppingArea,
+      currentStoreChain,
+      currentShoppingPlace,
+      online:navigator.onLine,
+      visibilityState:document.visibilityState
+    }
+  });
+  if(!silent){
+    if(accessBootstrapError){setStatus(apiAccessBootstrapMessage(shoppingCachePreviewActive),"error",{skipErrorLog:true});}
+    else if(shoppingCachePreviewActive){setStatus(`Kunne ikke oppdatere – viser sist lagrede handleliste.<br><br>${esc(errorMessage)}`,"error",{skipErrorLog:true});}
+    else{setStatus(`Kunne ikke laste handlelisten.<br><br>${esc(errorMessage)}`,"error",{skipErrorLog:true});}
+  }
+  return false;
+}}
 
 function buildShoppingListText(){
   const ordered=getOrderedItems();
@@ -4092,7 +4130,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ if(!sho
   },1000);
 })();
 </script>
-<div>V0046</div><script src="handleliste-item-dialog.js?v=6"></script>
+<div>V0047</div><script src="handleliste-item-dialog.js?v=6"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase: API_BASE,
