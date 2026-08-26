@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v458-central-organizers-text-colors-2026-08-26";
+const ARRANGEMENT_ENGINE_VERSION = "v459-deferred-source-alarm-streak-2026-08-26";
 
 const ARR_AREAS = {
   default: {

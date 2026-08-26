@@ -758,6 +758,62 @@ const areaResults = [
   { key: "stavanger", result: stavangerResult }
 ];
 
+
+// V459: Les tidligere historikk før vi bygger alarmsammendraget.
+// Dette brukes kun til å telle sammenhengende, mindre kritiske kildefeil.
+let previousHistory = [];
+try {
+  const rawHistory = await fs.readFile(historyPath, "utf8");
+  const parsedHistory = JSON.parse(rawHistory);
+  previousHistory = Array.isArray(parsedHistory?.imports)
+    ? parsedHistory.imports
+    : Array.isArray(parsedHistory)
+      ? parsedHistory
+      : [];
+} catch (_) {
+  previousHistory = [];
+}
+
+const DEFERRED_SOURCE_ALARM_THRESHOLD = 12;
+
+function sourceFailureKey(row) {
+  return `${arrNormalize(row?.area || "")}|${arrNormalize(row?.sourceId || "")}|${arrNormalize(row?.name || "")}`;
+}
+
+function isDeferredSourceAlarm(error) {
+  const text = arrClean(error || "");
+  // V459: "VENTER – ..." betyr kjent/forventet manglende parser/feed.
+  // Disse er ikke kritiske ved enkeltstående eller sporadiske forekomster.
+  return /^VENTER\s*[–-]/i.test(text);
+}
+
+function previousSourceResultFor(historyRow, currentRow) {
+  const targetKey = sourceFailureKey(currentRow);
+  const rows = Array.isArray(historyRow?.sourceResults) ? historyRow.sourceResults : [];
+  return rows.find(row => sourceFailureKey(row) === targetKey) || null;
+}
+
+function consecutiveDeferredFailureCount(currentRow) {
+  if (!currentRow?.error || !isDeferredSourceAlarm(currentRow.error)) return 0;
+
+  let count = 1; // current import
+  for (const historyRow of previousHistory) {
+    const previous = previousSourceResultFor(historyRow, currentRow);
+
+    // Manglende kilde i en historikkrad bryter rekken.
+    if (!previous) break;
+
+    // En vellykket lesing nullstiller telleren.
+    if (!previous.error) break;
+
+    // Vi teller bare den samme typen utsatt alarm.
+    if (!isDeferredSourceAlarm(previous.error)) break;
+
+    count += 1;
+  }
+  return count;
+}
+
 const sourceResults = areaResults.flatMap(({key, result}) =>
   (Array.isArray(result.sources) ? result.sources : []).map(row => ({
     ...row,
@@ -773,8 +829,39 @@ const dedupe = {
   note: "Vigrestad-duplikater fjernes kun fra arrangementer-data.json."
 };
 
+const rawFailedSources = sourceResults
+  .filter(row => row.error)
+  .map(row => ({
+    area: row.area,
+    sourceId: row.sourceId,
+    name: row.name,
+    error: row.error
+  }));
+
+const sourceAlarmStatus = rawFailedSources.map(row => {
+  const deferred = isDeferredSourceAlarm(row.error);
+  const consecutiveFailures = deferred ? consecutiveDeferredFailureCount(row) : 1;
+  return {
+    ...row,
+    deferred,
+    consecutiveFailures,
+    threshold: deferred ? DEFERRED_SOURCE_ALARM_THRESHOLD : 1,
+    alarm: !deferred || consecutiveFailures >= DEFERRED_SOURCE_ALARM_THRESHOLD
+  };
+});
+
+const failedSources = sourceAlarmStatus.filter(row => row.alarm);
+const suppressedSourceFailures = sourceAlarmStatus.filter(row => !row.alarm);
+
+const areaAlarmCounts = new Map();
+for (const row of failedSources) {
+  areaAlarmCounts.set(row.area, (areaAlarmCounts.get(row.area) || 0) + 1);
+}
+
 const summary = {
-  ok: areaResults.every(({result}) => result.ok),
+  // "ok" betyr fra V459 at ingen kildefeil har nådd alarmnivå.
+  // Råfeil beholdes separat i rawFailedSources/sourceResults for diagnostikk.
+  ok: failedSources.length === 0,
   startedAt: areaResults
     .map(({result}) => result.startedAt)
     .filter(Boolean)
@@ -786,27 +873,56 @@ const summary = {
     .at(-1) || null,
   created: areaResults.reduce((sum, {result}) => sum + Number(result.created || 0), 0),
   updated: areaResults.reduce((sum, {result}) => sum + Number(result.updated || 0), 0),
-  errors: areaResults.reduce((sum, {result}) => sum + Number(result.errors || 0), 0),
+
+  // "errors" er alarmverdige feil. rawErrors viser alle rå kildefeil.
+  errors: failedSources.length,
+  rawErrors: rawFailedSources.length,
+
   sourceCount: sourceResults.length,
   successfulSources: sourceResults.filter(row => !row.error).length,
-  failedSources: sourceResults
-    .filter(row => row.error)
-    .map(row => ({
-      area: row.area,
-      sourceId: row.sourceId,
-      name: row.name,
-      error: row.error
-    })),
-  sourceResults: sourceResults.map(row => ({
+
+  // Kun feil som faktisk skal gi alarm nå.
+  failedSources: failedSources.map(row => ({
     area: row.area,
     sourceId: row.sourceId,
     name: row.name,
-    created: Number(row.created || 0),
-    updated: Number(row.updated || 0),
-    skipped: Number(row.skipped || 0),
-    error: row.error || null,
-    createdEvents: Array.isArray(row.createdEvents) ? row.createdEvents : []
+    error: row.error,
+    consecutiveFailures: row.consecutiveFailures,
+    threshold: row.threshold
   })),
+
+  // Sporadiske/kjente "VENTER"-feil beholdes synlig som diagnostikk,
+  // men gir ikke alarm før 12 sammenhengende forekomster.
+  suppressedSourceFailures: suppressedSourceFailures.map(row => ({
+    area: row.area,
+    sourceId: row.sourceId,
+    name: row.name,
+    error: row.error,
+    consecutiveFailures: row.consecutiveFailures,
+    threshold: row.threshold
+  })),
+
+  rawFailedSources,
+
+  sourceResults: sourceResults.map(row => {
+    const alarmState = sourceAlarmStatus.find(state =>
+      sourceFailureKey(state) === sourceFailureKey(row)
+    );
+    return {
+      area: row.area,
+      sourceId: row.sourceId,
+      name: row.name,
+      created: Number(row.created || 0),
+      updated: Number(row.updated || 0),
+      skipped: Number(row.skipped || 0),
+      error: row.error || null,
+      consecutiveFailures: alarmState?.consecutiveFailures || 0,
+      alarm: Boolean(alarmState?.alarm),
+      deferredAlarm: Boolean(alarmState?.deferred),
+      createdEvents: Array.isArray(row.createdEvents) ? row.createdEvents : []
+    };
+  }),
+
   areas: areaResults.map(({key, result}) => ({
     key,
     name: ARR_AREAS[key].name,
@@ -814,7 +930,10 @@ const summary = {
     sourcesTable: ARR_AREAS[key].tables.SOURCES,
     created: result.created,
     updated: result.updated,
-    errors: result.errors,
+    // Alarmverdige feil i området.
+    errors: areaAlarmCounts.get(key) || 0,
+    // Alle råfeil beholdes for diagnose.
+    rawErrors: Number(result.errors || 0),
     sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
     diagnostics: result.diagnostics || undefined
   })),
@@ -830,19 +949,6 @@ await fs.writeFile(outputPath, JSON.stringify(snapshot, null, 2) + "\n", "utf8")
 
 // V422: Behold en kompakt historikk over de siste 50 importene.
 // Historikken ligger i GitHub sammen med snapshotet og bruker ingen Baserow-rader.
-let previousHistory = [];
-try {
-  const rawHistory = await fs.readFile(historyPath, "utf8");
-  const parsedHistory = JSON.parse(rawHistory);
-  previousHistory = Array.isArray(parsedHistory?.imports)
-    ? parsedHistory.imports
-    : Array.isArray(parsedHistory)
-      ? parsedHistory
-      : [];
-} catch (_) {
-  previousHistory = [];
-}
-
 const historyEntry = {
   generatedAt: snapshot.generatedAt,
   engineVersion: ARRANGEMENT_ENGINE_VERSION,
@@ -853,9 +959,12 @@ const historyEntry = {
   created: summary.created,
   updated: summary.updated,
   errors: summary.errors,
+  rawErrors: summary.rawErrors,
   sourceCount: summary.sourceCount,
   successfulSources: summary.successfulSources,
   failedSources: summary.failedSources,
+  suppressedSourceFailures: summary.suppressedSourceFailures,
+  rawFailedSources: summary.rawFailedSources,
   areas: summary.areas.map(area => ({
     key: area.key,
     name: area.name,
@@ -864,6 +973,7 @@ const historyEntry = {
     created: Number(area.created || 0),
     updated: Number(area.updated || 0),
     errors: Number(area.errors || 0),
+    rawErrors: Number(area.rawErrors || 0),
     sourceCount: Number(area.sourceCount || 0)
   })),
   sourceResults: summary.sourceResults,
@@ -886,5 +996,10 @@ console.log(JSON.stringify(summary, null, 2));
 console.log(`Skrev ${snapshot.eventCount} arrangementer fra ${snapshot.areas.length} områder til ${outputPath}.`);
 
 if (summary.failedSources.length) {
-  console.warn(`${summary.failedSources.length} kilde(r) feilet, eksisterende data er beholdt.`);
+  console.warn(`${summary.failedSources.length} kilde(r) har nådd alarmnivå, eksisterende data er beholdt.`);
+} else if (summary.suppressedSourceFailures.length) {
+  console.log(
+    `${summary.suppressedSourceFailures.length} kjent/sporadisk kildefeil under alarmgrensen ` +
+    `(${DEFERRED_SOURCE_ALARM_THRESHOLD} på rad); ingen alarm.`
+  );
 }
