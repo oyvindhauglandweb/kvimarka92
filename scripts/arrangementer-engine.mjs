@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v455-undheim-and-meeting-fallback-rules-2026-08-26";
+const ARRANGEMENT_ENGINE_VERSION = "v458-central-organizers-text-colors-2026-08-26";
 
 const ARR_AREAS = {
   default: {
@@ -5834,6 +5834,7 @@ export {
   arrApiBase,
   arrHeaders,
   arrListAllRows,
+  arrCreateRowsBatch,
   arrUpdateRowsBatch,
   arrLoadOrganizations,
   arrImportAllSources,

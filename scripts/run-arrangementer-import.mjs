@@ -38,6 +38,16 @@ if (!env.ARRANGEMENT_BASEROW_TOKEN_STAVANGER) {
 }
 
 const outputPath = process.env.ARRANGEMENT_DATA_PATH || "arrangementer-data.json";
+
+// V458: Én felles Organizers-tabell for alle workspaces/områder.
+const ORGANIZERS_TABLE = 1158581;
+const ORGANIZER_F = {
+  organizerId:"field_10401282",
+  name:"field_10401283",
+  textColor:"field_10401691",
+  active:"field_10401284"
+};
+
 const historyPath = process.env.ARRANGEMENT_HISTORY_PATH || "arrangementer-import-history.json";
 
 
@@ -547,6 +557,112 @@ async function readAreaSnapshotEvents(areaKey, organizationNameById) {
   return events;
 }
 
+
+function organizerSelectText(value) {
+  if (value == null) return "";
+  if (typeof value === "string") return arrClean(value);
+  if (typeof value === "object") return arrClean(value.value ?? value.name ?? "");
+  return arrClean(String(value));
+}
+
+function nextOrganizerId(existingIds, offset=1) {
+  let max = 0;
+  for (const id of existingIds) {
+    const m = /^ORGZ-(\d+)$/i.exec(arrClean(id));
+    if (m) max = Math.max(max, Number(m[1]) || 0);
+  }
+  return `ORGZ-${String(max + offset).padStart(4,"0")}`;
+}
+
+async function collectAllOrganizerNames() {
+  const namesByNorm = new Map();
+
+  for (const areaKey of ["default","sandnes","stavanger"]) {
+    arrUseArea(areaKey);
+    const cfg = ARR_AREAS[areaKey];
+    const areaEnv = envForArea(areaKey);
+    const [events, sources] = await Promise.all([
+      arrListAllRows(areaEnv, cfg.tables.EVENTS),
+      arrListAllRows(areaEnv, cfg.tables.SOURCES)
+    ]);
+
+    const sourceNameByRowId = new Map(
+      sources.map(row => [Number(row.id), arrClean(row[cfg.fields.sources.name] || "")])
+    );
+
+    for (const row of events) {
+      if (row[cfg.fields.events.active] === false) continue;
+
+      const linked = Array.isArray(row[cfg.fields.events.source])
+        ? row[cfg.fields.events.source]
+        : row[cfg.fields.events.source]
+          ? [row[cfg.fields.events.source]]
+          : [];
+      const sourceRowId = Number(linked[0]?.id ?? linked[0]);
+      const sourceName = sourceNameByRowId.get(sourceRowId) || "";
+
+      const organizer = arrResolveHaaFellesraadOrganizer(
+        row[cfg.fields.events.title] || "",
+        row[cfg.fields.events.organizer] || sourceName || ""
+      );
+
+      const clean = arrClean(organizer);
+      const norm = arrNormalize(clean);
+      if (clean && norm && !namesByNorm.has(norm)) namesByNorm.set(norm, clean);
+    }
+  }
+
+  return [...namesByNorm.values()].sort((a,b) => a.localeCompare(b, "nb"));
+}
+
+async function syncCentralOrganizers() {
+  const centralEnv = envForArea("default");
+  const [existing, allNames] = await Promise.all([
+    arrListAllRows(centralEnv, ORGANIZERS_TABLE),
+    collectAllOrganizerNames()
+  ]);
+
+  const existingByNorm = new Map();
+  const existingIds = [];
+
+  for (const row of existing) {
+    const name = arrClean(row[ORGANIZER_F.name] || "");
+    const norm = arrNormalize(name);
+    if (norm && !existingByNorm.has(norm)) existingByNorm.set(norm, row);
+    existingIds.push(arrClean(row[ORGANIZER_F.organizerId] || ""));
+  }
+
+  const missing = allNames.filter(name => !existingByNorm.has(arrNormalize(name)));
+  const creates = missing.map((name, index) => ({
+    [ORGANIZER_F.organizerId]: nextOrganizerId(existingIds, index + 1),
+    [ORGANIZER_F.name]: name,
+    [ORGANIZER_F.active]: true
+    // Text Color intentionally left blank = automatic frontend color.
+  }));
+
+  if (creates.length) {
+    await arrCreateRowsBatch(centralEnv, ORGANIZERS_TABLE, creates, 100);
+  }
+
+  const rows = creates.length
+    ? await arrListAllRows(centralEnv, ORGANIZERS_TABLE)
+    : existing;
+
+  return {
+    created: creates.length,
+    total: rows.length,
+    rows: rows
+      .filter(row => row[ORGANIZER_F.active] !== false)
+      .map(row => ({
+        id: arrClean(row[ORGANIZER_F.organizerId] || ""),
+        name: arrClean(row[ORGANIZER_F.name] || ""),
+        textColor: organizerSelectText(row[ORGANIZER_F.textColor])
+      }))
+      .filter(row => row.name)
+      .sort((a,b) => a.name.localeCompare(b.name, "nb"))
+  };
+}
+
 async function buildSnapshot(importSummary) {
   const areaKeys = ["default", "sandnes", "stavanger"];
   const allEvents = [];
@@ -571,8 +687,10 @@ async function buildSnapshot(importSummary) {
     vigrestadSnapshotDedupe.events
   );
 
+  const organizerSync = await syncCentralOrganizers();
+
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     engineVersion: ARRANGEMENT_ENGINE_VERSION,
     generatedAt: new Date().toISOString(),
     areas: areaKeys.map(key => ({
@@ -592,6 +710,8 @@ async function buildSnapshot(importSummary) {
         baserowRowsChanged: 0
       }
     },
+    organizers: organizerSync.rows,
+    organizerSync: { created: organizerSync.created, total: organizerSync.total },
     events: exactSnapshotDedupe.events
   };
 }
