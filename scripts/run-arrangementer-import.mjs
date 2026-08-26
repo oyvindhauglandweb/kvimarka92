@@ -1,22 +1,10 @@
-import fs from "node:fs/promises";
 import {
-  ARR_AREAS,
-  arrUseArea,
   arrListAllRows,
-  arrClean,
-  arrNormalize
+  arrUpdateRowsBatch
 } from "./arrangementer-engine.mjs";
 
-const env = {
-  ARRANGEMENT_BASEROW_TOKEN: process.env.ARRANGEMENT_BASEROW_TOKEN || "",
-  ARRANGEMENT_BASEROW_TOKEN_DEFAULT: process.env.ARRANGEMENT_BASEROW_TOKEN || "",
-  ARRANGEMENT_BASEROW_TOKEN_SANDNES: process.env.ARRANGEMENT_BASEROW_TOKEN_SANDNES || "",
-  ARRANGEMENT_BASEROW_TOKEN_STAVANGER: process.env.ARRANGEMENT_BASEROW_TOKEN_STAVANGER || "",
-  BASEROW_API_BASE: process.env.BASEROW_API_BASE || "https://api.baserow.io"
-};
-
-const RULES_TABLE = 1150075;
-const RF = {
+const TABLE = 1150075;
+const F = {
   ruleId:"field_10306627",
   active:"field_10306628",
   priority:"field_10306629",
@@ -33,116 +21,89 @@ const RF = {
   notes:"field_10306655"
 };
 
-function selectText(v) {
+const env = {
+  ARRANGEMENT_BASEROW_TOKEN: process.env.ARRANGEMENT_BASEROW_TOKEN || "",
+  ARRANGEMENT_BASEROW_TOKEN_DEFAULT: process.env.ARRANGEMENT_BASEROW_TOKEN || "",
+  BASEROW_API_BASE: process.env.BASEROW_API_BASE || "https://api.baserow.io"
+};
+
+function selectValue(v){
   if (v == null) return "";
-  if (typeof v === "string") return v;
   if (typeof v === "object") return String(v.value ?? v.name ?? "");
   return String(v);
 }
 
-function match(actual, expected, type) {
-  const wanted = arrNormalize(expected || "");
-  if (!wanted) return true;
-  const text = arrNormalize(actual || "");
-  const t = arrNormalize(selectText(type) || "Exact");
-  if (t === "contains") return text.includes(wanted);
-  if (t === "starts with") return text.startsWith(wanted);
-  return text === wanted;
-}
-
-const centralEnv = {...env, ARRANGEMENT_BASEROW_TOKEN: env.ARRANGEMENT_BASEROW_TOKEN_DEFAULT};
-const rules = await arrListAllRows(centralEnv, RULES_TABLE);
-
-const wantedRuleIds = new Set(Array.from({length:10}, (_,i)=>`RULE-${String(79+i).padStart(4,"0")}`));
-const targetRules = rules.filter(r => wantedRuleIds.has(arrClean(r[RF.ruleId])));
-
-arrUseArea("default");
-const cfg = ARR_AREAS.default;
-const events = await arrListAllRows(env, cfg.tables.EVENTS);
-const sources = await arrListAllRows(env, cfg.tables.SOURCES);
-
-const sourceByRowId = new Map(sources.map(s => [Number(s.id), s]));
-const targetTitles = [
-  "UKUF",
-  "Åpen Kjellar",
-  "Bønnehus",
-  "Øving greensax",
-  "Krøllekveld for 3-åringar",
-  "Laust og Fast",
-  "Babysong"
-];
-
-function sourceNameForEvent(row) {
-  const raw = row[cfg.fields.events.source];
-  const vals = Array.isArray(raw) ? raw : raw ? [raw] : [];
-  const id = Number(vals[0]?.id ?? vals[0]);
-  const s = sourceByRowId.get(id);
-  return s ? arrClean(s[cfg.fields.sources.name]) : "";
-}
-
-const samples = events
-  .filter(e => targetTitles.some(t => arrNormalize(e[cfg.fields.events.title] || "").includes(arrNormalize(t))))
-  .slice(0,80)
-  .map(e => {
-    const title = arrClean(e[cfg.fields.events.title] || "");
-    const sourceName = sourceNameForEvent(e);
-    const evaluations = targetRules.map(r => ({
-      ruleId: arrClean(r[RF.ruleId]),
-      raw: {
-        active:r[RF.active],
-        ruleType:r[RF.ruleType],
-        sourceName:r[RF.sourceName],
-        sourceNameType:r[RF.sourceNameType],
-        title:r[RF.title],
-        titleType:r[RF.titleType],
-        addTypes:r[RF.addTypes],
-        removeTypes:r[RF.removeTypes],
-        replaceTypes:r[RF.replaceTypes],
-        sourceUrl:r[RF.sourceUrl],
-        stop:r[RF.stop]
-      },
-      sourcePass: match(sourceName, r[RF.sourceName], r[RF.sourceNameType]),
-      titlePass: match(title, r[RF.title], r[RF.titleType]),
-      wouldMatch:
-        r[RF.active] !== false &&
-        match(sourceName, r[RF.sourceName], r[RF.sourceNameType]) &&
-        match(title, r[RF.title], r[RF.titleType])
-    })).filter(x => x.wouldMatch || x.ruleId.startsWith("RULE-00"));
-    return {
-      rowId:e.id,
-      eventId:e[cfg.fields.events.eventId],
-      title,
-      sourceName,
-      currentMeetingTypes:e[cfg.fields.events.meetingTypes],
-      evaluations
-    };
-  });
-
-const report = {
-  diagnosticVersion:"V456-read-only-undheim-rule-diagnostic",
-  generatedAt:new Date().toISOString(),
-  rulesFound:targetRules.length,
-  rules:targetRules.map(r => ({
-    rowId:r.id,
-    ruleId:arrClean(r[RF.ruleId]),
-    active:r[RF.active],
-    priority:r[RF.priority],
-    ruleType:r[RF.ruleType],
-    sourceName:r[RF.sourceName],
-    sourceNameType:r[RF.sourceNameType],
-    title:r[RF.title],
-    titleType:r[RF.titleType],
-    addTypes:r[RF.addTypes],
-    removeTypes:r[RF.removeTypes],
-    replaceTypes:r[RF.replaceTypes],
-    sourceUrl:r[RF.sourceUrl],
-    stop:r[RF.stop]
-  })),
-  sampleCount:samples.length,
-  samples
+const specs = {
+  "RULE-0079": {priority:45,source:"Den norske kirke – Time",title:"UKUF",add:"Ungdom",remove:"",url:"https://www.facebook.com/UKUF2020/"},
+  "RULE-0080": {priority:45,source:"Den norske kirke – Time",title:"Åpen Kjellar",add:"Barn",remove:"",url:""},
+  "RULE-0081": {priority:45,source:"Den norske kirke – Time",title:"Bønnehus",add:"Bønn",remove:"Sosialt",url:""},
+  "RULE-0082": {priority:45,source:"Den norske kirke – Time",title:"Øving greensax",add:"Sang / musikk",remove:"",url:""},
+  "RULE-0083": {priority:45,source:"Den norske kirke – Time",title:"Krøllekveld for 3-åringar",add:"Barn",remove:"",url:""},
+  "RULE-0084": {priority:45,source:"Den norske kirke – Time",title:"Laust og Fast",add:"Senior",remove:"",url:""},
+  "RULE-0085": {priority:90,source:"",title:"Babysong",add:"Barn",remove:"",url:""},
+  "RULE-0086": {priority:200,source:"",title:"møte",add:"Møte",remove:"",url:""},
+  "RULE-0087": {priority:90,source:"",title:"Strikkekafe",add:"Sosialt",remove:"",url:""},
+  "RULE-0088": {priority:90,source:"",title:"Strikkekafé",add:"Sosialt",remove:"",url:""}
 };
 
-console.log("=== V456 UNDHEIM RULE DIAGNOSTIC – READ ONLY ===");
-console.log(JSON.stringify(report,null,2));
-await fs.writeFile("arrangementer-undheim-rule-diagnostic.json", JSON.stringify(report,null,2)+"\n","utf8");
-console.log("Diagnostic written to arrangementer-undheim-rule-diagnostic.json");
+const rows = await arrListAllRows(env,TABLE);
+
+// Discover existing valid Single-select option IDs from already-working rules.
+function findSelectOption(fieldId, wanted){
+  for(const r of rows){
+    const v=r[fieldId];
+    if(v && typeof v==="object" && selectValue(v)===wanted && Number.isInteger(Number(v.id))){
+      return Number(v.id);
+    }
+  }
+  throw new Error(`Fant ikke Single select-option '${wanted}' i felt ${fieldId}.`);
+}
+
+const classificationId=findSelectOption(F.ruleType,"Classification");
+const exactId=findSelectOption(F.sourceNameType,"Exact");
+const containsId=findSelectOption(F.titleType,"Contains");
+
+const updates=[];
+for(const row of rows){
+  const rid=String(row[F.ruleId]||"").trim();
+  const s=specs[rid];
+  if(!s) continue;
+  updates.push({
+    id:Number(row.id),
+    [F.active]:true,
+    [F.priority]:String(s.priority),
+    [F.ruleType]:classificationId,
+    [F.sourceName]:s.source,
+    [F.sourceNameType]:s.source ? exactId : null,
+    [F.title]:s.title,
+    [F.titleType]:containsId,
+    [F.addTypes]:s.add,
+    [F.removeTypes]:s.remove,
+    [F.replaceTypes]:false,
+    [F.sourceUrl]:s.url,
+    [F.stop]:false
+  });
+}
+
+if(updates.length!==10){
+  throw new Error(`Forventet 10 regler, fant ${updates.length}.`);
+}
+
+await arrUpdateRowsBatch(env,TABLE,updates,20);
+
+const verify=await arrListAllRows(env,TABLE);
+const result=verify
+  .filter(r=>specs[String(r[F.ruleId]||"").trim()])
+  .map(r=>({
+    ruleId:r[F.ruleId],
+    sourceName:r[F.sourceName],
+    sourceNameType:selectValue(r[F.sourceNameType]),
+    title:r[F.title],
+    titleType:selectValue(r[F.titleType]),
+    addTypes:r[F.addTypes],
+    removeTypes:r[F.removeTypes],
+    sourceUrl:r[F.sourceUrl]
+  }));
+
+console.log("=== V457 EVENT RULE REPAIR COMPLETE ===");
+console.log(JSON.stringify(result,null,2));
