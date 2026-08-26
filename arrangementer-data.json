@@ -1,7 +1,7 @@
 {
   "schemaVersion": 5,
-  "engineVersion": "v454-undheim-explicit-settlement-before-source-default-2026-08-26",
-  "generatedAt": "2026-08-26T10:14:32.875Z",
+  "engineVersion": "v455-undheim-and-meeting-fallback-rules-2026-08-26",
+  "generatedAt": "2026-08-26T10:52:14.765Z",
   "areas": [
     {
       "key": "default",
@@ -19,13 +19,13 @@
       "eventsTable": 1146207
     }
   ],
-  "eventCount": 5039,
+  "eventCount": 5068,
   "importSummary": {
     "ok": false,
-    "startedAt": "2026-08-26T10:09:42.453Z",
-    "finishedAt": "2026-08-26T10:13:56.482Z",
-    "created": 4,
-    "updated": 4217,
+    "startedAt": "2026-08-26T10:47:26.760Z",
+    "finishedAt": "2026-08-26T10:51:33.112Z",
+    "created": 29,
+    "updated": 4275,
     "errors": 1,
     "sourceCount": 29,
     "successfulSources": 28,
@@ -34,7 +34,7 @@
         "area": "default",
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)"
+        "error": "Kildevern: Lye Forsamlingshus ga bare 19 arrangementer mot 78 aktive fra før. Eksisterende data beholdes."
       }
     ],
     "sourceResults": [
@@ -43,7 +43,7 @@
         "sourceId": "SRC-0001",
         "name": "Nærbø Bedehus",
         "created": 0,
-        "updated": 255,
+        "updated": 309,
         "skipped": 0,
         "error": null,
         "createdEvents": []
@@ -52,58 +52,370 @@
         "area": "default",
         "sourceId": "SRC-0002",
         "name": "Pinsemenigheten Betel",
-        "created": 3,
-        "updated": 334,
+        "created": 0,
+        "updated": 337,
         "skipped": 0,
         "error": null,
-        "createdEvents": [
-          {
-            "rowId": 75873,
-            "eventId": "EVT-E3AD27152E8A",
-            "title": "Eldstemøte",
-            "startTime": "2026-09-08T17:00:00Z",
-            "endTime": "",
-            "organizer": "Pinsemenigheten Betel",
-            "location": "Pinsemenigheten Betel",
-            "source": "Pinsemenigheten Betel",
-            "sourceEventId": "SRC-0002:266709f8370cf567413fd674",
-            "active": true
-          },
-          {
-            "rowId": 75874,
-            "eventId": "EVT-2AD8ABB55385",
-            "title": "Eldstemøte",
-            "startTime": "2026-10-20T17:00:00Z",
-            "endTime": "",
-            "organizer": "Pinsemenigheten Betel",
-            "location": "Pinsemenigheten Betel",
-            "source": "Pinsemenigheten Betel",
-            "sourceEventId": "SRC-0002:69e776aa6081919aca7190ca",
-            "active": true
-          },
-          {
-            "rowId": 75875,
-            "eventId": "EVT-5D54DB8047EF",
-            "title": "Eldstemøte",
-            "startTime": "2026-11-24T18:00:00Z",
-            "endTime": "",
-            "organizer": "Pinsemenigheten Betel",
-            "location": "Pinsemenigheten Betel",
-            "source": "Pinsemenigheten Betel",
-            "sourceEventId": "SRC-0002:ec4b4c34f5d713f3e25e6c3e",
-            "active": true
-          }
-        ]
+        "createdEvents": []
       },
       {
         "area": "default",
         "sourceId": "SRC-0003",
         "name": "Den norske kirke – Hå",
-        "created": 0,
+        "created": 29,
         "updated": 323,
         "skipped": 0,
         "error": null,
-        "createdEvents": []
+        "createdEvents": [
+          {
+            "rowId": 75877,
+            "eventId": "EVT-E3C39A7CC17A",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-08-27T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-8bb0eacb120f",
+            "active": true
+          },
+          {
+            "rowId": 75878,
+            "eventId": "EVT-D4C22C844F37",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-09-10T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-0d6761c24aed",
+            "active": true
+          },
+          {
+            "rowId": 75879,
+            "eventId": "EVT-443D35013A84",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-09-17T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-26424dcb372d",
+            "active": true
+          },
+          {
+            "rowId": 75880,
+            "eventId": "EVT-E0A9E06FF820",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-09-24T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-8a3f83092827",
+            "active": true
+          },
+          {
+            "rowId": 75881,
+            "eventId": "EVT-DE834B756024",
+            "title": "Taizébøn",
+            "startTime": "2026-10-01T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-4d2403d3-22cc-4df9-a275-55a380e8e0f5-6f5b2a9e7fc8",
+            "active": true
+          },
+          {
+            "rowId": 75882,
+            "eventId": "EVT-5E4A5BC6F4F3",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-10-15T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-3c297ff11360",
+            "active": true
+          },
+          {
+            "rowId": 75883,
+            "eventId": "EVT-33C68A3980F1",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-10-22T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-34a9a63c27b6",
+            "active": true
+          },
+          {
+            "rowId": 75884,
+            "eventId": "EVT-FD8FAC683901",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-10-29T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-add88fcda2ba",
+            "active": true
+          },
+          {
+            "rowId": 75885,
+            "eventId": "EVT-CB0B4878507D",
+            "title": "Taizébøn",
+            "startTime": "2026-11-05T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-17f916c2-5ab5-45ec-8f5e-f2ce0388c800-9bdce6ca7115",
+            "active": true
+          },
+          {
+            "rowId": 75886,
+            "eventId": "EVT-7CB6C5056BED",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-11-12T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-6a21e4f1bdf7",
+            "active": true
+          },
+          {
+            "rowId": 75887,
+            "eventId": "EVT-B9C4CD487CF8",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-11-19T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-e7ed37a15a09",
+            "active": true
+          },
+          {
+            "rowId": 75888,
+            "eventId": "EVT-FE62BD3CC445",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-11-26T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-64b766627c6e",
+            "active": true
+          },
+          {
+            "rowId": 75889,
+            "eventId": "EVT-E0506C12F2A6",
+            "title": "Taizébøn",
+            "startTime": "2026-12-03T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-7b848483-b6eb-468c-b22f-365fe33cfc69-e3f8b8660003",
+            "active": true
+          },
+          {
+            "rowId": 75890,
+            "eventId": "EVT-FE52936CBD1B",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-12-10T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-9151677c3cfb",
+            "active": true
+          },
+          {
+            "rowId": 75891,
+            "eventId": "EVT-881C42DD93E4",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2026-12-17T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-ca829230bceb",
+            "active": true
+          },
+          {
+            "rowId": 75892,
+            "eventId": "EVT-88B44A368C05",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-01-07T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-33205b3dc7c0",
+            "active": true
+          },
+          {
+            "rowId": 75893,
+            "eventId": "EVT-3D6CA2287E14",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-01-14T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-0c80701db59c",
+            "active": true
+          },
+          {
+            "rowId": 75894,
+            "eventId": "EVT-2A24FEBDD2F3",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-01-21T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-077f3dd4653f",
+            "active": true
+          },
+          {
+            "rowId": 75895,
+            "eventId": "EVT-D6F3B1851AF5",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-01-28T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-3ec97ef68e2b",
+            "active": true
+          },
+          {
+            "rowId": 75896,
+            "eventId": "EVT-B430DDF6470D",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-02-04T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-6ddcbed15beb",
+            "active": true
+          },
+          {
+            "rowId": 75897,
+            "eventId": "EVT-D6E4F7C2FBCE",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-02-11T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-253c641cab5a",
+            "active": true
+          },
+          {
+            "rowId": 75898,
+            "eventId": "EVT-B4C248EF491E",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-02-25T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-f6fd1bbe0ee6",
+            "active": true
+          },
+          {
+            "rowId": 75899,
+            "eventId": "EVT-A18A3F3533CC",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-03-04T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-23d43b11a956",
+            "active": true
+          },
+          {
+            "rowId": 75900,
+            "eventId": "EVT-F3719E2F3632",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-03-11T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-77333fc7979c",
+            "active": true
+          },
+          {
+            "rowId": 75901,
+            "eventId": "EVT-7ABDAC833618",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-03-18T08:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-bf5f19d1a639",
+            "active": true
+          },
+          {
+            "rowId": 75902,
+            "eventId": "EVT-A45A2D245B72",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-04-01T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-b1516a64c2fd",
+            "active": true
+          },
+          {
+            "rowId": 75903,
+            "eventId": "EVT-61C899F56EB1",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-04-08T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-01e518737c90",
+            "active": true
+          },
+          {
+            "rowId": 75904,
+            "eventId": "EVT-858F8C1F5833",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-04-15T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-6ea5c53801a8",
+            "active": true
+          },
+          {
+            "rowId": 75905,
+            "eventId": "EVT-D14B09E10AB9",
+            "title": "Morgenbønn Nærbø kirke",
+            "startTime": "2027-04-22T07:00:00Z",
+            "endTime": "",
+            "organizer": "Nærbø sokn",
+            "location": "Nærbø kyrkje",
+            "source": "Den norske kirke – Hå",
+            "sourceEventId": "haa-de586a40-b64a-4caf-892b-8bb9bc4cb710-3f1b5b8cd960",
+            "active": true
+          }
+        ]
       },
       {
         "area": "default",
@@ -169,24 +481,11 @@
         "area": "default",
         "sourceId": "SRC-0012",
         "name": "Den norske kirke – Time",
-        "created": 1,
-        "updated": 206,
+        "created": 0,
+        "updated": 207,
         "skipped": 0,
         "error": null,
-        "createdEvents": [
-          {
-            "rowId": 75876,
-            "eventId": "EVT-B89054A14750",
-            "title": "Samling for Konfirmantforeldre",
-            "startTime": "2026-09-30T18:00:00Z",
-            "endTime": "2026-09-30T19:00:00Z",
-            "organizer": "Undheim sokn",
-            "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
-            "source": "Den norske kirke – Time",
-            "sourceEventId": "kirken-73bd833a-c531-47fc-969d-c87db1630d24",
-            "active": true
-          }
-        ]
+        "createdEvents": []
       },
       {
         "area": "default",
@@ -325,7 +624,7 @@
         "created": 0,
         "updated": 0,
         "skipped": 0,
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
+        "error": "Kildevern: Lye Forsamlingshus ga bare 19 arrangementer mot 78 aktive fra før. Eksisterende data beholdes.",
         "createdEvents": []
       },
       {
@@ -385,8 +684,8 @@
         "name": "Felles",
         "eventsTable": 1137493,
         "sourcesTable": 1137506,
-        "created": 4,
-        "updated": 2606,
+        "created": 29,
+        "updated": 2664,
         "errors": 1,
         "sourceCount": 25
       },
@@ -1404,7 +1703,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1427,7 +1726,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1450,7 +1749,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1473,7 +1772,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1496,7 +1795,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1519,7 +1818,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1542,7 +1841,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1565,7 +1864,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1588,7 +1887,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1611,7 +1910,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1634,7 +1933,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3418,7 +3717,7 @@
       "startTime": "2026-08-26T17:00:00Z",
       "endTime": "2026-08-26T19:30:00Z",
       "meetingTypes": [
-        "Annet"
+        "Møte"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -3550,6 +3849,29 @@
       "description": "Er et tilbud til barn mellom 0-6 år i følge med en voksen Gir tilbud om lek, samling og aktiviteter tilpasset barnets alder Knøttene åpen barnehage er en pedagogisk virksomhet med tilstedeværende foreldre Krever ingen påmelding. Det blir servert gratis lunsj tirsdager og torsdager.",
       "sourceUrl": "https://skjerikirken.no/arrangement/knottene-apen-barnehage-3701c2d96aaf",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-E3C39A7CC17A",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-08-27T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=5c5ba81d-4503-41bb-9f02-c114f5aae846",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -3992,8 +4314,7 @@
       "startTime": "2026-08-27T17:00:00Z",
       "endTime": "2026-08-27T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -4081,8 +4402,7 @@
       "startTime": "2026-08-27T17:30:00Z",
       "endTime": "2026-08-27T19:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -4287,8 +4607,7 @@
       "startTime": "2026-08-28T09:00:00Z",
       "endTime": "2026-08-28T11:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -4610,8 +4929,7 @@
       "meetingTypes": [
         "Misjon",
         "Sosialt",
-        "Basar",
-        "Møte"
+        "Basar"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -4865,7 +5183,7 @@
       "startTime": "2026-08-29T16:00:00Z",
       "endTime": "2026-08-29T21:30:00Z",
       "meetingTypes": [
-        "Annet"
+        "Ungdom"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -4877,7 +5195,7 @@
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
       "settlement": "Undheim",
       "municipality": "Time",
-      "description": "",
+      "description": "https://www.facebook.com/UKUF2020/",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-6cf9347139c0",
       "source": "Den norske kirke – Time",
       "active": true
@@ -5138,8 +5456,7 @@
       "startTime": "2026-08-30T09:00:00Z",
       "endTime": "2026-08-30T10:00:00Z",
       "meetingTypes": [
-        "Familie",
-        "Møte"
+        "Familie"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -5164,8 +5481,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -5472,8 +5788,7 @@
       "startTime": "2026-08-30T09:00:00Z",
       "endTime": "2026-08-30T10:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -6034,8 +6349,7 @@
       "startTime": "2026-08-30T17:30:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -6647,8 +6961,7 @@
       "startTime": "2026-08-31T17:00:00Z",
       "endTime": "2026-08-31T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -6763,8 +7076,7 @@
       "startTime": "2026-08-31T17:30:00Z",
       "endTime": "2026-08-31T18:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -6783,8 +7095,7 @@
       "startTime": "2026-08-31T18:00:00Z",
       "endTime": "2026-08-31T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -6945,8 +7256,7 @@
       "startTime": "2026-09-01T08:00:00Z",
       "endTime": "2026-09-01T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -7675,8 +7985,7 @@
       "startTime": "2026-09-01T17:30:00Z",
       "endTime": "2026-09-01T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -8403,8 +8712,7 @@
       "meetingTypes": [
         "Misjon",
         "Sosialt",
-        "Basar",
-        "Møte"
+        "Basar"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -9214,8 +9522,7 @@
       "meetingTypes": [
         "Misjon",
         "Sosialt",
-        "Basar",
-        "Møte"
+        "Basar"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -9261,8 +9568,7 @@
       "startTime": "2026-09-03T17:30:00Z",
       "endTime": "2026-09-03T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -9426,8 +9732,7 @@
       "startTime": "2026-09-04T09:00:00Z",
       "endTime": "2026-09-04T11:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -9613,7 +9918,7 @@
       "startTime": "2026-09-04T17:00:00Z",
       "endTime": "2026-09-04T19:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -9697,8 +10002,7 @@
       "startTime": "2026-09-04T17:00:00Z",
       "endTime": "2026-09-04T18:30:00Z",
       "meetingTypes": [
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0006"
@@ -9746,8 +10050,7 @@
       "meetingTypes": [
         "Misjon",
         "Sosialt",
-        "Basar",
-        "Møte"
+        "Basar"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -9910,8 +10213,7 @@
       "startTime": "2026-09-05T15:00:00Z",
       "endTime": "2026-09-05T16:30:00Z",
       "meetingTypes": [
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0006"
@@ -9936,8 +10238,7 @@
       "meetingTypes": [
         "Misjon",
         "Sosialt",
-        "Basar",
-        "Møte"
+        "Basar"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -10131,8 +10432,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -10975,8 +11275,7 @@
       "startTime": "2026-09-06T17:00:00Z",
       "endTime": "2026-09-06T18:30:00Z",
       "meetingTypes": [
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0006"
@@ -11094,8 +11393,7 @@
       "startTime": "2026-09-06T17:30:00Z",
       "endTime": "2026-09-06T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -11275,7 +11573,7 @@
       "startTime": "2026-09-07T08:00:00Z",
       "endTime": "2026-09-07T09:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -11664,8 +11962,7 @@
       "startTime": "2026-09-07T15:30:00Z",
       "endTime": "2026-09-07T16:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -11707,8 +12004,7 @@
       "startTime": "2026-09-07T17:00:00Z",
       "endTime": "2026-09-07T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -11731,7 +12027,7 @@
       "startTime": "2026-09-07T17:00:00Z",
       "endTime": "2026-09-07T18:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -11823,8 +12119,7 @@
       "startTime": "2026-09-07T18:00:00Z",
       "endTime": "2026-09-07T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -12008,8 +12303,7 @@
       "startTime": "2026-09-08T08:00:00Z",
       "endTime": "2026-09-08T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -12281,7 +12575,7 @@
       "startTime": "2026-09-08T15:00:00Z",
       "endTime": "2026-09-08T16:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -12440,7 +12734,7 @@
       "startTime": "2026-09-08T17:00:00Z",
       "endTime": "2026-09-08T19:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sang / musikk"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -12584,8 +12878,7 @@
       "startTime": "2026-09-08T17:30:00Z",
       "endTime": "2026-09-08T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -12884,7 +13177,7 @@
       "startTime": "2026-09-09T08:30:00Z",
       "endTime": "2026-09-09T10:00:00Z",
       "meetingTypes": [
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -13115,7 +13408,7 @@
       "startTime": "2026-09-09T15:00:00Z",
       "endTime": "2026-09-09T16:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -13302,8 +13595,7 @@
       "startTime": "2026-09-09T17:00:00Z",
       "endTime": "2026-09-09T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0009"
@@ -13415,6 +13707,29 @@
       "active": true
     },
     {
+      "id": "EVT-D4C22C844F37",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-09-10T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=e48332ee-ba49-4aa9-b9ad-b03cc58d1d09",
+      "source": "Den norske kirke – Hå",
+      "active": true
+    },
+    {
       "id": "EVT-2F2B55FD573C",
       "title": "Tripp Trapp Åpen barnehage",
       "startTime": "2026-09-10T07:00:00Z",
@@ -13512,7 +13827,7 @@
       "startTime": "2026-09-10T08:30:00Z",
       "endTime": "2026-09-10T10:00:00Z",
       "meetingTypes": [
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -13873,7 +14188,7 @@
       "startTime": "2026-09-10T14:00:00Z",
       "endTime": "2026-09-10T16:30:00Z",
       "meetingTypes": [
-        "Annet"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -14145,8 +14460,7 @@
       "startTime": "2026-09-11T09:00:00Z",
       "endTime": "2026-09-11T11:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -14332,8 +14646,7 @@
       "meetingTypes": [
         "Misjon",
         "Sosialt",
-        "Basar",
-        "Møte"
+        "Basar"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -14584,8 +14897,7 @@
       "meetingTypes": [
         "Misjon",
         "Sosialt",
-        "Basar",
-        "Møte"
+        "Basar"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -14738,7 +15050,7 @@
       "startTime": "2026-09-12T16:00:00Z",
       "endTime": "2026-09-12T21:30:00Z",
       "meetingTypes": [
-        "Annet"
+        "Ungdom"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -14750,7 +15062,7 @@
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
       "settlement": "Undheim",
       "municipality": "Time",
-      "description": "",
+      "description": "https://www.facebook.com/UKUF2020/",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-db6bc010ba28",
       "source": "Den norske kirke – Time",
       "active": true
@@ -14967,8 +15279,7 @@
       "startTime": "2026-09-13T09:00:00Z",
       "endTime": "2026-09-13T10:00:00Z",
       "meetingTypes": [
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -14993,8 +15304,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -15252,8 +15562,7 @@
       "startTime": "2026-09-13T09:00:00Z",
       "endTime": "2026-09-13T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -15694,8 +16003,7 @@
       "startTime": "2026-09-13T17:00:00Z",
       "endTime": "2026-09-13T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -15767,8 +16075,7 @@
       "startTime": "2026-09-13T17:30:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -16445,8 +16752,7 @@
       "startTime": "2026-09-14T17:00:00Z",
       "endTime": "2026-09-14T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -16580,8 +16886,7 @@
       "startTime": "2026-09-14T17:30:00Z",
       "endTime": "2026-09-14T18:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -16600,8 +16905,7 @@
       "startTime": "2026-09-14T18:00:00Z",
       "endTime": "2026-09-14T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -16762,8 +17066,7 @@
       "startTime": "2026-09-15T08:00:00Z",
       "endTime": "2026-09-15T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -18218,8 +18521,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -18372,6 +18674,29 @@
       "description": "Er et tilbud til barn mellom 0-6 år i følge med en voksen Gir tilbud om lek, samling og aktiviteter tilpasset barnets alder Knøttene åpen barnehage er en pedagogisk virksomhet med tilstedeværende foreldre Krever ingen påmelding. Det blir servert gratis lunsj tirsdager og torsdager.",
       "sourceUrl": "https://skjerikirken.no/arrangement/knottene-apen-barnehage-d1777ca92290",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-443D35013A84",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-09-17T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=28b27d80-07ba-4169-9d76-74efdafb2c5b",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -18978,8 +19303,7 @@
       "startTime": "2026-09-17T17:00:00Z",
       "endTime": "2026-09-17T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -19022,8 +19346,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -19046,8 +19369,7 @@
       "startTime": "2026-09-17T17:30:00Z",
       "endTime": "2026-09-17T19:00:00Z",
       "meetingTypes": [
-        "Menn",
-        "Møte"
+        "Menn"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -19093,8 +19415,7 @@
       "startTime": "2026-09-17T17:30:00Z",
       "endTime": "2026-09-17T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -19233,8 +19554,7 @@
       "startTime": "2026-09-18T09:00:00Z",
       "endTime": "2026-09-18T11:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -19374,7 +19694,7 @@
       "startTime": "2026-09-18T17:00:00Z",
       "endTime": "2026-09-18T19:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -19501,8 +19821,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -19525,8 +19844,7 @@
       "startTime": "2026-09-18T17:30:00Z",
       "endTime": "2026-09-18T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -19754,8 +20072,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -19778,8 +20095,7 @@
       "startTime": "2026-09-19T17:30:00Z",
       "endTime": "2026-09-19T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -19949,8 +20265,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -20647,8 +20962,7 @@
       "startTime": "2026-09-20T17:00:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -20714,8 +21028,7 @@
       "startTime": "2026-09-20T17:00:00Z",
       "endTime": "2026-09-20T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -20787,8 +21100,7 @@
       "startTime": "2026-09-20T17:30:00Z",
       "endTime": "2026-09-20T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -20968,7 +21280,7 @@
       "startTime": "2026-09-21T08:00:00Z",
       "endTime": "2026-09-21T09:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -21403,8 +21715,7 @@
       "startTime": "2026-09-21T17:00:00Z",
       "endTime": "2026-09-21T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -21427,7 +21738,7 @@
       "startTime": "2026-09-21T17:00:00Z",
       "endTime": "2026-09-21T18:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -21584,8 +21895,7 @@
       "startTime": "2026-09-21T18:00:00Z",
       "endTime": "2026-09-21T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -21769,8 +22079,7 @@
       "startTime": "2026-09-22T08:00:00Z",
       "endTime": "2026-09-22T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -22299,8 +22608,7 @@
       "startTime": "2026-09-22T17:30:00Z",
       "endTime": "2026-09-22T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -22507,7 +22815,7 @@
       "startTime": "2026-09-23T08:30:00Z",
       "endTime": "2026-09-23T10:00:00Z",
       "meetingTypes": [
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -22903,8 +23211,7 @@
       "endTime": "2026-09-23T19:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -23016,6 +23323,29 @@
       "active": true
     },
     {
+      "id": "EVT-E0A9E06FF820",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-09-24T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=f6b7074d-50ea-4bdd-8e61-887a235432dd",
+      "source": "Den norske kirke – Hå",
+      "active": true
+    },
+    {
       "id": "EVT-78C75E70D0B6",
       "title": "Tripp Trapp Åpen barnehage",
       "startTime": "2026-09-24T07:00:00Z",
@@ -23113,7 +23443,7 @@
       "startTime": "2026-09-24T08:30:00Z",
       "endTime": "2026-09-24T10:00:00Z",
       "meetingTypes": [
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -23589,7 +23919,7 @@
       "startTime": "2026-09-24T16:00:00Z",
       "endTime": "2026-09-24T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -23681,8 +24011,7 @@
       "startTime": "2026-09-24T17:00:00Z",
       "endTime": "2026-09-24T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0010"
@@ -23774,8 +24103,7 @@
       "startTime": "2026-09-24T17:30:00Z",
       "endTime": "2026-09-24T19:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -23942,8 +24270,7 @@
       "endTime": "2026-09-24T19:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -24102,8 +24429,7 @@
       "startTime": "2026-09-25T09:00:00Z",
       "endTime": "2026-09-25T11:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -24469,8 +24795,7 @@
       "endTime": "2026-09-25T19:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -24758,8 +25083,7 @@
       "endTime": "2026-09-26T19:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -24968,8 +25292,7 @@
       "startTime": "2026-09-27T09:00:00Z",
       "endTime": "2026-09-27T10:00:00Z",
       "meetingTypes": [
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -24994,8 +25317,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -25252,8 +25574,7 @@
       "startTime": "2026-09-27T09:00:00Z",
       "endTime": "2026-09-27T10:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -25651,8 +25972,7 @@
       "startTime": "2026-09-27T17:30:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -26356,8 +26676,7 @@
       "startTime": "2026-09-28T17:00:00Z",
       "endTime": "2026-09-28T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -26446,7 +26765,7 @@
       "startTime": "2026-09-28T17:00:00Z",
       "endTime": "2026-09-28T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sosialt"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -26511,8 +26830,7 @@
       "startTime": "2026-09-28T17:30:00Z",
       "endTime": "2026-09-28T18:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -26531,8 +26849,7 @@
       "startTime": "2026-09-28T18:00:00Z",
       "endTime": "2026-09-28T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -26693,8 +27010,7 @@
       "startTime": "2026-09-29T08:00:00Z",
       "endTime": "2026-09-29T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -27514,8 +27830,7 @@
       "startTime": "2026-09-29T17:30:00Z",
       "endTime": "2026-09-29T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -28265,8 +28580,7 @@
       "meetingTypes": [
         "Bønn",
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -28339,8 +28653,7 @@
       "endTime": "2026-09-30T19:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -28447,6 +28760,29 @@
       "description": "Er et tilbud til barn mellom 0-6 år i følge med en voksen Gir tilbud om lek, samling og aktiviteter tilpasset barnets alder Knøttene åpen barnehage er en pedagogisk virksomhet med tilstedeværende foreldre Krever ingen påmelding. Det blir servert gratis lunsj tirsdager og torsdager.",
       "sourceUrl": "https://skjerikirken.no/arrangement/knottene-apen-barnehage-96ba20c3fb30",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-DE834B756024",
+      "title": "Taizébøn",
+      "startTime": "2026-10-01T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=4d2403d3-22cc-4df9-a275-55a380e8e0f5&OccurenceId=4d2403d3-22cc-4df9-a275-55a380e8e0f5",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -29123,8 +29459,7 @@
       "endTime": "2026-10-01T19:30:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -29285,8 +29620,7 @@
       "startTime": "2026-10-02T09:00:00Z",
       "endTime": "2026-10-02T11:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -29535,8 +29869,7 @@
       "endTime": "2026-10-02T19:30:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -29606,8 +29939,7 @@
       "endTime": "2026-10-03T14:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -29773,8 +30105,7 @@
       "startTime": "2026-10-04T09:00:00Z",
       "endTime": "2026-10-04T10:30:00Z",
       "meetingTypes": [
-        "Gudstjeneste",
-        "Møte"
+        "Gudstjeneste"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -30378,8 +30709,7 @@
       "startTime": "2026-10-04T17:00:00Z",
       "endTime": "2026-10-04T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0009"
@@ -30520,8 +30850,7 @@
       "startTime": "2026-10-04T17:30:00Z",
       "endTime": "2026-10-04T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -30632,7 +30961,7 @@
       "startTime": "2026-10-05T08:00:00Z",
       "endTime": "2026-10-05T09:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -30813,8 +31142,7 @@
       "startTime": "2026-10-05T15:30:00Z",
       "endTime": "2026-10-05T16:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -30833,8 +31161,7 @@
       "startTime": "2026-10-05T17:00:00Z",
       "endTime": "2026-10-05T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -30857,7 +31184,7 @@
       "startTime": "2026-10-05T17:00:00Z",
       "endTime": "2026-10-05T18:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -31018,8 +31345,7 @@
       "startTime": "2026-10-06T08:00:00Z",
       "endTime": "2026-10-06T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -31266,7 +31592,7 @@
       "startTime": "2026-10-06T17:00:00Z",
       "endTime": "2026-10-06T19:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sang / musikk"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -31364,8 +31690,7 @@
       "startTime": "2026-10-06T17:30:00Z",
       "endTime": "2026-10-06T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -31777,8 +32102,7 @@
       "endTime": "2026-10-07T19:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0006"
@@ -32308,8 +32632,7 @@
       "endTime": "2026-10-08T19:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0006"
@@ -32420,8 +32743,7 @@
       "startTime": "2026-10-09T09:00:00Z",
       "endTime": "2026-10-09T11:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -32468,8 +32790,7 @@
       "endTime": "2026-10-09T19:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0006"
@@ -32581,8 +32902,7 @@
       "endTime": "2026-10-10T16:30:00Z",
       "meetingTypes": [
         "Misjon",
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0006"
@@ -32605,7 +32925,7 @@
       "startTime": "2026-10-10T16:00:00Z",
       "endTime": "2026-10-10T21:30:00Z",
       "meetingTypes": [
-        "Annet"
+        "Ungdom"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -32617,7 +32937,7 @@
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
       "settlement": "Undheim",
       "municipality": "Time",
-      "description": "",
+      "description": "https://www.facebook.com/UKUF2020/",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-2f25b2c757d5",
       "source": "Den norske kirke – Time",
       "active": true
@@ -32739,8 +33059,7 @@
       "startTime": "2026-10-11T09:00:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0007",
@@ -32790,8 +33109,7 @@
       "startTime": "2026-10-11T09:00:00Z",
       "endTime": "2026-10-11T10:00:00Z",
       "meetingTypes": [
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -32815,8 +33133,7 @@
       "endTime": "2026-10-11T10:30:00Z",
       "meetingTypes": [
         "Misjon",
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0006"
@@ -32841,8 +33158,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -33029,8 +33345,7 @@
       "startTime": "2026-10-11T09:00:00Z",
       "endTime": "2026-10-11T10:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -33472,8 +33787,7 @@
       "startTime": "2026-10-11T17:30:00Z",
       "endTime": "2026-10-11T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -34084,8 +34398,7 @@
       "startTime": "2026-10-12T17:00:00Z",
       "endTime": "2026-10-12T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -34197,8 +34510,7 @@
       "startTime": "2026-10-12T17:30:00Z",
       "endTime": "2026-10-12T18:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -34217,8 +34529,7 @@
       "startTime": "2026-10-12T18:00:00Z",
       "endTime": "2026-10-12T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -34379,8 +34690,7 @@
       "startTime": "2026-10-13T08:00:00Z",
       "endTime": "2026-10-13T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -35934,8 +36244,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0007"
@@ -36042,6 +36351,29 @@
       "description": "Er et tilbud til barn mellom 0-6 år i følge med en voksen Gir tilbud om lek, samling og aktiviteter tilpasset barnets alder Knøttene åpen barnehage er en pedagogisk virksomhet med tilstedeværende foreldre Krever ingen påmelding. Det blir servert gratis lunsj tirsdager og torsdager.",
       "sourceUrl": "https://skjerikirken.no/arrangement/knottene-apen-barnehage-468bfe22c50d",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-5E4A5BC6F4F3",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-10-15T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=5bee292e-218b-4325-8f2c-ba22f77f1ba8",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -36349,8 +36681,7 @@
       "startTime": "2026-10-15T15:00:00Z",
       "endTime": "2026-10-15T16:00:00Z",
       "meetingTypes": [
-        "Barn",
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -36553,8 +36884,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0007"
@@ -36689,8 +37019,7 @@
       "startTime": "2026-10-16T09:00:00Z",
       "endTime": "2026-10-16T11:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -36805,8 +37134,7 @@
       "startTime": "2026-10-16T15:00:00Z",
       "endTime": "2026-10-16T16:00:00Z",
       "meetingTypes": [
-        "Barn",
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -36982,8 +37310,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0007"
@@ -37263,8 +37590,7 @@
       "startTime": "2026-10-17T13:00:00Z",
       "endTime": "2026-10-17T14:00:00Z",
       "meetingTypes": [
-        "Barn",
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -37501,8 +37827,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -37550,8 +37875,7 @@
       "startTime": "2026-10-18T09:00:00Z",
       "endTime": "2026-10-18T11:00:00Z",
       "meetingTypes": [
-        "Familie",
-        "Møte"
+        "Familie"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -38208,8 +38532,7 @@
       "startTime": "2026-10-18T17:00:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -38300,8 +38623,7 @@
       "startTime": "2026-10-18T17:30:00Z",
       "endTime": "2026-10-18T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -38324,8 +38646,7 @@
       "startTime": "2026-10-18T17:30:00Z",
       "endTime": "2026-10-18T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -38463,7 +38784,7 @@
       "startTime": "2026-10-19T08:00:00Z",
       "endTime": "2026-10-19T09:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -38874,8 +39195,7 @@
       "startTime": "2026-10-19T17:00:00Z",
       "endTime": "2026-10-19T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -38898,7 +39218,7 @@
       "startTime": "2026-10-19T17:00:00Z",
       "endTime": "2026-10-19T18:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -39029,8 +39349,7 @@
       "startTime": "2026-10-19T18:00:00Z",
       "endTime": "2026-10-19T19:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -39191,8 +39510,7 @@
       "startTime": "2026-10-20T08:00:00Z",
       "endTime": "2026-10-20T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -39646,7 +39964,7 @@
       "startTime": "2026-10-20T17:00:00Z",
       "endTime": "2026-10-20T19:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sang / musikk"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -39790,8 +40108,7 @@
       "startTime": "2026-10-20T17:30:00Z",
       "endTime": "2026-10-20T18:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -40525,6 +40842,29 @@
       "active": true
     },
     {
+      "id": "EVT-33C68A3980F1",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-10-22T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=8de0fbfd-84e9-4a85-bd5b-d58f3f240374",
+      "source": "Den norske kirke – Hå",
+      "active": true
+    },
+    {
       "id": "EVT-EC9A8D8EE1CF",
       "title": "Tripp Trapp Åpen barnehage",
       "startTime": "2026-10-22T07:00:00Z",
@@ -40622,7 +40962,7 @@
       "startTime": "2026-10-22T08:30:00Z",
       "endTime": "2026-10-22T10:00:00Z",
       "meetingTypes": [
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -41033,8 +41373,7 @@
       "endTime": "2026-10-22T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0010"
@@ -41288,8 +41627,7 @@
       "startTime": "2026-10-22T17:30:00Z",
       "endTime": "2026-10-22T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -41430,8 +41768,7 @@
       "startTime": "2026-10-23T09:00:00Z",
       "endTime": "2026-10-23T11:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -41978,7 +42315,7 @@
       "startTime": "2026-10-24T16:00:00Z",
       "endTime": "2026-10-24T21:30:00Z",
       "meetingTypes": [
-        "Annet"
+        "Ungdom"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -41990,7 +42327,7 @@
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
       "settlement": "Undheim",
       "municipality": "Time",
-      "description": "",
+      "description": "https://www.facebook.com/UKUF2020/",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-a27d682d53b8",
       "source": "Den norske kirke – Time",
       "active": true
@@ -42252,8 +42589,7 @@
       "startTime": "2026-10-25T10:00:00Z",
       "endTime": "2026-10-25T11:00:00Z",
       "meetingTypes": [
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -42279,8 +42615,7 @@
         "Gudstjeneste",
         "Barn",
         "Sosialt",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -42533,8 +42868,7 @@
       "startTime": "2026-10-25T10:00:00Z",
       "endTime": "2026-10-25T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -43019,8 +43353,7 @@
       "startTime": "2026-10-25T18:00:00Z",
       "endTime": "2026-10-25T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -43092,8 +43425,7 @@
       "startTime": "2026-10-25T18:30:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -43677,8 +44009,7 @@
       "startTime": "2026-10-26T18:00:00Z",
       "endTime": "2026-10-26T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -43767,7 +44098,7 @@
       "startTime": "2026-10-26T18:00:00Z",
       "endTime": "2026-10-26T21:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sosialt"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -43786,8 +44117,7 @@
       "startTime": "2026-10-26T18:30:00Z",
       "endTime": "2026-10-26T19:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -43806,8 +44136,7 @@
       "startTime": "2026-10-26T19:00:00Z",
       "endTime": "2026-10-26T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -43991,8 +44320,7 @@
       "startTime": "2026-10-27T09:00:00Z",
       "endTime": "2026-10-27T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -44701,8 +45029,7 @@
       "startTime": "2026-10-27T18:30:00Z",
       "endTime": "2026-10-27T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -45459,8 +45786,7 @@
       "startTime": "2026-10-28T18:30:00Z",
       "endTime": "2026-10-28T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -45484,8 +45810,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -45592,6 +45917,29 @@
       "description": "Er et tilbud til barn mellom 0-6 år i følge med en voksen Gir tilbud om lek, samling og aktiviteter tilpasset barnets alder Knøttene åpen barnehage er en pedagogisk virksomhet med tilstedeværende foreldre Krever ingen påmelding. Det blir servert gratis lunsj tirsdager og torsdager.",
       "sourceUrl": "https://skjerikirken.no/arrangement/knottene-apen-barnehage-5801bde62135",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-FD8FAC683901",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-10-29T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=265ad565-31e2-4be7-ab30-7589d542045c",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -46216,8 +46564,7 @@
       "startTime": "2026-10-29T18:00:00Z",
       "endTime": "2026-10-29T19:30:00Z",
       "meetingTypes": [
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -46259,8 +46606,7 @@
       "startTime": "2026-10-29T18:30:00Z",
       "endTime": "2026-10-29T20:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -46283,8 +46629,7 @@
       "startTime": "2026-10-29T18:30:00Z",
       "endTime": "2026-10-29T20:00:00Z",
       "meetingTypes": [
-        "Menn",
-        "Møte"
+        "Menn"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -46307,8 +46652,7 @@
       "startTime": "2026-10-29T18:30:00Z",
       "endTime": "2026-10-29T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -46355,8 +46699,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -46379,8 +46722,7 @@
       "startTime": "2026-10-29T18:30:00Z",
       "endTime": "2026-10-29T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -46496,8 +46838,7 @@
       "startTime": "2026-10-30T10:00:00Z",
       "endTime": "2026-10-30T12:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -46707,7 +47048,7 @@
       "startTime": "2026-10-30T18:00:00Z",
       "endTime": "2026-10-30T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -46791,8 +47132,7 @@
       "startTime": "2026-10-30T18:00:00Z",
       "endTime": "2026-10-30T19:30:00Z",
       "meetingTypes": [
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -46811,8 +47151,7 @@
       "startTime": "2026-10-30T18:30:00Z",
       "endTime": "2026-10-30T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -46836,8 +47175,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -47135,8 +47473,7 @@
       "startTime": "2026-10-31T16:00:00Z",
       "endTime": "2026-10-31T17:30:00Z",
       "meetingTypes": [
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -47156,8 +47493,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -47281,8 +47617,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -47916,8 +48251,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -48056,8 +48390,7 @@
       "startTime": "2026-11-01T18:00:00Z",
       "endTime": "2026-11-01T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -48103,8 +48436,7 @@
       "startTime": "2026-11-01T18:00:00Z",
       "endTime": "2026-11-01T19:30:00Z",
       "meetingTypes": [
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -48218,8 +48550,7 @@
       "startTime": "2026-11-01T18:30:00Z",
       "endTime": "2026-11-01T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -48399,7 +48730,7 @@
       "startTime": "2026-11-02T09:00:00Z",
       "endTime": "2026-11-02T10:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -48695,8 +49026,7 @@
       "startTime": "2026-11-02T16:30:00Z",
       "endTime": "2026-11-02T17:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -48761,8 +49091,7 @@
       "startTime": "2026-11-02T18:00:00Z",
       "endTime": "2026-11-02T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -48785,7 +49114,7 @@
       "startTime": "2026-11-02T18:00:00Z",
       "endTime": "2026-11-02T19:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -48873,8 +49202,7 @@
       "startTime": "2026-11-02T19:00:00Z",
       "endTime": "2026-11-02T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -49077,8 +49405,7 @@
       "startTime": "2026-11-03T09:00:00Z",
       "endTime": "2026-11-03T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -49548,7 +49875,7 @@
       "startTime": "2026-11-03T18:00:00Z",
       "endTime": "2026-11-03T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sang / musikk"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -49852,7 +50179,7 @@
       "startTime": "2026-11-04T09:30:00Z",
       "endTime": "2026-11-04T11:00:00Z",
       "meetingTypes": [
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -50199,8 +50526,7 @@
       "endTime": null,
       "meetingTypes": [
         "Bibeltime / undervisning",
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -50430,6 +50756,29 @@
       "active": true
     },
     {
+      "id": "EVT-CB0B4878507D",
+      "title": "Taizébøn",
+      "startTime": "2026-11-05T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=17f916c2-5ab5-45ec-8f5e-f2ce0388c800&OccurenceId=17f916c2-5ab5-45ec-8f5e-f2ce0388c800",
+      "source": "Den norske kirke – Hå",
+      "active": true
+    },
+    {
       "id": "EVT-669A4CFA2E81",
       "title": "Tripp Trapp Åpen barnehage",
       "startTime": "2026-11-05T08:00:00Z",
@@ -50596,7 +50945,7 @@
       "startTime": "2026-11-05T09:30:00Z",
       "endTime": "2026-11-05T11:00:00Z",
       "meetingTypes": [
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -51171,8 +51520,7 @@
       "endTime": null,
       "meetingTypes": [
         "Bibeltime / undervisning",
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -51354,8 +51702,7 @@
       "endTime": "2026-11-08T22:00:00Z",
       "meetingTypes": [
         "Sosialt",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -51447,8 +51794,7 @@
       "startTime": "2026-11-06T10:00:00Z",
       "endTime": "2026-11-06T12:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -52052,7 +52398,7 @@
       "startTime": "2026-11-07T17:00:00Z",
       "endTime": "2026-11-07T22:30:00Z",
       "meetingTypes": [
-        "Annet"
+        "Ungdom"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -52064,7 +52410,7 @@
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
       "settlement": "Undheim",
       "municipality": "Time",
-      "description": "",
+      "description": "https://www.facebook.com/UKUF2020/",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-15f428a9c663",
       "source": "Den norske kirke – Time",
       "active": true
@@ -52329,8 +52675,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -52588,8 +52933,7 @@
       "startTime": "2026-11-08T10:00:00Z",
       "endTime": "2026-11-08T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -53033,8 +53377,7 @@
       "startTime": "2026-11-08T18:30:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -53572,8 +53915,7 @@
       "startTime": "2026-11-09T18:00:00Z",
       "endTime": "2026-11-09T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -53662,8 +54004,7 @@
       "startTime": "2026-11-09T18:30:00Z",
       "endTime": "2026-11-09T19:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -53682,8 +54023,7 @@
       "startTime": "2026-11-09T19:00:00Z",
       "endTime": "2026-11-09T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -53867,8 +54207,7 @@
       "startTime": "2026-11-10T09:00:00Z",
       "endTime": "2026-11-10T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -55172,8 +55511,7 @@
       "startTime": "2026-11-11T18:30:00Z",
       "endTime": "2026-11-11T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -55197,8 +55535,7 @@
       "endTime": "2026-11-11T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -55282,6 +55619,29 @@
       "description": "Er et tilbud til barn mellom 0-6 år i følge med en voksen Gir tilbud om lek, samling og aktiviteter tilpasset barnets alder Knøttene åpen barnehage er en pedagogisk virksomhet med tilstedeværende foreldre Krever ingen påmelding. Det blir servert gratis lunsj tirsdager og torsdager.",
       "sourceUrl": "https://skjerikirken.no/arrangement/knottene-apen-barnehage-b1a8f1abab83",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-7CB6C5056BED",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-11-12T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=40d5c5f7-6536-4f1e-acdb-082a008d6d3b",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -55636,8 +55996,7 @@
       "endTime": "2026-11-12T22:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Julemesse",
-        "Møte"
+        "Julemesse"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -55752,7 +56111,7 @@
       "startTime": "2026-11-12T17:00:00Z",
       "endTime": "2026-11-12T21:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -55915,8 +56274,7 @@
       "endTime": "2026-11-12T19:30:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -56030,8 +56388,7 @@
       "endTime": "2026-11-12T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -56217,8 +56574,7 @@
       "startTime": "2026-11-13T10:00:00Z",
       "endTime": "2026-11-13T12:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -56489,8 +56845,7 @@
       "endTime": "2026-11-13T19:30:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -56514,8 +56869,7 @@
       "endTime": "2026-11-13T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -56650,8 +57004,7 @@
       "endTime": "2026-11-14T19:30:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -56675,8 +57028,7 @@
       "endTime": "2026-11-14T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -56846,8 +57198,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -57451,8 +57802,7 @@
       "startTime": "2026-11-15T18:00:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -57495,8 +57845,7 @@
       "endTime": "2026-11-15T19:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -57545,8 +57894,7 @@
       "startTime": "2026-11-15T18:30:00Z",
       "endTime": "2026-11-15T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -57703,7 +58051,7 @@
       "startTime": "2026-11-16T09:00:00Z",
       "endTime": "2026-11-16T10:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -58045,8 +58393,7 @@
       "startTime": "2026-11-16T18:00:00Z",
       "endTime": "2026-11-16T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -58069,7 +58416,7 @@
       "startTime": "2026-11-16T18:00:00Z",
       "endTime": "2026-11-16T19:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -58157,8 +58504,7 @@
       "startTime": "2026-11-16T19:00:00Z",
       "endTime": "2026-11-16T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -58342,8 +58688,7 @@
       "startTime": "2026-11-17T09:00:00Z",
       "endTime": "2026-11-17T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -58775,7 +59120,7 @@
       "startTime": "2026-11-17T18:00:00Z",
       "endTime": "2026-11-17T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sang / musikk"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -58919,8 +59264,7 @@
       "startTime": "2026-11-17T18:30:00Z",
       "endTime": "2026-11-17T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -59105,7 +59449,7 @@
       "startTime": "2026-11-18T09:30:00Z",
       "endTime": "2026-11-18T11:00:00Z",
       "meetingTypes": [
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -59701,6 +60045,29 @@
       "active": true
     },
     {
+      "id": "EVT-B9C4CD487CF8",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-11-19T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=4584bb5d-e6ba-4306-9aa5-10616ca04a24",
+      "source": "Den norske kirke – Hå",
+      "active": true
+    },
+    {
       "id": "EVT-09D504E1FE3C",
       "title": "Tripp Trapp Åpen barnehage",
       "startTime": "2026-11-19T08:00:00Z",
@@ -59821,8 +60188,7 @@
       "startTime": "2026-11-19T09:00:00Z",
       "endTime": "2026-11-19T10:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -59891,7 +60257,7 @@
       "startTime": "2026-11-19T09:30:00Z",
       "endTime": "2026-11-19T11:00:00Z",
       "meetingTypes": [
-        "Møte"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -60210,8 +60576,7 @@
       "endTime": "2026-11-19T22:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Julemesse",
-        "Møte"
+        "Julemesse"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -60497,8 +60862,7 @@
       "startTime": "2026-11-19T18:00:00Z",
       "endTime": "2026-11-19T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -60609,8 +60973,7 @@
       "startTime": "2026-11-20T10:00:00Z",
       "endTime": "2026-11-20T12:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -60836,7 +61199,7 @@
       "startTime": "2026-11-20T18:00:00Z",
       "endTime": "2026-11-20T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -61290,7 +61653,7 @@
       "startTime": "2026-11-21T17:00:00Z",
       "endTime": "2026-11-21T22:30:00Z",
       "meetingTypes": [
-        "Annet"
+        "Ungdom"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -61302,7 +61665,7 @@
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
       "settlement": "Undheim",
       "municipality": "Time",
-      "description": "",
+      "description": "https://www.facebook.com/UKUF2020/",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-6666c01893b8",
       "source": "Den norske kirke – Time",
       "active": true
@@ -61565,8 +61928,7 @@
       "startTime": "2026-11-22T10:00:00Z",
       "endTime": "2026-11-22T11:00:00Z",
       "meetingTypes": [
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -61591,8 +61953,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -61898,8 +62259,7 @@
       "startTime": "2026-11-22T10:00:00Z",
       "endTime": "2026-11-22T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -62339,8 +62699,7 @@
       "startTime": "2026-11-22T18:00:00Z",
       "endTime": "2026-11-22T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -62413,8 +62772,7 @@
       "startTime": "2026-11-22T18:30:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -62910,8 +63268,7 @@
       "startTime": "2026-11-23T18:00:00Z",
       "endTime": "2026-11-23T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -63000,7 +63357,7 @@
       "startTime": "2026-11-23T18:00:00Z",
       "endTime": "2026-11-23T21:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sosialt"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -63019,8 +63376,7 @@
       "startTime": "2026-11-23T18:30:00Z",
       "endTime": "2026-11-23T19:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -63039,8 +63395,7 @@
       "startTime": "2026-11-23T19:00:00Z",
       "endTime": "2026-11-23T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -63224,8 +63579,7 @@
       "startTime": "2026-11-24T09:00:00Z",
       "endTime": "2026-11-24T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -63887,8 +64241,7 @@
       "startTime": "2026-11-24T18:30:00Z",
       "endTime": "2026-11-24T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -64865,6 +65218,29 @@
       "active": true
     },
     {
+      "id": "EVT-FE62BD3CC445",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-11-26T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=e14ad058-c48a-4eea-8b37-e75f1059c003",
+      "source": "Den norske kirke – Hå",
+      "active": true
+    },
+    {
       "id": "EVT-F83801894D60",
       "title": "Tripp Trapp Åpen barnehage",
       "startTime": "2026-11-26T08:00:00Z",
@@ -65650,8 +66026,7 @@
       "startTime": "2026-11-27T10:00:00Z",
       "endTime": "2026-11-27T12:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -66325,8 +66700,7 @@
       "endTime": "2026-11-29T11:30:00Z",
       "meetingTypes": [
         "Gudstjeneste",
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -66352,8 +66726,7 @@
         "Gudstjeneste",
         "Barn",
         "Sang / musikk",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -67071,8 +67444,7 @@
       "startTime": "2026-11-29T18:30:00Z",
       "endTime": "2026-11-29T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -67229,7 +67601,7 @@
       "startTime": "2026-11-30T09:00:00Z",
       "endTime": "2026-11-30T10:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -67525,8 +67897,7 @@
       "startTime": "2026-11-30T18:00:00Z",
       "endTime": "2026-11-30T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -67549,7 +67920,7 @@
       "startTime": "2026-11-30T18:00:00Z",
       "endTime": "2026-11-30T19:00:00Z",
       "meetingTypes": [
-        "Sosialt"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -67637,8 +68008,7 @@
       "startTime": "2026-11-30T19:00:00Z",
       "endTime": "2026-11-30T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -67822,8 +68192,7 @@
       "startTime": "2026-12-01T09:00:00Z",
       "endTime": "2026-12-01T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -68205,7 +68574,7 @@
       "startTime": "2026-12-01T18:00:00Z",
       "endTime": "2026-12-01T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sang / musikk"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -68349,8 +68718,7 @@
       "startTime": "2026-12-01T18:30:00Z",
       "endTime": "2026-12-01T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -68883,8 +69251,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -68987,6 +69354,29 @@
       "description": "Er et tilbud til barn mellom 0-6 år i følge med en voksen Gir tilbud om lek, samling og aktiviteter tilpasset barnets alder Knøttene åpen barnehage er en pedagogisk virksomhet med tilstedeværende foreldre Krever ingen påmelding. Det blir servert gratis lunsj tirsdager og torsdager.",
       "sourceUrl": "https://skjerikirken.no/arrangement/knottene-apen-barnehage-f6c645516a5b",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-E0506C12F2A6",
+      "title": "Taizébøn",
+      "startTime": "2026-12-03T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=7b848483-b6eb-468c-b22f-365fe33cfc69&OccurenceId=7b848483-b6eb-468c-b22f-365fe33cfc69",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -69666,8 +70056,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -69778,8 +70167,7 @@
       "startTime": "2026-12-04T10:00:00Z",
       "endTime": "2026-12-04T12:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -70053,8 +70441,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -70324,8 +70711,7 @@
       "endTime": "2026-12-05T13:30:00Z",
       "meetingTypes": [
         "Familie",
-        "Julemesse",
-        "Møte"
+        "Julemesse"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -70413,7 +70799,7 @@
       "startTime": "2026-12-05T17:00:00Z",
       "endTime": "2026-12-05T22:30:00Z",
       "meetingTypes": [
-        "Annet"
+        "Ungdom"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -70425,7 +70811,7 @@
       "location": "Undheim kyrkje - kjellar., Bruavegen 2, 4342 Undheim",
       "settlement": "Undheim",
       "municipality": "Time",
-      "description": "",
+      "description": "https://www.facebook.com/UKUF2020/",
       "sourceUrl": "https://skjerikirken.no/arrangement/ukuf-610ae54936f5",
       "source": "Den norske kirke – Time",
       "active": true
@@ -70550,8 +70936,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -70685,8 +71070,7 @@
       "startTime": "2026-12-06T10:00:00Z",
       "endTime": "2026-12-06T11:00:00Z",
       "meetingTypes": [
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -70709,8 +71093,7 @@
       "startTime": "2026-12-06T10:00:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -70731,8 +71114,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -71036,8 +71418,7 @@
       "startTime": "2026-12-06T10:00:00Z",
       "endTime": "2026-12-06T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -71617,8 +71998,7 @@
       "startTime": "2026-12-06T18:30:00Z",
       "endTime": "2026-12-06T21:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -72092,8 +72472,7 @@
       "startTime": "2026-12-07T18:00:00Z",
       "endTime": "2026-12-07T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -72182,8 +72561,7 @@
       "startTime": "2026-12-07T18:30:00Z",
       "endTime": "2026-12-07T19:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -72202,8 +72580,7 @@
       "startTime": "2026-12-07T19:00:00Z",
       "endTime": "2026-12-07T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -72387,8 +72764,7 @@
       "startTime": "2026-12-08T09:00:00Z",
       "endTime": "2026-12-08T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -73446,6 +73822,29 @@
       "active": true
     },
     {
+      "id": "EVT-FE52936CBD1B",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-12-10T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=8bbb37db-6dfe-4512-b76b-4d91d80e1d86",
+      "source": "Den norske kirke – Hå",
+      "active": true
+    },
+    {
       "id": "EVT-DB92334ECEF5",
       "title": "Tripp Trapp Åpen barnehage",
       "startTime": "2026-12-10T08:00:00Z",
@@ -73932,8 +74331,7 @@
       "startTime": "2026-12-10T18:30:00Z",
       "endTime": "2026-12-10T20:30:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -74138,8 +74536,7 @@
       "startTime": "2026-12-11T10:00:00Z",
       "endTime": "2026-12-11T12:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -74347,7 +74744,7 @@
       "startTime": "2026-12-11T18:00:00Z",
       "endTime": "2026-12-11T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -74785,8 +75182,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -75343,8 +75739,7 @@
       "startTime": "2026-12-13T16:00:00Z",
       "endTime": null,
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -75942,8 +76337,7 @@
       "startTime": "2026-12-14T18:00:00Z",
       "endTime": "2026-12-14T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -76192,8 +76586,7 @@
       "startTime": "2026-12-15T09:00:00Z",
       "endTime": "2026-12-15T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -76301,7 +76694,7 @@
       "startTime": "2026-12-15T18:00:00Z",
       "endTime": "2026-12-15T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Sang / musikk"
       ],
       "organizationIds": [
         "ORG-0001"
@@ -76878,6 +77271,29 @@
       "active": true
     },
     {
+      "id": "EVT-881C42DD93E4",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2026-12-17T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=315e7eab-89c7-433b-b7a5-6a998291483c",
+      "source": "Den norske kirke – Hå",
+      "active": true
+    },
+    {
       "id": "EVT-119DF2DC864B",
       "title": "Tripp Trapp Åpen barnehage",
       "startTime": "2026-12-17T08:00:00Z",
@@ -77342,8 +77758,7 @@
       "startTime": "2026-12-18T10:00:00Z",
       "endTime": "2026-12-18T12:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -77689,8 +78104,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -78392,8 +78806,7 @@
       "startTime": "2026-12-21T18:00:00Z",
       "endTime": "2026-12-21T20:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -78508,8 +78921,7 @@
       "startTime": "2026-12-22T09:00:00Z",
       "endTime": "2026-12-22T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -80275,8 +80687,7 @@
       "endTime": "2026-12-25T12:30:00Z",
       "meetingTypes": [
         "Gudstjeneste",
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0019"
@@ -80645,8 +81056,7 @@
       "endTime": null,
       "meetingTypes": [
         "Misjon",
-        "Sosialt",
-        "Møte"
+        "Sosialt"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -81007,8 +81417,7 @@
       "startTime": "2026-12-29T09:00:00Z",
       "endTime": "2026-12-29T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -81607,8 +82016,7 @@
         "Gudstjeneste",
         "Barn",
         "Familie",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -81857,8 +82265,7 @@
       "startTime": "2027-01-03T18:30:00Z",
       "endTime": "2027-01-03T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -82082,8 +82489,7 @@
       "startTime": "2027-01-05T09:00:00Z",
       "endTime": "2027-01-05T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -82371,6 +82777,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-88B44A368C05",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-01-07T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=6d69ad7f-3d07-4c5d-92f4-98872ee00d1b",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -82883,8 +83312,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -82999,8 +83427,7 @@
       "startTime": "2027-01-10T10:00:00Z",
       "endTime": "2027-01-10T12:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -83023,8 +83450,7 @@
       "startTime": "2027-01-10T10:00:00Z",
       "endTime": "2027-01-10T12:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -83431,8 +83857,7 @@
       "startTime": "2027-01-12T09:00:00Z",
       "endTime": "2027-01-12T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -83900,6 +84325,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-3D6CA2287E14",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-01-14T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=502b6dad-8eef-49cd-8dc7-c1f2ac54dbf9",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -84546,8 +84994,7 @@
       "meetingTypes": [
         "Gudstjeneste",
         "Barn",
-        "Søndagsskole",
-        "Møte"
+        "Søndagsskole"
       ],
       "organizationIds": [
         "ORG-0002"
@@ -84750,8 +85197,7 @@
       "startTime": "2027-01-17T18:30:00Z",
       "endTime": "2027-01-17T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -85159,8 +85605,7 @@
       "startTime": "2027-01-19T09:00:00Z",
       "endTime": "2027-01-19T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -85565,6 +86010,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-2A24FEBDD2F3",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-01-21T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=4efb9eb0-4230-40c5-b1cc-1c7917c62ba9",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -86214,8 +86682,7 @@
       "startTime": "2027-01-24T10:00:00Z",
       "endTime": "2027-01-24T12:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -86691,8 +87158,7 @@
       "startTime": "2027-01-26T09:00:00Z",
       "endTime": "2027-01-26T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -87102,8 +87568,7 @@
       "endTime": "2027-01-27T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -87141,6 +87606,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-D6F3B1851AF5",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-01-28T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=aca7a737-53bc-4254-8c15-50816b197bd3",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -87381,8 +87869,7 @@
       "endTime": "2027-01-28T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -87476,8 +87963,7 @@
       "endTime": "2027-01-29T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -87639,8 +88125,7 @@
       "endTime": "2027-01-30T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -87893,8 +88378,7 @@
       "startTime": "2027-01-31T18:30:00Z",
       "endTime": "2027-01-31T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -88306,8 +88790,7 @@
       "startTime": "2027-02-02T09:00:00Z",
       "endTime": "2027-02-02T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -88651,8 +89134,7 @@
       "startTime": "2027-02-03T18:00:00Z",
       "endTime": "2027-02-03T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -88713,6 +89195,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-B430DDF6470D",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-02-04T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=6fa6706e-e0ed-45e9-9709-8dcbbcca4122",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -88970,8 +89475,7 @@
       "startTime": "2027-02-04T18:30:00Z",
       "endTime": "2027-02-04T20:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0005"
@@ -89317,8 +89821,7 @@
       "startTime": "2027-02-07T10:00:00Z",
       "endTime": "2027-02-07T12:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -89772,8 +90275,7 @@
       "startTime": "2027-02-09T09:00:00Z",
       "endTime": "2027-02-09T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -89978,8 +90480,7 @@
       "startTime": "2027-02-09T18:30:00Z",
       "endTime": "2027-02-09T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -90283,6 +90784,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-D6E4F7C2FBCE",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-02-11T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=8542095d-4987-4087-8ef7-fd74561650d1",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -90659,8 +91183,7 @@
       "startTime": "2027-02-12T18:00:00Z",
       "endTime": "2027-02-12T20:00:00Z",
       "meetingTypes": [
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -90790,8 +91313,7 @@
       "startTime": "2027-02-13T16:00:00Z",
       "endTime": "2027-02-13T18:00:00Z",
       "meetingTypes": [
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -90996,8 +91518,7 @@
       "startTime": "2027-02-14T18:30:00Z",
       "endTime": "2027-02-14T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -91221,8 +91742,7 @@
       "startTime": "2027-02-16T09:00:00Z",
       "endTime": "2027-02-16T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -91241,8 +91761,7 @@
       "startTime": "2027-02-16T18:00:00Z",
       "endTime": "2027-02-16T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -92046,8 +92565,7 @@
       "startTime": "2027-02-21T10:00:00Z",
       "endTime": "2027-02-21T12:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -92385,8 +92903,7 @@
       "startTime": "2027-02-22T17:30:00Z",
       "endTime": "2027-02-22T19:30:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -92524,8 +93041,7 @@
       "startTime": "2027-02-23T09:00:00Z",
       "endTime": "2027-02-23T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -92935,8 +93451,7 @@
       "endTime": "2027-02-24T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -92974,6 +93489,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-B4C248EF491E",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-02-25T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=58535774-346b-49f1-b7f3-44caf42d92bf",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -93233,8 +93771,7 @@
       "endTime": "2027-02-25T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -93328,8 +93865,7 @@
       "endTime": "2027-02-26T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -93445,8 +93981,7 @@
       "endTime": "2027-02-27T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -93588,8 +94123,7 @@
       "startTime": "2027-02-28T10:00:00Z",
       "endTime": "2027-02-28T12:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0008"
@@ -93635,8 +94169,7 @@
       "startTime": "2027-02-28T18:30:00Z",
       "endTime": "2027-02-28T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -93998,8 +94531,7 @@
       "startTime": "2027-03-02T09:00:00Z",
       "endTime": "2027-03-02T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -94158,7 +94690,7 @@
       "startTime": "2027-03-03T17:00:00Z",
       "endTime": "2027-03-03T20:00:00Z",
       "meetingTypes": [
-        "Annet"
+        "Møte"
       ],
       "organizationIds": [
         "ORG-0005",
@@ -94339,6 +94871,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-A18A3F3533CC",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-03-04T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=8bd6d4be-b875-405a-8163-6e12492a0bac",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -94947,8 +95502,7 @@
       "startTime": "2027-03-07T10:00:00Z",
       "endTime": "2027-03-07T12:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -95332,8 +95886,7 @@
       "startTime": "2027-03-09T09:00:00Z",
       "endTime": "2027-03-09T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -95694,8 +96247,7 @@
       "endTime": "2027-03-10T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -95733,6 +96285,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-F3719E2F3632",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-03-11T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=e36ff9bb-5dfd-47b5-a0db-f76984a308ae",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -96034,8 +96609,7 @@
       "endTime": "2027-03-11T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -96152,8 +96726,7 @@
       "endTime": "2027-03-12T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -96380,8 +96953,7 @@
       "endTime": "2027-03-13T20:00:00Z",
       "meetingTypes": [
         "Misjon",
-        "Møteveke / helg",
-        "Møte"
+        "Møteveke / helg"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -96590,8 +97162,7 @@
       "startTime": "2027-03-14T18:30:00Z",
       "endTime": "2027-03-14T20:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -96861,8 +97432,7 @@
       "startTime": "2027-03-16T09:00:00Z",
       "endTime": "2027-03-16T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -97198,6 +97768,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-7ABDAC833618",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-03-18T08:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=17dcc482-5c06-4aff-bf35-ca6f63d30e01",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -97784,8 +98377,7 @@
       "startTime": "2027-03-21T10:00:00Z",
       "endTime": "2027-03-21T12:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -98077,8 +98669,7 @@
       "startTime": "2027-03-23T09:00:00Z",
       "endTime": "2027-03-23T10:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -98714,8 +99305,7 @@
       "startTime": "2027-03-28T17:30:00Z",
       "endTime": "2027-03-28T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -99035,8 +99625,7 @@
       "startTime": "2027-03-30T08:00:00Z",
       "endTime": "2027-03-30T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -99278,6 +99867,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-A45A2D245B72",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-04-01T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=066e63af-4eeb-4ce7-b4a1-6a7534dbed06",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -99833,8 +100445,7 @@
       "startTime": "2027-04-04T09:00:00Z",
       "endTime": "2027-04-04T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -100126,8 +100737,7 @@
       "startTime": "2027-04-06T08:00:00Z",
       "endTime": "2027-04-06T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -100436,6 +101046,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-61C899F56EB1",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-04-08T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=e5bca984-e495-4ce5-8148-63e9970dd055",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -101038,8 +101671,7 @@
       "startTime": "2027-04-11T17:30:00Z",
       "endTime": "2027-04-11T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -101309,8 +101941,7 @@
       "startTime": "2027-04-13T08:00:00Z",
       "endTime": "2027-04-13T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -101646,6 +102277,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-858F8C1F5833",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-04-15T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=1db3f782-0fe9-4e96-a009-ac6f37c1cd53",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -102235,8 +102889,7 @@
       "startTime": "2027-04-18T09:00:00Z",
       "endTime": "2027-04-18T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -102551,8 +103204,7 @@
       "startTime": "2027-04-20T08:00:00Z",
       "endTime": "2027-04-20T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -102813,6 +103465,29 @@
       "description": "",
       "sourceUrl": "https://pinsebetel.no/hva-skjer/",
       "source": "Pinsemenigheten Betel",
+      "active": true
+    },
+    {
+      "id": "EVT-D14B09E10AB9",
+      "title": "Morgenbønn Nærbø kirke",
+      "startTime": "2027-04-22T07:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Bønn"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Nærbø sokn",
+      "location": "Nærbø kyrkje",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://haa.kyrkja.no/Kalenderdetaljer?Publish=All&Att=Nei&EventId=de586a40-b64a-4caf-892b-8bb9bc4cb710&OccurenceId=bb7ac2ae-a8f3-4fc8-b589-e2c7ebb4be14",
+      "source": "Den norske kirke – Hå",
       "active": true
     },
     {
@@ -103376,8 +104051,7 @@
       "startTime": "2027-04-25T17:30:00Z",
       "endTime": "2027-04-25T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -103762,8 +104436,7 @@
       "startTime": "2027-04-27T08:00:00Z",
       "endTime": "2027-04-27T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -104544,8 +105217,7 @@
       "startTime": "2027-05-02T09:00:00Z",
       "endTime": "2027-05-02T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -104929,8 +105601,7 @@
       "startTime": "2027-05-04T08:00:00Z",
       "endTime": "2027-05-04T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -105879,8 +106550,7 @@
       "startTime": "2027-05-09T17:30:00Z",
       "endTime": "2027-05-09T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -106199,8 +106869,7 @@
       "startTime": "2027-05-11T08:00:00Z",
       "endTime": "2027-05-11T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -107026,8 +107695,7 @@
       "startTime": "2027-05-16T09:00:00Z",
       "endTime": "2027-05-16T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -107322,8 +107990,7 @@
       "startTime": "2027-05-18T08:00:00Z",
       "endTime": "2027-05-18T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -108122,8 +108789,7 @@
       "startTime": "2027-05-23T17:30:00Z",
       "endTime": "2027-05-23T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -108442,8 +109108,7 @@
       "startTime": "2027-05-25T08:00:00Z",
       "endTime": "2027-05-25T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -109294,8 +109959,7 @@
       "startTime": "2027-05-30T09:00:00Z",
       "endTime": "2027-05-30T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -109659,8 +110323,7 @@
       "startTime": "2027-06-01T08:00:00Z",
       "endTime": "2027-06-01T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -110574,8 +111237,7 @@
       "startTime": "2027-06-06T17:30:00Z",
       "endTime": "2027-06-06T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -110894,8 +111556,7 @@
       "startTime": "2027-06-08T08:00:00Z",
       "endTime": "2027-06-08T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -111746,8 +112407,7 @@
       "startTime": "2027-06-13T09:00:00Z",
       "endTime": "2027-06-13T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -112111,8 +112771,7 @@
       "startTime": "2027-06-15T08:00:00Z",
       "endTime": "2027-06-15T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -112801,8 +113460,7 @@
       "startTime": "2027-06-20T17:30:00Z",
       "endTime": "2027-06-20T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -113075,8 +113733,7 @@
       "startTime": "2027-06-22T08:00:00Z",
       "endTime": "2027-06-22T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -113809,8 +114466,7 @@
       "startTime": "2027-06-29T08:00:00Z",
       "endTime": "2027-06-29T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -114263,8 +114919,7 @@
       "startTime": "2027-07-06T08:00:00Z",
       "endTime": "2027-07-06T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -114716,8 +115371,7 @@
       "startTime": "2027-07-13T08:00:00Z",
       "endTime": "2027-07-13T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -115220,8 +115874,7 @@
       "startTime": "2027-07-20T08:00:00Z",
       "endTime": "2027-07-20T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -115677,8 +116330,7 @@
       "startTime": "2027-07-27T08:00:00Z",
       "endTime": "2027-07-27T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -116160,8 +116812,7 @@
       "startTime": "2027-08-03T08:00:00Z",
       "endTime": "2027-08-03T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -116758,8 +117409,7 @@
       "startTime": "2027-08-10T08:00:00Z",
       "endTime": "2027-08-10T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -117354,8 +118004,7 @@
       "startTime": "2027-08-15T17:30:00Z",
       "endTime": "2027-08-15T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -117467,8 +118116,7 @@
       "startTime": "2027-08-17T08:00:00Z",
       "endTime": "2027-08-17T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -118020,8 +118668,7 @@
       "startTime": "2027-08-22T09:00:00Z",
       "endTime": "2027-08-22T11:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -118155,8 +118802,7 @@
       "startTime": "2027-08-24T08:00:00Z",
       "endTime": "2027-08-24T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -118583,8 +119229,7 @@
       "startTime": "2027-08-29T17:30:00Z",
       "endTime": "2027-08-29T19:00:00Z",
       "meetingTypes": [
-        "Misjon",
-        "Møte"
+        "Misjon"
       ],
       "organizationIds": [],
       "organizations": [],
@@ -118626,8 +119271,7 @@
       "startTime": "2027-08-31T08:00:00Z",
       "endTime": "2027-08-31T09:00:00Z",
       "meetingTypes": [
-        "Bønn",
-        "Møte"
+        "Bønn"
       ],
       "organizationIds": [],
       "organizations": [],
