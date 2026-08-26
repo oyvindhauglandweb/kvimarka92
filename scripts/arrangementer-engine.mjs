@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v454-undheim-explicit-settlement-before-source-default-2026-08-26";
+const ARRANGEMENT_ENGINE_VERSION = "v455-undheim-and-meeting-fallback-rules-2026-08-26";
 
 const ARR_AREAS = {
   default: {
@@ -1026,6 +1026,20 @@ function arrApplyRuleMeetingTypes(baseIds, ruleResult, typeRules) {
     if (annetRule) {
       const annetId = Number(annetRule.rowId);
       ids = ids.filter(id => id !== annetId);
+    }
+  }
+
+  // V455: "Møte" er en ren fallback-kategori.
+  const moteRule = typeRules.find(
+    rule => arrNormalize(rule.name) === "møte"
+  );
+  if (moteRule) {
+    const moteId = Number(moteRule.rowId);
+    if (ids.includes(moteId)) {
+      const specificIds = ids.filter(id => id !== moteId);
+      if (specificIds.length) {
+        ids = ids.filter(id => id !== moteId);
+      }
     }
   }
 
