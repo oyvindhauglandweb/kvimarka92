@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v451-narbo-simple-calendar-grid-2026-08-24";
+const ARRANGEMENT_ENGINE_VERSION = "v453-undheim-settlement-2026-08-26";
 
 const ARR_AREAS = {
   default: {
@@ -2330,6 +2330,42 @@ function arrKirkenOrganizerName(item, church) {
   );
 }
 
+
+function arrKirkenDateTimeIso(value) {
+  const raw = arrClean(value || "");
+  if (!raw) return null;
+
+  // Har kilden eksplisitt tidssone/UTC, behold den som et absolutt tidspunkt.
+  if (/[zZ]$|[+-]\d{2}:\d{2}$/.test(raw)) {
+    return arrIsoOrNull(raw);
+  }
+
+  // Skjer i kirken GraphQL leverer enkelte startTime/endTime som lokal
+  // veggklokketid uten tidssone. Node/GitHub Actions tolker slike strenger
+  // som UTC, som gir +1/+2 timer i frontend. Tolk dem eksplisitt som
+  // Europe/Oslo i stedet.
+  const m = raw.match(
+    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/
+  );
+  if (!m) return arrIsoOrNull(raw);
+
+  const iso = arrOsloLocalIso(
+    Number(m[1]),
+    Number(m[2]),
+    Number(m[3]),
+    Number(m[4]),
+    Number(m[5]),
+    Number(m[6] || 0)
+  );
+
+  // Bevar millisekunder bare når de faktisk finnes i kilden.
+  if (iso && m[7]) {
+    const ms = String(m[7]).padEnd(3, "0").slice(0, 3);
+    return iso.replace(/\.000Z$/, `.${ms}Z`);
+  }
+  return iso;
+}
+
 async function arrFetchAndParseKirkenActivities(slug) {
   const pageUrl = `https://skjerikirken.no/menighet/${encodeURIComponent(slug)}`;
   const html = await arrFetchText(pageUrl);
@@ -2477,13 +2513,27 @@ async function arrFetchAndParseKirkenActivities(slug) {
     parsed.push({
       sourceEventId:`kirken-${item.id}`,
       title:arrClean(item.title),
-      startTime:arrIsoOrNull(item.startTime),
-      endTime:arrIsoOrNull(item.endTime),
+      startTime:arrKirkenDateTimeIso(item.startTime),
+      endTime:arrKirkenDateTimeIso(item.endTime),
       organizer,
       location,
       description:arrClean(item.description || ""),
       sourceUrl,
-      settlementHint:arrClean(church.postalArea || ""),
+      settlementHint:(() => {
+        const locationText = arrClean(location || "");
+        const organizerText = arrClean(organizer || "");
+
+        // V453: alle Skjer i kirken-arrangementer som faktisk gjelder
+        // Undheim kyrkje / Undheim sokn skal få tettsted Undheim.
+        if (
+          /\bUndheim kyrkje\b/i.test(locationText) ||
+          /\bUndheim sokn\b/i.test(organizerText)
+        ) {
+          return "Undheim";
+        }
+
+        return arrClean(church.postalArea || "");
+      })(),
       municipalityHint:arrClean(church.municipality || props.municipalityName || ""),
     });
   }
