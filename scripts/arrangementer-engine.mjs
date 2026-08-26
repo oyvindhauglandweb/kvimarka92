@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v453-undheim-settlement-2026-08-26";
+const ARRANGEMENT_ENGINE_VERSION = "v454-undheim-explicit-settlement-before-source-default-2026-08-26";
 
 const ARR_AREAS = {
   default: {
@@ -1991,6 +1991,30 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
   // Hvis kilden har flere Settlements, brukes fortsatt ordinær resolver.
   const singleSourceSettlementIsAuthoritative =
     allowedDefaultIds.length === 1;
+
+  // V454: Den norske kirke – Time er en fler-steds-kilde. Hvis selve
+  // arrangementet eksplisitt peker på Undheim, må dette slå en eventuell
+  // single Source.Settlement-default. Ellers blir Undheim-arrangementer
+  // feilaktig stående uten/med feil tettsted selv om parseren sender
+  // settlementHint="Undheim".
+  if (municipalityHint === "time") {
+    const explicitUndheimText = arrNormalize([
+      item.settlementHint,
+      item.location,
+      item.organizer,
+      item.title
+    ].filter(Boolean).join(" "));
+
+    if (
+      /(^|[^a-z0-9æøå])undheim($|[^a-z0-9æøå])/i.test(explicitUndheimText)
+    ) {
+      const undheim = findRuleByName("Undheim", allRulesForMunicipality);
+      if (undheim) {
+        if (undheim.active === false) return null;
+        return [undheim.rowId];
+      }
+    }
+  }
 
   if (singleSourceSettlementIsAuthoritative) {
     const defaultId = Number(allowedDefaultIds[0]);
