@@ -789,7 +789,8 @@
     try {
       localStorage.setItem(SNAPSHOT_STORAGE_KEY, JSON.stringify({
         savedAt:Date.now(),
-        events
+        events,
+        organizers:organizerSettings
       }));
     } catch (_) {}
   }
@@ -851,6 +852,9 @@
     const snapshot = loadEventSnapshot();
     if (!snapshot) return false;
 
+    organizerSettings = Array.isArray(snapshot.organizers) ? snapshot.organizers : [];
+    rebuildOrganizerTextColorMap();
+
     events = snapshot.events
       .filter(e => e && e.active !== false)
       .map(e => normalizeEventSettlementName({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
@@ -897,6 +901,8 @@
 
   let events = [];
   let filtered = [];
+  let organizerSettings = [];
+  let organizerTextColorByName = new Map();
   let combinedFavoritesActive = false;
   let monthCursor = new Date();
   monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth(), 1);
@@ -1591,6 +1597,41 @@
     }).join("");
   }
 
+
+  // V458: Human-readable Baserow Single select values -> frontend text colors.
+  // Blank/unknown values deliberately fall back to the existing automatic color.
+  const BASEROW_ORGANIZER_TEXT_COLORS = {
+    "Lys Brungul":"#ffd98a",
+    "Brungul":"#d8a62a",
+    "Lys Cyan":"#8fe8ee",
+    "Cyan":"#25c6d2",
+    "Lys Blå":"#9fc8ff",
+    "Blå":"#4d8fe8",
+    "Gammelblå":"#5579ad",
+    "Lys Grønn":"#9ce3b1",
+    "Grønn":"#36ad62",
+    "Lys Rød":"#ffaaa3",
+    "Rød":"#ef665c",
+    "Lys Brun":"#ffc099",
+    "Brun":"#c87945",
+    "Lys Lilla":"#d4a5f4",
+    "Lilla":"#a45bd8",
+    "Lys Rosa":"#f4a8d7",
+    "Rosa":"#ec5db9",
+    "Lys Grå":"#c9ced2",
+    "Grå":"#8c949a"
+  };
+
+  function rebuildOrganizerTextColorMap() {
+    organizerTextColorByName = new Map();
+    for (const row of (Array.isArray(organizerSettings) ? organizerSettings : [])) {
+      const name = String(row && row.name || "").trim();
+      const choice = String(row && row.textColor || "").trim();
+      const css = BASEROW_ORGANIZER_TEXT_COLORS[choice] || "";
+      if (name && css) organizerTextColorByName.set(name, css);
+    }
+  }
+
   const ORGANIZER_COLORS = [
     // Eksisterende farger
     {bg:"#23536b", border:"#62c7f2", text:"#ffffff"}, // turkisblå
@@ -1644,14 +1685,19 @@
       }
     };
 
-    if (fixed[text]) return fixed[text];
+    if (fixed[text]) {
+      const selected = organizerTextColorByName.get(text);
+      return selected ? {...fixed[text], border:selected, text:selected} : fixed[text];
+    }
 
     let hash = 2166136261;
     for (let i=0; i<text.length; i++) {
       hash ^= text.charCodeAt(i);
       hash = Math.imul(hash, 16777619);
     }
-    return ORGANIZER_COLORS[(hash >>> 0) % ORGANIZER_COLORS.length];
+    const automatic = ORGANIZER_COLORS[(hash >>> 0) % ORGANIZER_COLORS.length];
+    const selected = organizerTextColorByName.get(text);
+    return selected ? {...automatic, border:selected, text:selected} : automatic;
   }
 
   function renderCalendar() {
@@ -2027,6 +2073,9 @@
         throw new Error("Ugyldig arrangementer-data.json");
       }
 
+      organizerSettings = Array.isArray(data.organizers) ? data.organizers : [];
+      rebuildOrganizerTextColorMap();
+
       const loadedEvents = data.events;
       events = loadedEvents
         .filter(e => e.active !== false)
@@ -2055,6 +2104,8 @@
       const snapshot = loadEventSnapshot();
 
       if (snapshot && Array.isArray(snapshot.events) && snapshot.events.length) {
+        organizerSettings = Array.isArray(snapshot.organizers) ? snapshot.organizers : [];
+        rebuildOrganizerTextColorMap();
         events = snapshot.events
           .filter(e => e.active !== false)
           .map(e => normalizeEventSettlementName({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
