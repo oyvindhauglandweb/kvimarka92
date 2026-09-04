@@ -579,7 +579,7 @@ if(!String.prototype.replaceAll){
   .edit-sort-header{display:none;}
   .edit-mobile-sort{
     display:grid;
-    grid-template-columns:auto minmax(0,1fr) 52px;
+    grid-template-columns:auto 52px minmax(0,1fr) 52px;
     gap:8px;
     align-items:center;
     padding:0 4px 10px;
@@ -592,6 +592,46 @@ if(!String.prototype.replaceAll){
   .edit-mobile-sort select,
   .edit-mobile-sort button{
     min-height:42px;
+  }
+  .edit-mobile-search-button{
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--soft-button-bg);
+    color:var(--link);
+    font-size:20px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .edit-mobile-search-button.active{
+    background:var(--button-bg);
+  }
+  .edit-mobile-search-panel{
+    display:none;
+    grid-template-columns:minmax(0,1fr) 52px;
+    gap:8px;
+    padding:0 4px 10px;
+  }
+  .edit-mobile-search-panel.open{
+    display:grid;
+  }
+  .edit-mobile-search-panel input{
+    min-height:42px;
+    width:100%;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--soft-button-bg);
+    color:var(--text);
+    padding:0 12px;
+    font-size:16px;
+  }
+  .edit-mobile-search-clear{
+    min-height:42px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--soft-button-bg);
+    color:var(--muted);
+    font-size:20px;
+    cursor:pointer;
   }
   .edit-mobile-sort select{width:100%;}
   .edit-mobile-sort button{
@@ -655,8 +695,9 @@ window.toggleShoppingTheme=function(){
   }catch(e){}
 };
 document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
-</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger varer</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><button id="saveAllButton" class="action-button global-save-button" type="button" onclick="saveAllDirtyRows()" disabled>Lagre endringer</button></div><div class="toolbar-right"><a class="action-button" href="handleliste-rydde.html">Rydde i varer</a></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div class="edit-mobile-sort" id="editMobileSort" aria-label="Sorter varer på mobil">
+</script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger varer</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><button id="saveAllButton" class="action-button global-save-button" type="button" onclick="saveAllDirtyRows()" disabled>Lagre endringer</button></div><div class="toolbar-right"><a class="action-button" href="handleliste-rydde.html">Rydde i varer</a></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div class="edit-mobile-sort" id="editMobileSort" aria-label="Sorter og søk i varer på mobil">
   <label class="edit-mobile-sort-label" for="editMobileSortKey">Sorter etter</label>
+  <button id="editMobileSearchButton" class="edit-mobile-search-button" type="button" onclick="toggleEditSearch()" title="Søk i varer" aria-label="Søk i varer">🔍</button>
   <select id="editMobileSortKey" onchange="setEditSortKey(this.value)">
     <option value="name">Varenavn</option>
     <option value="type">Varetype</option>
@@ -665,6 +706,10 @@ document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
     <option value="hasImage">Bilde</option>
   </select>
   <button id="editMobileSortDirection" type="button" onclick="toggleEditSortDirection()" title="Bytt sorteringsretning" aria-label="Bytt sorteringsretning">↑</button>
+</div>
+<div class="edit-mobile-search-panel" id="editMobileSearchPanel">
+  <input id="editMobileSearchInput" type="search" placeholder="Søk etter varenavn..." autocomplete="off" oninput="setEditSearch(this.value)" aria-label="Søk etter varenavn">
+  <button class="edit-mobile-search-clear" type="button" onclick="clearEditSearch()" title="Tøm søk" aria-label="Tøm søk">×</button>
 </div><div class="edit-sort-header" id="editSortHeader" aria-label="Sorter varer">
   <button class="edit-sort-button" type="button" data-sort="name" onclick="toggleEditSort('name')" title="Sorter etter varenavn">⇅</button>
   <button class="edit-sort-button" type="button" data-sort="type" onclick="toggleEditSort('type')" title="Sorter etter varetype">⇅</button>
@@ -795,6 +840,7 @@ function compareShoppingText(a,b){return String(a||"").localeCompare(String(b||"
 function compareShoppingItemName(a,b){return compareShoppingText((a&&a.name)||(a&&a.itemName)||"",(b&&b.name)||(b&&b.itemName)||"");}
 function shoppingTypeIndex(type){const key=String(type||"Annet").toLowerCase();const index=SHOPPING_TYPES.findIndex(value=>String(value||"").toLowerCase()===key);return index<0?9999:index;}
 let editSort={key:"name",direction:"asc"};
+let editSearchQuery="";
 function captureVisibleRowValues(){
   document.querySelectorAll('.edit-row[data-row-id]').forEach(row=>{
     const item=items.find(entry=>Number(entry.id)===Number(row.dataset.rowId));
@@ -819,7 +865,11 @@ function getEditSortValue(item,key){
 }
 function sortedEditItems(){
   const factor=editSort.direction==="desc"?-1:1;
-  return [...items].sort((a,b)=>{
+  const query=String(editSearchQuery||"").trim().toLowerCase();
+  const visibleItems=query
+    ? items.filter(item=>String(item.name||item.itemName||"").toLowerCase().includes(query))
+    : items;
+  return [...visibleItems].sort((a,b)=>{
     const av=getEditSortValue(a,editSort.key);
     const bv=getEditSortValue(b,editSort.key);
     let result;
@@ -862,6 +912,28 @@ function toggleEditSort(key){
   else editSort={key,direction:"asc"};
   render();
 }
+function toggleEditSearch(){
+  const panel=document.getElementById("editMobileSearchPanel");
+  const button=document.getElementById("editMobileSearchButton");
+  const input=document.getElementById("editMobileSearchInput");
+  if(!panel)return;
+  const open=!panel.classList.contains("open");
+  panel.classList.toggle("open",open);
+  if(button)button.classList.toggle("active",open);
+  if(open&&input)setTimeout(()=>input.focus(),0);
+}
+function setEditSearch(value){
+  captureVisibleRowValues();
+  editSearchQuery=String(value||"");
+  render();
+}
+function clearEditSearch(){
+  const input=document.getElementById("editMobileSearchInput");
+  editSearchQuery="";
+  if(input)input.value="";
+  render();
+  if(input)input.focus();
+}
 function canEditDetails(item){if(isSupervisorOrAdministrator())return true;const owner=normalizeOwner(item.owner);return owner!=="Felles"&&ownerMatchesCurrentUser(owner);}
 async function loadItems(){setStatus("Laster varer...");try{const data=await fetchJson(`${API_BASE}/shopping/items`);setShoppingOwners(data.ownerOptions||[]);currentUser=data.currentUser||null;items=Array.isArray(data.items)?data.items:[];setShoppingTypes(data.typeOrder||[],items,data.typeOptions||[]);render();dirtyRows.clear();updateGlobalSaveButton();setStatus("Klar. Endre én eller flere rader og trykk Lagre endringer. Egne varer kan slettes. Fellesvarer og standardvalg styres av supervisor/administrator.","success");}catch(error){setStatus(`Kunne ikke laste varer.<br><br>${esc(error.message)}`,"error");}}
 function render(){
@@ -869,7 +941,15 @@ function render(){
   if(!items.length){root.innerHTML='<div class="empty">Ingen varer.</div>';return;}
   const elevated=isSupervisorOrAdministrator();
   const standardAllowed=canChangeStandard();
-  root.innerHTML=sortedEditItems().map(item=>{
+  const visibleItems=sortedEditItems();
+  if(!visibleItems.length){
+    root.innerHTML=editSearchQuery
+      ? '<div class="empty">Ingen varer matcher søket.</div>'
+      : '<div class="empty">Ingen varer.</div>';
+    updateEditSortHeader();
+    return;
+  }
+  root.innerHTML=visibleItems.map(item=>{
     const canDelete=canDeleteItem(item);
     const canEditOwner=elevated;
     const canEditItem=canEditDetails(item);
