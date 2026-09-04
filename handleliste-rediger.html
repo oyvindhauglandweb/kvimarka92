@@ -579,7 +579,7 @@ if(!String.prototype.replaceAll){
   .edit-sort-header{display:none;}
   .edit-mobile-sort{
     display:grid;
-    grid-template-columns:auto 52px minmax(0,1fr) 52px;
+    grid-template-columns:52px auto minmax(0,1fr) 52px;
     gap:8px;
     align-items:center;
     padding:0 4px 10px;
@@ -696,8 +696,8 @@ window.toggleShoppingTheme=function(){
 };
 document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
 </script><div class="container"><div class="header page-icon-spacer-title"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger varer</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div><div class="card"><div class="toolbar space"><div class="toolbar-left"><a class="action-button" href="handleliste-varetyper.html">Varetyper</a><button id="saveAllButton" class="action-button global-save-button" type="button" onclick="saveAllDirtyRows()" disabled>Lagre endringer</button></div><div class="toolbar-right"><a class="action-button" href="handleliste-rydde.html">Rydde i varer</a></div></div></div><div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div class="edit-mobile-sort" id="editMobileSort" aria-label="Sorter og søk i varer på mobil">
-  <label class="edit-mobile-sort-label" for="editMobileSortKey">Sorter etter</label>
   <button id="editMobileSearchButton" class="edit-mobile-search-button" type="button" onclick="toggleEditSearch()" title="Søk i varer" aria-label="Søk i varer">🔍</button>
+  <label class="edit-mobile-sort-label" for="editMobileSortKey">Sorter etter</label>
   <select id="editMobileSortKey" onchange="setEditSortKey(this.value)">
     <option value="name">Varenavn</option>
     <option value="type">Varetype</option>
