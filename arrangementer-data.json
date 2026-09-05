@@ -1,7 +1,7 @@
 {
   "schemaVersion": 6,
   "engineVersion": "v460-organizer-create-import-fix-2026-08-26",
-  "generatedAt": "2026-09-05T15:18:35.524Z",
+  "generatedAt": "2026-09-05T18:24:42.115Z",
   "areas": [
     {
       "key": "default",
@@ -19,13 +19,13 @@
       "eventsTable": 1146207
     }
   ],
-  "eventCount": 4914,
+  "eventCount": 4916,
   "importSummary": {
     "ok": false,
-    "startedAt": "2026-09-05T15:13:04.420Z",
-    "finishedAt": "2026-09-05T15:17:16.226Z",
-    "created": 83,
-    "updated": 2085,
+    "startedAt": "2026-09-05T18:18:01.292Z",
+    "finishedAt": "2026-09-05T18:22:42.069Z",
+    "created": 0,
+    "updated": 2120,
     "errors": 13,
     "rawErrors": 13,
     "sourceCount": 29,
@@ -59,6 +59,14 @@
         "area": "default",
         "sourceId": "SRC-0006",
         "name": "Varhaug Misjonshus",
+        "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}",
+        "consecutiveFailures": 1,
+        "threshold": 1
+      },
+      {
+        "area": "default",
+        "sourceId": "SRC-0007",
+        "name": "Vigrestad Misjonshus",
         "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}",
         "consecutiveFailures": 1,
         "threshold": 1
@@ -116,14 +124,6 @@
         "sourceId": "SRC-0024",
         "name": "Vigrestad Misjonshus Kjøkken nede",
         "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}",
-        "consecutiveFailures": 1,
-        "threshold": 1
-      },
-      {
-        "area": "default",
-        "sourceId": "SRC-0028",
-        "name": "Lye Forsamlingshus",
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
         "consecutiveFailures": 1,
         "threshold": 1
       },
@@ -164,6 +164,12 @@
       },
       {
         "area": "default",
+        "sourceId": "SRC-0007",
+        "name": "Vigrestad Misjonshus",
+        "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}"
+      },
+      {
+        "area": "default",
         "sourceId": "SRC-0008",
         "name": "Bryne Frikyrkje",
         "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}"
@@ -203,12 +209,6 @@
         "sourceId": "SRC-0024",
         "name": "Vigrestad Misjonshus Kjøkken nede",
         "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}"
-      },
-      {
-        "area": "default",
-        "sourceId": "SRC-0028",
-        "name": "Lye Forsamlingshus",
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)"
       },
       {
         "area": "default",
@@ -301,11 +301,11 @@
         "sourceId": "SRC-0007",
         "name": "Vigrestad Misjonshus",
         "created": 0,
-        "updated": 119,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
-        "consecutiveFailures": 0,
-        "alarm": false,
+        "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}",
+        "consecutiveFailures": 1,
+        "alarm": true,
         "deferredAlarm": false,
         "createdEvents": []
       },
@@ -496,7 +496,7 @@
         "sourceId": "SRC-0025",
         "name": "Vigrestad Misjonshus Ope hus",
         "created": 0,
-        "updated": 21,
+        "updated": 20,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -509,7 +509,7 @@
         "sourceId": "SRC-0026",
         "name": "Vigrestad Misjonshus Låffte",
         "created": 0,
-        "updated": 2,
+        "updated": 1,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -522,11 +522,11 @@
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
         "created": 0,
-        "updated": 0,
+        "updated": 75,
         "skipped": 0,
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
-        "consecutiveFailures": 1,
-        "alarm": true,
+        "error": null,
+        "consecutiveFailures": 0,
+        "alarm": false,
         "deferredAlarm": false,
         "createdEvents": []
       },
@@ -574,7 +574,7 @@
         "sourceId": "SRC-0013",
         "name": "Den norske kirke – Sandnes",
         "created": 0,
-        "updated": 1138,
+        "updated": 1137,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -586,1011 +586,14 @@
         "area": "stavanger",
         "sourceId": "SRC-IMI",
         "name": "IMI-kirken",
-        "created": 83,
-        "updated": 0,
+        "created": 0,
+        "updated": 82,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
         "alarm": false,
         "deferredAlarm": false,
-        "createdEvents": [
-          {
-            "rowId": 2748,
-            "eventId": "EVT-CB7FF30F8FFD",
-            "title": "Hvilerom",
-            "startTime": "2026-09-03T08:30:00Z",
-            "endTime": "2026-09-03T09:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "2fbc2a73-fd83-42da-986c-80cd3ca4b4be",
-            "active": true
-          },
-          {
-            "rowId": 2749,
-            "eventId": "EVT-0D1E5CB40CA3",
-            "title": "Hvilerom",
-            "startTime": "2026-09-10T08:30:00Z",
-            "endTime": "2026-09-10T09:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "6eea68f2-9e1b-435f-ae34-c8b1d2684872",
-            "active": true
-          },
-          {
-            "rowId": 2750,
-            "eventId": "EVT-576876C4522A",
-            "title": "Hvilerom",
-            "startTime": "2026-09-17T08:30:00Z",
-            "endTime": "2026-09-17T09:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "c4641228-f527-417b-a64a-80dc9ecc9217",
-            "active": true
-          },
-          {
-            "rowId": 2751,
-            "eventId": "EVT-950A670B20E5",
-            "title": "Hvilerom",
-            "startTime": "2026-09-24T08:30:00Z",
-            "endTime": "2026-09-24T09:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "49c3da85-c6c6-4629-9ab1-5dedf56ccc80",
-            "active": true
-          },
-          {
-            "rowId": 2752,
-            "eventId": "EVT-9DA9E35C69F3",
-            "title": "Hvilerom",
-            "startTime": "2026-10-01T08:30:00Z",
-            "endTime": "2026-10-01T09:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "40766e8f-868b-43ee-ad2c-5c733230cec2",
-            "active": true
-          },
-          {
-            "rowId": 2753,
-            "eventId": "EVT-D0A1501B8A8D",
-            "title": "Hvilerom",
-            "startTime": "2026-10-08T08:30:00Z",
-            "endTime": "2026-10-08T09:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "353b34bb-f134-4abb-bd02-dd5781ca29fa",
-            "active": true
-          },
-          {
-            "rowId": 2754,
-            "eventId": "EVT-FD1313E47507",
-            "title": "Hvilerom",
-            "startTime": "2026-10-15T08:30:00Z",
-            "endTime": "2026-10-15T09:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "b09be986-37d0-4747-bed0-df489d4ad79b",
-            "active": true
-          },
-          {
-            "rowId": 2755,
-            "eventId": "EVT-86218A49B2DC",
-            "title": "Hvilerom",
-            "startTime": "2026-10-22T08:30:00Z",
-            "endTime": "2026-10-22T09:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "f574c930-615c-4640-9bc5-a053f2d44fb5",
-            "active": true
-          },
-          {
-            "rowId": 2756,
-            "eventId": "EVT-68C2ACCBD82A",
-            "title": "Hvilerom",
-            "startTime": "2026-10-29T09:30:00Z",
-            "endTime": "2026-10-29T10:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "e18ff20b-5c50-416d-a613-7c35ed62663d",
-            "active": true
-          },
-          {
-            "rowId": 2757,
-            "eventId": "EVT-C09B114842CA",
-            "title": "Hvilerom",
-            "startTime": "2026-11-05T09:30:00Z",
-            "endTime": "2026-11-05T10:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "e9002fa2-864e-4f72-89d4-3095ac93b693",
-            "active": true
-          },
-          {
-            "rowId": 2758,
-            "eventId": "EVT-AFAC5274025C",
-            "title": "Hvilerom",
-            "startTime": "2026-11-12T09:30:00Z",
-            "endTime": "2026-11-12T10:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "0ff5902c-748d-4f11-ab51-9bae26c81039",
-            "active": true
-          },
-          {
-            "rowId": 2759,
-            "eventId": "EVT-6A4151272A7B",
-            "title": "Hvilerom",
-            "startTime": "2026-11-19T09:30:00Z",
-            "endTime": "2026-11-19T10:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "2bbedd0c-3382-4597-b29e-eeb6548fcead",
-            "active": true
-          },
-          {
-            "rowId": 2760,
-            "eventId": "EVT-F77FE5F59600",
-            "title": "Hvilerom",
-            "startTime": "2026-11-26T09:30:00Z",
-            "endTime": "2026-11-26T10:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "64c42569-b7ad-4ded-b53d-87eef12661ce",
-            "active": true
-          },
-          {
-            "rowId": 2761,
-            "eventId": "EVT-0C5669A86A8C",
-            "title": "Hvilerom",
-            "startTime": "2026-12-03T09:30:00Z",
-            "endTime": "2026-12-03T10:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "c2c70ef9-de46-4c64-9acf-1393492374c8",
-            "active": true
-          },
-          {
-            "rowId": 2762,
-            "eventId": "EVT-30CAB8B80E75",
-            "title": "Hvilerom",
-            "startTime": "2026-12-10T09:30:00Z",
-            "endTime": "2026-12-10T10:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "dc34f26a-f768-4f55-8d39-ee73c7e07f03",
-            "active": true
-          },
-          {
-            "rowId": 2763,
-            "eventId": "EVT-3C351CBB8D03",
-            "title": "Hvilerom",
-            "startTime": "2026-12-17T09:30:00Z",
-            "endTime": "2026-12-17T10:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset i IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "6a006ba6-11a5-4208-9c32-b6efcad7c615",
-            "active": true
-          },
-          {
-            "rowId": 2764,
-            "eventId": "EVT-D173B1C38156",
-            "title": "Gudstjeneste G11",
-            "startTime": "2026-08-30T09:00:00Z",
-            "endTime": "2026-08-30T11:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "9dcc4cd3-6fd2-4eed-b478-eda7d2dacaf3",
-            "active": true
-          },
-          {
-            "rowId": 2765,
-            "eventId": "EVT-64409053F303",
-            "title": "Gudstjeneste G11",
-            "startTime": "2026-09-06T09:00:00Z",
-            "endTime": "2026-09-06T11:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "1ca750d3-9037-47ce-9fc0-ad3073791cca",
-            "active": true
-          },
-          {
-            "rowId": 2766,
-            "eventId": "EVT-FC4A9AECFD45",
-            "title": "Bydelsbønnevandring",
-            "startTime": "2026-09-13T10:30:00Z",
-            "endTime": "2026-09-13T13:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bydelsbønnevandring ulike steder i Stavanger og omegn.",
-            "source": "IMI-kirken",
-            "sourceEventId": "1433cfed-ad08-4763-a9ec-0d8806c02614",
-            "active": true
-          },
-          {
-            "rowId": 2767,
-            "eventId": "EVT-78A401998E10",
-            "title": "Gudstjeneste G11",
-            "startTime": "2026-09-20T09:00:00Z",
-            "endTime": "2026-09-20T11:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "4b090092-6b9b-435b-b46e-0bbc01ca87bf",
-            "active": true
-          },
-          {
-            "rowId": 2768,
-            "eventId": "EVT-A32771376B15",
-            "title": "Gudstjeneste G11",
-            "startTime": "2026-09-27T09:00:00Z",
-            "endTime": "2026-09-27T11:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "20858d06-28ac-43d9-af6b-8b25e681c664",
-            "active": true
-          },
-          {
-            "rowId": 2769,
-            "eventId": "EVT-9D63308EC871",
-            "title": "Gudstjeneste G11",
-            "startTime": "2026-10-04T09:00:00Z",
-            "endTime": "2026-10-04T11:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "4b8366ec-f3a9-4cc0-9095-e968cd5ac3a1",
-            "active": true
-          },
-          {
-            "rowId": 2770,
-            "eventId": "EVT-96C97CF45643",
-            "title": "Gudstjeneste G11 m/nattverd",
-            "startTime": "2026-10-11T09:00:00Z",
-            "endTime": "2026-10-11T11:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "484955e2-2cd7-4b73-bb6c-4a8a4d219436",
-            "active": true
-          },
-          {
-            "rowId": 2771,
-            "eventId": "EVT-F01CC00996F3",
-            "title": "Gudstjeneste G11",
-            "startTime": "2026-10-18T09:00:00Z",
-            "endTime": "2026-10-18T11:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "7d3a618a-be4d-4e16-9ce8-756d244e105b",
-            "active": true
-          },
-          {
-            "rowId": 2772,
-            "eventId": "EVT-FA053165DFD5",
-            "title": "Gudstjeneste G11",
-            "startTime": "2026-10-25T10:00:00Z",
-            "endTime": "2026-10-25T12:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "dd45574d-8965-49d8-b5c7-c0ba3dde41f8",
-            "active": true
-          },
-          {
-            "rowId": 2773,
-            "eventId": "EVT-0055EDAFE3FC",
-            "title": "Gudstjeneste G11",
-            "startTime": "2026-11-01T10:00:00Z",
-            "endTime": "2026-11-01T12:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "876baf94-9d0d-40db-a1e8-e48ee678ce40",
-            "active": true
-          },
-          {
-            "rowId": 2774,
-            "eventId": "EVT-5D25CF33E0B0",
-            "title": "Gudstjeneste G11 m/nattverd",
-            "startTime": "2026-11-08T10:00:00Z",
-            "endTime": "2026-11-08T12:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "b0d1f4ab-0966-4e95-9ea0-b4c89a96fc9f",
-            "active": true
-          },
-          {
-            "rowId": 2775,
-            "eventId": "EVT-953D5A9A1AB9",
-            "title": "Jubileumsfestival IMI 150 år",
-            "startTime": "2026-11-14T17:00:00Z",
-            "endTime": "2026-11-15T11:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "b6ff2409-501a-4d5a-b23e-4f037dfa0906",
-            "active": true
-          },
-          {
-            "rowId": 2776,
-            "eventId": "EVT-C7FC9D64CD06",
-            "title": "Gudstjeneste G11",
-            "startTime": "2026-11-22T10:00:00Z",
-            "endTime": "2026-11-22T12:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "9eb336f8-0b00-47b9-877a-e8c35278fd5b",
-            "active": true
-          },
-          {
-            "rowId": 2777,
-            "eventId": "EVT-1265BB08AD36",
-            "title": "Gudstjeneste G11 - 1. søndag i advent",
-            "startTime": "2026-11-29T10:00:00Z",
-            "endTime": "2026-11-29T12:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "13e6895a-8aa8-426b-8f18-835ba45f85d0",
-            "active": true
-          },
-          {
-            "rowId": 2778,
-            "eventId": "EVT-FDEB35D77A36",
-            "title": "Gudstjeneste G11 - 2. søndag i advent",
-            "startTime": "2026-12-06T10:00:00Z",
-            "endTime": "2026-12-06T12:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "f3d32256-8a97-438f-b908-ddd6b11923ea",
-            "active": true
-          },
-          {
-            "rowId": 2779,
-            "eventId": "EVT-B1AC630E94BF",
-            "title": "Gudstjeneste G11 - 3. søndag i advent m/nattverd",
-            "startTime": "2026-12-13T10:00:00Z",
-            "endTime": "2026-12-13T12:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "58eb123d-16f1-45f9-901f-d8ff23eec499",
-            "active": true
-          },
-          {
-            "rowId": 2780,
-            "eventId": "EVT-1E9900D78F6D",
-            "title": "Gudstjeneste G11 - 4. søndag i advent",
-            "startTime": "2026-12-20T10:00:00Z",
-            "endTime": "2026-12-20T12:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "b45ebb48-b769-4650-b963-3b0d3afb14fe",
-            "active": true
-          },
-          {
-            "rowId": 2781,
-            "eventId": "EVT-65E19EFDE2DD",
-            "title": "Gudstjeneste G18",
-            "startTime": "2026-08-30T16:00:00Z",
-            "endTime": "2026-08-30T18:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "8c485044-773b-44d8-b8db-e61ac6870eb1",
-            "active": true
-          },
-          {
-            "rowId": 2782,
-            "eventId": "EVT-8CBE7E0EEE8D",
-            "title": "Gudstjeneste G18",
-            "startTime": "2026-09-06T16:00:00Z",
-            "endTime": "2026-09-06T18:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "e942e022-b5e9-4366-aa37-6d1947eee7df",
-            "active": true
-          },
-          {
-            "rowId": 2783,
-            "eventId": "EVT-F8A65E535552",
-            "title": "Gudstjeneste G18",
-            "startTime": "2026-09-20T16:00:00Z",
-            "endTime": "2026-09-20T18:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "b9b38b1c-a059-42ff-8abb-d5da53b41e59",
-            "active": true
-          },
-          {
-            "rowId": 2784,
-            "eventId": "EVT-0CCB765C016C",
-            "title": "Gudstjeneste G18",
-            "startTime": "2026-09-27T16:00:00Z",
-            "endTime": "2026-09-27T18:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "18aaea54-5f6a-4104-b292-3983ed118a01",
-            "active": true
-          },
-          {
-            "rowId": 2785,
-            "eventId": "EVT-AD23209041DD",
-            "title": "Gudstjeneste G18",
-            "startTime": "2026-10-04T16:00:00Z",
-            "endTime": "2026-10-04T18:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "fa220431-c463-4cf0-a2fb-18f9f1e20f31",
-            "active": true
-          },
-          {
-            "rowId": 2786,
-            "eventId": "EVT-90083EE31BF6",
-            "title": "Gudstjeneste G18 m/nattverd",
-            "startTime": "2026-10-11T16:00:00Z",
-            "endTime": "2026-10-11T18:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "a3435a37-e875-4a47-ad19-ffcac853f609",
-            "active": true
-          },
-          {
-            "rowId": 2787,
-            "eventId": "EVT-90D27354D50D",
-            "title": "Gudstjeneste G18",
-            "startTime": "2026-10-18T16:00:00Z",
-            "endTime": "2026-10-18T18:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "0f2a6eb9-113f-4f1f-a859-41523c96b085",
-            "active": true
-          },
-          {
-            "rowId": 2788,
-            "eventId": "EVT-6EF063D3515A",
-            "title": "Gudstjeneste G18",
-            "startTime": "2026-10-25T17:00:00Z",
-            "endTime": "2026-10-25T19:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "1d205265-63d1-4034-91e4-e47dac553d2c",
-            "active": true
-          },
-          {
-            "rowId": 2789,
-            "eventId": "EVT-561F66DDC756",
-            "title": "Gudstjeneste G18",
-            "startTime": "2026-11-01T17:00:00Z",
-            "endTime": "2026-11-01T19:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "e528a215-bcc0-499d-827e-b8062aeb00ed",
-            "active": true
-          },
-          {
-            "rowId": 2790,
-            "eventId": "EVT-B2539038BFA2",
-            "title": "Gudstjeneste G18 m/nattverd",
-            "startTime": "2026-11-08T17:00:00Z",
-            "endTime": "2026-11-08T19:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "57882301-2e92-4828-9180-f70efd88ec50",
-            "active": true
-          },
-          {
-            "rowId": 2791,
-            "eventId": "EVT-29E45FFE4402",
-            "title": "Gudstjeneste G18",
-            "startTime": "2026-11-22T17:00:00Z",
-            "endTime": "2026-11-22T19:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "352bcf97-ff16-42e9-a974-38481679b26e",
-            "active": true
-          },
-          {
-            "rowId": 2792,
-            "eventId": "EVT-2FE1B8E13AB0",
-            "title": "Gudstjeneste G18 - 1. søndag i advent",
-            "startTime": "2026-11-29T17:00:00Z",
-            "endTime": "2026-11-29T19:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "3fd5fb0f-c224-4ee2-be98-decec2165f10",
-            "active": true
-          },
-          {
-            "rowId": 2793,
-            "eventId": "EVT-8807DE5CE638",
-            "title": "Gudstjeneste G18 - 2. søndag i advent",
-            "startTime": "2026-12-06T17:00:00Z",
-            "endTime": "2026-12-06T19:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "d8eb1249-78ad-4c67-bda9-428e1022ea82",
-            "active": true
-          },
-          {
-            "rowId": 2794,
-            "eventId": "EVT-C3734F155B4A",
-            "title": "Gudstjeneste G18 - 3. søndag i advent m/nattverd",
-            "startTime": "2026-12-13T17:00:00Z",
-            "endTime": "2026-12-13T19:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "71710e8e-0648-458b-8768-0193641dae47",
-            "active": true
-          },
-          {
-            "rowId": 2795,
-            "eventId": "EVT-BCAE65C49437",
-            "title": "JOIN Ungdomsgudstjeneste",
-            "startTime": "2026-09-05T18:00:00Z",
-            "endTime": "2026-09-05T21:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "b684bfe3-cf65-4f13-abbe-0082ec731891",
-            "active": true
-          },
-          {
-            "rowId": 2796,
-            "eventId": "EVT-A2737D1308D4",
-            "title": "JOIN Ungdomsgudstjeneste",
-            "startTime": "2026-11-07T19:00:00Z",
-            "endTime": "2026-11-07T22:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "2427057e-db43-4c03-a7d8-cd4eeb2b8a4c",
-            "active": true
-          },
-          {
-            "rowId": 2797,
-            "eventId": "EVT-5BA9CBCE8CFB",
-            "title": "JOIN Ungdomsgudstjeneste",
-            "startTime": "2026-11-28T19:00:00Z",
-            "endTime": "2026-11-28T22:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "d5925a44-8760-4a59-8bd1-5b5469a93751",
-            "active": true
-          },
-          {
-            "rowId": 2798,
-            "eventId": "EVT-7F1AFA812DA7",
-            "title": "JOIN Ungdomsgudstjeneste",
-            "startTime": "2026-08-29T18:00:00Z",
-            "endTime": "2026-08-29T21:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Betania Bedehus Tananger, Båtstadveien 2",
-            "source": "IMI-kirken",
-            "sourceEventId": "aa02ffc7-efe7-4f22-bb0c-9ccf44b35272",
-            "active": true
-          },
-          {
-            "rowId": 2799,
-            "eventId": "EVT-6036FF8AD7D3",
-            "title": "JOIN Ungdomsgudstjeneste",
-            "startTime": "2026-09-26T18:00:00Z",
-            "endTime": "2026-09-26T21:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Betania Bedehus, Tananger, Båtstadvegen 2",
-            "source": "IMI-kirken",
-            "sourceEventId": "e9d76ffc-2bf2-44f6-9081-49a624397835",
-            "active": true
-          },
-          {
-            "rowId": 2800,
-            "eventId": "EVT-05D574FB090F",
-            "title": "JOIN Ungdomsgudstjeneste",
-            "startTime": "2026-10-24T18:00:00Z",
-            "endTime": "2026-10-24T21:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Batania Bedehus, Tananger, Båtstadvegen 2",
-            "source": "IMI-kirken",
-            "sourceEventId": "761ed054-a87e-423a-9eff-1a7375e7bcc0",
-            "active": true
-          },
-          {
-            "rowId": 2801,
-            "eventId": "EVT-714A043024E1",
-            "title": "JOIN Ungdomsgudstjeneste",
-            "startTime": "2026-11-21T19:00:00Z",
-            "endTime": "2026-11-21T22:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Betania Bedehus, Tananger, Båtstadvegen 2",
-            "source": "IMI-kirken",
-            "sourceEventId": "6c1c3823-eb39-4c29-b7cd-c895c19629b3",
-            "active": true
-          },
-          {
-            "rowId": 2802,
-            "eventId": "EVT-27A4D11AC4B9",
-            "title": "Dåp",
-            "startTime": "2026-09-06T09:00:00Z",
-            "endTime": "2026-09-06T11:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "2acf08d6-ca2e-4261-a321-434bd5a6dcfc",
-            "active": true
-          },
-          {
-            "rowId": 2803,
-            "eventId": "EVT-100FCB62E805",
-            "title": "Dåp",
-            "startTime": "2026-09-06T16:00:00Z",
-            "endTime": "2026-09-06T18:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "c979480c-98d1-474d-8a36-51e91afca0aa",
-            "active": true
-          },
-          {
-            "rowId": 2804,
-            "eventId": "EVT-A610694698A0",
-            "title": "Dåp",
-            "startTime": "2026-11-22T10:00:00Z",
-            "endTime": "2026-11-22T12:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "dd619df1-0bdb-459b-a287-5a9d946e838e",
-            "active": true
-          },
-          {
-            "rowId": 2805,
-            "eventId": "EVT-F12090A36BF5",
-            "title": "Dåp",
-            "startTime": "2026-11-22T17:00:00Z",
-            "endTime": "2026-11-22T19:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "a0abb37c-89ab-4a25-a3c1-85aa09c0a9ef",
-            "active": true
-          },
-          {
-            "rowId": 2806,
-            "eventId": "EVT-4CDA2535E66D",
-            "title": "Åpen Himmel konferanse",
-            "startTime": "2026-09-18T17:00:00Z",
-            "endTime": "2026-09-20T21:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "94231db1-747b-44e5-b595-811131ae85f0",
-            "active": true
-          },
-          {
-            "rowId": 2807,
-            "eventId": "EVT-DAD0EDD99B11",
-            "title": "Felleskirkelig bibelkveld for unge voksne",
-            "startTime": "2026-08-31T17:00:00Z",
-            "endTime": "2026-08-31T20:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Puls Stavanger, Kirkebakken 34",
-            "source": "IMI-kirken",
-            "sourceEventId": "7f563cae-94e5-4bac-b4ed-434086252aea",
-            "active": true
-          },
-          {
-            "rowId": 2808,
-            "eventId": "EVT-888D60F3568D",
-            "title": "Pubkirka",
-            "startTime": "2026-08-30T17:00:00Z",
-            "endTime": "2026-08-30T21:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "5bba19be-bf39-4b16-9bb8-217216263153",
-            "active": true
-          },
-          {
-            "rowId": 2809,
-            "eventId": "EVT-A66B59A1DC7E",
-            "title": "Salmepub med Ava Everland",
-            "startTime": "2026-09-06T17:00:00Z",
-            "endTime": "2026-09-06T21:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "4ecf2846-c747-4cd1-9031-f6bc0edb1638",
-            "active": true
-          },
-          {
-            "rowId": 2810,
-            "eventId": "EVT-7C4B2AA62437",
-            "title": "Pubkirka",
-            "startTime": "2026-09-13T17:00:00Z",
-            "endTime": "2026-09-13T21:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "c6deb3ee-1664-49a1-98bb-30174f0a3dd2",
-            "active": true
-          },
-          {
-            "rowId": 2811,
-            "eventId": "EVT-BFF65ED44D92",
-            "title": "Pubkirka",
-            "startTime": "2026-09-20T17:00:00Z",
-            "endTime": "2026-09-20T21:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "7843a1b2-1f5c-4acd-987d-31c31a72140e",
-            "active": true
-          },
-          {
-            "rowId": 2812,
-            "eventId": "EVT-53DBDCAE30BE",
-            "title": "Pubkirka - Grill en kristen",
-            "startTime": "2026-09-27T17:00:00Z",
-            "endTime": "2026-09-27T21:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "16164eb1-d819-482d-ab7b-6ba6c678564c",
-            "active": true
-          },
-          {
-            "rowId": 2813,
-            "eventId": "EVT-7B6C72F546FA",
-            "title": "Salmepub med Synnøve Aanensen",
-            "startTime": "2026-10-04T17:00:00Z",
-            "endTime": "2026-10-04T21:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "266bba3d-b4d8-4280-a288-b7cb55531fac",
-            "active": true
-          },
-          {
-            "rowId": 2814,
-            "eventId": "EVT-D27273F7FC61",
-            "title": "Pubkirka",
-            "startTime": "2026-10-11T17:00:00Z",
-            "endTime": "2026-10-11T21:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "72832919-df2f-414e-977f-ce255d1a7fb4",
-            "active": true
-          },
-          {
-            "rowId": 2815,
-            "eventId": "EVT-8E7A803A4218",
-            "title": "Pubkirka",
-            "startTime": "2026-10-18T17:00:00Z",
-            "endTime": "2026-10-18T21:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "d6708c91-5d58-406f-a559-969c78703c4b",
-            "active": true
-          },
-          {
-            "rowId": 2816,
-            "eventId": "EVT-81850E857A74",
-            "title": "Pubkirka",
-            "startTime": "2026-10-25T18:00:00Z",
-            "endTime": "2026-10-25T22:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "8073e39f-60e0-46c1-b30d-e7650a63f810",
-            "active": true
-          },
-          {
-            "rowId": 2817,
-            "eventId": "EVT-15EE5B96AE87",
-            "title": "Salmepub med Hege Kristin Kjærvoll",
-            "startTime": "2026-11-01T18:00:00Z",
-            "endTime": "2026-11-01T22:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "0e1b875f-9ca6-431c-a81a-a96ec6994d6a",
-            "active": true
-          },
-          {
-            "rowId": 2818,
-            "eventId": "EVT-0BF0EA2DB21E",
-            "title": "Pubkirka",
-            "startTime": "2026-11-08T18:00:00Z",
-            "endTime": "2026-11-08T22:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "ef0c3fdf-8f85-4170-9a2c-77a4fea35c66",
-            "active": true
-          },
-          {
-            "rowId": 2819,
-            "eventId": "EVT-1B8738905DB3",
-            "title": "Pubkirka",
-            "startTime": "2026-11-15T18:00:00Z",
-            "endTime": "2026-11-15T22:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "e319e391-3783-4c15-b165-935d99d2f302",
-            "active": true
-          },
-          {
-            "rowId": 2820,
-            "eventId": "EVT-083DA151EF00",
-            "title": "Pubkirka",
-            "startTime": "2026-11-22T18:00:00Z",
-            "endTime": "2026-11-22T22:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "158336de-debf-4e3d-885c-df357fdd5571",
-            "active": true
-          },
-          {
-            "rowId": 2821,
-            "eventId": "EVT-965828BE2524",
-            "title": "Salmepub med Ingrid Kjosavik",
-            "startTime": "2026-11-29T18:00:00Z",
-            "endTime": "2026-11-29T22:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "f45ea785-1ba3-4a8b-bffa-d7e357d7d61a",
-            "active": true
-          },
-          {
-            "rowId": 2822,
-            "eventId": "EVT-BADD6BC59829",
-            "title": "Pubkirka",
-            "startTime": "2026-12-06T18:00:00Z",
-            "endTime": "2026-12-06T22:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "e29dbe24-771c-4644-a8b9-9234f5cfc18b",
-            "active": true
-          },
-          {
-            "rowId": 2823,
-            "eventId": "EVT-8E0CD40D067B",
-            "title": "Pubkirka",
-            "startTime": "2026-12-13T18:00:00Z",
-            "endTime": "2026-12-13T22:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Kirkegaten 36",
-            "source": "IMI-kirken",
-            "sourceEventId": "dc06a5e9-3aa6-4c1f-bf4a-f1b0d6b3e486",
-            "active": true
-          },
-          {
-            "rowId": 2824,
-            "eventId": "EVT-08C5439F97CC",
-            "title": "Alpha",
-            "startTime": "2026-10-13T17:30:00Z",
-            "endTime": "2026-12-01T20:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "a507125f-28cf-453a-b648-dae63a21a134",
-            "active": true
-          },
-          {
-            "rowId": 2825,
-            "eventId": "EVT-4DF09F124AC7",
-            "title": "Foreldrekveld",
-            "startTime": "2026-09-08T17:30:00Z",
-            "endTime": "2026-09-08T18:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "4df021c4-d0cb-4fd3-959c-42beef319670",
-            "active": true
-          },
-          {
-            "rowId": 2826,
-            "eventId": "EVT-B1597ACC08C6",
-            "title": "Foreldrekveld",
-            "startTime": "2026-10-13T17:30:00Z",
-            "endTime": "2026-10-13T19:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "86eee35d-672b-4ab1-b0cf-fc2ecae93862",
-            "active": true
-          },
-          {
-            "rowId": 2827,
-            "eventId": "EVT-952BC225D24C",
-            "title": "Foreldrekveld",
-            "startTime": "2026-11-10T18:30:00Z",
-            "endTime": "2026-11-10T20:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "b863f874-d891-4c2c-a626-8d2230eab921",
-            "active": true
-          },
-          {
-            "rowId": 2828,
-            "eventId": "EVT-7BBEF25DC172",
-            "title": "Felleskirkelig bibelkveld for unge voksne",
-            "startTime": "2026-09-14T17:00:00Z",
-            "endTime": "2026-09-14T20:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "IMI-kirken",
-            "source": "IMI-kirken",
-            "sourceEventId": "9f7000f3-9ed8-4d9f-becc-a384bb15c9d4",
-            "active": true
-          },
-          {
-            "rowId": 2829,
-            "eventId": "EVT-28255B796CD6",
-            "title": "Felleskirkelig bibelkveld for unge voksne",
-            "startTime": "2026-09-28T17:00:00Z",
-            "endTime": "2026-09-28T20:00:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Puls, Kirkebakken 34",
-            "source": "IMI-kirken",
-            "sourceEventId": "e3401c14-9c20-4617-a0cb-acc886821990",
-            "active": true
-          },
-          {
-            "rowId": 2830,
-            "eventId": "EVT-9F88D089D66B",
-            "title": "Hele IMI ber!",
-            "startTime": "2026-09-07T22:00:00Z",
-            "endTime": "2026-09-11T21:30:00Z",
-            "organizer": "IMI-kirken",
-            "location": "Bønnehuset Gunnar Warebergsgt. 15",
-            "source": "IMI-kirken",
-            "sourceEventId": "38513bfb-c54a-4c34-86a6-64679575711a",
-            "active": true
-          }
-        ]
+        "createdEvents": []
       }
     ],
     "areas": [
@@ -1600,7 +603,7 @@
         "eventsTable": 1137493,
         "sourcesTable": 1137506,
         "created": 0,
-        "updated": 583,
+        "updated": 537,
         "errors": 13,
         "rawErrors": 13,
         "sourceCount": 25
@@ -1611,7 +614,7 @@
         "eventsTable": 1144908,
         "sourcesTable": 1144922,
         "created": 0,
-        "updated": 1502,
+        "updated": 1501,
         "errors": 0,
         "rawErrors": 0,
         "sourceCount": 3,
@@ -2581,223 +1584,7 @@
               ],
               "sampleEvents": [
                 {
-                  "title": "Bibelkveld Sandnes",
-                  "location": "Amfi og Foaje",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3,
-                    4,
-                    6,
-                    8
-                  ],
-                  "organizationIds": [
-                    "ORG-0015",
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bibelkveld Sandnes",
-                  "location": "Amfi og Foaje",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3,
-                    4,
-                    6,
-                    8
-                  ],
-                  "organizationIds": [
-                    "ORG-0015",
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bibelkveld Sandnes",
-                  "location": "Amfi og Foaje",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3,
-                    4,
-                    6,
-                    8
-                  ],
-                  "organizationIds": [
-                    "ORG-0015",
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bibelkveld Sandnes",
-                  "location": "Amfi og Foaje",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3,
-                    4,
-                    6,
-                    8
-                  ],
-                  "organizationIds": [
-                    "ORG-0015",
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bibelkveld Sandnes",
-                  "location": "Amfi og Foaje",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3,
-                    4,
-                    6,
-                    8
-                  ],
-                  "organizationIds": [
-                    "ORG-0015",
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bibelkveld Sandnes",
-                  "location": "Amfi og Foaje",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3,
-                    4,
-                    6,
-                    8
-                  ],
-                  "organizationIds": [
-                    "ORG-0015",
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bibelkveld Sandnes",
-                  "location": "Amfi og Foaje",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3,
-                    4,
-                    6,
-                    8
-                  ],
-                  "organizationIds": [
-                    "ORG-0015",
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bibelkveld Sandnes",
-                  "location": "Amfi og Foaje",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3,
-                    4,
-                    6,
-                    8
-                  ],
-                  "organizationIds": [
-                    "ORG-0015",
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Camp Fredheim",
+                  "title": "TRE18 Hjemme Hos",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -2820,7 +1607,7 @@
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Aktiv Søndag gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -2836,14 +1623,14 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    1
                   ],
                   "organizationIds": [
                     "ORG-0008"
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Bønnemøte i kapellet",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -2859,14 +1646,14 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
+                  "title": "Bønnemøte i kapellet",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -2882,7 +1669,191 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
@@ -3255,29 +2226,6 @@
               ],
               "sampleEvents": [
                 {
-                  "title": "Connect Forsand",
-                  "location": "Forsand Bedehus, Fossanvegen 271, 4110 Forsand",
-                  "settlementHint": "Forsand",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    19
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 19,
-                      "name": "Forsand",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    6
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
                   "title": "Samlingsudstjeneste med nattverd og dåp",
                   "location": "Lura kirke, Kobberveien 109, 4313 Sandnes",
                   "settlementHint": "Sandnes",
@@ -3533,6 +2481,29 @@
                   "organizationIds": [
                     "ORG-0001"
                   ]
+                },
+                {
+                  "title": "Åpen kirke",
+                  "location": "Riska kirke, Amboltveien 2, 4310 Hommersåk",
+                  "settlementHint": "Hommersåk",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    28
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 28,
+                      "name": "Riska",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
                 }
               ]
             }
@@ -3544,8 +2515,8 @@
         "name": "Stavanger",
         "eventsTable": 1146207,
         "sourcesTable": 1146151,
-        "created": 83,
-        "updated": 0,
+        "created": 0,
+        "updated": 82,
         "errors": 0,
         "rawErrors": 0,
         "sourceCount": 1,
@@ -116753,6 +115724,48 @@
       "description": "Tidebønn i kapell.Lunsj i kontor Å19.Ta med lunsj, eller kjøp deg inn i stabslunsj for 25,- (knekkebrød)Vi ber Laudes, selv om den egentlig er litt tidl. på dagen (ettersom den er litt lengre enn &quot;bønn i løpet a dagen&quot;). Tidebønn bøker ligger i kapellet.",
       "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
       "source": "Fredheim Arena",
+      "active": true
+    },
+    {
+      "id": "EVT-4FE82B0E0113",
+      "title": "Møtehelg",
+      "startTime": "2027-09-10T17:00:00Z",
+      "endTime": "2027-09-10T19:00:00Z",
+      "meetingTypes": [
+        "Møteveke / helg"
+      ],
+      "organizationIds": [],
+      "organizations": [],
+      "organizer": "Nærbø Bedehus",
+      "location": "Nærbø bedehus",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://narbobedehus.no/39-2/",
+      "source": "Nærbø Bedehus",
+      "active": true
+    },
+    {
+      "id": "EVT-ADBC970EC2C3",
+      "title": "NiKKO | Ungdomsklubben i Gand 🌊✝️",
+      "startTime": "2027-09-10T18:00:00Z",
+      "endTime": "2027-09-10T21:30:00Z",
+      "meetingTypes": [
+        "Ungdom"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Gand sokn",
+      "location": "Gand kirke, Juvelveien 4, 4318 Sandnes",
+      "settlement": "Sandved",
+      "municipality": "Sandnes",
+      "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
+      "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-dcf9725ea206",
+      "source": "Den norske kirke – Sandnes",
       "active": true
     }
   ]
