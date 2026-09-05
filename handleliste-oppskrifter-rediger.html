@@ -1,252 +1,29 @@
 <!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Rediger oppskrifter</title>
-<!-- version: design-toggle-soft-default-2026-06-08+theme-gray-lightfix-2026-06-08+mobile-toolbar-polish-2026-06-09+status-blue-2026-06-09+lightmode-buttons-2026-06-09 --><!-- version: shopping-recipes-edit-v3-worker-detail-2026-06-04 --><style>
-:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;--active-button:#b8c0c7;--active-button-text:#222;--soft-card-bg:rgba(0,0,0,.035);--soft-row-bg:rgba(0,0,0,.055);--soft-button-bg:rgba(0,0,0,.075);--soft-button-hover:rgba(0,0,0,.11);--soft-empty-bg:rgba(0,0,0,.045);}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;--active-button:#5a5a5a;--active-button-text:#fff;--soft-card-bg:rgba(255,255,255,.038);--soft-row-bg:rgba(0,0,0,.18);--soft-button-bg:rgba(255,255,255,.055);--soft-button-hover:rgba(255,255,255,.09);--soft-empty-bg:rgba(0,0,0,.12);}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:1100px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.small-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.action-button,.small-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.small-button{min-height:28px;min-width:30px;padding:0 8px;font-size:12px;}.primary{background:var(--active-button);border-color:var(--active-button);color:var(--active-button-text);}.danger{color:#ff8b8b;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--link);}.recipe-card{border:1px solid var(--border);border-radius:10px;padding:9px;margin-bottom:8px;background:rgba(127,127,127,.04);}.recipe-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start;}.recipe-title{font-size:17px;font-weight:bold;line-height:1.15;}.recipe-description{color:var(--muted);font-size:12px;margin-top:2px;}.recipe-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}.ingredient-list{margin-top:8px;display:flex;flex-direction:column;gap:2px;}.ingredient-row{display:grid;grid-template-columns:minmax(0,1.2fr) 150px 90px minmax(0,.8fr) auto;gap:5px;align-items:center;border:1px solid var(--border);border-radius:7px;padding:4px 6px;min-height:32px;}.ingredient-name{font-weight:bold;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.ingredient-note{color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}select,input{min-height:30px;padding:0 8px;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);font-size:13px;}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}@media(max-width:800px){body{padding:6px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.toolbar{align-items:stretch;width:100%;}.action-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.recipe-header{grid-template-columns:1fr;}.recipe-actions{justify-content:flex-start;}.ingredient-row{grid-template-columns:1fr;gap:4px;}.ingredient-row .recipe-actions{justify-content:flex-start;}select,input{width:100%;}}/* shopping-toolbar-cleanup-2026-06-05 */ .top-button.bestille-top-button{font-size:20px;} .top-button.handle-top-button{font-size:20px;} .toolbar-separator{display:inline-block;width:12px;flex:0 0 12px;} @media(max-width:700px){.toolbar-separator{width:100%;flex:0 0 100%;height:0;}}
-/* Designvelger: mykt design er standard. Klassisk design aktiveres med html.classic-design-root. */
-html:not(.classic-design-root) .card,
-html:not(.classic-design-root) .summary-item,
-html:not(.classic-design-root) .recipe-card,
-html:not(.classic-design-root) .history-group,
-html:not(.classic-design-root) .modal-content{
-  border:0 !important;
-  background:var(--soft-card-bg) !important;
-  box-shadow:none !important;
-}
-html:not(.classic-design-root) .status.card,
-html:not(.classic-design-root) .card .status{
-  border:0 !important;
-}
-html:not(.classic-design-root) .item-row,
-html:not(.classic-design-root) .history-row,
-html:not(.classic-design-root) .recipe-row,
-html:not(.classic-design-root) .ingredient-row,
-html:not(.classic-design-root) .edit-row,
-html:not(.classic-design-root) .type-row{
-  border:0 !important;
-  background:var(--soft-row-bg) !important;
-  box-shadow:none !important;
-}
-html:not(.classic-design-root) .top-button,
-html:not(.classic-design-root) .action-button,
-html:not(.classic-design-root) .owner-button,
-html:not(.classic-design-root) .chain-button,
-html:not(.classic-design-root) .type-button,
-html:not(.classic-design-root) .small-button,
-html:not(.classic-design-root) .delete-button,
-html:not(.classic-design-root) .standard-button{
-  border:0 !important;
-  background:var(--soft-button-bg) !important;
-  box-shadow:none !important;
-}
-html:not(.classic-design-root) .owner-button.active,
-html:not(.classic-design-root) .chain-button.active,
-html:not(.classic-design-root) .primary{
-  background:var(--active-button) !important;
-  color:var(--active-button-text) !important;
-}
-html:not(.classic-design-root) .empty{
-  border:0 !important;
-  background:var(--soft-empty-bg) !important;
-}
-.theme-toggle-button{font-size:19px;}/* Soft/light-mode button visibility fix. */
-body:not(.dark-mode).soft-design .top-button,
-body:not(.dark-mode).soft-design .action-button,
-body:not(.dark-mode).soft-design .option-button,
-body:not(.dark-mode).soft-design .owner-button,
-body:not(.dark-mode).soft-design .chain-button,
-body:not(.dark-mode).soft-design .type-button,
-body:not(.dark-mode).soft-design .small-button{
-  background:var(--button) !important;
-  color:var(--text) !important;
-}
-body:not(.dark-mode).soft-design .primary,
-body:not(.dark-mode).soft-design .option-button.active,
-body:not(.dark-mode).soft-design .owner-button.active,
-body:not(.dark-mode).soft-design .chain-button.active,
-body:not(.dark-mode).soft-design .type-button.active{
-  background:var(--active-button) !important;
-  color:var(--active-button-text) !important;
-}
-
-
-/* Handleliste v62: felles roligere primær-/meldingsfarge */
-body.dark-mode{
-  --handle-important-button:#2f5f6f;
-  --handle-important-button-hover:#376f82;
-  --handle-important-text:#7fb4c2;
-}
-body:not(.dark-mode){
-  --handle-important-button:#245f73;
-  --handle-important-button-hover:#2d7188;
-  --handle-important-text:#245f73;
-}
-.primary,
-.action-button.primary,
-.option-button.active,
-html:not(.classic-design-root) .primary,
-html:not(.classic-design-root) .action-button.primary,
-html:not(.classic-design-root) .option-button.active{
-  background:var(--handle-important-button) !important;
-  border-color:var(--handle-important-button) !important;
-  color:#fff !important;
-}
-.primary:hover,
-.action-button.primary:hover,
-.option-button.active:hover,
-html:not(.classic-design-root) .primary:hover,
-html:not(.classic-design-root) .action-button.primary:hover,
-html:not(.classic-design-root) .option-button.active:hover{
-  background:var(--handle-important-button-hover) !important;
-  border-color:var(--handle-important-button-hover) !important;
-  color:#fff !important;
-}
-.status.success,
-.status.ok,
-#status.success,
-#status.ok{
-  color:var(--handle-important-text) !important;
-}
-
-
-/* Handleliste v63: resten av viktige knapper og valgknapper samme rolige farge */
-.owner-button.active,
-.owner-button.selected,
-.owner-button.current,
-.owner-button[aria-pressed="true"],
-.filter-button.active,
-.filter-button.selected,
-.list-button.active,
-.list-button.selected,
-#saveDefaultButton.primary,
-#saveDefaultButton.action-button.primary,
-button.primary,
-a.primary,
-.action-button.primary,
-.option-button.active{
-  background:var(--handle-important-button) !important;
-  border-color:var(--handle-important-button) !important;
-  color:#fff !important;
-}
-.owner-button.active:hover,
-.owner-button.selected:hover,
-.owner-button.current:hover,
-.owner-button[aria-pressed="true"]:hover,
-.filter-button.active:hover,
-.filter-button.selected:hover,
-.list-button.active:hover,
-.list-button.selected:hover,
-#saveDefaultButton.primary:hover,
-#saveDefaultButton.action-button.primary:hover,
-button.primary:hover,
-a.primary:hover,
-.action-button.primary:hover,
-.option-button.active:hover{
-  background:var(--handle-important-button-hover) !important;
-  border-color:var(--handle-important-button-hover) !important;
-  color:#fff !important;
-}
-
-/* Varsling v63: avkrysningsbokser for e-post/SMS skal ikke vokse med A++ */
-.recipient-row{
-  grid-template-columns:1fr minmax(72px,82px) minmax(72px,82px) !important;
-}
-.recipient-check{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:6px !important;
-  min-height:24px !important;
-  line-height:1.1 !important;
-  font-size:12px !important;
-  white-space:nowrap !important;
-}
-.recipient-check input[type="checkbox"]{
-  width:18px !important;
-  height:18px !important;
-  min-width:18px !important;
-  min-height:18px !important;
-  max-width:18px !important;
-  max-height:18px !important;
-  transform:none !important;
-  margin:0 !important;
-  flex:0 0 18px !important;
-}
-@media(max-width:700px){
-  .recipient-row{
-    grid-template-columns:1fr 74px 74px !important;
-  }
-}
-
-</style><script>
-if(!String.prototype.replaceAll){
-  String.prototype.replaceAll=function(search,replacement){
-    return String(this).split(search).join(replacement);
-  };
-}
-</script>
-
-</head><body class="dark-mode"><script>
-(function(){
-  try{
-    const savedDesign = localStorage.getItem("shoppingDesign") || "soft";
-    document.documentElement.classList.toggle("classic-design-root", savedDesign === "classic");
-  }catch(e){}
-})();
-window.applyShoppingDesignState = function(){
-  try{
-    const isClassic = document.documentElement.classList.contains("classic-design-root");
-    const btn = document.getElementById("shoppingDesignToggle");
-    if(btn){
-      btn.textContent = isClassic ? "◩" : "◫";
-      btn.title = isClassic ? "Bytt til mykt design" : "Bytt til klassisk design";
-      btn.setAttribute("aria-label", btn.title);
-    }
-  }catch(e){}
-};
-window.toggleShoppingDesign = function(){
-  try{
-    const isClassic = document.documentElement.classList.toggle("classic-design-root");
-    localStorage.setItem("shoppingDesign", isClassic ? "classic" : "soft");
-    window.applyShoppingDesignState();
-  }catch(e){}
-};
-document.addEventListener("DOMContentLoaded", window.applyShoppingDesignState);
-window.applyShoppingThemeState=function(){
-  try{
-    const savedTheme=localStorage.getItem("shoppingTheme")||localStorage.getItem("brochureTheme")||"dark";
-    const isDark=savedTheme==="dark";
-    document.body.classList.toggle("dark-mode",isDark);
-    localStorage.setItem("shoppingTheme",isDark?"dark":"light");
-    localStorage.setItem("brochureTheme",isDark?"dark":"light");
-    const btn=document.getElementById("shoppingThemeToggle");
-    if(btn){
-      btn.textContent=isDark?"✱":"☾";
-      btn.title=isDark?"Bytt til lys modus":"Bytt til mørk modus";
-      btn.setAttribute("aria-label",btn.title);
-    }
-  }catch(e){}
-};
-window.toggleShoppingTheme=function(){
-  try{
-    const isDark=document.body.classList.contains("dark-mode");
-    localStorage.setItem("shoppingTheme",isDark?"light":"dark");
-    localStorage.setItem("brochureTheme",isDark?"light":"dark");
-    window.applyShoppingThemeState();
-  }catch(e){}
-};
-document.addEventListener("DOMContentLoaded",window.applyShoppingThemeState);
-</script><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger oppskrifter</div><div class="top-buttons handleliste-shared-top-menu" id="handlelisteTopMenu"></div></div>
-<div class="card"><div class="toolbar"><a class="action-button" href="handleliste-oppskrifter.html">Oppskrifter</a><button class="action-button primary" type="button" onclick="createRecipe()">Ny oppskrift</button></div></div>
+<!-- version: recipe-item-existing-search-v7-2026-09-05 --><!-- version: recipes-use-shopping-type-options-v4-2026-06-04 --><!-- version: shopping-recipes-edit-v3-worker-detail-2026-06-04 --><style>
+:root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:1100px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.small-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.action-button,.small-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.small-button{min-height:28px;min-width:30px;padding:0 8px;font-size:12px;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.danger{color:#ff8b8b;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.recipe-card{border:1px solid var(--border);border-radius:10px;padding:9px;margin-bottom:8px;background:rgba(127,127,127,.04);}.recipe-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start;}.recipe-title{font-size:17px;font-weight:bold;line-height:1.15;}.recipe-description{color:var(--muted);font-size:12px;margin-top:2px;}.recipe-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}.ingredient-list{margin-top:8px;display:flex;flex-direction:column;gap:2px;}.ingredient-row{display:grid;grid-template-columns:minmax(0,1.2fr) 150px 90px minmax(0,.8fr) auto;gap:5px;align-items:center;border:1px solid var(--border);border-radius:7px;padding:4px 6px;min-height:32px;}.ingredient-name{font-weight:bold;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.ingredient-note{color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}select,input{min-height:30px;padding:0 8px;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);font-size:13px;}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}@media(max-width:800px){body{padding:6px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.toolbar{align-items:stretch;width:100%;}.action-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.recipe-header{grid-template-columns:1fr;}.recipe-actions{justify-content:flex-start;}.ingredient-row{grid-template-columns:1fr;gap:4px;}.ingredient-row .recipe-actions{justify-content:flex-start;}select,input{width:100%;}}/* shopping-toolbar-cleanup-2026-06-05 */ .top-button.bestille-top-button{font-size:20px;} .top-button.handle-top-button{font-size:20px;} .toolbar-separator{display:inline-block;width:12px;flex:0 0 12px;} @media(max-width:700px){.toolbar-separator{width:100%;flex:0 0 100%;height:0;}}</style></head><body class="dark-mode"><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger oppskrifter</div><div class="top-buttons"><a class="top-button" href="handleliste-oppskrifter.html" title="Tilbake til oppskrifter">←</a><a class="top-button handle-top-button" href="handleliste-handle.html" title="Handle">🛒</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a></div></div>
+<div class="card"><div class="toolbar"><a class="action-button" href="handleliste-oppskrifter.html">Oppskrifter</a><button class="action-button primary" type="button" onclick="createRecipe()">+ Ny oppskrift</button></div></div>
 <div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="recipeRoot"></div></div></div><script>
 const API_BASE="https://api-kvimarka92.carstereogarage.com";
 const DEFAULT_TYPES=["Frukt og grønt","Meieri","Kjøtt og fisk","Brød","Tørrvarer","Frysevarer","Drikke","Husholdning","Personlig","Annet"];
-function esc(value){return String(value==null?"":value).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&#039;");}
-async function fetchJson(url,options){const res=await fetch(url,Object.assign({credentials:"include"},options||{}));const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error((data&&data.detail)||(data&&data.error)||`HTTP ${res.status}`);}return data;}
+function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+async function fetchJson(url,options){const res=await fetch(url,{credentials:"include",...(options||{})});const data=await res.json().catch(()=>null);if(!res.ok||(data&&data.error)){throw new Error(data?.detail||data?.error||`HTTP ${res.status}`);}return data;}
 function setStatus(message,type){const el=document.getElementById("status");el.className="status"+(type?` ${type}`:"");el.innerHTML=message||"";}
-let recipes=[];let recipeItems=[];let typeOptions=[...DEFAULT_TYPES];
+let recipes=[];let recipeItems=[];let shoppingItems=[];let typeOptions=[...DEFAULT_TYPES];
 function itemsForRecipe(recipeId){return recipeItems.filter(item=>Number(item.recipeId)===Number(recipeId)).sort((a,b)=>Number(a.sortOrder||0)-Number(b.sortOrder||0));}
 function typeSelectHtml(item){return `<select onchange="updateRecipeItem(${item.id},{type:this.value})">${typeOptions.map(type=>`<option value="${esc(type)}" ${type===item.type?"selected":""}>${esc(type)}</option>`).join("")}</select>`;}
-function render(){const root=document.getElementById("recipeRoot");if(!recipes.length){root.innerHTML='<div class="empty">Ingen oppskrifter er lagt inn ennå.</div>';return;}root.innerHTML=recipes.map(recipe=>`<div class="recipe-card"><div class="recipe-header"><div><div class="recipe-title" onclick="renameRecipe(${recipe.id})" title="Klikk for å endre navn">${esc(recipe.name)}</div>${recipe.description?`<div class="recipe-description">${esc(recipe.description)}</div>`:""}</div><div class="recipe-actions"><button class="small-button" onclick="editRecipeDescription(${recipe.id})">Beskrivelse</button><button class="small-button primary" onclick="createRecipeItem(${recipe.id})">Vare</button><button class="small-button danger" onclick="deleteRecipe(${recipe.id})">🗑</button></div></div><div class="ingredient-list">${itemsForRecipe(recipe.id).map((item,index,arr)=>`<div class="ingredient-row"><div><div class="ingredient-name" onclick="renameRecipeItem(${item.id})" title="Klikk for å endre varenavn">${esc(item.itemName)}</div>${item.note?`<div class="ingredient-note">${esc(item.note)}</div>`:""}</div>${typeSelectHtml(item)}<input value="${esc(item.quantity)}" placeholder="Mengde" onchange="updateRecipeItem(${item.id},{quantity:this.value})"><input value="${esc(item.note)}" placeholder="Notat" onchange="updateRecipeItem(${item.id},{note:this.value})"><div class="recipe-actions"><button class="small-button" ${index===0?"disabled":""} onclick="moveRecipeItem(${item.id},-1)">↑</button><button class="small-button" ${index===arr.length-1?"disabled":""} onclick="moveRecipeItem(${item.id},1)">↓</button><button class="small-button danger" onclick="deleteRecipeItem(${item.id})">🗑</button></div></div>`).join("")}</div></div>`).join("");}
-async function loadRecipes(){setStatus("Laster oppskrifter...");try{const data=await fetchJson(`${API_BASE}/shopping/recipes`);recipes=Array.isArray(data.recipes)?data.recipes:[];recipeItems=Array.isArray(data.recipeItems)?data.recipeItems:[];typeOptions=Array.isArray(data.typeOptions)&&data.typeOptions.length?data.typeOptions:DEFAULT_TYPES;render();setStatus("Klar. Klikk på oppskriftsnavn eller varenavn for å endre.","success");}catch(error){setStatus(`Kunne ikke laste oppskrifter.<br><br>${esc(error.message)}`,"error");}}
+function render(){const root=document.getElementById("recipeRoot");if(!recipes.length){root.innerHTML='<div class="empty">Ingen oppskrifter er lagt inn ennå.</div>';return;}root.innerHTML=recipes.map(recipe=>`<div class="recipe-card"><div class="recipe-header"><div><div class="recipe-title" onclick="renameRecipe(${recipe.id})" title="Klikk for å endre navn">${esc(recipe.name)}</div>${recipe.description?`<div class="recipe-description">${esc(recipe.description)}</div>`:""}</div><div class="recipe-actions"><button class="small-button" onclick="editRecipeDescription(${recipe.id})">Beskrivelse</button><button class="small-button primary" onclick="createRecipeItem(${recipe.id})">Legg til vare</button><button class="small-button danger" onclick="deleteRecipe(${recipe.id})">🗑</button></div></div><div class="ingredient-list">${itemsForRecipe(recipe.id).map((item,index,arr)=>`<div class="ingredient-row"><div><div class="ingredient-name" onclick="renameRecipeItem(${item.id})" title="Klikk for å endre varenavn">${esc(item.itemName)}</div>${item.note?`<div class="ingredient-note">${esc(item.note)}</div>`:""}</div>${typeSelectHtml(item)}<input value="${esc(item.quantity)}" placeholder="Mengde" onchange="updateRecipeItem(${item.id},{quantity:this.value})"><input value="${esc(item.note)}" placeholder="Notat" onchange="updateRecipeItem(${item.id},{note:this.value})"><div class="recipe-actions"><button class="small-button" ${index===0?"disabled":""} onclick="moveRecipeItem(${item.id},-1)">↑</button><button class="small-button" ${index===arr.length-1?"disabled":""} onclick="moveRecipeItem(${item.id},1)">↓</button><button class="small-button danger" onclick="deleteRecipeItem(${item.id})">🗑</button></div></div>`).join("")}</div></div>`).join("");}
+async function loadRecipes(){setStatus("Laster oppskrifter...");try{
+  const [recipeData,itemData]=await Promise.all([
+    fetchJson(`${API_BASE}/shopping/recipes`),
+    fetchJson(`${API_BASE}/shopping/items`).catch(()=>({items:[]}))
+  ]);
+  recipes=Array.isArray(recipeData.recipes)?recipeData.recipes:[];
+  recipeItems=Array.isArray(recipeData.recipeItems)?recipeData.recipeItems:[];
+  shoppingItems=Array.isArray(itemData.items)?itemData.items:[];
+  typeOptions=Array.isArray(recipeData.typeOptions)&&recipeData.typeOptions.length?recipeData.typeOptions:DEFAULT_TYPES;
+  render();
+  setStatus("Klar. Klikk på oppskriftsnavn eller varenavn for å endre.","success");
+}catch(error){setStatus(`Kunne ikke laste oppskrifter.<br><br>${esc(error.message)}`,"error");}}
 async function createRecipe(){const name=prompt("Navn på ny oppskrift:");if(!name)return;try{await fetchJson(`${API_BASE}/shopping/recipe-create`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({name})});await loadRecipes();setStatus("Oppskriften er opprettet.","success");}catch(error){setStatus(`Kunne ikke opprette oppskrift.<br><br>${esc(error.message)}`,"error");}}
 async function renameRecipe(id){const recipe=recipes.find(item=>Number(item.id)===Number(id));if(!recipe)return;const name=prompt("Nytt oppskriftsnavn:",recipe.name);if(!name||name===recipe.name)return;await updateRecipe(id,{name});}
 async function editRecipeDescription(id){const recipe=recipes.find(item=>Number(item.id)===Number(id));if(!recipe)return;const description=prompt("Beskrivelse:",recipe.description||"");if(description===null)return;await updateRecipe(id,{description});}
@@ -268,7 +45,9 @@ function openRecipeItemModal(recipeId){
           <button class="top-button" type="button" id="recipeItemModalClose" style="width:42px;height:42px;font-size:24px;">×</button>
         </div>
         <label style="display:block;font-weight:bold;margin:10px 0 6px;">Varenavn</label>
-        <input id="recipeItemModalName" type="text" style="width:100%;" autocomplete="off">
+        <input id="recipeItemModalName" type="text" style="width:100%;" autocomplete="off" placeholder="Skriv for å søke i eksisterende varer">
+        <div id="recipeItemSuggestions" style="display:none;margin-top:6px;border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:220px;overflow-y:auto;"></div>
+        <div id="recipeItemExistingHint" style="display:none;margin-top:6px;color:var(--success);font-size:12px;font-weight:bold;">✓ Finnes allerede i Handleliste</div>
         <label style="display:block;font-weight:bold;margin:12px 0 6px;">Varetype</label>
         <select id="recipeItemModalType" style="width:100%;">
           ${typeOptions.map(type=>`<option value="${esc(type)}" ${type===defaultType?"selected":""}>${esc(type)}</option>`).join("")}
@@ -292,6 +71,83 @@ function openRecipeItemModal(recipeId){
     const typeInput=modal.querySelector("#recipeItemModalType");
     const quantityInput=modal.querySelector("#recipeItemModalQuantity");
     const saveButton=modal.querySelector("#recipeItemModalSave");
+    const suggestionsEl=modal.querySelector("#recipeItemSuggestions");
+    const existingHint=modal.querySelector("#recipeItemExistingHint");
+
+    function normalizedName(value){
+      return String(value||"").trim().toLocaleLowerCase("no");
+    }
+
+    function uniqueExistingItems(){
+      const byName=new Map();
+      (Array.isArray(shoppingItems)?shoppingItems:[]).forEach(item=>{
+        const name=String(item?.name||item?.itemName||"").trim();
+        if(!name){return;}
+        const key=normalizedName(name);
+        if(!byName.has(key)){
+          byName.set(key,{
+            name,
+            type:String(item?.type||"Annet").trim()||"Annet"
+          });
+        }
+      });
+      return [...byName.values()].sort((a,b)=>a.name.localeCompare(b.name,"no",{sensitivity:"base"}));
+    }
+
+    const existingItems=uniqueExistingItems();
+
+    function exactExistingItem(value){
+      const key=normalizedName(value);
+      if(!key){return null;}
+      return existingItems.find(item=>normalizedName(item.name)===key)||null;
+    }
+
+    function renderSuggestions(){
+      const query=normalizedName(nameInput.value);
+      const exact=exactExistingItem(nameInput.value);
+      existingHint.style.display=exact?"block":"none";
+
+      if(!query){
+        suggestionsEl.style.display="none";
+        suggestionsEl.innerHTML="";
+        return;
+      }
+
+      const matches=existingItems
+        .filter(item=>normalizedName(item.name).includes(query))
+        .slice(0,10);
+
+      if(!matches.length){
+        suggestionsEl.style.display="none";
+        suggestionsEl.innerHTML="";
+        return;
+      }
+
+      suggestionsEl.innerHTML=matches.map((item,index)=>`
+        <button type="button"
+          data-suggestion-index="${index}"
+          style="display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border:0;border-bottom:1px solid var(--border);background:var(--card);color:var(--text);text-align:left;cursor:pointer;">
+          <strong>${esc(item.name)}</strong>
+          <span style="color:var(--muted);font-size:12px;">${esc(item.type)}</span>
+        </button>
+      `).join("");
+
+      suggestionsEl.style.display="block";
+      [...suggestionsEl.querySelectorAll("[data-suggestion-index]")].forEach((button,index)=>{
+        button.addEventListener("click",()=>{
+          const selected=matches[index];
+          nameInput.value=selected.name;
+          if(typeOptions.includes(selected.type)){
+            typeInput.value=selected.type;
+          }
+          suggestionsEl.style.display="none";
+          existingHint.style.display="block";
+          quantityInput.focus();
+        });
+      });
+    }
+
+    nameInput.addEventListener("input",renderSuggestions);
 
     modal.querySelector("#recipeItemModalClose").addEventListener("click",()=>close(null));
     modal.querySelector("#recipeItemModalCancel").addEventListener("click",()=>close(null));
@@ -341,105 +197,4 @@ async function updateRecipeItem(id,body){try{await fetchJson(`${API_BASE}/shoppi
 async function deleteRecipeItem(id){const item=recipeItems.find(item=>Number(item.id)===Number(id));if(!item||!confirm(`Fjerne «${item.itemName}» fra oppskriften?`))return;try{await fetchJson(`${API_BASE}/shopping/recipe-item-delete`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id})});await loadRecipes();setStatus("Varen er fjernet fra oppskriften.","success");}catch(error){setStatus(`Kunne ikke fjerne varen.<br><br>${esc(error.message)}`,"error");}}
 async function moveRecipeItem(id,direction){const item=recipeItems.find(item=>Number(item.id)===Number(id));if(!item)return;const list=itemsForRecipe(item.recipeId);const index=list.findIndex(entry=>Number(entry.id)===Number(id));const target=list[index+direction];if(!target)return;const oldSort=item.sortOrder;item.sortOrder=target.sortOrder;target.sortOrder=oldSort;render();try{await updateRecipeItem(item.id,{sortOrder:item.sortOrder});await updateRecipeItem(target.id,{sortOrder:target.sortOrder});await loadRecipes();}catch(error){setStatus(`Kunne ikke flytte varen.<br><br>${esc(error.message)}`,"error");await loadRecipes();}}
 loadRecipes();
-</script>
-<script>
-(function(){
-  const APP_PAGE_RE = /^handleliste-[a-z0-9-]+\.html$/i;
-  const HOME_TARGET = 'index.html?restoreMenu=1';
-
-  function currentPage(){
-    return location.pathname.split('/').pop() || 'handleliste-bestille.html';
-  }
-
-  function isAppPage(page){
-    return APP_PAGE_RE.test(String(page || ''));
-  }
-
-  function safeAppTarget(value){
-    if(!value) return '';
-    try{
-      const url = new URL(value, location.href);
-      if(url.origin !== location.origin) return '';
-      const page = url.pathname.split('/').pop();
-      if(!isAppPage(page)) return '';
-      return page + url.search + url.hash;
-    }catch(e){
-      const clean = String(value).trim();
-      const page = clean.split('?')[0].split('#')[0];
-      return isAppPage(page) ? clean : '';
-    }
-  }
-
-  function currentTargetForBack(){
-    const url = new URL(location.href);
-    const page = currentPage();
-    const params = new URLSearchParams(url.search);
-    const legacyFrom = params.get('from');
-    const existingBack = params.get('back');
-
-    params.delete('from');
-
-    if(!existingBack && legacyFrom){
-      const safeLegacy = safeAppTarget(legacyFrom);
-      if(safeLegacy) params.set('back', safeLegacy);
-    }
-
-    const query = params.toString();
-    return page + (query ? '?' + query : '') + url.hash;
-  }
-
-  function getBackTarget(){
-    const params = new URLSearchParams(location.search);
-    return safeAppTarget(params.get('back')) || safeAppTarget(params.get('from')) || HOME_TARGET;
-  }
-
-  function addBackToUrl(rawHref){
-    if(!rawHref) return rawHref;
-    if(/^#|^(mailto|sms|tel|javascript):/i.test(rawHref)) return rawHref;
-
-    try{
-      const url = new URL(rawHref, location.href);
-      if(url.origin !== location.origin) return rawHref;
-      const page = url.pathname.split('/').pop();
-      const here = currentPage();
-
-      if(isAppPage(page) && page !== here){
-        url.searchParams.delete('from');
-        if(!url.searchParams.has('back')){
-          url.searchParams.set('back', currentTargetForBack());
-        }
-        return page + url.search + url.hash;
-      }
-    }catch(e){}
-
-    return rawHref;
-  }
-
-  function appBack(event){
-    event.preventDefault();
-    location.href = getBackTarget();
-  }
-
-  function initAppNavigation(){
-    document.querySelectorAll('a[href]').forEach(function(anchor){
-      const href = anchor.getAttribute('href');
-      const nextHref = addBackToUrl(href);
-      if(nextHref !== href) anchor.setAttribute('href', nextHref);
-    });
-
-    document.querySelectorAll('.top-buttons .top-button').forEach(function(button){
-      if((button.textContent || '').trim() === '←'){
-        button.addEventListener('click', appBack);
-      }
-    });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initAppNavigation);
-  }else{
-    initAppNavigation();
-  }
-})();
-</script>
-
-<script src="handleliste-menu.js?v=28"></script></body></html>
+</script></body></html>
