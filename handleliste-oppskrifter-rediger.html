@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Handleliste - Rediger oppskrifter</title>
-<!-- version: recipe-item-shopping-link-v8-2026-09-05 --><!-- version: recipes-use-shopping-type-options-v4-2026-06-04 --><!-- version: shopping-recipes-edit-v3-worker-detail-2026-06-04 --><style>
+<!-- version: recipe-item-full-dialog-v9-2026-09-05 --><!-- version: recipes-use-shopping-type-options-v4-2026-06-04 --><!-- version: shopping-recipes-edit-v3-worker-detail-2026-06-04 --><style>
 :root{--bg:#f2f2f2;--card:#fff;--text:#333;--muted:#667;--border:#ccc;--link:#1f789d;--button:#fff;--button-hover:#e9eef2;--soft:#eaeaea;--success:#72c184;--danger:#d77;}body.dark-mode{--bg:#151515;--card:#242424;--text:#eee;--muted:#bbb;--border:#555;--link:#7cc7e8;--button:#242424;--button-hover:#3a3a3a;--soft:#333;}*{box-sizing:border-box;}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;}.container{max-width:1100px;margin:auto;}.header{text-align:center;margin-bottom:20px;}.site-title{margin:0;font-size:30px;}.subtitle{margin-top:8px;color:var(--muted);font-size:16px;}.top-buttons{display:flex;justify-content:center;align-items:center;gap:10px;margin:14px 0 0;}.top-button{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:24px;font-weight:bold;line-height:1;cursor:pointer;}.top-button:hover,.action-button:hover,.small-button:hover{background:var(--button-hover);}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}.action-button,.small-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;background:var(--button);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:bold;text-decoration:none;cursor:pointer;font-size:14px;}.small-button{min-height:28px;min-width:30px;padding:0 8px;font-size:12px;}.primary{background:var(--link);border-color:var(--link);color:#fff;}.danger{color:#ff8b8b;}.status{color:var(--muted);line-height:1.35;font-size:14px;}.status.error{color:var(--danger);}.status.success{color:var(--success);}.recipe-card{border:1px solid var(--border);border-radius:10px;padding:9px;margin-bottom:8px;background:rgba(127,127,127,.04);}.recipe-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start;}.recipe-title{font-size:17px;font-weight:bold;line-height:1.15;}.recipe-description{color:var(--muted);font-size:12px;margin-top:2px;}.recipe-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}.ingredient-list{margin-top:8px;display:flex;flex-direction:column;gap:2px;}.ingredient-row{display:grid;grid-template-columns:minmax(0,1.2fr) 150px 90px minmax(0,.8fr) auto;gap:5px;align-items:center;border:1px solid var(--border);border-radius:7px;padding:4px 6px;min-height:32px;}.ingredient-name{font-weight:bold;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.ingredient-note{color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}select,input{min-height:30px;padding:0 8px;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);font-size:13px;}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px;}@media(max-width:800px){body{padding:6px;}.site-title{font-size:28px;}.card{padding:7px;margin-bottom:7px;border-radius:10px;}.toolbar{align-items:stretch;width:100%;}.action-button{flex:1 1 auto;min-height:31px;padding:0 7px;font-size:12px;}.recipe-header{grid-template-columns:1fr;}.recipe-actions{justify-content:flex-start;}.ingredient-row{grid-template-columns:1fr;gap:4px;}.ingredient-row .recipe-actions{justify-content:flex-start;}select,input{width:100%;}}/* shopping-toolbar-cleanup-2026-06-05 */ .top-button.bestille-top-button{font-size:20px;} .top-button.handle-top-button{font-size:20px;} .toolbar-separator{display:inline-block;width:12px;flex:0 0 12px;} @media(max-width:700px){.toolbar-separator{width:100%;flex:0 0 100%;height:0;}}</style></head><body class="dark-mode"><div class="container"><div class="header"><h1 class="site-title">Handleliste</h1><div class="subtitle">Rediger oppskrifter</div><div class="top-buttons"><a class="top-button" href="handleliste-oppskrifter.html" title="Tilbake til oppskrifter">←</a><a class="top-button handle-top-button" href="handleliste-handle.html" title="Handle">🛒</a><a class="top-button bestille-top-button" href="handleliste-bestille.html" title="Bestille">☑</a><a class="top-button" href="index.html" title="Hovedside">⌂</a><a class="top-button" href="help.html?case=Handleliste" title="Hjelp">?</a></div></div>
 <div class="card"><div class="toolbar"><a class="action-button" href="handleliste-oppskrifter.html">Oppskrifter</a><button class="action-button primary" type="button" onclick="createRecipe()">+ Ny oppskrift</button></div></div>
 <div class="card"><div id="status" class="status">Laster...</div></div><div class="card"><div id="recipeRoot"></div></div></div><script>
@@ -29,34 +29,97 @@ async function renameRecipe(id){const recipe=recipes.find(item=>Number(item.id)=
 async function editRecipeDescription(id){const recipe=recipes.find(item=>Number(item.id)===Number(id));if(!recipe)return;const description=prompt("Beskrivelse:",recipe.description||"");if(description===null)return;await updateRecipe(id,{description});}
 async function updateRecipe(id,body){try{await fetchJson(`${API_BASE}/shopping/recipe-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id,...body})});await loadRecipes();setStatus("Oppskriften er lagret.","success");}catch(error){setStatus(`Kunne ikke lagre oppskrift.<br><br>${esc(error.message)}`,"error");}}
 async function deleteRecipe(id){const recipe=recipes.find(item=>Number(item.id)===Number(id));if(!recipe||!confirm(`Slette oppskriften «${recipe.name}»?`))return;try{await fetchJson(`${API_BASE}/shopping/recipe-delete`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id})});await loadRecipes();setStatus("Oppskriften er fjernet.","success");}catch(error){setStatus(`Kunne ikke slette oppskriften.<br><br>${esc(error.message)}`,"error");}}
-function openRecipeItemModal(recipeId){
+function resizeRecipeImageFileToDataUrl(file,maxSize=1200,quality=.82){
+  return new Promise((resolve,reject)=>{
+    if(!file){resolve("");return;}
+    if(!/^image\//i.test(file.type||"")){reject(new Error("Velg en bildefil."));return;}
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const scale=Math.min(1,maxSize/Math.max(img.width,img.height));
+        const canvas=document.createElement("canvas");
+        canvas.width=Math.max(1,Math.round(img.width*scale));
+        canvas.height=Math.max(1,Math.round(img.height*scale));
+        const ctx=canvas.getContext("2d");
+        ctx.fillStyle="#fff";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL("image/jpeg",quality));
+      };
+      img.onerror=()=>reject(new Error("Kunne ikke lese bildet."));
+      img.src=reader.result;
+    };
+    reader.onerror=()=>reject(new Error("Kunne ikke lese bildet."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function recipeShoppingItemById(id){
+  return shoppingItems.find(item=>Number(item.id)===Number(id))||null;
+}
+
+function openRecipeItemModal(recipeId,editItem=null){
   return new Promise(resolve => {
     const existing=document.getElementById("recipeItemModal");
     if(existing){existing.remove();}
 
-    const defaultType=typeOptions[0]||"Annet";
+    const linkedAtStart=editItem?.shoppingItemId ? recipeShoppingItemById(editItem.shoppingItemId) : null;
+    const defaultType=editItem?.type || linkedAtStart?.type || typeOptions[0] || "Annet";
     const modal=document.createElement("div");
     modal.id="recipeItemModal";
-    modal.style.cssText="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;";
+    modal.style.cssText="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box;overflow:auto;";
     modal.innerHTML=`
-      <div style="width:min(520px,100%);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.35);">
+      <div style="width:min(560px,100%);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.35);margin:auto;">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;">
-          <div style="font-size:22px;font-weight:bold;">Legg til vare i oppskrift</div>
+          <div style="font-size:22px;font-weight:bold;">${editItem?"Rediger vare i oppskrift":"Legg til vare i oppskrift"}</div>
           <button class="top-button" type="button" id="recipeItemModalClose" style="width:42px;height:42px;font-size:24px;">×</button>
         </div>
-        <label style="display:block;font-weight:bold;margin:10px 0 6px;">Varenavn</label>
-        <input id="recipeItemModalName" type="text" style="width:100%;" autocomplete="off" placeholder="Skriv for å søke i eksisterende varer">
+
+        <label style="display:block;font-weight:bold;margin:10px 0 6px;">Eksisterende vare</label>
+        <input id="recipeItemExistingSearch" type="text" style="width:100%;" autocomplete="off" placeholder="Søk i eksisterende Handleliste-varer" value="${esc(linkedAtStart?.name||"")}">
         <div id="recipeItemSuggestions" style="display:none;margin-top:6px;border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:220px;overflow-y:auto;"></div>
-        <div id="recipeItemExistingHint" style="display:none;margin-top:6px;color:var(--success);font-size:12px;font-weight:bold;">✓ Finnes allerede i Handleliste</div>
-        <label style="display:block;font-weight:bold;margin:12px 0 6px;">Varetype</label>
+        <div id="recipeItemLinkStatus" style="display:none;margin-top:6px;font-size:12px;font-weight:bold;"></div>
+
+        <label style="display:block;font-weight:bold;margin:12px 0 6px;">Varenavn</label>
+        <input id="recipeItemModalName" type="text" style="width:100%;" autocomplete="off" value="${esc(editItem?.itemName||linkedAtStart?.name||"")}">
+
+        <label style="display:block;font-weight:bold;margin:12px 0 6px;">Varetype/butikk</label>
         <select id="recipeItemModalType" style="width:100%;">
           ${typeOptions.map(type=>`<option value="${esc(type)}" ${type===defaultType?"selected":""}>${esc(type)}</option>`).join("")}
         </select>
+
         <label style="display:block;font-weight:bold;margin:12px 0 6px;">Mengde</label>
-        <input id="recipeItemModalQuantity" type="text" style="width:100%;" placeholder="Valgfritt, f.eks. 2 stk eller 400 g">
-        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px;">
-          <button class="action-button" type="button" id="recipeItemModalCancel">Avbryt</button>
-          <button class="action-button primary" type="button" id="recipeItemModalSave">Lagre vare</button>
+        <input id="recipeItemModalQuantity" type="text" style="width:100%;" value="${esc(editItem?.quantity||"")}" placeholder="Valgfritt, f.eks. 2 stk eller 400 g">
+
+        <label style="display:block;font-weight:bold;margin:12px 0 6px;">Notat</label>
+        <input id="recipeItemModalNote" type="text" style="width:100%;" value="${esc(editItem?.note||"")}" placeholder="Valgfritt">
+
+        <label style="display:block;font-weight:bold;margin:12px 0 6px;">Web-link</label>
+        <input id="recipeItemModalWebUrl" type="url" style="width:100%;" value="${esc(linkedAtStart?.webUrl||editItem?.webUrl||"")}" placeholder="https://...">
+        <div id="recipeItemWebSourceHint" style="display:none;margin-top:4px;color:var(--muted);font-size:11px;">Web-link hentes fra koblet Handleliste-vare.</div>
+
+        <label style="display:block;font-weight:bold;margin:14px 0 8px;">Bilde av vare</label>
+        <input id="recipeItemImageInput" type="file" accept="image/*" style="position:absolute;left:-10000px;width:1px;height:1px;opacity:0;">
+        <div id="recipeItemImagePreview" style="display:none;align-items:center;gap:10px;margin-bottom:8px;">
+          <img id="recipeItemImagePreviewImg" alt="Forhåndsvisning" style="width:82px;height:82px;object-fit:cover;border-radius:10px;border:1px solid var(--border);">
+          <div>
+            <div id="recipeItemImageSource" style="font-size:12px;color:var(--muted);margin-bottom:6px;"></div>
+            <button class="action-button" type="button" id="recipeItemRemoveImage">Fjern bilde</button>
+          </div>
+        </div>
+        <div id="recipeItemImageActions" style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;">
+          <label class="action-button" for="recipeItemImageInput" style="cursor:pointer;">📷 Velg bilde lokalt</label>
+          <button class="action-button" type="button" id="recipeItemGoogleImage">🔎 Finn bilde i Google</button>
+          <div style="font-size:11px;color:var(--muted);">Lagre bildet på enheten og velg deretter «Velg bilde lokalt».</div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-top:18px;flex-wrap:wrap;">
+          <button class="action-button" type="button" id="recipeItemUnlink" style="display:none;">Fjern kobling</button>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-left:auto;">
+            <button class="action-button" type="button" id="recipeItemModalCancel">Avbryt</button>
+            <button class="action-button primary" type="button" id="recipeItemModalSave">Lagre vare</button>
+          </div>
         </div>
       </div>
     `;
@@ -67,12 +130,30 @@ function openRecipeItemModal(recipeId){
     }
 
     document.body.appendChild(modal);
+
+    const searchInput=modal.querySelector("#recipeItemExistingSearch");
     const nameInput=modal.querySelector("#recipeItemModalName");
     const typeInput=modal.querySelector("#recipeItemModalType");
     const quantityInput=modal.querySelector("#recipeItemModalQuantity");
+    const noteInput=modal.querySelector("#recipeItemModalNote");
+    const webUrlInput=modal.querySelector("#recipeItemModalWebUrl");
     const saveButton=modal.querySelector("#recipeItemModalSave");
     const suggestionsEl=modal.querySelector("#recipeItemSuggestions");
-    const existingHint=modal.querySelector("#recipeItemExistingHint");
+    const linkStatus=modal.querySelector("#recipeItemLinkStatus");
+    const unlinkButton=modal.querySelector("#recipeItemUnlink");
+    const imageInput=modal.querySelector("#recipeItemImageInput");
+    const imagePreview=modal.querySelector("#recipeItemImagePreview");
+    const imagePreviewImg=modal.querySelector("#recipeItemImagePreviewImg");
+    const imageSource=modal.querySelector("#recipeItemImageSource");
+    const imageActions=modal.querySelector("#recipeItemImageActions");
+    const removeImageButton=modal.querySelector("#recipeItemRemoveImage");
+    const webSourceHint=modal.querySelector("#recipeItemWebSourceHint");
+
+    let selectedShoppingItemId=Number(linkedAtStart?.id||0);
+    let selectedShoppingItem=linkedAtStart;
+    let imageDataUrl="";
+    let imageFileName="";
+    let removeImage=false;
 
     function normalizedName(value){
       return String(value||"").trim().toLocaleLowerCase("no");
@@ -81,120 +162,199 @@ function openRecipeItemModal(recipeId){
     function uniqueExistingItems(){
       const byName=new Map();
       (Array.isArray(shoppingItems)?shoppingItems:[]).forEach(item=>{
-        const name=String(item?.name||item?.itemName||"").trim();
-        if(!name){return;}
+        const name=String(item?.name||"").trim();
+        if(!name)return;
         const key=normalizedName(name);
-        if(!byName.has(key)){
-          byName.set(key,{
-            id:Number(item?.id||0),
-            name,
-            type:String(item?.type||"Annet").trim()||"Annet"
-          });
-        }
+        if(!byName.has(key))byName.set(key,item);
       });
-      return [...byName.values()].sort((a,b)=>a.name.localeCompare(b.name,"no",{sensitivity:"base"}));
+      return [...byName.values()].sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"no",{sensitivity:"base"}));
     }
 
     const existingItems=uniqueExistingItems();
-    let selectedShoppingItemId=0;
-    let selectedShoppingItemName="";
 
-    function exactExistingItem(value){
-      const key=normalizedName(value);
-      if(!key){return null;}
-      return existingItems.find(item=>normalizedName(item.name)===key)||null;
+    function linkedImageUrl(item){
+      return item?.thumbnailImageUrl || item?.imageUrl || item?.thumbnailImage?.url || item?.image?.url || "";
+    }
+
+    function ownImageUrl(){
+      return editItem?.thumbnailImageUrl || editItem?.imageUrl || editItem?.thumbnailImage?.url || editItem?.image?.url || "";
+    }
+
+    function showImage(url,sourceText,canRemove){
+      if(url){
+        imagePreviewImg.src=url;
+        imagePreview.style.display="flex";
+        imageSource.textContent=sourceText||"";
+      }else{
+        imagePreviewImg.removeAttribute("src");
+        imagePreview.style.display="none";
+        imageSource.textContent="";
+      }
+      removeImageButton.style.display=canRemove&&url?"inline-flex":"none";
+    }
+
+    function applyLinkedState(){
+      const linked=!!selectedShoppingItemId && !!selectedShoppingItem;
+      unlinkButton.style.display=linked?"inline-flex":"none";
+      linkStatus.style.display="block";
+      linkStatus.style.color=linked?"var(--success)":"var(--muted)";
+      linkStatus.textContent=linked
+        ? `✓ Koblet til Handleliste-vare: ${selectedShoppingItem.name}`
+        : "Ingen kobling. Varen lagres kun som oppskriftsvare.";
+
+      if(linked){
+        nameInput.value=selectedShoppingItem.name||nameInput.value;
+        if(typeOptions.includes(selectedShoppingItem.type))typeInput.value=selectedShoppingItem.type;
+        webUrlInput.value=selectedShoppingItem.webUrl||"";
+        webUrlInput.disabled=true;
+        webSourceHint.style.display="block";
+        imageActions.style.display="none";
+        imageDataUrl="";
+        imageFileName="";
+        removeImage=false;
+        showImage(linkedImageUrl(selectedShoppingItem),"Bilde fra Handleliste",false);
+      }else{
+        webUrlInput.disabled=false;
+        webSourceHint.style.display="none";
+        imageActions.style.display="flex";
+        if(imageDataUrl){
+          showImage(imageDataUrl,"Nytt bilde",true);
+        }else if(!removeImage){
+          showImage(ownImageUrl(),"Bilde lagret på oppskriftsvaren",true);
+        }else{
+          showImage("","",false);
+        }
+      }
     }
 
     function renderSuggestions(){
-      const query=normalizedName(nameInput.value);
-      const exact=exactExistingItem(nameInput.value);
-      existingHint.style.display=exact?"block":"none";
-
+      const query=normalizedName(searchInput.value);
       if(!query){
         suggestionsEl.style.display="none";
         suggestionsEl.innerHTML="";
         return;
       }
-
-      const matches=existingItems
-        .filter(item=>normalizedName(item.name).includes(query))
-        .slice(0,10);
-
+      const matches=existingItems.filter(item=>normalizedName(item.name).includes(query)).slice(0,10);
       if(!matches.length){
         suggestionsEl.style.display="none";
         suggestionsEl.innerHTML="";
         return;
       }
-
       suggestionsEl.innerHTML=matches.map((item,index)=>`
-        <button type="button"
-          data-suggestion-index="${index}"
+        <button type="button" data-suggestion-index="${index}"
           style="display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border:0;border-bottom:1px solid var(--border);background:var(--card);color:var(--text);text-align:left;cursor:pointer;">
           <strong>${esc(item.name)}</strong>
-          <span style="color:var(--muted);font-size:12px;">${esc(item.type)}</span>
+          <span style="color:var(--muted);font-size:12px;">${esc(item.type||"Annet")}</span>
         </button>
       `).join("");
-
       suggestionsEl.style.display="block";
       [...suggestionsEl.querySelectorAll("[data-suggestion-index]")].forEach((button,index)=>{
         button.addEventListener("click",()=>{
-          const selected=matches[index];
-          selectedShoppingItemId=Number(selected.id||0);
-          selectedShoppingItemName=selected.name;
-          nameInput.value=selected.name;
-          if(typeOptions.includes(selected.type)){
-            typeInput.value=selected.type;
-          }
+          selectedShoppingItem=matches[index];
+          selectedShoppingItemId=Number(selectedShoppingItem.id||0);
+          searchInput.value=selectedShoppingItem.name||"";
           suggestionsEl.style.display="none";
-          existingHint.style.display="block";
+          applyLinkedState();
           quantityInput.focus();
         });
       });
     }
 
-    nameInput.addEventListener("input",()=>{
-      if(normalizedName(nameInput.value)!==normalizedName(selectedShoppingItemName)){
-        selectedShoppingItemId=0;
-        selectedShoppingItemName="";
+    searchInput.addEventListener("input",renderSuggestions);
+    searchInput.addEventListener("focus",renderSuggestions);
+
+    unlinkButton.addEventListener("click",()=>{
+      selectedShoppingItemId=0;
+      selectedShoppingItem=null;
+      searchInput.value="";
+      applyLinkedState();
+      searchInput.focus();
+    });
+
+    imageInput.addEventListener("change",async event=>{
+      const file=event?.target?.files?.[0];
+      if(!file)return;
+      try{
+        imageDataUrl=await resizeRecipeImageFileToDataUrl(file);
+        imageFileName=file.name||"oppskriftsvare.jpg";
+        removeImage=false;
+        showImage(imageDataUrl,"Nytt bilde",true);
+      }catch(error){
+        alert(error.message||String(error));
+        imageInput.value="";
       }
-      renderSuggestions();
+    });
+
+    removeImageButton.addEventListener("click",()=>{
+      if(selectedShoppingItemId)return;
+      imageDataUrl="";
+      imageFileName="";
+      removeImage=true;
+      imageInput.value="";
+      showImage("","",false);
+    });
+
+    modal.querySelector("#recipeItemGoogleImage").addEventListener("click",()=>{
+      const query=String(nameInput.value||searchInput.value||"").trim();
+      if(!query){
+        alert("Skriv eller velg en vare først.");
+        return;
+      }
+      window.open(
+        "https://www.google.com/search?tbm=isch&q="+encodeURIComponent(query+" matvare hvit bakgrunn"),
+        "_blank",
+        "noopener,noreferrer"
+      );
     });
 
     modal.querySelector("#recipeItemModalClose").addEventListener("click",()=>close(null));
     modal.querySelector("#recipeItemModalCancel").addEventListener("click",()=>close(null));
-    modal.addEventListener("click",event=>{if(event.target===modal){close(null);}});
+    modal.addEventListener("click",event=>{if(event.target===modal)close(null);});
     modal.addEventListener("keydown",event=>{
-      if(event.key==="Escape"){close(null);}
-      if(event.key==="Enter" && event.target.tagName!=="TEXTAREA"){
+      if(event.key==="Escape")close(null);
+      if(event.key==="Enter" && event.target.tagName!=="TEXTAREA" && event.target!==searchInput){
         event.preventDefault();
         saveButton.click();
       }
     });
+
     saveButton.addEventListener("click",()=>{
       const itemName=nameInput.value.trim();
       if(!itemName){
         nameInput.focus();
         return;
       }
-      const exact=exactExistingItem(itemName);
-      const shoppingItemId=selectedShoppingItemId || Number(exact?.id||0);
 
-      close({
+      const payload={
         recipeId,
         itemName,
-        type:typeInput.value || "Annet",
+        type:typeInput.value||"Annet",
         quantity:quantityInput.value.trim(),
-        shoppingItemId
-      });
+        note:noteInput.value.trim(),
+        shoppingItemId:selectedShoppingItemId,
+        webUrl:selectedShoppingItemId ? undefined : webUrlInput.value.trim()
+      };
+
+      if(!selectedShoppingItemId){
+        if(imageDataUrl){
+          payload.imageDataUrl=imageDataUrl;
+          payload.imageFileName=imageFileName||"oppskriftsvare.jpg";
+        }else if(removeImage){
+          payload.removeImage=true;
+        }
+      }
+
+      close(payload);
     });
-    setTimeout(()=>nameInput.focus(),50);
+
+    applyLinkedState();
+    setTimeout(()=>editItem ? nameInput.focus() : searchInput.focus(),50);
   });
 }
 
 async function createRecipeItem(recipeId){
-  const values=await openRecipeItemModal(recipeId);
-  if(!values){return;}
-
+  const values=await openRecipeItemModal(recipeId,null);
+  if(!values)return;
   try{
     await fetchJson(`${API_BASE}/shopping/recipe-item-create`,{
       method:"POST",
@@ -207,7 +367,16 @@ async function createRecipeItem(recipeId){
     setStatus(`Kunne ikke legge til vare.<br><br>${esc(error.message)}`,"error");
   }
 }
-async function renameRecipeItem(id){const item=recipeItems.find(item=>Number(item.id)===Number(id));if(!item)return;const itemName=prompt("Nytt varenavn:",item.itemName);if(!itemName||itemName===item.itemName)return;await updateRecipeItem(id,{itemName});}
+
+async function renameRecipeItem(id){
+  const item=recipeItems.find(item=>Number(item.id)===Number(id));
+  if(!item)return;
+  const values=await openRecipeItemModal(item.recipeId,item);
+  if(!values)return;
+  delete values.recipeId;
+  await updateRecipeItem(id,values);
+}
+
 async function updateRecipeItem(id,body){try{await fetchJson(`${API_BASE}/shopping/recipe-item-update`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id,...body})});const item=recipeItems.find(item=>Number(item.id)===Number(id));if(item){Object.assign(item,body);}render();setStatus("Oppskriftsvaren er lagret.","success");}catch(error){setStatus(`Kunne ikke lagre oppskriftsvaren.<br><br>${esc(error.message)}`,"error");await loadRecipes();}}
 async function deleteRecipeItem(id){const item=recipeItems.find(item=>Number(item.id)===Number(id));if(!item||!confirm(`Fjerne «${item.itemName}» fra oppskriften?`))return;try{await fetchJson(`${API_BASE}/shopping/recipe-item-delete`,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({id})});await loadRecipes();setStatus("Varen er fjernet fra oppskriften.","success");}catch(error){setStatus(`Kunne ikke fjerne varen.<br><br>${esc(error.message)}`,"error");}}
 async function moveRecipeItem(id,direction){const item=recipeItems.find(item=>Number(item.id)===Number(id));if(!item)return;const list=itemsForRecipe(item.recipeId);const index=list.findIndex(entry=>Number(entry.id)===Number(id));const target=list[index+direction];if(!target)return;const oldSort=item.sortOrder;item.sortOrder=target.sortOrder;target.sortOrder=oldSort;render();try{await updateRecipeItem(item.id,{sortOrder:item.sortOrder});await updateRecipeItem(target.id,{sortOrder:target.sortOrder});await loadRecipes();}catch(error){setStatus(`Kunne ikke flytte varen.<br><br>${esc(error.message)}`,"error");await loadRecipes();}}
