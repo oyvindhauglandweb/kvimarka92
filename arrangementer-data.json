@@ -1,7 +1,7 @@
 {
   "schemaVersion": 6,
   "engineVersion": "v460-organizer-create-import-fix-2026-08-26",
-  "generatedAt": "2026-09-06T18:22:17.281Z",
+  "generatedAt": "2026-09-06T20:36:13.580Z",
   "areas": [
     {
       "key": "default",
@@ -22,8 +22,8 @@
   "eventCount": 4878,
   "importSummary": {
     "ok": false,
-    "startedAt": "2026-09-06T18:17:08.670Z",
-    "finishedAt": "2026-09-06T18:20:57.520Z",
+    "startedAt": "2026-09-06T20:28:53.617Z",
+    "finishedAt": "2026-09-06T20:34:03.700Z",
     "created": 0,
     "updated": 1700,
     "errors": 15,
@@ -67,7 +67,7 @@
         "area": "default",
         "sourceId": "SRC-0006",
         "name": "Varhaug Misjonshus",
-        "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}",
+        "error": "Varhaug-parser fant ingen arrangementer",
         "consecutiveFailures": 1,
         "threshold": 1
       },
@@ -139,7 +139,7 @@
         "area": "default",
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (UND_ERR_CONNECT_TIMEOUT): https://www.lyeforsamlingshus.no/events/liste/?tribe-bar-date=2026-09-01",
         "consecutiveFailures": 1,
         "threshold": 1
       },
@@ -182,7 +182,7 @@
         "area": "default",
         "sourceId": "SRC-0006",
         "name": "Varhaug Misjonshus",
-        "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}"
+        "error": "Varhaug-parser fant ingen arrangementer"
       },
       {
         "area": "default",
@@ -236,7 +236,7 @@
         "area": "default",
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)"
+        "error": "Kunne ikke hente kilde etter 3 forsøk (UND_ERR_CONNECT_TIMEOUT): https://www.lyeforsamlingshus.no/events/liste/?tribe-bar-date=2026-09-01"
       },
       {
         "area": "default",
@@ -318,7 +318,7 @@
         "created": 0,
         "updated": 0,
         "skipped": 0,
-        "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}",
+        "error": "Varhaug-parser fant ingen arrangementer",
         "consecutiveFailures": 1,
         "alarm": true,
         "deferredAlarm": false,
@@ -552,7 +552,7 @@
         "created": 0,
         "updated": 0,
         "skipped": 0,
-        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (UND_ERR_CONNECT_TIMEOUT): https://www.lyeforsamlingshus.no/events/liste/?tribe-bar-date=2026-09-01",
         "consecutiveFailures": 1,
         "alarm": true,
         "deferredAlarm": false,
@@ -1608,7 +1608,7 @@
               ],
               "sampleEvents": [
                 {
-                  "title": "Ny på Fredheim Arena?",
+                  "title": "TRE18 Hjemme Hos",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1631,8 +1631,224 @@
                   ]
                 },
                 {
-                  "title": "Zoom",
-                  "location": "",
+                  "title": "Bibelkveld Sandnes",
+                  "location": "Amfi og Foaje",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3,
+                    4,
+                    6,
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0015",
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bibelkveld Sandnes",
+                  "location": "Amfi og Foaje",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3,
+                    4,
+                    6,
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0015",
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bibelkveld Sandnes",
+                  "location": "Amfi og Foaje",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3,
+                    4,
+                    6,
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0015",
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bibelkveld Sandnes",
+                  "location": "Amfi og Foaje",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3,
+                    4,
+                    6,
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0015",
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bibelkveld Sandnes",
+                  "location": "Amfi og Foaje",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3,
+                    4,
+                    6,
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0015",
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bibelkveld Sandnes",
+                  "location": "Amfi og Foaje",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3,
+                    4,
+                    6,
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0015",
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bibelkveld Sandnes",
+                  "location": "Amfi og Foaje",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3,
+                    4,
+                    6,
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0015",
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bibelkveld Sandnes",
+                  "location": "Amfi og Foaje",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3,
+                    4,
+                    6,
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0015",
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "TRE18 Nyttårsfeiring",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1654,122 +1870,7 @@
                   ]
                 },
                 {
-                  "title": "Zoom",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Zoom",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Zoom",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Zoom",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Camp Fredheim",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1792,76 +1893,7 @@
                   ]
                 },
                 {
-                  "title": "Bønnemøte i kapellet",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bønnemøte i kapellet",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bønnemøte i kapellet",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Bønnemøte i kapellet",
+                  "title": "Bønn for forfulgte kristne",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
