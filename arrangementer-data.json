@@ -1,7 +1,7 @@
 {
   "schemaVersion": 6,
   "engineVersion": "v460-organizer-create-import-fix-2026-08-26",
-  "generatedAt": "2026-09-09T16:43:27.698Z",
+  "generatedAt": "2026-09-09T21:00:16.697Z",
   "areas": [
     {
       "key": "default",
@@ -19,17 +19,17 @@
       "eventsTable": 1146207
     }
   ],
-  "eventCount": 4794,
+  "eventCount": 4789,
   "importSummary": {
     "ok": false,
-    "startedAt": "2026-09-09T16:38:11.760Z",
-    "finishedAt": "2026-09-09T16:42:22.451Z",
-    "created": 0,
-    "updated": 1691,
-    "errors": 16,
-    "rawErrors": 16,
+    "startedAt": "2026-09-09T20:55:48.581Z",
+    "finishedAt": "2026-09-09T20:59:21.820Z",
+    "created": 1,
+    "updated": 1615,
+    "errors": 17,
+    "rawErrors": 17,
     "sourceCount": 29,
-    "successfulSources": 13,
+    "successfulSources": 12,
     "failedSources": [
       {
         "area": "default",
@@ -67,7 +67,7 @@
         "area": "default",
         "sourceId": "SRC-0006",
         "name": "Varhaug Misjonshus",
-        "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}",
+        "error": "Varhaug-parser fant ingen arrangementer",
         "consecutiveFailures": 1,
         "threshold": 1
       },
@@ -148,6 +148,14 @@
         "sourceId": "SRC-0024",
         "name": "Vigrestad Misjonshus Kjøkken nede",
         "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}",
+        "consecutiveFailures": 1,
+        "threshold": 1
+      },
+      {
+        "area": "default",
+        "sourceId": "SRC-0028",
+        "name": "Lye Forsamlingshus",
+        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
         "consecutiveFailures": 1,
         "threshold": 1
       },
@@ -190,7 +198,7 @@
         "area": "default",
         "sourceId": "SRC-0006",
         "name": "Varhaug Misjonshus",
-        "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}"
+        "error": "Varhaug-parser fant ingen arrangementer"
       },
       {
         "area": "default",
@@ -251,6 +259,12 @@
         "sourceId": "SRC-0024",
         "name": "Vigrestad Misjonshus Kjøkken nede",
         "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}"
+      },
+      {
+        "area": "default",
+        "sourceId": "SRC-0028",
+        "name": "Lye Forsamlingshus",
+        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)"
       },
       {
         "area": "default",
@@ -332,7 +346,7 @@
         "created": 0,
         "updated": 0,
         "skipped": 0,
-        "error": "Baserow BATCH POST 1137493: 403 {\"error\":\"ERROR_ROW_USAGE_LIMIT_EXCEEDED\",\"detail\":\"The row usage limit has been exceeded for more than 168 hours. Therefore, it's not possible to create new rows. Please reduce the number of rows, or upgrade your plan.\"}",
+        "error": "Varhaug-parser fant ingen arrangementer",
         "consecutiveFailures": 1,
         "alarm": true,
         "deferredAlarm": false,
@@ -564,11 +578,11 @@
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
         "created": 0,
-        "updated": 74,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
-        "consecutiveFailures": 0,
-        "alarm": false,
+        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
+        "consecutiveFailures": 1,
+        "alarm": true,
         "deferredAlarm": false,
         "createdEvents": []
       },
@@ -589,14 +603,27 @@
         "area": "sandnes",
         "sourceId": "SRC-0009",
         "name": "Fredheim Arena",
-        "created": 0,
-        "updated": 338,
+        "created": 1,
+        "updated": 337,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
         "alarm": false,
         "deferredAlarm": false,
-        "createdEvents": []
+        "createdEvents": [
+          {
+            "rowId": 6583,
+            "eventId": "EVT-F6129073A6A7",
+            "title": "Unge voksne",
+            "startTime": "2027-10-14T17:00:00Z",
+            "endTime": "2027-10-14T20:00:00Z",
+            "organizer": "Fredheim Arena",
+            "location": "Fredheim Arena",
+            "source": "Fredheim Arena",
+            "sourceEventId": "5E9A5065-1293-4D9F-A973-F3C51BEAF9CF::2027-10-14T19:00:00+02:00",
+            "active": true
+          }
+        ]
       },
       {
         "area": "sandnes",
@@ -616,7 +643,7 @@
         "sourceId": "SRC-0013",
         "name": "Den norske kirke – Sandnes",
         "created": 0,
-        "updated": 1102,
+        "updated": 1101,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -645,9 +672,9 @@
         "eventsTable": 1137493,
         "sourcesTable": 1137506,
         "created": 0,
-        "updated": 150,
-        "errors": 16,
-        "rawErrors": 16,
+        "updated": 76,
+        "errors": 17,
+        "rawErrors": 17,
         "sourceCount": 25
       },
       {
@@ -655,8 +682,8 @@
         "name": "Sandnes",
         "eventsTable": 1144908,
         "sourcesTable": 1144922,
-        "created": 0,
-        "updated": 1463,
+        "created": 1,
+        "updated": 1461,
         "errors": 0,
         "rawErrors": 0,
         "sourceCount": 3,
@@ -681,6 +708,40 @@
             "meetingTypeMatches": 17,
             "meetingTypeMismatches": 7,
             "samples": [
+              {
+                "rowId": 6583,
+                "title": "Unge voksne",
+                "requestedSettlementIds": [
+                  21
+                ],
+                "actualSettlementIds": [
+                  21
+                ],
+                "requestedMeetingTypeIds": [
+                  15
+                ],
+                "actualMeetingTypeIds": [
+                  15
+                ],
+                "rawSettlementReturned": [
+                  {
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
+                  }
+                ],
+                "rawMeetingTypeReturned": [
+                  {
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
+                  }
+                ],
+                "returnedKeys": [
+                  "field_10252555",
+                  "field_10252776"
+                ]
+              },
               {
                 "rowId": 3754,
                 "title": "KickOff",
@@ -1452,40 +1513,6 @@
                   "field_10252555",
                   "field_10252776"
                 ]
-              },
-              {
-                "rowId": 3777,
-                "title": "TRE18",
-                "requestedSettlementIds": [
-                  21
-                ],
-                "actualSettlementIds": [
-                  21
-                ],
-                "requestedMeetingTypeIds": [
-                  15
-                ],
-                "actualMeetingTypeIds": [
-                  15
-                ],
-                "rawSettlementReturned": [
-                  {
-                    "id": 21,
-                    "value": "SET-0020",
-                    "order": "20.00000000000000000000"
-                  }
-                ],
-                "rawMeetingTypeReturned": [
-                  {
-                    "id": 15,
-                    "value": "MT-0015",
-                    "order": "15.00000000000000000000"
-                  }
-                ],
-                "returnedKeys": [
-                  "field_10252555",
-                  "field_10252776"
-                ]
               }
             ]
           },
@@ -1615,79 +1642,8 @@
               ],
               "sampleEvents": [
                 {
-                  "title": "BASAR",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    18,
-                    6,
-                    13
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "ÅpenGymsal",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    13
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "ÅpenGymsal",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    13
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Zoom juleavslutning",
-                  "location": "",
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1709,8 +1665,8 @@
                   ]
                 },
                 {
-                  "title": "TRE18 Hjemme Hos",
-                  "location": "",
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1732,54 +1688,8 @@
                   ]
                 },
                 {
-                  "title": "Aktiv Søndag gudstjeneste kl.11.00-12.30",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    1
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Zoom Hjemme hos",
-                  "location": "",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    13
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "UVKonferansen",
-                  "location": "",
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1801,8 +1711,8 @@
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
-                  "location": "",
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1824,8 +1734,8 @@
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
-                  "location": "",
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1847,8 +1757,8 @@
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
-                  "location": "",
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1870,8 +1780,8 @@
                   ]
                 },
                 {
-                  "title": "Tidebønn og lunsj",
-                  "location": "",
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1887,6 +1797,121 @@
                   ],
                   "classifiedMeetingTypeIds": [
                     15
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "TRE18",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønn for forfulgte kristne",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
@@ -2260,29 +2285,6 @@
               ],
               "sampleEvents": [
                 {
-                  "title": "Øvelse Bogafjell Gospelkor",
-                  "location": "Bogafjell kirke, Lyngholen 3, 4324 Sandnes",
-                  "settlementHint": "Sandnes",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    12
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 12,
-                      "name": "Bogafjell",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    8
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
                   "title": "Knøttene åpen Barnehage",
                   "location": "Riska kirke, Amboltveien 2, 4310 Hommersåk",
                   "settlementHint": "Hommersåk",
@@ -2531,6 +2533,30 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Husfellesskap 🏠✝️",
+                  "location": "Gand kirke, Juvelveien 4, 4318 Sandnes",
+                  "settlementHint": "Sandnes",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    23
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 23,
+                      "name": "Sandved",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    6,
                     8
                   ],
                   "organizationIds": [
@@ -3375,122 +3401,6 @@
     "total": 32
   },
   "events": [
-    {
-      "id": "EVT-EA4457AF3D9D",
-      "title": "Ingen Hverdagsmesse pga Kong Haralds gravferd.",
-      "startTime": "2026-09-09T11:00:00Z",
-      "endTime": "2026-09-09T12:30:00Z",
-      "meetingTypes": [
-        "Annet"
-      ],
-      "organizationIds": [
-        "ORG-0001"
-      ],
-      "organizations": [
-        "Den norske kirke"
-      ],
-      "organizer": "Sandnes sokn",
-      "location": "Sandnes kirke, Kirkegaten, 4307 Sandnes",
-      "settlement": "Sandnes sentrum",
-      "municipality": "Sandnes",
-      "description": "",
-      "sourceUrl": "https://skjerikirken.no/arrangement/hverdagsmesse-e017a1c3032c",
-      "source": "Den norske kirke – Sandnes",
-      "active": true
-    },
-    {
-      "id": "EVT-C761E08C4673",
-      "title": "Babysang på Delta",
-      "startTime": "2026-09-09T11:30:00Z",
-      "endTime": "2026-09-09T13:00:00Z",
-      "meetingTypes": [
-        "Annet"
-      ],
-      "organizationIds": [
-        "ORG-0001"
-      ],
-      "organizations": [
-        "Den norske kirke"
-      ],
-      "organizer": "Høyland sokn",
-      "location": "Delta, Kjervastadveien 4, 4326 Sandnes",
-      "settlement": "Sandnes sentrum",
-      "municipality": "Sandnes",
-      "description": "Velkommen til babysang på Delta. Påmelding til diakonimedarbeider Jofrid Aarsland, ja638@kirken.no",
-      "sourceUrl": "https://skjerikirken.no/arrangement/babysang-pa-delta-4e33e35e2fcc",
-      "source": "Den norske kirke – Sandnes",
-      "active": true
-    },
-    {
-      "id": "EVT-F25F3A66E362",
-      "title": "UF (Hele huset)",
-      "startTime": "2026-09-09T12:00:00Z",
-      "endTime": "2026-09-09T16:00:00Z",
-      "meetingTypes": [
-        "Annet"
-      ],
-      "organizationIds": [
-        "ORG-0004"
-      ],
-      "organizations": [
-        "Misjonssambandet"
-      ],
-      "organizer": "Kleppe Bedehus",
-      "location": "Kleppe Bedehus",
-      "settlement": "Kleppe",
-      "municipality": "Klepp",
-      "description": "",
-      "sourceUrl": "https://www.google.com/calendar/event?eid=cDlqdG82cm9ydjVjNmNjZXE5Y3A1aG9xaGpfMjAyNjA5MDlUMTIwMDAwWiBiOGlvM2Q4Z3FiaGFkcGN1dmVvdmhkcTFmY0Bn&ctz=Europe/Oslo",
-      "source": "Kleppe Bedehus",
-      "active": true
-    },
-    {
-      "id": "EVT-EA4457AF3D9D",
-      "title": "Hverdagsmesse",
-      "startTime": "2026-09-09T13:00:00Z",
-      "endTime": "2026-09-09T14:30:00Z",
-      "meetingTypes": [
-        "Annet"
-      ],
-      "organizationIds": [
-        "ORG-0001"
-      ],
-      "organizations": [
-        "Den norske kirke"
-      ],
-      "organizer": "Sandnes sokn",
-      "location": "Sandnes kirke, Kirkegaten, 4307 Sandnes",
-      "settlement": "Sandnes sentrum",
-      "municipality": "Sandnes",
-      "description": "",
-      "sourceUrl": "https://skjerikirken.no/arrangement/hverdagsmesse-e017a1c3032c",
-      "source": "Den norske kirke – Sandnes",
-      "active": true
-    },
-    {
-      "id": "EVT-6A311F3E425D",
-      "title": "Kirkeonsdag",
-      "startTime": "2026-09-09T14:00:00Z",
-      "endTime": "2026-09-09T16:00:00Z",
-      "meetingTypes": [
-        "Barn",
-        "Sosialt"
-      ],
-      "organizationIds": [
-        "ORG-0001"
-      ],
-      "organizations": [
-        "Den norske kirke"
-      ],
-      "organizer": "Riska sokn",
-      "location": "Riska kirke, Amboltveien 2, 4310 Hommersåk",
-      "settlement": "Riska",
-      "municipality": "Sandnes",
-      "description": "Kl 16.00-17.00 serveres middag. Middagen må man melde seg på. Påmeldingen er på kirken.no/riska og åpner fredagen før. Kl. 17.00 er det småbarnssang for barn opp til tre år, Stjernen barneklubb for barn fra 4 år til 3. klasse og K-klubben for 4.-8. klasse. Opplegget slutter kl. 18.00",
-      "sourceUrl": "https://skjerikirken.no/arrangement/kirkeonsdag-8541f1c1f42f",
-      "source": "Den norske kirke – Sandnes",
-      "active": true
-    },
     {
       "id": "EVT-250FA0ECDAC3",
       "title": "Krøllekveld for 3-åringar",
