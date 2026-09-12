@@ -23,6 +23,10 @@ const env = {
     process.env.ARRANGEMENT_BASEROW_TOKEN_SANDNES || "",
   ARRANGEMENT_BASEROW_TOKEN_STAVANGER:
     process.env.ARRANGEMENT_BASEROW_TOKEN_STAVANGER || "",
+  ARRANGEMENT_BASEROW_TOKEN_TIME:
+    process.env.ARRANGEMENT_BASEROW_TOKEN_TIME || "",
+  ARRANGEMENT_BASEROW_TOKEN_KLEPP:
+    process.env.ARRANGEMENT_BASEROW_TOKEN_KLEPP || "",
   BASEROW_API_BASE: process.env.BASEROW_API_BASE || "https://api.baserow.io"
 };
 
@@ -36,6 +40,14 @@ if (!env.ARRANGEMENT_BASEROW_TOKEN_SANDNES) {
 
 if (!env.ARRANGEMENT_BASEROW_TOKEN_STAVANGER) {
   throw new Error("ARRANGEMENT_BASEROW_TOKEN_STAVANGER mangler.");
+}
+
+if (!env.ARRANGEMENT_BASEROW_TOKEN_TIME) {
+  throw new Error("ARRANGEMENT_BASEROW_TOKEN_TIME mangler.");
+}
+
+if (!env.ARRANGEMENT_BASEROW_TOKEN_KLEPP) {
+  throw new Error("ARRANGEMENT_BASEROW_TOKEN_KLEPP mangler.");
 }
 
 const outputPath = process.env.ARRANGEMENT_DATA_PATH || "arrangementer-data.json";
@@ -53,6 +65,20 @@ const historyPath = process.env.ARRANGEMENT_HISTORY_PATH || "arrangementer-impor
 
 
 function envForArea(areaKey) {
+  if (areaKey === "time") {
+    return {
+      ...env,
+      ARRANGEMENT_BASEROW_TOKEN: env.ARRANGEMENT_BASEROW_TOKEN_TIME
+    };
+  }
+
+  if (areaKey === "klepp") {
+    return {
+      ...env,
+      ARRANGEMENT_BASEROW_TOKEN: env.ARRANGEMENT_BASEROW_TOKEN_KLEPP
+    };
+  }
+
   if (areaKey === "sandnes") {
     return {
       ...env,
@@ -315,26 +341,22 @@ function dedupeExactSnapshotEvents(events) {
   return { events: output, removed };
 }
 
-async function migrateAreaOutOfDefault(areaKey) {
+async function migrateAreaOutOfDefault(areaKey, importedSources=[]) {
   if (areaKey === "default") {
     throw new Error("Kan ikke migrere default-området ut av seg selv.");
   }
 
-  // Les målområdets kilder. Disse er fasiten for hvilke kilder som er flyttet.
-  arrUseArea(areaKey);
   const targetArea = ARR_AREAS[areaKey];
-  const targetEnv = envForArea(areaKey);
-  const targetSources = await arrListAllRows(
-    targetEnv,
-    targetArea.tables.SOURCES
-  );
 
+  // V463: Bruk kun kildene som faktisk ble valgt/importert i målområdet.
+  // Vi leser IKKE hele målområdets Sources-tabell, fordi Time/Klepp kan
+  // inneholde kopierte kilder fra andre kommuner.
   const movedSourceIds = new Set();
   const movedSourceNames = new Set();
 
-  for (const row of targetSources) {
-    const id = arrClean(row[targetArea.fields.sources.sourceId] || "");
-    const name = arrClean(row[targetArea.fields.sources.name] || "");
+  for (const row of Array.isArray(importedSources) ? importedSources : []) {
+    const id = arrClean(row?.sourceId || "");
+    const name = arrClean(row?.name || "");
 
     if (id) movedSourceIds.add(arrNormalize(id));
     if (name) movedSourceNames.add(arrNormalize(name));
@@ -342,11 +364,10 @@ async function migrateAreaOutOfDefault(areaKey) {
 
   if (!movedSourceIds.size && !movedSourceNames.size) {
     throw new Error(
-      `${targetArea.name}: ingen kilder funnet i mål-workspacet; migrering avbrytes.`
+      `${targetArea.name}: ingen faktisk importerte kilder å migrere ut av fellesområdet.`
     );
   }
 
-  // Bytt tilbake til gammel fellesdatabase.
   arrUseArea("default");
   const defaultArea = ARR_AREAS.default;
   const defaultEnv = envForArea("default");
@@ -578,7 +599,7 @@ function nextOrganizerId(existingIds, offset=1) {
 async function collectAllOrganizerNames() {
   const namesByNorm = new Map();
 
-  for (const areaKey of ["default","sandnes","stavanger"]) {
+  for (const areaKey of ["default","time","klepp","sandnes","stavanger"]) {
     arrUseArea(areaKey);
     const cfg = ARR_AREAS[areaKey];
     const areaEnv = envForArea(areaKey);
@@ -665,7 +686,7 @@ async function syncCentralOrganizers() {
 }
 
 async function buildSnapshot(importSummary) {
-  const areaKeys = ["default", "sandnes", "stavanger"];
+  const areaKeys = ["default", "time", "klepp", "sandnes", "stavanger"];
   const allEvents = [];
 
   const organizations = await arrLoadOrganizations(envForArea("default"));
@@ -718,7 +739,7 @@ async function buildSnapshot(importSummary) {
 }
 
 console.log(`Arrangementer import engine: ${ARRANGEMENT_ENGINE_VERSION}`);
-console.log("Starter multi-area import: Felles + Sandnes + Stavanger...");
+console.log("Starter multi-area import: Felles/Hå + Time + Klepp + Sandnes + Stavanger...");
 
 // Importene kjøres sekvensielt. Det er bevisst:
 // ARR_TABLE/ARR_F peker på ett område om gangen, og sekvensiell kjøring
@@ -728,6 +749,22 @@ const defaultResult = await arrImportAllSources(
   {
     cleanup: false,
     area: "default"
+  }
+);
+
+const timeResult = await arrImportAllSources(
+  envForArea("time"),
+  {
+    cleanup: false,
+    area: "time"
+  }
+);
+
+const kleppResult = await arrImportAllSources(
+  envForArea("klepp"),
+  {
+    cleanup: false,
+    area: "klepp"
   }
 );
 
@@ -750,11 +787,27 @@ const stavangerResult = await arrImportAllSources(
 // Når et område er importert til sitt eget workspace, sørger vi automatisk
 // for at de samme kildene ikke lenger er aktive i gammel fellesdatabase.
 // Dette er idempotent: bare fortsatt aktive kilder/events blir PATCH-et.
-const sandnesMigration = await migrateAreaOutOfDefault("sandnes");
-const stavangerMigration = await migrateAreaOutOfDefault("stavanger");
+const timeMigration = await migrateAreaOutOfDefault(
+  "time",
+  timeResult.sources
+);
+const kleppMigration = await migrateAreaOutOfDefault(
+  "klepp",
+  kleppResult.sources
+);
+const sandnesMigration = await migrateAreaOutOfDefault(
+  "sandnes",
+  sandnesResult.sources
+);
+const stavangerMigration = await migrateAreaOutOfDefault(
+  "stavanger",
+  stavangerResult.sources
+);
 
 const areaResults = [
   { key: "default", result: defaultResult },
+  { key: "time", result: timeResult },
+  { key: "klepp", result: kleppResult },
   { key: "sandnes", result: sandnesResult },
   { key: "stavanger", result: stavangerResult }
 ];
@@ -939,6 +992,8 @@ const summary = {
     diagnostics: result.diagnostics || undefined
   })),
   migrations: [
+    timeMigration,
+    kleppMigration,
     sandnesMigration,
     stavangerMigration
   ],

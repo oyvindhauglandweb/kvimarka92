@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v460-organizer-create-import-fix-2026-08-26";
+const ARRANGEMENT_ENGINE_VERSION = "v463-time-klepp-dedicated-workspaces-2026-09-13";
 
 const ARR_AREAS = {
   default: {
@@ -56,6 +56,129 @@ const ARR_AREAS = {
         municipality: "field_10177958",
         active: "field_10178007",
         sortOrder: "field_10178009",
+      },
+    },
+  },
+
+
+  time: {
+    name: "Time",
+    databaseId: 554837,
+    sourceMunicipality: "Time",
+    tables: {
+      EVENTS: 1193653,
+      SOURCES: 1193657,
+      MEETING_TYPES: 1193654,
+      SETTLEMENTS: 1193655,
+    },
+    fields: {
+      events: {
+        eventId: "field_10794694",
+        title: "field_10794696",
+        startTime: "field_10794697",
+        endTime: "field_10794698",
+        meetingType: "field_10794699",
+        organizer: "field_10794700",
+        location: "field_10794701",
+        description: "field_10794702",
+        source: "field_10794703",
+        sourceUrl: "field_10794704",
+        sourceEventId: "field_10794705",
+        lastSeen: "field_10794706",
+        active: "field_10794707",
+        manuallyEdited: "field_10794708",
+        settlement: "field_10794709",
+        organizationIds: "field_10794710",
+      },
+      sources: {
+        sourceId: "field_10794743",
+        name: "field_10794745",
+        website: "field_10794746",
+        calendarUrl: "field_10794747",
+        sourceType: "field_10794748",
+        enabled: "field_10794749",
+        importMethod: "field_10794750",
+        lastImport: "field_10794751",
+        importStatus: "field_10794752",
+        defaultSettlement: "field_10794753",
+        organizationIds: "field_10794754",
+      },
+      meetingTypes: {
+        typeId: "field_10794713",
+        name: "field_10794715",
+        description: "field_10794716",
+        keywords: "field_10794717",
+        priority: "field_10794718",
+        active: "field_10794719",
+        sortOrder: "field_10794720",
+      },
+      settlements: {
+        settlementId: "field_10794729",
+        name: "field_10794731",
+        municipality: "field_10794732",
+        active: "field_10794733",
+        sortOrder: "field_10794734",
+      },
+    },
+  },
+
+  klepp: {
+    name: "Klepp",
+    databaseId: 554845,
+    sourceMunicipality: "Klepp",
+    tables: {
+      EVENTS: 1193659,
+      SOURCES: 1193663,
+      MEETING_TYPES: 1193660,
+      SETTLEMENTS: 1193662,
+    },
+    fields: {
+      events: {
+        eventId: "field_10794765",
+        title: "field_10794767",
+        startTime: "field_10794768",
+        endTime: "field_10794769",
+        meetingType: "field_10794770",
+        organizer: "field_10794771",
+        location: "field_10794772",
+        description: "field_10794773",
+        source: "field_10794774",
+        sourceUrl: "field_10794775",
+        sourceEventId: "field_10794776",
+        lastSeen: "field_10794777",
+        active: "field_10794778",
+        manuallyEdited: "field_10794779",
+        settlement: "field_10794780",
+        organizationIds: "field_10794781",
+      },
+      sources: {
+        sourceId: "field_10794804",
+        name: "field_10794806",
+        website: "field_10794807",
+        calendarUrl: "field_10794808",
+        sourceType: "field_10794809",
+        enabled: "field_10794810",
+        importMethod: "field_10794811",
+        lastImport: "field_10794812",
+        importStatus: "field_10794813",
+        defaultSettlement: "field_10794814",
+        organizationIds: "field_10794815",
+      },
+      meetingTypes: {
+        typeId: "field_10794782",
+        name: "field_10794784",
+        description: "field_10794785",
+        keywords: "field_10794786",
+        priority: "field_10794787",
+        active: "field_10794788",
+        sortOrder: "field_10794789",
+      },
+      settlements: {
+        settlementId: "field_10794796",
+        name: "field_10794798",
+        municipality: "field_10794799",
+        active: "field_10794800",
+        sortOrder: "field_10794801",
       },
     },
   },
@@ -1226,13 +1349,59 @@ async function arrImportAllSources(env, options={}) {
   const organizations = await arrLoadOrganizations(env);
   const eventRules = await arrLoadEventRules(env);
 
+  // V463: Time/Klepp-tabellene ble opprinnelig kopiert fra fellesområdet.
+  // Kilde-tabellen kan derfor fortsatt inneholde rader fra flere kommuner.
+  // Importer kun kilder hvis Default Settlement peker til en settlement i
+  // områdets kommune. Dette hindrer at feil kommune skrives inn i dedikert DB.
+  const areaConfig = arrGetAreaConfig(areaKey);
+  const wantedMunicipality = arrNormalizeMunicipalityName(
+    areaConfig.sourceMunicipality || ""
+  );
+
+  const settlementMunicipalityByRowId = new Map(
+    settlements.map(row => [
+      Number(row.id),
+      arrNormalizeMunicipalityName(row[ARR_F.settlements.municipality] || "")
+    ])
+  );
+
+  const sourceBelongsToArea = source => {
+    if (!wantedMunicipality) return true;
+
+    const linkedSettlementIds = arrLinkedIds(
+      source[ARR_F.sources.defaultSettlement]
+    )
+      .map(Number)
+      .filter(Number.isFinite);
+
+    return linkedSettlementIds.some(rowId =>
+      settlementMunicipalityByRowId.get(rowId) === wantedMunicipality
+    );
+  };
+
   const activeSources = sources.filter(r => {
     const sourceId = String(r[ARR_F.sources.sourceId] || '').trim();
     const requested = !requestedSourceIds.size || requestedSourceIds.has(sourceId);
     if (!requested) return false;
+    if (!sourceBelongsToArea(r)) return false;
     if (r[ARR_F.sources.enabled] !== false) return true;
     return includeDisabled && requestedSourceIds.has(sourceId);
   });
+
+  // Fail safe: et dedikert område skal aldri "lykkes" med 0 kilder dersom
+  // det finnes enabled kilder i tabellen. Det tyder på feil link/schema.
+  if (wantedMunicipality && !requestedSourceIds.size) {
+    const enabledSourceCount = sources.filter(
+      r => r[ARR_F.sources.enabled] !== false
+    ).length;
+
+    if (enabledSourceCount > 0 && activeSources.length === 0) {
+      throw new Error(
+        `${areaConfig.name}: ingen kilder matcher kommunen "${areaConfig.sourceMunicipality}" via Default Settlement. ` +
+        `Import avbrytes før event-skriving.`
+      );
+    }
+  }
 
   // V302: Ved kilde-for-kilde-import henter vi bare eksisterende Events for
   // akkurat den/de kildene. Tidligere lastet hver import HELE Events-tabellen,
@@ -1346,7 +1515,7 @@ async function arrImportAllSources(env, options={}) {
       updated:0,
       matchedRuleIds:[]
     },
-    diagnostics: (areaKey === "sandnes" || areaKey === "stavanger") ? {
+    diagnostics: (["time","klepp","sandnes","stavanger"].includes(areaKey)) ? {
       tables: {
         events: ARR_TABLE.EVENTS,
         sources: ARR_TABLE.SOURCES,
@@ -1396,7 +1565,7 @@ async function arrImportAllSources(env, options={}) {
     };
     const now = new Date().toISOString();
 
-    const sourceDiagnostic = (areaKey === "sandnes" || areaKey === "stavanger") ? {
+    const sourceDiagnostic = (["time","klepp","sandnes","stavanger"].includes(areaKey)) ? {
       sourceId: arrClean(source[ARR_F.sources.sourceId] || ""),
       name: arrClean(source[ARR_F.sources.name] || ""),
       rawDefaultSettlement: source[ARR_F.sources.defaultSettlement] ?? null,
