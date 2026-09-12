@@ -1,0 +1,44 @@
+name: Delete migrated Time and Klepp rows
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Skriv DELETE-TIME-KLEPP-DEFAULT for å bekrefte fysisk sletting'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Delete approved Time/Klepp rows from old default
+        env:
+          ARRANGEMENT_BASEROW_TOKEN: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN }}
+          ARRANGEMENT_BASEROW_TOKEN_TIME: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_TIME }}
+          ARRANGEMENT_BASEROW_TOKEN_KLEPP: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_KLEPP }}
+          BASEROW_API_BASE: https://api.baserow.io
+          CONFIRM_CLEANUP: ${{ inputs.confirm }}
+        run: node scripts/delete-migrated-time-klepp-v466.mjs
+
+      - name: Upload cleanup reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: arrangementer-cleanup-result-v466
+          path: |
+            arrangementer-cleanup-result-v466.json
+            arrangementer-settlement-cleanup-candidates-v466.json
+          if-no-files-found: error
