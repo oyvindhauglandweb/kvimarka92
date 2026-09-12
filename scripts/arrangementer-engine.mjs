@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v463-time-klepp-dedicated-workspaces-2026-09-13";
+const ARRANGEMENT_ENGINE_VERSION = "v464-time-klepp-source-anchor-fix-2026-09-13";
 
 const ARR_AREAS = {
   default: {
@@ -1365,8 +1365,44 @@ async function arrImportAllSources(env, options={}) {
     ])
   );
 
+  // V464:
+  // Time/Klepp Events er nå manuelt ryddet slik at hver database bare
+  // inneholder sin egen kommune. Bruk eksisterende Events.Source som
+  // primært anker for hvilke Sources som hører til området.
+  //
+  // Default Settlement beholdes som sekundær kontroll/fallback. Dette er
+  // nødvendig fordi konvertering av et kopiert text-felt til link_row ikke
+  // nødvendigvis gjenoppretter gamle relasjoner automatisk.
+  let areaAnchorEvents = null;
+  const sourceAnchors = new Set();
+
+  if (wantedMunicipality && !requestedSourceIds.size) {
+    areaAnchorEvents = await arrListAllRows(env, ARR_TABLE.EVENTS);
+
+    for (const row of areaAnchorEvents) {
+      const sourceValue = arrNormalize(
+        arrClean(row[ARR_F.events.source] || "")
+      );
+      if (sourceValue) sourceAnchors.add(sourceValue);
+    }
+  }
+
   const sourceBelongsToArea = source => {
     if (!wantedMunicipality) return true;
+
+    const sourceId = arrNormalize(
+      arrClean(source[ARR_F.sources.sourceId] || "")
+    );
+    const sourceName = arrNormalize(
+      arrClean(source[ARR_F.sources.name] || "")
+    );
+
+    if (
+      (sourceId && sourceAnchors.has(sourceId)) ||
+      (sourceName && sourceAnchors.has(sourceName))
+    ) {
+      return true;
+    }
 
     const linkedSettlementIds = arrLinkedIds(
       source[ARR_F.sources.defaultSettlement]
@@ -1397,8 +1433,8 @@ async function arrImportAllSources(env, options={}) {
 
     if (enabledSourceCount > 0 && activeSources.length === 0) {
       throw new Error(
-        `${areaConfig.name}: ingen kilder matcher kommunen "${areaConfig.sourceMunicipality}" via Default Settlement. ` +
-        `Import avbrytes før event-skriving.`
+        `${areaConfig.name}: ingen kilder matcher eksisterende Events.Source eller kommunen ` +
+        `"${areaConfig.sourceMunicipality}" via Default Settlement. Import avbrytes før event-skriving.`
       );
     }
   }
@@ -1406,7 +1442,9 @@ async function arrImportAllSources(env, options={}) {
   // V302: Ved kilde-for-kilde-import henter vi bare eksisterende Events for
   // akkurat den/de kildene. Tidligere lastet hver import HELE Events-tabellen,
   // og dette traff Worker resource limits når databasen ble stor.
-  let existingEvents = [];
+  let existingEvents = Array.isArray(areaAnchorEvents)
+    ? areaAnchorEvents
+    : [];
 
   if (requestedSourceIds.size) {
     for (const source of activeSources) {
@@ -1441,7 +1479,7 @@ async function arrImportAllSources(env, options={}) {
     const byRowId = new Map();
     for (const row of existingEvents) byRowId.set(Number(row.id),row);
     existingEvents = [...byRowId.values()];
-  } else {
+  } else if (!Array.isArray(areaAnchorEvents)) {
     existingEvents = await arrListAllRows(env,ARR_TABLE.EVENTS);
   }
 
@@ -1525,6 +1563,7 @@ async function arrImportAllSources(env, options={}) {
       rowsRead: {
         sources: sources.length,
         activeSources: activeSources.length,
+        sourceAnchorsFromExistingEvents: sourceAnchors.size,
         meetingTypes: meetingTypes.length,
         settlements: settlements.length,
         activeSettlements: settlementRules.length
