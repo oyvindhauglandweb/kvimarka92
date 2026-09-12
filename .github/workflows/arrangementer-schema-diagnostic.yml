@@ -1,0 +1,35 @@
+name: Arrangementer schema diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Read Time and Klepp schema
+        env:
+          ARRANGEMENT_BASEROW_TOKEN_TIME: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_TIME }}
+          ARRANGEMENT_BASEROW_TOKEN_KLEPP: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_KLEPP }}
+          BASEROW_API_BASE: https://api.baserow.io
+        run: node scripts/diagnose-arrangementer-time-klepp-schema.mjs
+
+      - name: Upload schema report
+        uses: actions/upload-artifact@v4
+        with:
+          name: arrangementer-time-klepp-schema
+          path: arrangementer-time-klepp-schema.json
+          if-no-files-found: error
