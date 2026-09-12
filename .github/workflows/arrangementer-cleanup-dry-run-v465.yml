@@ -1,0 +1,36 @@
+name: Arrangementer cleanup dry run
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Analyze Time/Klepp rows in old default tables
+        env:
+          ARRANGEMENT_BASEROW_TOKEN: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN }}
+          ARRANGEMENT_BASEROW_TOKEN_TIME: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_TIME }}
+          ARRANGEMENT_BASEROW_TOKEN_KLEPP: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_KLEPP }}
+          BASEROW_API_BASE: https://api.baserow.io
+        run: node scripts/arrangementer-cleanup-dry-run-v465.mjs
+
+      - name: Upload dry-run report
+        uses: actions/upload-artifact@v4
+        with:
+          name: arrangementer-cleanup-dry-run-v465
+          path: arrangementer-cleanup-dry-run-v465.json
+          if-no-files-found: error
