@@ -19,6 +19,7 @@ jobs:
 
       - name: Reset Stavanger Events
         env:
+          ARRANGEMENT_BASEROW_TOKEN: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN }}
           ARRANGEMENT_BASEROW_TOKEN_STAVANGER: ${{ secrets.ARRANGEMENT_BASEROW_TOKEN_STAVANGER }}
           BASEROW_API_BASE: https://api.baserow.io
         run: node scripts/reset-stavanger-events-v001.mjs
