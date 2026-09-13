@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v464-time-klepp-source-anchor-fix-2026-09-13";
+const ARRANGEMENT_ENGINE_VERSION = "v467-meeting-types-master-sync-2026-09-13";
 
 const ARR_AREAS = {
   default: {

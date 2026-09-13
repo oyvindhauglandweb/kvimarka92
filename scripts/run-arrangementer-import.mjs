@@ -454,6 +454,170 @@ async function migrateAreaOutOfDefault(areaKey, importedSources=[]) {
   };
 }
 
+
+// V467: Meeting Types vedlikeholdes ett sted (default/Felles) og
+// replikeres automatisk til de dedikerte workspacene før hver import.
+// Oppslag skjer på stabil Meeting Type ID, ikke Baserow row-id.
+// Manglende rader opprettes, eksisterende rader oppdateres, ingenting slettes.
+async function syncMeetingTypesFromDefault() {
+  const masterKey = "default";
+  const targetKeys = ["time", "klepp", "sandnes", "stavanger"];
+
+  const masterArea = ARR_AREAS[masterKey];
+  const masterEnv = envForArea(masterKey);
+  const masterRows = await arrListAllRows(
+    masterEnv,
+    masterArea.tables.MEETING_TYPES
+  );
+
+  const masterById = new Map();
+
+  for (const row of masterRows) {
+    const id = arrClean(row[masterArea.fields.meetingTypes.typeId] || "");
+    if (!id) continue;
+
+    const key = arrNormalize(id);
+    if (masterById.has(key)) {
+      throw new Error(
+        `Meeting Types sync: duplikat Meeting Type ID i master/default: ${id}`
+      );
+    }
+
+    masterById.set(key, {
+      typeId: id,
+      name: arrClean(row[masterArea.fields.meetingTypes.name] || ""),
+      description: arrClean(row[masterArea.fields.meetingTypes.description] || ""),
+      keywords: arrClean(row[masterArea.fields.meetingTypes.keywords] || ""),
+      priority: Number(row[masterArea.fields.meetingTypes.priority] ?? 0),
+      active: row[masterArea.fields.meetingTypes.active] !== false,
+      sortOrder: Number(row[masterArea.fields.meetingTypes.sortOrder] ?? 0)
+    });
+  }
+
+  if (!masterById.size) {
+    throw new Error("Meeting Types sync: master/default har ingen Meeting Type ID-rader.");
+  }
+
+  const sameNumber = (a, b) => Number(a ?? 0) === Number(b ?? 0);
+  const sameBool = (a, b) => (a !== false) === (b !== false);
+  const sameText = (a, b) => arrClean(a || "") === arrClean(b || "");
+
+  const areaResults = [];
+
+  for (const areaKey of targetKeys) {
+    const area = ARR_AREAS[areaKey];
+    const areaEnv = envForArea(areaKey);
+    const f = area.fields.meetingTypes;
+
+    const rows = await arrListAllRows(areaEnv, area.tables.MEETING_TYPES);
+    const localById = new Map();
+
+    for (const row of rows) {
+      const id = arrClean(row[f.typeId] || "");
+      if (!id) continue;
+
+      const key = arrNormalize(id);
+      if (localById.has(key)) {
+        throw new Error(
+          `Meeting Types sync: duplikat Meeting Type ID i ${area.name}: ${id}`
+        );
+      }
+      localById.set(key, row);
+    }
+
+    const creates = [];
+    const updates = [];
+
+    for (const [key, master] of masterById) {
+      const local = localById.get(key);
+
+      if (!local) {
+        creates.push({
+          [f.typeId]: master.typeId,
+          [f.name]: master.name,
+          [f.description]: master.description,
+          [f.keywords]: master.keywords,
+          [f.priority]: master.priority,
+          [f.active]: master.active,
+          [f.sortOrder]: master.sortOrder
+        });
+        continue;
+      }
+
+      const patch = { id: local.id };
+      let changed = false;
+
+      const setIfChanged = (fieldId, value, equal) => {
+        if (!equal(local[fieldId], value)) {
+          patch[fieldId] = value;
+          changed = true;
+        }
+      };
+
+      setIfChanged(f.name, master.name, sameText);
+      setIfChanged(f.description, master.description, sameText);
+      setIfChanged(f.keywords, master.keywords, sameText);
+      setIfChanged(f.priority, master.priority, sameNumber);
+      setIfChanged(f.active, master.active, sameBool);
+      setIfChanged(f.sortOrder, master.sortOrder, sameNumber);
+
+      if (changed) updates.push(patch);
+    }
+
+    if (creates.length) {
+      await arrCreateRowsBatch(
+        areaEnv,
+        area.tables.MEETING_TYPES,
+        creates,
+        100
+      );
+    }
+
+    if (updates.length) {
+      await arrUpdateRowsBatch(
+        areaEnv,
+        area.tables.MEETING_TYPES,
+        updates,
+        100
+      );
+    }
+
+    const extraLocal = [];
+    for (const [key, row] of localById) {
+      if (!masterById.has(key)) {
+        extraLocal.push({
+          rowId: row.id,
+          typeId: arrClean(row[f.typeId] || ""),
+          name: arrClean(row[f.name] || "")
+        });
+      }
+    }
+
+    areaResults.push({
+      key: areaKey,
+      name: area.name,
+      tableId: area.tables.MEETING_TYPES,
+      masterCount: masterById.size,
+      localBefore: rows.length,
+      created: creates.length,
+      updated: updates.length,
+      extraLocalCount: extraLocal.length,
+      extraLocal
+    });
+  }
+
+  return {
+    master: {
+      key: masterKey,
+      name: masterArea.name,
+      tableId: masterArea.tables.MEETING_TYPES,
+      count: masterById.size
+    },
+    targets: areaResults,
+    deleted: 0
+  };
+}
+
 async function readAreaSnapshotEvents(areaKey, organizationNameById) {
   arrUseArea(areaKey);
   const areaEnv = envForArea(areaKey);
@@ -739,6 +903,10 @@ async function buildSnapshot(importSummary) {
 }
 
 console.log(`Arrangementer import engine: ${ARRANGEMENT_ENGINE_VERSION}`);
+console.log("Synkroniserer Meeting Types fra default/Felles til dedikerte workspaces...");
+const meetingTypeSync = await syncMeetingTypesFromDefault();
+console.log(JSON.stringify({ meetingTypeSync }, null, 2));
+
 console.log("Starter multi-area import: Felles/Hå + Time + Klepp + Sandnes + Stavanger...");
 
 // Importene kjøres sekvensielt. Det er bevisst:
@@ -991,6 +1159,7 @@ const summary = {
     sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
     diagnostics: result.diagnostics || undefined
   })),
+  meetingTypeSync,
   migrations: [
     timeMigration,
     kleppMigration,
@@ -1033,6 +1202,7 @@ const historyEntry = {
     sourceCount: Number(area.sourceCount || 0)
   })),
   sourceResults: summary.sourceResults,
+  meetingTypeSync: summary.meetingTypeSync,
   migrations: summary.migrations,
   snapshotDedupe: snapshot.importSummary?.snapshotDedupe || null
 };
