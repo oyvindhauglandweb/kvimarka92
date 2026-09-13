@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v467-meeting-types-master-sync-2026-09-13";
+const ARRANGEMENT_ENGINE_VERSION = "v469-finished-events-auto-cleanup-2026-09-13";
 
 const ARR_AREAS = {
   default: {
@@ -572,6 +572,106 @@ async function arrDeleteRowsBatch(env, tableId, rowIds, chunkSize=200) {
     deleted += chunk.length;
   }
   return deleted;
+}
+
+
+function arrOsloDateKey(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Oslo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(d);
+
+  const byType = Object.fromEntries(
+    parts.filter(p => p.type !== "literal").map(p => [p.type, p.value])
+  );
+
+  return `${byType.year}-${byType.month}-${byType.day}`;
+}
+
+// V469: fysisk sletting av ferdige arrangementer.
+// Regel:
+// 1) Har raden gyldig End Time: slett når End Time er passert.
+// 2) Mangler End Time: slett først når Start Time sin kalenderdato
+//    er før dagens dato i Europe/Oslo. Dermed beholdes arrangementet
+//    ut hele dagen selv om starttidspunktet er passert.
+// 3) Ugyldig/manglende Start Time slettes aldri automatisk.
+async function arrCleanupFinishedEvents(env, areaKey, options={}) {
+  arrUseArea(areaKey);
+
+  const now = options.now instanceof Date
+    ? options.now
+    : new Date(options.now || Date.now());
+
+  if (Number.isNaN(now.getTime())) {
+    throw new Error(`Cleanup ${areaKey}: ugyldig now-verdi.`);
+  }
+
+  const todayOslo = arrOsloDateKey(now);
+  const rows = Array.isArray(options.rows)
+    ? options.rows
+    : await arrListAllRows(env, ARR_TABLE.EVENTS);
+
+  const deleteIds = [];
+  let completedByEndTime = 0;
+  let completedByStartDate = 0;
+  let invalidDateRows = 0;
+
+  for (const row of rows) {
+    const rawEnd = arrClean(row[ARR_F.events.endTime] || "");
+    const rawStart = arrClean(row[ARR_F.events.startTime] || "");
+
+    if (rawEnd) {
+      const end = new Date(rawEnd);
+      if (Number.isNaN(end.getTime())) {
+        invalidDateRows++;
+        continue;
+      }
+
+      if (end.getTime() < now.getTime()) {
+        deleteIds.push(Number(row.id));
+        completedByEndTime++;
+      }
+      continue;
+    }
+
+    if (!rawStart) {
+      invalidDateRows++;
+      continue;
+    }
+
+    const start = new Date(rawStart);
+    if (Number.isNaN(start.getTime())) {
+      invalidDateRows++;
+      continue;
+    }
+
+    const startDayOslo = arrOsloDateKey(start);
+    if (startDayOslo && startDayOslo < todayOslo) {
+      deleteIds.push(Number(row.id));
+      completedByStartDate++;
+    }
+  }
+
+  const deleted = deleteIds.length
+    ? await arrDeleteRowsBatch(env, ARR_TABLE.EVENTS, deleteIds, 200)
+    : 0;
+
+  return {
+    area: areaKey,
+    areaName: arrGetAreaConfig(areaKey).name,
+    scanned: rows.length,
+    todayOslo,
+    completedByEndTime,
+    completedByStartDate,
+    invalidDateRows,
+    candidates: deleteIds.length,
+    deleted
+  };
 }
 
 
@@ -6044,6 +6144,7 @@ export {
   arrListAllRows,
   arrCreateRowsBatch,
   arrUpdateRowsBatch,
+  arrCleanupFinishedEvents,
   arrLoadOrganizations,
   arrImportAllSources,
   arrDedupeExistingVigrestad,

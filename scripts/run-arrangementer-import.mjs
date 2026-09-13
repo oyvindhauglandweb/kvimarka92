@@ -8,6 +8,7 @@ import {
   arrListAllRows,
   arrCreateRowsBatch,
   arrUpdateRowsBatch,
+  arrCleanupFinishedEvents,
   arrLoadOrganizations,
   arrImportAllSources,
   arrClean,
@@ -454,6 +455,32 @@ async function migrateAreaOutOfDefault(areaKey, importedSources=[]) {
   };
 }
 
+
+
+async function cleanupFinishedEventsAllAreas(phase) {
+  const areaKeys = ["default", "time", "klepp", "sandnes", "stavanger"];
+  const results = [];
+
+  for (const areaKey of areaKeys) {
+    console.log(`Cleanup ${phase}: ${ARR_AREAS[areaKey].name}...`);
+    const result = await arrCleanupFinishedEvents(
+      envForArea(areaKey),
+      areaKey
+    );
+    results.push(result);
+  }
+
+  const deleted = results.reduce(
+    (sum, row) => sum + Number(row.deleted || 0),
+    0
+  );
+
+  return {
+    phase,
+    deleted,
+    areas: results
+  };
+}
 
 // V467: Meeting Types vedlikeholdes ett sted (default/Felles) og
 // replikeres automatisk til de dedikerte workspacene før hver import.
@@ -903,6 +930,10 @@ async function buildSnapshot(importSummary) {
 }
 
 console.log(`Arrangementer import engine: ${ARRANGEMENT_ENGINE_VERSION}`);
+console.log("Rydder ferdige arrangementer før import/synkronisering...");
+const preImportCleanup = await cleanupFinishedEventsAllAreas("pre-import");
+console.log(JSON.stringify({ preImportCleanup }, null, 2));
+
 console.log("Synkroniserer Meeting Types fra default/Felles til dedikerte workspaces...");
 const meetingTypeSync = await syncMeetingTypesFromDefault();
 console.log(JSON.stringify({ meetingTypeSync }, null, 2));
@@ -979,6 +1010,10 @@ const areaResults = [
   { key: "sandnes", result: sandnesResult },
   { key: "stavanger", result: stavangerResult }
 ];
+
+console.log("Rydder ferdige arrangementer etter eksternimport...");
+const postImportCleanup = await cleanupFinishedEventsAllAreas("post-import");
+console.log(JSON.stringify({ postImportCleanup }, null, 2));
 
 
 // V459: Les tidligere historikk før vi bygger alarmsammendraget.
@@ -1159,6 +1194,10 @@ const summary = {
     sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
     diagnostics: result.diagnostics || undefined
   })),
+  cleanupFinishedEvents: {
+    preImport: preImportCleanup,
+    postImport: postImportCleanup
+  },
   meetingTypeSync,
   migrations: [
     timeMigration,
@@ -1202,6 +1241,7 @@ const historyEntry = {
     sourceCount: Number(area.sourceCount || 0)
   })),
   sourceResults: summary.sourceResults,
+  cleanupFinishedEvents: summary.cleanupFinishedEvents,
   meetingTypeSync: summary.meetingTypeSync,
   migrations: summary.migrations,
   snapshotDedupe: snapshot.importSummary?.snapshotDedupe || null
