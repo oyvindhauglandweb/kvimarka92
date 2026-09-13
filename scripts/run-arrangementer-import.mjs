@@ -109,11 +109,16 @@ function textOrganizationIds(value) {
   )];
 }
 
+// V471: Baserow-linker kan komme som array, enkelt objekt eller enkeltverdi.
+function linkedValues(linkValue) {
+  if (linkValue == null || linkValue === "") return [];
+  return Array.isArray(linkValue) ? linkValue : [linkValue];
+}
+
 function linkedNames(linkValue, byRowId, byPublicId) {
-  if (!Array.isArray(linkValue)) return [];
   const names = [];
 
-  for (const item of linkValue) {
+  for (const item of linkedValues(linkValue)) {
     if (typeof item === "number") {
       const name = byRowId.get(item);
       if (name) names.push(name);
@@ -646,43 +651,97 @@ async function syncMeetingTypesFromDefault() {
 }
 
 async function readAreaSnapshotEvents(areaKey, organizationNameById) {
+  // V471: Capture the complete area config locally. Snapshot generation must not
+  // depend on mutable global ARR_TABLE/ARR_F after an await.
   arrUseArea(areaKey);
+  const area = ARR_AREAS[areaKey];
   const areaEnv = envForArea(areaKey);
+  const tables = area.tables;
+  const f = area.fields;
 
   const [eventsRows, settlements, meetingTypes, sources] = await Promise.all([
-    arrListAllRows(areaEnv, ARR_TABLE.EVENTS),
-    arrListAllRows(areaEnv, ARR_TABLE.SETTLEMENTS),
-    arrListAllRows(areaEnv, ARR_TABLE.MEETING_TYPES),
-    arrListAllRows(areaEnv, ARR_TABLE.SOURCES)
+    arrListAllRows(areaEnv, tables.EVENTS),
+    arrListAllRows(areaEnv, tables.SETTLEMENTS),
+    arrListAllRows(areaEnv, tables.MEETING_TYPES),
+    arrListAllRows(areaEnv, tables.SOURCES)
   ]);
 
   const settlementNameByRowId = new Map();
   const settlementNameByPublicId = new Map();
-  const municipalityBySettlementName = new Map();
+  const settlementByRowId = new Map();
+  const settlementByPublicId = new Map();
+  const settlementByName = new Map();
   const activeSettlementNames = new Set();
 
   for (const row of settlements) {
     const rowId = Number(row.id);
-    const publicId = arrClean(row[ARR_F.settlements.settlementId] || "");
-    const name = arrClean(row[ARR_F.settlements.name] || "");
-    const municipality = arrClean(row[ARR_F.settlements.municipality] || "");
+    const publicId = arrClean(row[f.settlements.settlementId] || "");
+    const name = arrClean(row[f.settlements.name] || "");
+    const municipality = arrClean(row[f.settlements.municipality] || "");
+    const active = row[f.settlements.active] !== false;
 
-    if (Number.isFinite(rowId) && name) settlementNameByRowId.set(rowId, name);
-    if (publicId && name) settlementNameByPublicId.set(arrNormalize(publicId), name);
-    if (name) municipalityBySettlementName.set(arrNormalize(name), municipality);
+    const record = { rowId, publicId, name, municipality, active };
 
-    if (row[ARR_F.settlements.active] !== false && name) {
+    if (Number.isFinite(rowId) && name) {
+      settlementNameByRowId.set(rowId, name);
+      settlementByRowId.set(rowId, record);
+    }
+    if (publicId && name) {
+      settlementNameByPublicId.set(arrNormalize(publicId), name);
+      settlementByPublicId.set(arrNormalize(publicId), record);
+    }
+    if (name) {
+      settlementByName.set(arrNormalize(name), record);
+    }
+
+    if (active && name) {
       activeSettlementNames.add(arrNormalize(name));
     }
   }
+
+  const resolveSettlementLinks = linkValue => {
+    const resolved = [];
+
+    for (const item of linkedValues(linkValue)) {
+      let record = null;
+
+      if (typeof item === "number") {
+        record = settlementByRowId.get(Number(item)) || null;
+      } else if (typeof item === "string") {
+        const key = arrNormalize(item);
+        record =
+          settlementByPublicId.get(key) ||
+          settlementByName.get(key) ||
+          null;
+      } else if (item && typeof item === "object") {
+        const rowId = Number(item.id);
+        const rawValue = arrClean(
+          item.value ?? item.name ?? item.id ?? ""
+        );
+        const key = arrNormalize(rawValue);
+
+        record =
+          (Number.isFinite(rowId) ? settlementByRowId.get(rowId) : null) ||
+          (key ? settlementByPublicId.get(key) : null) ||
+          (key ? settlementByName.get(key) : null) ||
+          null;
+      }
+
+      if (record && !resolved.some(r => r.rowId === record.rowId)) {
+        resolved.push(record);
+      }
+    }
+
+    return resolved;
+  };
 
   const meetingTypeNameByRowId = new Map();
   const meetingTypeNameByPublicId = new Map();
 
   for (const row of meetingTypes) {
     const rowId = Number(row.id);
-    const publicId = arrClean(row[ARR_F.meetingTypes.typeId] || "");
-    const name = arrClean(row[ARR_F.meetingTypes.name] || "");
+    const publicId = arrClean(row[f.meetingTypes.typeId] || "");
+    const name = arrClean(row[f.meetingTypes.name] || "");
 
     if (Number.isFinite(rowId) && name) meetingTypeNameByRowId.set(rowId, name);
     if (publicId && name) meetingTypeNameByPublicId.set(arrNormalize(publicId), name);
@@ -690,11 +749,17 @@ async function readAreaSnapshotEvents(areaKey, organizationNameById) {
 
   const activeSourceNames = new Set();
   const activeSourceIds = new Set();
+  const sourceByName = new Map();
+  const sourceById = new Map();
 
   for (const row of sources) {
-    if (row[ARR_F.sources.enabled] === false) continue;
-    const name = arrClean(row[ARR_F.sources.name] || "");
-    const id = arrClean(row[ARR_F.sources.sourceId] || "");
+    const name = arrClean(row[f.sources.name] || "");
+    const id = arrClean(row[f.sources.sourceId] || "");
+
+    if (name) sourceByName.set(arrNormalize(name), row);
+    if (id) sourceById.set(arrNormalize(id), row);
+
+    if (row[f.sources.enabled] === false) continue;
     if (name) activeSourceNames.add(arrNormalize(name));
     if (id) activeSourceIds.add(arrNormalize(id));
   }
@@ -704,10 +769,15 @@ async function readAreaSnapshotEvents(areaKey, organizationNameById) {
   const toMs = now + 370 * 86400000;
   const events = [];
 
-  for (const row of eventsRows) {
-    if (row[ARR_F.events.active] === false) continue;
+  let unresolvedExplicitSettlementLinks = 0;
+  let sourceDefaultSettlementFallbacks = 0;
+  let workspaceMunicipalityFallbacks = 0;
+  let stillMissingSettlement = 0;
 
-    const source = arrClean(row[ARR_F.events.source] || "");
+  for (const row of eventsRows) {
+    if (row[f.events.active] === false) continue;
+
+    const source = arrClean(row[f.events.source] || "");
     const normalizedSource = arrNormalize(source);
 
     if (
@@ -716,55 +786,110 @@ async function readAreaSnapshotEvents(areaKey, organizationNameById) {
       !activeSourceIds.has(normalizedSource)
     ) continue;
 
-    const startTime = row[ARR_F.events.startTime] || null;
+    const startTime = row[f.events.startTime] || null;
     const startMs = new Date(startTime).getTime();
     if (!Number.isFinite(startMs) || startMs < fromMs || startMs > toMs) continue;
 
-    const settlementNames = linkedNames(
-      row[ARR_F.events.settlement],
-      settlementNameByRowId,
-      settlementNameByPublicId
-    );
+    const rawSettlementLink = row[f.events.settlement];
+    let settlementRecords = resolveSettlementLinks(rawSettlementLink);
 
-    if (
-      settlementNames.length &&
-      !settlementNames.some(name => activeSettlementNames.has(arrNormalize(name)))
-    ) continue;
+    // If an Event link is absent, use the Source's configured default settlement.
+    // This is generic for every source/workspace; no organizer-specific exceptions.
+    if (!settlementRecords.length) {
+      const sourceRow =
+        sourceByName.get(normalizedSource) ||
+        sourceById.get(normalizedSource) ||
+        null;
 
-    const settlement = settlementNames[0] || "";
+      if (sourceRow) {
+        const fromSource = resolveSettlementLinks(
+          sourceRow[f.sources.defaultSettlement]
+        );
+        if (fromSource.length) {
+          settlementRecords = fromSource;
+          sourceDefaultSettlementFallbacks++;
+        }
+      }
+    }
+
+    const hadExplicitSettlementLink = linkedValues(rawSettlementLink).length > 0;
+    if (hadExplicitSettlementLink && !settlementRecords.length) {
+      unresolvedExplicitSettlementLinks++;
+    }
+
+    const activeSettlementRecords = settlementRecords.filter(record => record.active);
+    if (settlementRecords.length && !activeSettlementRecords.length) {
+      continue;
+    }
+
+    const settlementRecord =
+      activeSettlementRecords[0] ||
+      settlementRecords[0] ||
+      null;
+
+    const settlement = settlementRecord?.name || "";
+    let municipality = settlementRecord?.municipality || "";
+
+    // Dedicated workspaces are municipality-scoped. If legacy/imported rows
+    // temporarily lack a resolvable settlement relation, never lose the
+    // municipality in the published snapshot.
+    if (!municipality && areaKey !== "default" && area.sourceMunicipality) {
+      municipality = arrClean(area.sourceMunicipality);
+      workspaceMunicipalityFallbacks++;
+    }
+
+    if (!settlement) {
+      stillMissingSettlement++;
+    }
+
     const typeNames = linkedNames(
-      row[ARR_F.events.meetingType],
+      row[f.events.meetingType],
       meetingTypeNameByRowId,
       meetingTypeNameByPublicId
     );
 
     const organizationIds = textOrganizationIds(
-      row[ARR_F.events.organizationIds] || ""
+      row[f.events.organizationIds] || ""
     );
     const organizationNames = organizationIds
       .map(id => organizationNameById.get(id) || "")
       .filter(Boolean);
 
     events.push({
-      id: row[ARR_F.events.eventId] || String(row.id),
-      title: row[ARR_F.events.title] || "",
+      id: row[f.events.eventId] || String(row.id),
+      title: row[f.events.title] || "",
       startTime,
-      endTime: row[ARR_F.events.endTime] || null,
+      endTime: row[f.events.endTime] || null,
       meetingTypes: typeNames,
       organizationIds,
       organizations: organizationNames,
       organizer: arrResolveHaaFellesraadOrganizer(
-        row[ARR_F.events.title] || "",
-        row[ARR_F.events.organizer] || source || ""
+        row[f.events.title] || "",
+        row[f.events.organizer] || source || ""
       ),
-      location: row[ARR_F.events.location] || "",
+      location: row[f.events.location] || "",
       settlement,
-      municipality: municipalityBySettlementName.get(arrNormalize(settlement)) || "",
-      description: row[ARR_F.events.description] || "",
-      sourceUrl: row[ARR_F.events.sourceUrl] || "",
+      municipality,
+      description: row[f.events.description] || "",
+      sourceUrl: row[f.events.sourceUrl] || "",
       source,
       active: true
     });
+  }
+
+  if (
+    unresolvedExplicitSettlementLinks ||
+    sourceDefaultSettlementFallbacks ||
+    workspaceMunicipalityFallbacks ||
+    stillMissingSettlement
+  ) {
+    console.warn(
+      `Snapshot geography ${area.name}: ` +
+      `unresolvedExplicitLinks=${unresolvedExplicitSettlementLinks}, ` +
+      `sourceDefaultFallbacks=${sourceDefaultSettlementFallbacks}, ` +
+      `workspaceMunicipalityFallbacks=${workspaceMunicipalityFallbacks}, ` +
+      `missingSettlement=${stillMissingSettlement}`
+    );
   }
 
   return events;
