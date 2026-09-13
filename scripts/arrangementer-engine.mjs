@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v469-finished-events-auto-cleanup-2026-09-13";
+const ARRANGEMENT_ENGINE_VERSION = "v464-eventcalendarapp-stable-event-id-2026-09-13";
 
 const ARR_AREAS = {
   default: {
@@ -572,106 +572,6 @@ async function arrDeleteRowsBatch(env, tableId, rowIds, chunkSize=200) {
     deleted += chunk.length;
   }
   return deleted;
-}
-
-
-function arrOsloDateKey(value) {
-  const d = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Oslo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).formatToParts(d);
-
-  const byType = Object.fromEntries(
-    parts.filter(p => p.type !== "literal").map(p => [p.type, p.value])
-  );
-
-  return `${byType.year}-${byType.month}-${byType.day}`;
-}
-
-// V469: fysisk sletting av ferdige arrangementer.
-// Regel:
-// 1) Har raden gyldig End Time: slett når End Time er passert.
-// 2) Mangler End Time: slett først når Start Time sin kalenderdato
-//    er før dagens dato i Europe/Oslo. Dermed beholdes arrangementet
-//    ut hele dagen selv om starttidspunktet er passert.
-// 3) Ugyldig/manglende Start Time slettes aldri automatisk.
-async function arrCleanupFinishedEvents(env, areaKey, options={}) {
-  arrUseArea(areaKey);
-
-  const now = options.now instanceof Date
-    ? options.now
-    : new Date(options.now || Date.now());
-
-  if (Number.isNaN(now.getTime())) {
-    throw new Error(`Cleanup ${areaKey}: ugyldig now-verdi.`);
-  }
-
-  const todayOslo = arrOsloDateKey(now);
-  const rows = Array.isArray(options.rows)
-    ? options.rows
-    : await arrListAllRows(env, ARR_TABLE.EVENTS);
-
-  const deleteIds = [];
-  let completedByEndTime = 0;
-  let completedByStartDate = 0;
-  let invalidDateRows = 0;
-
-  for (const row of rows) {
-    const rawEnd = arrClean(row[ARR_F.events.endTime] || "");
-    const rawStart = arrClean(row[ARR_F.events.startTime] || "");
-
-    if (rawEnd) {
-      const end = new Date(rawEnd);
-      if (Number.isNaN(end.getTime())) {
-        invalidDateRows++;
-        continue;
-      }
-
-      if (end.getTime() < now.getTime()) {
-        deleteIds.push(Number(row.id));
-        completedByEndTime++;
-      }
-      continue;
-    }
-
-    if (!rawStart) {
-      invalidDateRows++;
-      continue;
-    }
-
-    const start = new Date(rawStart);
-    if (Number.isNaN(start.getTime())) {
-      invalidDateRows++;
-      continue;
-    }
-
-    const startDayOslo = arrOsloDateKey(start);
-    if (startDayOslo && startDayOslo < todayOslo) {
-      deleteIds.push(Number(row.id));
-      completedByStartDate++;
-    }
-  }
-
-  const deleted = deleteIds.length
-    ? await arrDeleteRowsBatch(env, ARR_TABLE.EVENTS, deleteIds, 200)
-    : 0;
-
-  return {
-    area: areaKey,
-    areaName: arrGetAreaConfig(areaKey).name,
-    scanned: rows.length,
-    todayOslo,
-    completedByEndTime,
-    completedByStartDate,
-    invalidDateRows,
-    candidates: deleteIds.length,
-    deleted
-  };
 }
 
 
@@ -1465,44 +1365,8 @@ async function arrImportAllSources(env, options={}) {
     ])
   );
 
-  // V464:
-  // Time/Klepp Events er nå manuelt ryddet slik at hver database bare
-  // inneholder sin egen kommune. Bruk eksisterende Events.Source som
-  // primært anker for hvilke Sources som hører til området.
-  //
-  // Default Settlement beholdes som sekundær kontroll/fallback. Dette er
-  // nødvendig fordi konvertering av et kopiert text-felt til link_row ikke
-  // nødvendigvis gjenoppretter gamle relasjoner automatisk.
-  let areaAnchorEvents = null;
-  const sourceAnchors = new Set();
-
-  if (wantedMunicipality && !requestedSourceIds.size) {
-    areaAnchorEvents = await arrListAllRows(env, ARR_TABLE.EVENTS);
-
-    for (const row of areaAnchorEvents) {
-      const sourceValue = arrNormalize(
-        arrClean(row[ARR_F.events.source] || "")
-      );
-      if (sourceValue) sourceAnchors.add(sourceValue);
-    }
-  }
-
   const sourceBelongsToArea = source => {
     if (!wantedMunicipality) return true;
-
-    const sourceId = arrNormalize(
-      arrClean(source[ARR_F.sources.sourceId] || "")
-    );
-    const sourceName = arrNormalize(
-      arrClean(source[ARR_F.sources.name] || "")
-    );
-
-    if (
-      (sourceId && sourceAnchors.has(sourceId)) ||
-      (sourceName && sourceAnchors.has(sourceName))
-    ) {
-      return true;
-    }
 
     const linkedSettlementIds = arrLinkedIds(
       source[ARR_F.sources.defaultSettlement]
@@ -1533,8 +1397,8 @@ async function arrImportAllSources(env, options={}) {
 
     if (enabledSourceCount > 0 && activeSources.length === 0) {
       throw new Error(
-        `${areaConfig.name}: ingen kilder matcher eksisterende Events.Source eller kommunen ` +
-        `"${areaConfig.sourceMunicipality}" via Default Settlement. Import avbrytes før event-skriving.`
+        `${areaConfig.name}: ingen kilder matcher kommunen "${areaConfig.sourceMunicipality}" via Default Settlement. ` +
+        `Import avbrytes før event-skriving.`
       );
     }
   }
@@ -1542,9 +1406,7 @@ async function arrImportAllSources(env, options={}) {
   // V302: Ved kilde-for-kilde-import henter vi bare eksisterende Events for
   // akkurat den/de kildene. Tidligere lastet hver import HELE Events-tabellen,
   // og dette traff Worker resource limits når databasen ble stor.
-  let existingEvents = Array.isArray(areaAnchorEvents)
-    ? areaAnchorEvents
-    : [];
+  let existingEvents = [];
 
   if (requestedSourceIds.size) {
     for (const source of activeSources) {
@@ -1579,7 +1441,7 @@ async function arrImportAllSources(env, options={}) {
     const byRowId = new Map();
     for (const row of existingEvents) byRowId.set(Number(row.id),row);
     existingEvents = [...byRowId.values()];
-  } else if (!Array.isArray(areaAnchorEvents)) {
+  } else {
     existingEvents = await arrListAllRows(env,ARR_TABLE.EVENTS);
   }
 
@@ -1610,10 +1472,26 @@ async function arrImportAllSources(env, options={}) {
   const allSettlementRules = arrBuildSettlementRules(settlements, true);
   const activeSettlementIds = new Set(settlementRules.map(r => Number(r.rowId)));
   const existingBySourceEventId = new Map();
+  const existingByEventCalendarAppUrl = new Map();
   const existingVarhaugBySemanticKey = new Map();
   for (const r of existingEvents) {
     const key = String(r[ARR_F.events.sourceEventId] || "").trim();
     if (key) existingBySourceEventId.set(key,r);
+
+    // V464 migreringsbro: eksisterende IMI-rader har historisk tilfeldige UID-er,
+    // men DESCRIPTION inneholder den stabile EventCalendarApp-lenken. Velg den
+    // aktive/senest observerte raden som canonical rad for hver slik lenke.
+    const eventCalendarUrl = arrExtractEventCalendarAppUrl(
+      r[ARR_F.events.description],
+      r[ARR_F.events.sourceUrl]
+    );
+    if (eventCalendarUrl) {
+      const current = existingByEventCalendarAppUrl.get(eventCalendarUrl);
+      existingByEventCalendarAppUrl.set(
+        eventCalendarUrl,
+        arrPreferEventCalendarExisting(current, r)
+      );
+    }
 
     const eventSource = arrNormalize(r[ARR_F.events.source] || "");
     if (
@@ -1663,7 +1541,6 @@ async function arrImportAllSources(env, options={}) {
       rowsRead: {
         sources: sources.length,
         activeSources: activeSources.length,
-        sourceAnchorsFromExistingEvents: sourceAnchors.size,
         meetingTypes: meetingTypes.length,
         settlements: settlements.length,
         activeSettlements: settlementRules.length
@@ -1876,6 +1753,20 @@ async function arrImportAllSources(env, options={}) {
         };
 
         let existing = existingBySourceEventId.get(sourceEventId);
+
+        // V464: første kjøring etter overgang til stabil EventCalendarApp-ID må
+        // oppdatere eksisterende IMI-rad i stedet for å lage enda en kopi.
+        if (!existing) {
+          const stableUrl = arrExtractEventCalendarAppUrl(item.description, item.sourceUrl);
+          const eventCalendarExisting = stableUrl
+            ? existingByEventCalendarAppUrl.get(stableUrl)
+            : null;
+          if (eventCalendarExisting) {
+            existing = eventCalendarExisting;
+            const oldKey = String(eventCalendarExisting[ARR_F.events.sourceEventId] || "").trim();
+            if (oldKey) seenKeys.add(oldKey);
+          }
+        }
 
         // V334: Varhaug har samme møte både i årsplanen og på forsiden.
         // De to visningene kan ha ulik tegnsetting, ekstra datotekst og historisk
@@ -3261,6 +3152,41 @@ function arrUnfoldIcal(text) {
   return text.replace(/\r?\n[ \t]/g,"");
 }
 
+// V464: EventCalendarApp genererer ikke en stabil VEVENT UID for IMI-kirken.
+// Den samme konkrete hendelsen får derfor ny UID ved senere feed-hentinger.
+// Den offentlige event-lenken i DESCRIPTION er derimot stabil, f.eks.
+// https://imikirken.eventcalendarapp.com/u/20203/455760.
+// Bruk denne som varig identitet slik at samme event oppdateres i stedet for
+// å opprettes på nytt ved hver import.
+function arrExtractEventCalendarAppUrl(...values) {
+  for (const value of values) {
+    const text = String(value || "");
+    const m = text.match(/https?:\/\/[a-z0-9.-]+\.eventcalendarapp\.com\/u\/(\d+)\/(\d+)/i);
+    if (m) return m[0].replace(/[),.;]+$/g, "");
+  }
+  return "";
+}
+
+function arrEventCalendarAppStableId(...values) {
+  const url = arrExtractEventCalendarAppUrl(...values);
+  if (!url) return "";
+  const m = url.match(/\/u\/(\d+)\/(\d+)/i);
+  return m ? `eventcalendarapp-${m[1]}-${m[2]}` : "";
+}
+
+function arrPreferEventCalendarExisting(current, candidate) {
+  if (!current) return candidate;
+  const currentActive = current[ARR_F.events.active] !== false;
+  const candidateActive = candidate[ARR_F.events.active] !== false;
+  if (candidateActive !== currentActive) return candidateActive ? candidate : current;
+
+  const currentSeen = new Date(current[ARR_F.events.lastSeen] || 0).getTime();
+  const candidateSeen = new Date(candidate[ARR_F.events.lastSeen] || 0).getTime();
+  if (Number.isFinite(candidateSeen) && candidateSeen > currentSeen) return candidate;
+  if (Number.isFinite(currentSeen) && currentSeen > candidateSeen) return current;
+  return Number(candidate.id || 0) > Number(current.id || 0) ? candidate : current;
+}
+
 function arrParseIcal(text, sourceUrl) {
   const unfolded = arrUnfoldIcal(text);
   const allBlocks = unfolded.split("BEGIN:VEVENT").slice(1).map(x => x.split("END:VEVENT")[0]);
@@ -3313,6 +3239,7 @@ function arrParseIcal(text, sourceUrl) {
     const location = arrIcalUnescape(props.LOCATION?.value || "");
     const description = arrIcalUnescape(props.DESCRIPTION?.value || "");
     const eventUrl = arrIcalUnescape(props.URL?.value || sourceUrl);
+    const eventCalendarStableId = arrEventCalendarAppStableId(description, eventUrl);
 
     if (recurrenceId) {
       // V308: også enkeltstående unntak i en serie må ligge innenfor
@@ -3320,7 +3247,7 @@ function arrParseIcal(text, sourceUrl) {
       const startMs = new Date(start).getTime();
       if (Number.isFinite(startMs) && startMs >= fromMs && startMs <= toMs) {
         out.push({
-          sourceEventId:uid ? `${uid}::${recurrenceId}` : null,
+          sourceEventId:eventCalendarStableId || (uid ? `${uid}::${recurrenceId}` : null),
           title,
           startTime:start,
           endTime:end,
@@ -3345,7 +3272,7 @@ function arrParseIcal(text, sourceUrl) {
       const startMs = new Date(start).getTime();
       if (Number.isFinite(startMs) && startMs >= fromMs && startMs <= toMs) {
         out.push({
-          sourceEventId:uid,
+          sourceEventId:eventCalendarStableId || uid,
           title,
           startTime:start,
           endTime:end,
@@ -3363,7 +3290,9 @@ function arrParseIcal(text, sourceUrl) {
 
     for (const occurrenceStart of occurrences) {
       if (exdates.has(occurrenceStart)) continue;
-      const occurrenceKey = uid ? `${uid}::${occurrenceStart}` : null;
+      const occurrenceKey = eventCalendarStableId
+        ? `${eventCalendarStableId}::${occurrenceStart}`
+        : (uid ? `${uid}::${occurrenceStart}` : null);
       if (occurrenceKey && exceptionKeys.has(occurrenceKey)) continue;
       const occurrenceEnd = durationMs === null ? null : new Date(new Date(occurrenceStart).getTime() + durationMs).toISOString();
       out.push({
@@ -6144,7 +6073,7 @@ export {
   arrListAllRows,
   arrCreateRowsBatch,
   arrUpdateRowsBatch,
-  arrCleanupFinishedEvents,
+  arrDeleteRowsBatch,
   arrLoadOrganizations,
   arrImportAllSources,
   arrDedupeExistingVigrestad,
