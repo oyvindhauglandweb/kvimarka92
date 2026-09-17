@@ -184,7 +184,14 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     return false;
   }
   function currentBasePage() {
-    return pageName();
+    var page = pageName();
+    // Cloudflare Pages can serve HTML pages with clean URLs, e.g.
+    // /handleliste-bestille instead of /handleliste-bestille.html.
+    // Normalize those URLs so page-specific menu functions still work.
+    if (page && page.indexOf(".") === -1 && page.indexOf("handleliste-") === 0) {
+      return page + ".html";
+    }
+    return page;
   }
   function isCurrentTarget(url) {
     try {
