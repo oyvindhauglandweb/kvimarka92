@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v477-tryggheim-public-events-2026-09-21";
+const ARRANGEMENT_ENGINE_VERSION = "v478-tryggheim-lines-fix-2026-09-21";
 
 const ARR_AREAS = {
   default: {
@@ -7103,7 +7103,7 @@ function arrTryggheimExtractLinks(html, pageUrl) {
 }
 
 function arrTryggheimParsePage(html, pageUrl, nowMs=Date.now()) {
-  const lines = arrHtmlToLines(html).filter(Boolean);
+  const lines = arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
   const out = [];
 
   // Lag korte vinduer slik at dato, klokkeslett og arrangementnavn kan stå
