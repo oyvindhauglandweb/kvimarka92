@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v475-ungdomslaget-organizer-org-2026-09-21";
+const ARRANGEMENT_ENGINE_VERSION = "v476-ungdomslaget-separate-supplement-2026-09-21";
 
 const ARR_AREAS = {
   default: {
@@ -1430,6 +1430,182 @@ function arrResolveRuleSettlementOverride(
 }
 
 
+
+// V476: Ungdomslaget kjøres som egen generert supplement-kilde.
+// Dette er bevisst skilt fra Nærbø-nettsideparseren. En feil eller kildevern-feil
+// på narbobedehus.no skal aldri blokkere oppretting/oppdatering av den faste serien.
+async function arrImportGeneratedNarboUngdomslagetSupplement({
+  env,
+  areaKey,
+  activeSources,
+  meetingTypes,
+  settlements,
+  organizations
+}) {
+  if (areaKey !== "default") return null;
+
+  const sourceResult = {
+    sourceId:"GENERATED-NARBO-UNGDOMSLAGET",
+    name:"Ungdomslaget Nærbø (generert)",
+    created:0,
+    updated:0,
+    skipped:0,
+    error:null,
+    createdEvents:[]
+  };
+
+  try {
+    const narboSource = (Array.isArray(activeSources) ? activeSources : [])
+      .find(source => arrIsNarboBedehusSource(source));
+
+    if (!narboSource) {
+      throw new Error("Fant ikke aktiv Source for Nærbø Bedehus.");
+    }
+
+    const typeRules = arrBuildTypeRules(meetingTypes);
+    const settlementRules = arrBuildSettlementRules(settlements);
+    const allSettlementRules = arrBuildSettlementRules(settlements, true);
+    const activeSettlementIds = new Set(settlementRules.map(r => Number(r.rowId)));
+
+    const misjonssambandet = (Array.isArray(organizations) ? organizations : [])
+      .find(org => arrNormalize(org?.name || "") === arrNormalize("Misjonssambandet"));
+    const misjonssambandetId = arrClean(misjonssambandet?.id || "ORG-0004");
+
+    const generated = arrGenerateNarboUngdomslagetEvents();
+    const existingEvents = await arrListAllRows(env, ARR_TABLE.EVENTS);
+    const existingBySourceEventId = new Map();
+
+    for (const row of existingEvents) {
+      const key = arrClean(row[ARR_F.events.sourceEventId] || "");
+      if (key.startsWith("generated-ungdomslaget-naerbo-")) {
+        existingBySourceEventId.set(key,row);
+      }
+    }
+
+    const updateItems = [];
+    const createItems = [];
+    const nowIso = new Date().toISOString();
+    const seen = new Set();
+
+    for (const item of generated) {
+      const sourceEventId = arrClean(item.sourceEventId || "");
+      if (!sourceEventId) {
+        sourceResult.skipped++;
+        continue;
+      }
+      seen.add(sourceEventId);
+
+      const normalizedItem = {
+        ...item,
+        organizer:"Nærbø Bedehus",
+        location:"Nærbø bedehus",
+        settlementHint:"Nærbø",
+        municipalityHint:"Hå",
+        meetingTypeHint:"Ungdom",
+        organizationIds:misjonssambandetId ? [misjonssambandetId] : [],
+        description:"Nærbø Kristelige Ungdomslag (NKUL) har møte hver lørdag kl. 20.00.",
+        sourceUrl:"https://www.facebook.com/groups/ungdomslaget/?locale=nb_NO"
+      };
+
+      const settlementIds = arrResolveSettlementIds(
+        normalizedItem,
+        narboSource,
+        settlementRules,
+        allSettlementRules,
+        activeSettlementIds
+      );
+
+      if (!Array.isArray(settlementIds) || !settlementIds.length) {
+        sourceResult.skipped++;
+        continue;
+      }
+
+      const typeIds = arrClassifyMeetingTypes(normalizedItem,typeRules);
+
+      const payload = {
+        [ARR_F.events.title]:"Ungdomslaget",
+        [ARR_F.events.startTime]:arrIsoOrNull(normalizedItem.startTime),
+        [ARR_F.events.endTime]:arrIsoOrNull(normalizedItem.endTime),
+        [ARR_F.events.meetingType]:typeIds,
+        [ARR_F.events.organizer]:"Nærbø Bedehus",
+        [ARR_F.events.location]:"Nærbø bedehus",
+        [ARR_F.events.description]:normalizedItem.description,
+        [ARR_F.events.source]:arrClean(narboSource[ARR_F.sources.name] || "Nærbø Bedehus"),
+        [ARR_F.events.sourceUrl]:normalizedItem.sourceUrl,
+        [ARR_F.events.sourceEventId]:sourceEventId,
+        [ARR_F.events.lastSeen]:nowIso,
+        [ARR_F.events.active]:true,
+        [ARR_F.events.settlement]:settlementIds.slice(0,1),
+        [ARR_F.events.organizationIds]:misjonssambandetId || ""
+      };
+
+      const existing = existingBySourceEventId.get(sourceEventId);
+      if (existing) {
+        if (existing[ARR_F.events.manuallyEdited] === true) {
+          updateItems.push({
+            id:existing.id,
+            [ARR_F.events.lastSeen]:nowIso,
+            [ARR_F.events.active]:true
+          });
+        } else {
+          updateItems.push({id:existing.id,...payload});
+        }
+      } else {
+        payload[ARR_F.events.eventId] =
+          `EVT-${(await arrSha256(sourceEventId)).slice(0,12).toUpperCase()}`;
+        createItems.push(payload);
+      }
+    }
+
+    // Deaktiver kun gamle genererte Ungdomslaget-rader som ikke lenger hører
+    // til den aktuelle skoleårsserien. Andre Nærbø-arrangementer røres ikke.
+    for (const row of existingBySourceEventId.values()) {
+      if (row[ARR_F.events.manuallyEdited] === true) continue;
+      const sourceEventId = arrClean(row[ARR_F.events.sourceEventId] || "");
+      if (seen.has(sourceEventId)) continue;
+
+      const start = new Date(row[ARR_F.events.startTime] || "");
+      if (!Number.isNaN(start.getTime()) && start.getTime() >= Date.now() - 86400000) {
+        updateItems.push({
+          id:row.id,
+          [ARR_F.events.active]:false,
+          [ARR_F.events.lastSeen]:nowIso
+        });
+      }
+    }
+
+    const createdRows = await arrCreateRowsBatch(
+      env,
+      ARR_TABLE.EVENTS,
+      createItems
+    );
+
+    if (updateItems.length) {
+      await arrUpdateRowsBatch(env,ARR_TABLE.EVENTS,updateItems);
+    }
+
+    sourceResult.created = createItems.length;
+    sourceResult.updated = updateItems.length;
+    sourceResult.createdEvents = createdRows.map(row => ({
+      rowId:Number(row.id || 0),
+      eventId:arrClean(row[ARR_F.events.eventId] || ""),
+      title:arrClean(row[ARR_F.events.title] || ""),
+      startTime:arrClean(row[ARR_F.events.startTime] || ""),
+      endTime:arrClean(row[ARR_F.events.endTime] || ""),
+      organizer:arrClean(row[ARR_F.events.organizer] || ""),
+      location:arrClean(row[ARR_F.events.location] || ""),
+      source:arrClean(row[ARR_F.events.source] || ""),
+      sourceEventId:arrClean(row[ARR_F.events.sourceEventId] || ""),
+      active:row[ARR_F.events.active] !== false
+    }));
+
+    return sourceResult;
+  } catch (err) {
+    sourceResult.error = String(err?.message || err);
+    return sourceResult;
+  }
+}
+
 // V473: Supplerende NLM-kilde for offentlig møteoversikt i region sørvest.
 // Power BI-queryen er filtrert til Område=Sør-Jæren og Region=Sørvest.
 // Vi importerer bare møter på steder som allerede finnes blant aktive lokale
@@ -2839,6 +3015,24 @@ async function arrImportAllSources(env, options={}) {
     }
 
     result.sources.push(sourceResult);
+  }
+
+  // V476: Generert Ungdomslaget-serie er en uavhengig supplement-kilde.
+  // Den skal oppdateres selv om Nærbø-nettsideparseren feiler eller kildevern slår inn.
+  const ungdomslagetSupplement = await arrImportGeneratedNarboUngdomslagetSupplement({
+    env,
+    areaKey,
+    activeSources,
+    meetingTypes,
+    settlements,
+    organizations
+  });
+
+  if (ungdomslagetSupplement) {
+    result.supplementalSources.push(ungdomslagetSupplement);
+    result.created += Number(ungdomslagetSupplement.created || 0);
+    result.updated += Number(ungdomslagetSupplement.updated || 0);
+    if (ungdomslagetSupplement.error) result.errors++;
   }
 
   // V473: NLM Sør-Jæren kjøres etter lokale kilder, slik at lokalkalenderen
@@ -6842,16 +7036,6 @@ async function arrFetchAndParseNarbo(url) {
       });
     }
   }
-
-  const generatedUngdomslaget = arrGenerateNarboUngdomslagetEvents();
-  out.push(...generatedUngdomslaget);
-  stats.push({
-    url:"generated://ungdomslaget-naerbo",
-    method:"generated-school-year-series",
-    count:generatedUngdomslaget.length,
-    first:generatedUngdomslaget[0]?.startTime || null,
-    last:generatedUngdomslaget.at(-1)?.startTime || null
-  });
 
   const deduped = arrDedupeParsed(out);
 
