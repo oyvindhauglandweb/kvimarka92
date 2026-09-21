@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v476-ungdomslaget-separate-supplement-2026-09-21";
+const ARRANGEMENT_ENGINE_VERSION = "v477-tryggheim-public-events-2026-09-21";
 
 const ARR_AREAS = {
   default: {
@@ -3556,6 +3556,9 @@ async function arrLoadSourceEvents(source) {
   if (/ebeneser\.no/i.test(url)) {
     return arrFetchAndParseEbeneser();
   }
+  if (/(?:^|\.)tryggheim\.no/i.test(new URL(url).hostname)) {
+    return arrFetchAndParseTryggheim(url);
+  }
 
   // V427: The Events Calendar sin ?ical=1-eksport på Lye er knyttet til
   // den månedsvisningen URL-en gjelder. Hent derfor alle måneder fra
@@ -6983,6 +6986,277 @@ function arrGenerateNarboUngdomslagetEvents(nowMs = Date.now()) {
   }
 
   return out;
+}
+
+
+// V477: Tryggheim har ikke én komplett offentlig kalender.
+// Vi skanner et lite sett autoritative Tryggheim-sider + ferske VGS-aktuelt-sider,
+// og importerer bare tydelige, framtidige arrangementer med oppgitt klokkeslett.
+// Skoletilhørighet settes konservativt: VGS / ungdomsskule når kilden tydelig
+// kommer fra den delen av nettstedet, ellers bare "Tryggheim".
+function arrTryggheimAffiliation(pageUrl, context="") {
+  let host = "";
+  try { host = new URL(pageUrl).hostname.toLowerCase(); } catch (_) {}
+
+  const c = arrNormalize(context || "");
+  if (
+    host === "usk.tryggheim.no" ||
+    /\btryggheim ungdomsskule\b/.test(c) ||
+    /\bungdomsskulen\b/.test(c)
+  ) return "Tryggheim ungdomsskule";
+
+  if (
+    host === "vgs.tryggheim.no" ||
+    /\btryggheim vgs\b/.test(c) ||
+    /\bvidaregåande\b/.test(c) ||
+    /\bvideregående\b/.test(c)
+  ) return "Tryggheim VGS";
+
+  return "Tryggheim";
+}
+
+function arrTryggheimRelevantContext(value) {
+  const t = arrNormalize(value || "");
+  return (
+    /huslydkveld/.test(t) ||
+    /basar/.test(t) ||
+    /misjonskveld/.test(t) ||
+    /kveldsmøte/.test(t) ||
+    /gudstjeneste/.test(t) ||
+    /elevstemne/.test(t) ||
+    /open skule/.test(t) ||
+    /åpen skole/.test(t) ||
+    /besøkshelg/.test(t) ||
+    /temadag/.test(t) ||
+    /foreldredag/.test(t)
+  );
+}
+
+function arrTryggheimTitleAndType(context) {
+  const t = arrNormalize(context || "");
+
+  if (/huslydkveld/.test(t) && /basar/.test(t)) {
+    return {title:"Huslydkveld med basar", meetingTypeHint:"Basar"};
+  }
+  if (/misjonskveld/.test(t)) {
+    return {title:"Misjonskveld", meetingTypeHint:"Misjon"};
+  }
+  if (/kveldsmøte/.test(t)) {
+    return {title:"Kveldsmøte", meetingTypeHint:"Møte"};
+  }
+  if (/gudstjeneste/.test(t)) {
+    return {title:"Gudstjeneste", meetingTypeHint:"Gudstjeneste"};
+  }
+  if (/elevstemne/.test(t)) {
+    return {title:"Elevstemne", meetingTypeHint:"Sosialt"};
+  }
+  if (/open skule|åpen skole/.test(t)) {
+    return {title:"Åpen skole", meetingTypeHint:"Annet"};
+  }
+  if (/besøkshelg/.test(t)) {
+    return {title:"Besøkshelg", meetingTypeHint:"Annet"};
+  }
+  if (/temadag/.test(t) && /foreldredag/.test(t)) {
+    return {title:"Temadag / foreldredag", meetingTypeHint:"Annet"};
+  }
+  if (/temadag/.test(t)) {
+    return {title:"Temadag", meetingTypeHint:"Annet"};
+  }
+  if (/basar/.test(t)) {
+    return {title:"Basar", meetingTypeHint:"Basar"};
+  }
+
+  return null;
+}
+
+function arrTryggheimInferYear(day, month, explicitYear, nowMs=Date.now()) {
+  if (explicitYear) return Number(explicitYear);
+
+  const now = new Date(nowMs);
+  let year = now.getUTCFullYear();
+  const candidate = Date.UTC(year, Number(month)-1, Number(day), 12, 0, 0);
+
+  // Dersom datoen uten år ligger tydelig bak oss, tolkes den som neste år.
+  if (candidate < nowMs - 30 * 86400000) year++;
+  return year;
+}
+
+function arrTryggheimExtractLinks(html, pageUrl) {
+  const out = [];
+  const seen = new Set();
+
+  for (const m of String(html || "").matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>/gi)) {
+    try {
+      const absolute = new URL(arrDecodeEntities(m[1] || ""), pageUrl);
+      if (!/^https?:$/.test(absolute.protocol)) continue;
+      if (!/(?:^|\.)tryggheim\.no$/i.test(absolute.hostname)) continue;
+      absolute.hash = "";
+
+      const href = absolute.href;
+      if (seen.has(href)) continue;
+      seen.add(href);
+      out.push(href);
+    } catch (_) {}
+  }
+
+  return out;
+}
+
+function arrTryggheimParsePage(html, pageUrl, nowMs=Date.now()) {
+  const lines = arrHtmlToLines(html).filter(Boolean);
+  const out = [];
+
+  // Lag korte vinduer slik at dato, klokkeslett og arrangementnavn kan stå
+  // på nabolinjer i redaksjonsteksten.
+  const windows = [];
+  for (let i=0; i<lines.length; i++) {
+    const chunk = lines.slice(Math.max(0,i-2), Math.min(lines.length,i+3)).join(" ");
+    if (chunk) windows.push(chunk);
+  }
+
+  const monthPattern = Object.keys(ARR_NORWEGIAN_MONTHS).join("|");
+  const dateRe = new RegExp(
+    String.raw`(?:mandag|måndag|tirsdag|tysdag|onsdag|torsdag|fredag|lørdag|laurdag|søndag|sundag)?\s*` +
+    String.raw`(\d{1,2})\.?\s+(${monthPattern})(?:\s+(20\d{2}))?`,
+    "i"
+  );
+  const timeRe = /(?:kl(?:\.|okka)?\s*)(\d{1,2})(?:[.:](\d{2}))?/i;
+  const rangeRe = /(?:kl(?:\.|okka)?\s*)(\d{1,2})(?:[.:](\d{2}))?\s*[–—-]\s*(\d{1,2})(?:[.:](\d{2}))?/i;
+
+  for (const contextRaw of windows) {
+    const context = arrClean(contextRaw);
+    if (!arrTryggheimRelevantContext(context)) continue;
+
+    const dm = context.match(dateRe);
+    if (!dm) continue;
+
+    const rm = context.match(rangeRe);
+    const tm = rm || context.match(timeRe);
+    if (!tm) continue; // Ikke dikt klokkeslett når Tryggheim ikke oppgir det.
+
+    const day = Number(dm[1]);
+    const month = ARR_NORWEGIAN_MONTHS[arrNormalize(dm[2])];
+    const year = arrTryggheimInferYear(day, month, dm[3], nowMs);
+    if (!month) continue;
+
+    const startHour = Number(tm[1]);
+    const startMinute = Number(tm[2] || 0);
+    if (
+      !Number.isInteger(startHour) || startHour < 0 || startHour > 23 ||
+      !Number.isInteger(startMinute) || startMinute < 0 || startMinute > 59
+    ) continue;
+
+    const startTime = arrOsloLocalIso(year,month,day,startHour,startMinute,0);
+    const startMs = new Date(startTime).getTime();
+    if (!Number.isFinite(startMs)) continue;
+    if (startMs < nowMs - 86400000 || startMs > nowMs + 400*86400000) continue;
+
+    let endTime = null;
+    if (rm) {
+      const endHour = Number(rm[3]);
+      const endMinute = Number(rm[4] || 0);
+      if (
+        Number.isInteger(endHour) && endHour >= 0 && endHour <= 23 &&
+        Number.isInteger(endMinute) && endMinute >= 0 && endMinute <= 59
+      ) {
+        endTime = arrOsloLocalIso(year,month,day,endHour,endMinute,0);
+      }
+    }
+
+    const titleType = arrTryggheimTitleAndType(context);
+    if (!titleType) continue;
+
+    const affiliation = arrTryggheimAffiliation(pageUrl, context);
+    const description = [
+      `Gjelder: ${affiliation}.`,
+      context.slice(0,700)
+    ].join(" ");
+
+    out.push({
+      title:titleType.title,
+      startTime,
+      endTime,
+      organizer:"Tryggheim",
+      location:affiliation,
+      settlementHint:"Nærbø",
+      municipalityHint:"Hå",
+      meetingTypeHint:titleType.meetingTypeHint,
+      organizationIds:["ORG-0004"],
+      description,
+      sourceUrl:pageUrl
+    });
+  }
+
+  return arrDedupeParsed(out);
+}
+
+async function arrFetchAndParseTryggheim(url) {
+  const seedUrls = [
+    "https://vgs.tryggheim.no/aktuelt/",
+    "https://vgs.tryggheim.no/info/",
+    "https://vgs.tryggheim.no/info/info/besok-pa-skulen/",
+    "https://vgs.tryggheim.no/info/info/skoleruta/",
+    "https://vgs.tryggheim.no/aktuelt/avlsutningsfest-fredag-12-juni/",
+    "https://usk.tryggheim.no/informasjon/",
+    "https://usk.tryggheim.no/informasjon/info/skoleruta/",
+    "https://tryggheim.no/info/"
+  ];
+
+  // Kilden i Baserow kan peke til en av Tryggheim-sidene; ta den med også.
+  if (url) seedUrls.unshift(String(url).trim());
+
+  const queue = [...new Set(seedUrls)];
+  const fetched = new Set();
+  const out = [];
+  const stats = [];
+
+  // Begrens crawling for å holde importen forutsigbar.
+  while (queue.length && fetched.size < 28) {
+    const pageUrl = queue.shift();
+    if (!pageUrl || fetched.has(pageUrl)) continue;
+    fetched.add(pageUrl);
+
+    try {
+      const html = await arrFetchText(pageUrl);
+      const parsed = arrTryggheimParsePage(html, pageUrl);
+      out.push(...parsed);
+
+      stats.push({
+        url:pageUrl,
+        count:parsed.length
+      });
+
+      // Bare VGS "Aktuelt"-oversikten får utvide crawl til artikkelsider.
+      if (/^https:\/\/vgs\.tryggheim\.no\/aktuelt\/?$/i.test(pageUrl)) {
+        const articleLinks = arrTryggheimExtractLinks(html,pageUrl)
+          .filter(href =>
+            /^https:\/\/vgs\.tryggheim\.no\/aktuelt\/[^/?#]+\/?$/i.test(href)
+          )
+          .slice(0,20);
+
+        for (const href of articleLinks) {
+          if (!fetched.has(href) && !queue.includes(href)) queue.push(href);
+        }
+      }
+    } catch (err) {
+      stats.push({
+        url:pageUrl,
+        count:0,
+        error:arrClean(err?.message || String(err))
+      });
+    }
+  }
+
+  const deduped = arrFilterParsedEventWindow(arrDedupeParsed(out));
+
+  if (!deduped.length) {
+    throw new Error(
+      "Tryggheim-parser fant ingen framtidige arrangementer med både dato og klokkeslett. " +
+      JSON.stringify(stats.slice(0,12))
+    );
+  }
+
+  return deduped;
 }
 
 async function arrFetchAndParseNarbo(url) {
