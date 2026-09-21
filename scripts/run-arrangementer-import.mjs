@@ -780,8 +780,12 @@ async function readAreaSnapshotEvents(areaKey, organizationNameById) {
     const source = arrClean(row[f.events.source] || "");
     const normalizedSource = arrNormalize(source);
 
+    const supplementalNlmSource =
+      normalizedSource === arrNormalize("NLM region sørvest");
+
     if (
       normalizedSource &&
+      !supplementalNlmSource &&
       !activeSourceNames.has(normalizedSource) &&
       !activeSourceIds.has(normalizedSource)
     ) continue;
@@ -1197,9 +1201,12 @@ function consecutiveDeferredFailureCount(currentRow) {
 }
 
 const sourceResults = areaResults.flatMap(({key, result}) =>
-  (Array.isArray(result.sources) ? result.sources : []).map(row => ({
+  [
+    ...(Array.isArray(result.sources) ? result.sources : []),
+    ...(Array.isArray(result.supplementalSources) ? result.supplementalSources : [])
+  ].map(row => ({
     ...row,
-    area: key
+    area:key
   }))
 );
 
@@ -1316,7 +1323,12 @@ const summary = {
     errors: areaAlarmCounts.get(key) || 0,
     // Alle råfeil beholdes for diagnose.
     rawErrors: Number(result.errors || 0),
-    sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
+    sourceCount:
+      (Array.isArray(result.sources) ? result.sources.length : 0) +
+      (Array.isArray(result.supplementalSources) ? result.supplementalSources.length : 0),
+    supplementalSources: Array.isArray(result.supplementalSources)
+      ? result.supplementalSources
+      : [],
     diagnostics: result.diagnostics || undefined
   })),
   cleanupFinishedEvents: {

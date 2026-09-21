@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v472-generated-ungdomslaget-naerbo-2026-09-21";
+const ARRANGEMENT_ENGINE_VERSION = "v473-nlm-sor-jaeren-powerbi-2026-09-21";
 
 const ARR_AREAS = {
   default: {
@@ -1429,6 +1429,700 @@ function arrResolveRuleSettlementOverride(
   return [id];
 }
 
+
+// V473: Supplerende NLM-kilde for offentlig møteoversikt i region sørvest.
+// Power BI-queryen er filtrert til Område=Sør-Jæren og Region=Sørvest.
+// Vi importerer bare møter på steder som allerede finnes blant aktive lokale
+// Sources / deres eksisterende Events i det aktuelle området.
+//
+// Kilden kjøres som supplement etter de ordinære lokale kildene. Lokale
+// kalendere har prioritet: hvis samme sted/dato/tid allerede finnes lokalt,
+// opprettes ingen NLM-rad.
+const ARR_NLM_SOUTH_JAEREN_SOURCE_NAME = "NLM region sørvest";
+const ARR_NLM_SOUTH_JAEREN_SOURCE_ID = "NLM-SOR-JAEREN";
+const ARR_NLM_SOUTH_JAEREN_REPORT_URL =
+  "https://app.powerbi.com/view?r=eyJrIjoiY2M0ZmYzMDQtMjI3OS00OGRlLTg3ZGItMmE2YjFmYmQxMjIzIiwidCI6IjIzYmJhZjYyLTdiMTItNDk4Yi1hYzA0LTU2YWYxYzU0YThmNCIsImMiOjh9";
+const ARR_NLM_SOUTH_JAEREN_QUERY_URL =
+  "https://wabi-north-europe-j-primary-api.analysis.windows.net/public/reports/querydata?synchronous=true";
+const ARR_NLM_SOUTH_JAEREN_RESOURCE_KEY =
+  "cc4ff304-2279-48de-87db-2a6b1fbd1223";
+
+let ARR_NLM_SOUTH_JAEREN_CACHE = null;
+
+function arrNlmPowerBiPayload() {
+  const command = {
+    SemanticQueryDataShapeCommand: {
+      Query: {
+        Version: 2,
+        From: [{Name:"r",Entity:"Reiserute",Type:0}],
+        Select: [
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Møtested"},Name:"Reiserute.MØTESTED-BEDEHUS"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Arrangement"},Name:"Reiserute.ARRANGEMENT"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Dato"},Name:"Reiserute.Dato"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"kl"},Name:"Reiserute.Kl"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Til dato"},Name:"Reiserute.Til dato"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Talere"},Name:"Reiserute.Talere"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Info om møtet"},Name:"Reiserute.Info om møtet"}
+        ],
+        Where: [
+          {Condition:{In:{Expressions:[{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Område"}}],Values:[[{Literal:{Value:"'Sør-Jæren'"}}]]}}},
+          {Condition:{In:{Expressions:[{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Region"}}],Values:[[{Literal:{Value:"'Sørvest'"}}]]}}},
+          {Condition:{Not:{Expression:{StartsWith:{Left:{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Møtested"}},Right:{Literal:{Value:"'Region '"}}}}}}},
+          {Condition:{In:{Expressions:[{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Offentlig"}}],Values:[[{Literal:{Value:"'Offentlig'"}}]]}}},
+          {Condition:{In:{Expressions:[{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Progresjon"}}],Values:[[{Literal:{Value:"'Offentlig'"}}],[{Literal:{Value:"'Ordner selv'"}}]]}}},
+          {Condition:{Not:{Expression:{Comparison:{ComparisonKind:0,Left:{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Arrangement"}},Right:{Literal:{Value:"'Disponibel'"}}}}}}}
+        ],
+        OrderBy: [
+          {Direction:1,Expression:{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Dato"}}}
+        ]
+      },
+      Binding: {
+        Primary:{Groupings:[{Projections:[0,1,2,3,4,5,6],Subtotal:1}]},
+        DataReduction:{DataVolume:3,Primary:{Window:{Count:500}}},
+        Version:1
+      },
+      ExecutionMetricsKind:1
+    }
+  };
+
+  return {
+    version:"1.0.0",
+    queries:[{
+      Query:{Commands:[command]},
+      CacheKey:JSON.stringify({Commands:[command]}),
+      QueryId:"",
+      ApplicationContext:{
+        DatasetId:"de933937-9588-4fd8-8f7d-a4bfa12a6db9",
+        Sources:[{
+          ReportId:"d08fd9b1-fb1f-45d5-bdff-5475084b56e6",
+          VisualId:"a55abdcab5c65c27eed4"
+        }]
+      }
+    }],
+    cancelQueries:[],
+    modelId:229242
+  };
+}
+
+function arrDecodePowerBiRows(responseJson) {
+  const data = responseJson?.results?.[0]?.result?.data;
+  const ds = data?.dsr?.DS?.[0];
+  if (!ds) throw new Error("NLM Power BI: response mangler dsr.DS[0]");
+
+  const valueDicts = ds.ValueDicts || {};
+  const rawRows = (Array.isArray(ds.PH) ? ds.PH : [])
+    .flatMap(ph => Array.isArray(ph?.DM0) ? ph.DM0 : []);
+
+  if (!rawRows.length) return [];
+
+  let columnDefs = null;
+  let prev = [];
+  const decoded = [];
+
+  for (const row of rawRows) {
+    if (Array.isArray(row?.S) && row.S.length) {
+      columnDefs = row.S;
+      prev = Array(columnDefs.length).fill(null);
+    }
+
+    const n = columnDefs?.length || 7;
+    if (prev.length !== n) prev = Array(n).fill(null);
+
+    const current = Array(n).fill(null);
+    const values = Array.isArray(row?.C) ? row.C : [];
+    const copyMask = Number(row?.R || 0);
+    const nullMask = Number(row?.["Ø"] || 0);
+    let valueIndex = 0;
+
+    for (let i=0; i<n; i++) {
+      const bit = 2 ** i;
+
+      if (copyMask & bit) {
+        current[i] = prev[i];
+      } else if (nullMask & bit) {
+        current[i] = null;
+      } else if (valueIndex < values.length) {
+        let value = values[valueIndex++];
+        const dictName = columnDefs?.[i]?.DN;
+        const dict = dictName ? valueDicts?.[dictName] : null;
+
+        if (
+          Array.isArray(dict) &&
+          Number.isInteger(value) &&
+          value >= 0 &&
+          value < dict.length
+        ) {
+          value = dict[value];
+        }
+
+        current[i] = value;
+      }
+
+      prev[i] = current[i];
+    }
+
+    decoded.push(current);
+  }
+
+  return decoded;
+}
+
+async function arrFetchNlmSouthJaerenRows() {
+  if (ARR_NLM_SOUTH_JAEREN_CACHE) return ARR_NLM_SOUTH_JAEREN_CACHE;
+
+  const payload = arrNlmPowerBiPayload();
+  let lastError = null;
+
+  for (let attempt=1; attempt<=3; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
+      let response;
+      try {
+        response = await fetch(ARR_NLM_SOUTH_JAEREN_QUERY_URL, {
+          method:"POST",
+          headers:{
+            "Accept":"application/json, text/plain, */*",
+            "Content-Type":"application/json;charset=UTF-8",
+            "Origin":"https://app.powerbi.com",
+            "Referer":"https://app.powerbi.com/",
+            "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/153.0.0.0 Safari/537.36",
+            "X-PowerBI-ResourceKey":ARR_NLM_SOUTH_JAEREN_RESOURCE_KEY
+          },
+          body:JSON.stringify(payload),
+          signal:controller.signal
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText || ""}`.trim());
+      }
+
+      const json = await response.json();
+      const rows = arrDecodePowerBiRows(json);
+
+      // Queryen bruker Window.Count=500. Ikke publiser et lydløst avkortet datasett.
+      if (rows.length >= 500) {
+        throw new Error(
+          "NLM Power BI returnerte 500 rader. Resultatet kan være avkortet; import stoppes."
+        );
+      }
+
+      if (!rows.length) {
+        throw new Error("NLM Power BI returnerte ingen møter for Sør-Jæren.");
+      }
+
+      ARR_NLM_SOUTH_JAEREN_CACHE = rows;
+      return rows;
+    } catch (err) {
+      lastError = err;
+      if (attempt < 3) {
+        await new Promise(resolve => setTimeout(resolve, attempt * 1500));
+      }
+    }
+  }
+
+  throw new Error(
+    `NLM Power BI kunne ikke hentes etter 3 forsøk: ${lastError?.message || lastError}`
+  );
+}
+
+function arrNlmVenueNorm(value) {
+  return arrNormalize(value || "")
+    .replace(/[(),.;:/\\]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function arrNlmVenueScore(wanted, alias) {
+  const a = arrNlmVenueNorm(wanted);
+  const b = arrNlmVenueNorm(alias);
+  if (!a || !b || Math.min(a.length,b.length) < 5) return 0;
+  if (a === b) return 10000 + a.length;
+
+  if (a.startsWith(b + " ") || b.startsWith(a + " ")) {
+    return 8000 + Math.min(a.length,b.length);
+  }
+
+  if (a.includes(" " + b + " ") || b.includes(" " + a + " ")) {
+    return 7000 + Math.min(a.length,b.length);
+  }
+
+  const at = new Set(a.split(" ").filter(x => x.length >= 3));
+  const bt = new Set(b.split(" ").filter(x => x.length >= 3));
+  const intersection = [...at].filter(x => bt.has(x)).length;
+  const union = new Set([...at,...bt]).size;
+  const ratio = union ? intersection / union : 0;
+
+  return intersection >= 2 && ratio >= 0.72
+    ? 5000 + Math.round(ratio * 1000)
+    : 0;
+}
+
+function arrBuildNlmVenueTargets(activeSources, existingEvents) {
+  const sourceTargets = [];
+  const sourceByNorm = new Map();
+
+  for (const source of activeSources) {
+    const name = arrClean(source[ARR_F.sources.name] || "");
+    const id = arrClean(source[ARR_F.sources.sourceId] || "");
+    const target = {source,name,id,aliases:new Set()};
+
+    if (name) {
+      target.aliases.add(name);
+      sourceByNorm.set(arrNormalize(name), target);
+    }
+    if (id) sourceByNorm.set(arrNormalize(id), target);
+    sourceTargets.push(target);
+  }
+
+  for (const event of existingEvents) {
+    if (event[ARR_F.events.active] === false) continue;
+
+    const sourceValue = arrNormalize(event[ARR_F.events.source] || "");
+    const target = sourceByNorm.get(sourceValue);
+    if (!target) continue;
+
+    const organizer = arrClean(event[ARR_F.events.organizer] || "");
+    const location = arrClean(event[ARR_F.events.location] || "");
+    if (organizer) target.aliases.add(organizer);
+    if (location) target.aliases.add(location);
+  }
+
+  return sourceTargets;
+}
+
+function arrMatchNlmVenueTarget(venue, targets) {
+  let best = null;
+
+  for (const target of targets) {
+    for (const alias of target.aliases) {
+      const score = arrNlmVenueScore(venue, alias);
+      if (!score) continue;
+
+      if (!best || score > best.score) {
+        best = {target,alias,score};
+      }
+    }
+  }
+
+  return best;
+}
+
+function arrNlmDateParts(value) {
+  if (value == null || value === "") return null;
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    // Excel/Power BI serial date fallback (1899-12-30 epoch).
+    const ms = Date.UTC(1899,11,30) + Math.round(value * 86400000);
+    const d = new Date(ms);
+    return {
+      year:d.getUTCFullYear(),
+      month:d.getUTCMonth()+1,
+      day:d.getUTCDate()
+    };
+  }
+
+  const text = String(value).trim();
+  let m = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) m = text.match(/^(\d{2})[./-](\d{2})[./-](\d{4})/);
+
+  if (m) {
+    if (m[1].length === 4) {
+      return {year:Number(m[1]),month:Number(m[2]),day:Number(m[3])};
+    }
+    return {year:Number(m[3]),month:Number(m[2]),day:Number(m[1])};
+  }
+
+  const ticks = text.match(/\/Date\((\d+)\)\//);
+  if (ticks) {
+    const d = new Date(Number(ticks[1]));
+    if (!Number.isNaN(d.getTime())) {
+      return {year:d.getUTCFullYear(),month:d.getUTCMonth()+1,day:d.getUTCDate()};
+    }
+  }
+
+  const d = new Date(text);
+  if (Number.isNaN(d.getTime())) return null;
+  return {year:d.getUTCFullYear(),month:d.getUTCMonth()+1,day:d.getUTCDate()};
+}
+
+function arrNlmTimeParts(value) {
+  if (value == null || value === "") return null;
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    const fraction = ((value % 1) + 1) % 1;
+    const minutes = Math.round(fraction * 24 * 60) % (24 * 60);
+    return {hour:Math.floor(minutes/60),minute:minutes%60};
+  }
+
+  const text = String(value).trim();
+  const m = text.match(/(?:T|\b)(\d{1,2}):(\d{2})(?::\d{2})?/);
+  if (m) {
+    const hour = Number(m[1]);
+    const minute = Number(m[2]);
+    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+      return {hour,minute};
+    }
+  }
+
+  return null;
+}
+
+function arrNlmLocalDateKey(iso) {
+  const d = new Date(iso || "");
+  if (Number.isNaN(d.getTime())) return "";
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone:"Europe/Oslo",
+    year:"numeric",
+    month:"2-digit",
+    day:"2-digit"
+  }).format(d);
+}
+
+function arrNlmTitleCompatible(nlmTitle, localTitle) {
+  const a = arrNormalize(nlmTitle || "");
+  const b = arrNormalize(localTitle || "");
+  if (!a || !b) return true;
+  if (a === b || a.includes(b) || b.includes(a)) return true;
+
+  // NLM bruker ofte generiske titler som "Møte" mens lokalkalenderen har
+  // mer detaljert tittel. Sted + dato + tid er da tilstrekkelig.
+  if (/^(møte|møter|møteuke|møtehelg|gudstjeneste)$/i.test(a)) return true;
+
+  const stop = new Set(["møte","møter","på","i","med","og","til"]);
+  const at = new Set(a.split(/\s+/).filter(x => x.length >= 3 && !stop.has(x)));
+  const bt = new Set(b.split(/\s+/).filter(x => x.length >= 3 && !stop.has(x)));
+  if (!at.size || !bt.size) return true;
+
+  const common = [...at].filter(x => bt.has(x)).length;
+  return common >= 1;
+}
+
+function arrNlmHasLocalDuplicate(item, existingEvents) {
+  const wantedDay = arrNlmLocalDateKey(item.startTime);
+  const wantedMs = new Date(item.startTime).getTime();
+  if (!wantedDay || !Number.isFinite(wantedMs)) return false;
+
+  return existingEvents.some(row => {
+    if (row[ARR_F.events.active] === false) return false;
+
+    const source = arrClean(row[ARR_F.events.source] || "");
+    if (arrNormalize(source) === arrNormalize(ARR_NLM_SOUTH_JAEREN_SOURCE_NAME)) {
+      return false;
+    }
+
+    const existingStart = row[ARR_F.events.startTime];
+    if (arrNlmLocalDateKey(existingStart) !== wantedDay) return false;
+
+    const existingMs = new Date(existingStart || "").getTime();
+    if (!Number.isFinite(existingMs)) return false;
+
+    // Inntil én times avvik tolereres mellom regional og lokal oversikt.
+    if (Math.abs(existingMs - wantedMs) > 60 * 60 * 1000) return false;
+
+    const venueMatches =
+      arrNlmVenueScore(item.location, row[ARR_F.events.location]) > 0 ||
+      arrNlmVenueScore(item.location, row[ARR_F.events.organizer]) > 0;
+
+    if (!venueMatches) return false;
+
+    return arrNlmTitleCompatible(
+      item.title,
+      row[ARR_F.events.title]
+    );
+  });
+}
+
+function arrNlmMeetingTypeHint(arrangement, hasEndDate) {
+  const value = arrNormalize(arrangement || "");
+  if (!value) return "";
+
+  if (hasEndDate && /^møt/i.test(value)) return "Møteveke / helg";
+  if (/^møter?$/i.test(value)) return "Møte";
+  if (/møteuke|møtehelg/i.test(value)) return "Møteveke / helg";
+  if (/gudstjeneste/i.test(value)) return "Gudstjeneste";
+  if (/basar/i.test(value)) return "Basar";
+  return arrangement;
+}
+
+function arrNlmOrganizationId(organizations) {
+  const target = arrNormalize("Misjonssambandet");
+  const row = (Array.isArray(organizations) ? organizations : []).find(org =>
+    arrNormalize(org?.name || "") === target
+  );
+  return arrClean(row?.id || "");
+}
+
+async function arrImportNlmSouthJaerenSupplement({
+  env,
+  areaKey,
+  activeSources,
+  meetingTypes,
+  settlements,
+  organizations
+}) {
+  if (!["default","time","klepp"].includes(areaKey)) return null;
+
+  const sourceResult = {
+    sourceId:ARR_NLM_SOUTH_JAEREN_SOURCE_ID,
+    name:ARR_NLM_SOUTH_JAEREN_SOURCE_NAME,
+    created:0,
+    updated:0,
+    skipped:0,
+    error:null,
+    createdEvents:[],
+    diagnostics:{
+      powerBiRows:0,
+      matchedVenueRows:0,
+      duplicateLocalRows:0,
+      unmatchedVenues:[],
+      missingDateOrTime:0
+    }
+  };
+
+  try {
+    const rawRows = await arrFetchNlmSouthJaerenRows();
+    sourceResult.diagnostics.powerBiRows = rawRows.length;
+
+    // Les etter ordinær lokal import slik at dedupe bruker ferske lokale data.
+    let existingEvents = await arrListAllRows(env, ARR_TABLE.EVENTS);
+    const venueTargets = arrBuildNlmVenueTargets(activeSources, existingEvents);
+    const typeRules = arrBuildTypeRules(meetingTypes);
+    const settlementRules = arrBuildSettlementRules(settlements);
+    const allSettlementRules = arrBuildSettlementRules(settlements, true);
+    const activeSettlementIds = new Set(settlementRules.map(r => Number(r.rowId)));
+    const nlmOrganizationId = arrNlmOrganizationId(organizations);
+    const nowIso = new Date().toISOString();
+
+    const existingNlmBySourceEventId = new Map();
+    const existingNlmRows = [];
+
+    for (const row of existingEvents) {
+      if (
+        arrNormalize(row[ARR_F.events.source] || "") ===
+        arrNormalize(ARR_NLM_SOUTH_JAEREN_SOURCE_NAME)
+      ) {
+        existingNlmRows.push(row);
+        const id = arrClean(row[ARR_F.events.sourceEventId] || "");
+        if (id) existingNlmBySourceEventId.set(id,row);
+      }
+    }
+
+    const seen = new Set();
+    const createItems = [];
+    const createKeys = [];
+    const updateItems = [];
+    const unmatchedVenues = new Set();
+    let matchedCandidateCount = 0;
+
+    for (const row of rawRows) {
+      const venue = arrClean(row?.[0] || "");
+      const arrangement = arrClean(row?.[1] || "");
+      const date = arrNlmDateParts(row?.[2]);
+      const time = arrNlmTimeParts(row?.[3]);
+      const endDate = arrNlmDateParts(row?.[4]);
+      const speaker = arrClean(row?.[5] || "");
+      const info = arrClean(row?.[6] || "");
+
+      if (!venue || !arrangement) {
+        sourceResult.skipped++;
+        continue;
+      }
+
+      const venueMatch = arrMatchNlmVenueTarget(venue, venueTargets);
+      if (!venueMatch) {
+        unmatchedVenues.add(venue);
+        sourceResult.skipped++;
+        continue;
+      }
+
+      matchedCandidateCount++;
+      sourceResult.diagnostics.matchedVenueRows++;
+
+      if (!date || !time) {
+        sourceResult.diagnostics.missingDateOrTime++;
+        sourceResult.skipped++;
+        continue;
+      }
+
+      const startTime = arrOsloLocalIso(
+        date.year,date.month,date.day,time.hour,time.minute,0
+      );
+
+      let endTime = null;
+      if (endDate) {
+        endTime = arrOsloLocalIso(
+          endDate.year,endDate.month,endDate.day,time.hour,time.minute,0
+        );
+      }
+
+      const descriptionParts = [];
+      if (speaker) descriptionParts.push(`Taler: ${speaker}`);
+      if (info) descriptionParts.push(info);
+
+      const matchedSource = venueMatch.target.source;
+      const municipalityHint =
+        areaKey === "default" ? "Hå" :
+        areaKey === "time" ? "Time" :
+        "Klepp";
+
+      const item = {
+        title:arrangement,
+        startTime,
+        endTime,
+        organizer:venueMatch.target.name || venue,
+        location:venue,
+        description:descriptionParts.join("\n"),
+        sourceUrl:ARR_NLM_SOUTH_JAEREN_REPORT_URL,
+        municipalityHint,
+        meetingTypeHint:arrNlmMeetingTypeHint(arrangement, Boolean(endDate)),
+        organizationIds:nlmOrganizationId ? [nlmOrganizationId] : []
+      };
+
+      const settlementIds = arrResolveSettlementIds(
+        item,
+        matchedSource,
+        settlementRules,
+        allSettlementRules,
+        activeSettlementIds
+      );
+
+      if (settlementIds === null || !Array.isArray(settlementIds) || !settlementIds.length) {
+        sourceResult.skipped++;
+        continue;
+      }
+
+      // Lokalkalenderen er autoritativ. Ikke lag regional dublett.
+      if (arrNlmHasLocalDuplicate(item, existingEvents)) {
+        sourceResult.diagnostics.duplicateLocalRows++;
+        sourceResult.skipped++;
+        continue;
+      }
+
+      const dateKey = `${String(date.year).padStart(4,"0")}-${String(date.month).padStart(2,"0")}-${String(date.day).padStart(2,"0")}`;
+      const semanticKey = [
+        arrNlmVenueNorm(venue),
+        dateKey,
+        `${String(time.hour).padStart(2,"0")}:${String(time.minute).padStart(2,"0")}`,
+        arrNormalize(arrangement)
+      ].join("|");
+
+      const sourceEventId =
+        `nlm-sor-jaeren-${(await arrSha256(semanticKey)).slice(0,20)}`;
+      seen.add(sourceEventId);
+
+      const typeIds = arrClassifyMeetingTypes(item,typeRules);
+      const payload = {
+        [ARR_F.events.title]:arrClean(item.title),
+        [ARR_F.events.startTime]:arrIsoOrNull(item.startTime),
+        [ARR_F.events.endTime]:arrIsoOrNull(item.endTime),
+        [ARR_F.events.meetingType]:typeIds,
+        [ARR_F.events.organizer]:arrClean(item.organizer),
+        [ARR_F.events.location]:arrClean(item.location),
+        [ARR_F.events.description]:arrClean(item.description),
+        [ARR_F.events.source]:ARR_NLM_SOUTH_JAEREN_SOURCE_NAME,
+        [ARR_F.events.sourceUrl]:ARR_NLM_SOUTH_JAEREN_REPORT_URL,
+        [ARR_F.events.sourceEventId]:sourceEventId,
+        [ARR_F.events.lastSeen]:nowIso,
+        [ARR_F.events.active]:true,
+        [ARR_F.events.settlement]:settlementIds.slice(0,1),
+        [ARR_F.events.organizationIds]:arrOrganizationIds(item.organizationIds).join("; ")
+      };
+
+      const existing = existingNlmBySourceEventId.get(sourceEventId);
+      if (existing) {
+        if (existing[ARR_F.events.manuallyEdited] === true) {
+          updateItems.push({
+            id:existing.id,
+            [ARR_F.events.lastSeen]:nowIso,
+            [ARR_F.events.active]:true
+          });
+        } else {
+          updateItems.push({id:existing.id,...payload});
+        }
+      } else {
+        payload[ARR_F.events.eventId] =
+          `EVT-${(await arrSha256(sourceEventId)).slice(0,12).toUpperCase()}`;
+        createItems.push(payload);
+        createKeys.push(sourceEventId);
+      }
+    }
+
+    sourceResult.diagnostics.unmatchedVenues =
+      [...unmatchedVenues].sort((a,b) => a.localeCompare(b,"nb"));
+
+    const existingActiveFuture = existingNlmRows.filter(row => {
+      if (row[ARR_F.events.active] === false) return false;
+      const d = new Date(row[ARR_F.events.startTime]);
+      return !Number.isNaN(d.getTime()) && d.getTime() >= Date.now() - 86400000;
+    }).length;
+
+    const newCount = createItems.length +
+      updateItems.filter(item => item[ARR_F.events.active] !== false).length;
+
+    if (
+      existingActiveFuture >= 10 &&
+      matchedCandidateCount < Math.max(3,Math.floor(existingActiveFuture * 0.35))
+    ) {
+      throw new Error(
+        `Kildevern: NLM Sør-Jæren matchet bare ${matchedCandidateCount} aktuelle lokale møter ` +
+        `mot ${existingActiveFuture} aktive NLM-rader fra før. Eksisterende data beholdes.`
+      );
+    }
+
+    // Deaktiver NLM-rader som ikke lenger finnes i vellykket Power BI-resultat.
+    const cutoff = new Date(Date.now() - 86400000);
+    for (const row of existingNlmRows) {
+      if (row[ARR_F.events.manuallyEdited] === true) continue;
+      const id = arrClean(row[ARR_F.events.sourceEventId] || "");
+      const start = new Date(row[ARR_F.events.startTime]);
+      if (
+        id &&
+        !seen.has(id) &&
+        !Number.isNaN(start.getTime()) &&
+        start >= cutoff
+      ) {
+        updateItems.push({id:row.id,[ARR_F.events.active]:false});
+      }
+    }
+
+    const createdRows = await arrCreateRowsBatch(
+      env,
+      ARR_TABLE.EVENTS,
+      createItems
+    );
+
+    if (updateItems.length) {
+      await arrUpdateRowsBatch(env,ARR_TABLE.EVENTS,updateItems);
+    }
+
+    sourceResult.created = createItems.length;
+    sourceResult.updated = updateItems.length;
+    sourceResult.createdEvents = createdRows.map(row => ({
+      rowId:Number(row.id || 0),
+      eventId:arrClean(row[ARR_F.events.eventId] || ""),
+      title:arrClean(row[ARR_F.events.title] || ""),
+      startTime:arrClean(row[ARR_F.events.startTime] || ""),
+      endTime:arrClean(row[ARR_F.events.endTime] || ""),
+      organizer:arrClean(row[ARR_F.events.organizer] || ""),
+      location:arrClean(row[ARR_F.events.location] || ""),
+      source:arrClean(row[ARR_F.events.source] || ""),
+      sourceEventId:arrClean(row[ARR_F.events.sourceEventId] || ""),
+      active:row[ARR_F.events.active] !== false
+    }));
+
+    return sourceResult;
+  } catch (err) {
+    sourceResult.error = String(err?.message || err);
+    return sourceResult;
+  }
+}
+
+
 async function arrImportAllSources(env, options={}) {
   const areaKey = String(options.area || "default").trim().toLowerCase();
   arrUseArea(areaKey);
@@ -1654,6 +2348,7 @@ async function arrImportAllSources(env, options={}) {
     areaName:arrGetAreaConfig(areaKey).name,
     startedAt:new Date().toISOString(),
     sources:[],
+    supplementalSources:[],
     created:0,
     updated:0,
     errors:0,
@@ -2075,6 +2770,24 @@ async function arrImportAllSources(env, options={}) {
     }
 
     result.sources.push(sourceResult);
+  }
+
+  // V473: NLM Sør-Jæren kjøres etter lokale kilder, slik at lokalkalenderen
+  // alltid er autoritativ ved deduplisering.
+  const nlmSupplement = await arrImportNlmSouthJaerenSupplement({
+    env,
+    areaKey,
+    activeSources,
+    meetingTypes,
+    settlements,
+    organizations
+  });
+
+  if (nlmSupplement) {
+    result.supplementalSources.push(nlmSupplement);
+    result.created += Number(nlmSupplement.created || 0);
+    result.updated += Number(nlmSupplement.updated || 0);
+    if (nlmSupplement.error) result.errors++;
   }
 
   result.ruleEngine.matchedRuleIds = [...new Set(result.ruleEngine.matchedRuleIds)];
