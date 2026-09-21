@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v478-tryggheim-lines-fix-2026-09-21";
+const ARRANGEMENT_ENGINE_VERSION = "v479-tryggheim-strict-events-2026-09-21";
 
 const ARR_AREAS = {
   default: {
@@ -7103,87 +7103,130 @@ function arrTryggheimExtractLinks(html, pageUrl) {
 }
 
 function arrTryggheimParsePage(html, pageUrl, nowMs=Date.now()) {
-  const lines = arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
-  const out = [];
-
-  // Lag korte vinduer slik at dato, klokkeslett og arrangementnavn kan stå
-  // på nabolinjer i redaksjonsteksten.
-  const windows = [];
-  for (let i=0; i<lines.length; i++) {
-    const chunk = lines.slice(Math.max(0,i-2), Math.min(lines.length,i+3)).join(" ");
-    if (chunk) windows.push(chunk);
-  }
-
-  const monthPattern = Object.keys(ARR_NORWEGIAN_MONTHS).join("|");
-  const dateRe = new RegExp(
-    String.raw`(?:mandag|måndag|tirsdag|tysdag|onsdag|torsdag|fredag|lørdag|laurdag|søndag|sundag)?\s*` +
-    String.raw`(\d{1,2})\.?\s+(${monthPattern})(?:\s+(20\d{2}))?`,
-    "i"
+  // V479: Streng parser. Ikke koble en dato fra ett avsnitt til et klokkeslett
+  // fra et annet. Bare eksplisitte arrangementsformuleringer med dato + tid
+  // i samme korte tekstsegment får bli event.
+  const text = arrClean(
+    arrHtmlToLines(html)
+      .split("\n")
+      .map(arrClean)
+      .filter(Boolean)
+      .join(" ")
   );
-  const timeRe = /(?:kl(?:\.|okka)?\s*)(\d{1,2})(?:[.:](\d{2}))?/i;
-  const rangeRe = /(?:kl(?:\.|okka)?\s*)(\d{1,2})(?:[.:](\d{2}))?\s*[–—-]\s*(\d{1,2})(?:[.:](\d{2}))?/i;
 
-  for (const contextRaw of windows) {
-    const context = arrClean(contextRaw);
-    if (!arrTryggheimRelevantContext(context)) continue;
+  const out = [];
+  const affiliation = arrTryggheimAffiliation(pageUrl, text);
 
-    const dm = context.match(dateRe);
-    if (!dm) continue;
+  const addEvent = ({
+    title,
+    meetingTypeHint,
+    year,
+    month,
+    day,
+    hour,
+    minute=0,
+    description=""
+  }) => {
+    const startTime = arrNlmOsloIso(
+      {year:Number(year),month:Number(month),day:Number(day)},
+      {hour:Number(hour),minute:Number(minute)}
+    );
+    if (!startTime) return;
 
-    const rm = context.match(rangeRe);
-    const tm = rm || context.match(timeRe);
-    if (!tm) continue; // Ikke dikt klokkeslett når Tryggheim ikke oppgir det.
-
-    const day = Number(dm[1]);
-    const month = ARR_NORWEGIAN_MONTHS[arrNormalize(dm[2])];
-    const year = arrTryggheimInferYear(day, month, dm[3], nowMs);
-    if (!month) continue;
-
-    const startHour = Number(tm[1]);
-    const startMinute = Number(tm[2] || 0);
-    if (
-      !Number.isInteger(startHour) || startHour < 0 || startHour > 23 ||
-      !Number.isInteger(startMinute) || startMinute < 0 || startMinute > 59
-    ) continue;
-
-    const startTime = arrOsloLocalIso(year,month,day,startHour,startMinute,0);
-    const startMs = new Date(startTime).getTime();
-    if (!Number.isFinite(startMs)) continue;
-    if (startMs < nowMs - 86400000 || startMs > nowMs + 400*86400000) continue;
-
-    let endTime = null;
-    if (rm) {
-      const endHour = Number(rm[3]);
-      const endMinute = Number(rm[4] || 0);
-      if (
-        Number.isInteger(endHour) && endHour >= 0 && endHour <= 23 &&
-        Number.isInteger(endMinute) && endMinute >= 0 && endMinute <= 59
-      ) {
-        endTime = arrOsloLocalIso(year,month,day,endHour,endMinute,0);
-      }
-    }
-
-    const titleType = arrTryggheimTitleAndType(context);
-    if (!titleType) continue;
-
-    const affiliation = arrTryggheimAffiliation(pageUrl, context);
-    const description = [
-      `Gjelder: ${affiliation}.`,
-      context.slice(0,700)
-    ].join(" ");
+    const ms = new Date(startTime).getTime();
+    if (!Number.isFinite(ms)) return;
+    if (ms < nowMs - 86400000 || ms > nowMs + 400*86400000) return;
 
     out.push({
-      title:titleType.title,
+      title,
       startTime,
-      endTime,
+      endTime:null,
       organizer:"Tryggheim",
       location:affiliation,
       settlementHint:"Nærbø",
       municipalityHint:"Hå",
-      meetingTypeHint:titleType.meetingTypeHint,
+      meetingTypeHint,
       organizationIds:["ORG-0004"],
-      description,
+      description:[
+        `Gjelder: ${affiliation}.`,
+        arrClean(description)
+      ].filter(Boolean).join(" "),
       sourceUrl:pageUrl
+    });
+  };
+
+  // 1) Huslydkveld med basar.
+  // Autoritativ formulering i Tryggheim VGS-artikkelen:
+  // "... Huslydkveld med basar ... onsdag 30. september kl 19 ..."
+  {
+    const m = text.match(
+      /huslydkveld med basar[\s\S]{0,260}?onsdag\s+(\d{1,2})\.?\s+september(?:\s+(20\d{2}))?[\s\S]{0,80}?\bkl(?:\.|okka)?\s*(\d{1,2})(?:[.:](\d{2}))?/i
+    );
+    if (m) {
+      const day = Number(m[1]);
+      const year = arrTryggheimInferYear(day,9,m[2],nowMs);
+      addEvent({
+        title:"Huslydkveld med basar",
+        meetingTypeHint:"Basar",
+        year,
+        month:9,
+        day,
+        hour:Number(m[3]),
+        minute:Number(m[4] || 0),
+        description:"Huslydkveld med basar på Tryggheim VGS."
+      });
+    }
+  }
+
+  // 2) Generisk, men streng støtte for enkelte framtidige offentlige arrangementer.
+  // Krav: arrangementsnavn + dato + klokkeslett må stå i samme korte segment.
+  // Dette hindrer at publiseringsdato, påmeldingsfrist og andre klokkeslett
+  // kobles til selve arrangementet.
+  const months = {
+    januar:1,februar:2,mars:3,april:4,mai:5,juni:6,
+    juli:7,august:8,september:9,oktober:10,november:11,desember:12
+  };
+
+  const specs = [
+    {re:/\bmisjonskveld\b/i,title:"Misjonskveld",type:"Misjon"},
+    {re:/\bkveldsmøte\b/i,title:"Kveldsmøte",type:"Møte"},
+    {re:/\bgudstjeneste\b/i,title:"Gudstjeneste",type:"Gudstjeneste"},
+    {re:/\båpen skole\b|\bopen skule\b/i,title:"Åpen skole",type:"Annet"}
+  ];
+
+  const segments = text
+    .split(/(?<=[.!?])\s+|[•|]/)
+    .map(arrClean)
+    .filter(Boolean);
+
+  for (const segment of segments) {
+    if (segment.length > 320) continue;
+
+    const spec = specs.find(s => s.re.test(segment));
+    if (!spec) continue;
+
+    const dm = segment.match(
+      /\b(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)(?:\s+(20\d{2}))?/i
+    );
+    const tm = segment.match(
+      /\bkl(?:\.|okka)?\s*(\d{1,2})(?:[.:](\d{2}))?/i
+    );
+    if (!dm || !tm) continue;
+
+    // Ikke bruk påmeldingsfrister som arrangement.
+    if (/frist|påmeld|skjema|innan|senest/i.test(segment)) continue;
+
+    const month = months[arrNormalize(dm[2])];
+    const day = Number(dm[1]);
+    const year = arrTryggheimInferYear(day,month,dm[3],nowMs);
+
+    addEvent({
+      title:spec.title,
+      meetingTypeHint:spec.type,
+      year,month,day,
+      hour:Number(tm[1]),
+      minute:Number(tm[2] || 0),
+      description:segment.slice(0,500)
     });
   }
 
@@ -7226,18 +7269,9 @@ async function arrFetchAndParseTryggheim(url) {
         count:parsed.length
       });
 
-      // Bare VGS "Aktuelt"-oversikten får utvide crawl til artikkelsider.
-      if (/^https:\/\/vgs\.tryggheim\.no\/aktuelt\/?$/i.test(pageUrl)) {
-        const articleLinks = arrTryggheimExtractLinks(html,pageUrl)
-          .filter(href =>
-            /^https:\/\/vgs\.tryggheim\.no\/aktuelt\/[^/?#]+\/?$/i.test(href)
-          )
-          .slice(0,20);
-
-        for (const href of articleLinks) {
-          if (!fetched.has(href) && !queue.includes(href)) queue.push(href);
-        }
-      }
+      // V479: Ikke crawl hele historikken under Aktuelt. Gamle artikler kan
+      // inneholde datoer, publiseringstidspunkt og påmeldingsfrister som ser ut
+      // som nye arrangementer. Autoritative, eksplisitt valgte sider ligger i seedUrls.
     } catch (err) {
       stats.push({
         url:pageUrl,
