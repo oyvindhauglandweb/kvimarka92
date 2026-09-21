@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v474-nlm-sor-jaeren-fixes-2026-09-21";
+const ARRANGEMENT_ENGINE_VERSION = "v475-ungdomslaget-organizer-org-2026-09-21";
 
 const ARR_AREAS = {
   default: {
@@ -6776,11 +6776,12 @@ function arrGenerateNarboUngdomslagetEvents(nowMs = Date.now()) {
       title:"Ungdomslaget",
       startTime,
       endTime,
-      organizer:"Ungdomslaget",
+      organizer:"Nærbø Bedehus",
       location:"Nærbø bedehus",
       settlementHint:"Nærbø",
       municipalityHint:"Hå",
       meetingTypeHint:"Ungdom",
+      organizationIds:["ORG-0004"],
       description:"",
       sourceUrl:"https://www.facebook.com/groups/ungdomslaget/?locale=nb_NO",
       sourceEventId:`generated-ungdomslaget-naerbo-${dateKey}`
