@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v479-tryggheim-strict-events-2026-09-21";
+const ARRANGEMENT_ENGINE_VERSION = "v480-tryggheim-allevents-watch-2026-09-21";
 
 const ARR_AREAS = {
   default: {
@@ -2923,7 +2923,10 @@ async function arrImportAllSources(env, options={}) {
 
       // Deaktiver arrangementer som har forsvunnet fra en vellykket kilde.
       // Også dette batches sammen med øvrige oppdateringer.
-      if (parsed.length && !mergeOnly) {
+      const allowEmptyAuthoritativeCleanup =
+        String(source[ARR_F.sources.sourceId] || "").trim() === "SRC-0031";
+
+      if ((parsed.length || allowEmptyAuthoritativeCleanup) && !mergeOnly) {
         const sourceNameText = arrClean(source[ARR_F.sources.name] || "");
         const sourceIdText = arrClean(source[ARR_F.sources.sourceId] || "");
         const cutoff = new Date(Date.now()-86400000);
@@ -3466,6 +3469,14 @@ async function arrLoadSourceEvents(source) {
   const sourceId = String(source[ARR_F.sources.sourceId] || "").trim();
   const sourceName = arrClean(source[ARR_F.sources.name] || "");
 
+  // V480: Tryggheim overvåkes kun via den offentlige AllEvents-arrangørsiden.
+  // Skolerute/aktuelt-sider brukes ikke som arrangementsgrunnlag.
+  if (sourceId === "SRC-0031") {
+    return arrFetchAndParseTryggheimAllEvents(
+      "https://allevents.in/org/tryggheim-vgs/17277959"
+    );
+  }
+
   // V328: Vigrestad Misjonshus er delt opp i separate Sources, én per offentlig
   // Google Calendar/romkalender. Dette gjør at hver kalender kan aktiveres eller
   // deaktiveres uavhengig i Sources-tabellen. Ingen tittel-/nøkkelordfiltrering
@@ -3556,10 +3567,6 @@ async function arrLoadSourceEvents(source) {
   if (/ebeneser\.no/i.test(url)) {
     return arrFetchAndParseEbeneser();
   }
-  if (/(?:^|\.)tryggheim\.no/i.test(new URL(url).hostname)) {
-    return arrFetchAndParseTryggheim(url);
-  }
-
   // V427: The Events Calendar sin ?ical=1-eksport på Lye er knyttet til
   // den månedsvisningen URL-en gjelder. Hent derfor alle måneder fra
   // inneværende måned og gjennom importvinduet (+400 dager), i stedet for
@@ -6989,309 +6996,275 @@ function arrGenerateNarboUngdomslagetEvents(nowMs = Date.now()) {
 }
 
 
-// V477: Tryggheim har ikke én komplett offentlig kalender.
-// Vi skanner et lite sett autoritative Tryggheim-sider + ferske VGS-aktuelt-sider,
-// og importerer bare tydelige, framtidige arrangementer med oppgitt klokkeslett.
-// Skoletilhørighet settes konservativt: VGS / ungdomsskule når kilden tydelig
-// kommer fra den delen av nettstedet, ellers bare "Tryggheim".
-function arrTryggheimAffiliation(pageUrl, context="") {
-  let host = "";
-  try { host = new URL(pageUrl).hostname.toLowerCase(); } catch (_) {}
+// V480: Tryggheim overvåkes kun via AllEvents-arrangørsiden.
+// Vi ser HELT bort fra skolerute, elev-/foreldrearrangement og gamle artikler.
+// Bare tre offentlige arrangementstyper er tillatt:
+//   - Misjonsfest
+//   - Julemesse
+//   - Huslydkveld
+// Et arrangement importeres bare når kilden oppgir et eksplisitt år i startdatoen
+// og starttidspunktet faktisk ligger i fremtiden.
 
-  const c = arrNormalize(context || "");
-  if (
-    host === "usk.tryggheim.no" ||
-    /\btryggheim ungdomsskule\b/.test(c) ||
-    /\bungdomsskulen\b/.test(c)
-  ) return "Tryggheim ungdomsskule";
+const ARR_TRYGGHEIM_ALLEVENTS_ORG_URL =
+  "https://allevents.in/org/tryggheim-vgs/17277959";
 
-  if (
-    host === "vgs.tryggheim.no" ||
-    /\btryggheim vgs\b/.test(c) ||
-    /\bvidaregåande\b/.test(c) ||
-    /\bvideregående\b/.test(c)
-  ) return "Tryggheim VGS";
-
-  return "Tryggheim";
-}
-
-function arrTryggheimRelevantContext(value) {
+function arrTryggheimAllowedTitle(value) {
   const t = arrNormalize(value || "");
-  return (
-    /huslydkveld/.test(t) ||
-    /basar/.test(t) ||
-    /misjonskveld/.test(t) ||
-    /kveldsmøte/.test(t) ||
-    /gudstjeneste/.test(t) ||
-    /elevstemne/.test(t) ||
-    /open skule/.test(t) ||
-    /åpen skole/.test(t) ||
-    /besøkshelg/.test(t) ||
-    /temadag/.test(t) ||
-    /foreldredag/.test(t)
-  );
-}
-
-function arrTryggheimTitleAndType(context) {
-  const t = arrNormalize(context || "");
-
-  if (/huslydkveld/.test(t) && /basar/.test(t)) {
-    return {title:"Huslydkveld med basar", meetingTypeHint:"Basar"};
-  }
-  if (/misjonskveld/.test(t)) {
-    return {title:"Misjonskveld", meetingTypeHint:"Misjon"};
-  }
-  if (/kveldsmøte/.test(t)) {
-    return {title:"Kveldsmøte", meetingTypeHint:"Møte"};
-  }
-  if (/gudstjeneste/.test(t)) {
-    return {title:"Gudstjeneste", meetingTypeHint:"Gudstjeneste"};
-  }
-  if (/elevstemne/.test(t)) {
-    return {title:"Elevstemne", meetingTypeHint:"Sosialt"};
-  }
-  if (/open skule|åpen skole/.test(t)) {
-    return {title:"Åpen skole", meetingTypeHint:"Annet"};
-  }
-  if (/besøkshelg/.test(t)) {
-    return {title:"Besøkshelg", meetingTypeHint:"Annet"};
-  }
-  if (/temadag/.test(t) && /foreldredag/.test(t)) {
-    return {title:"Temadag / foreldredag", meetingTypeHint:"Annet"};
-  }
-  if (/temadag/.test(t)) {
-    return {title:"Temadag", meetingTypeHint:"Annet"};
-  }
-  if (/basar/.test(t)) {
-    return {title:"Basar", meetingTypeHint:"Basar"};
-  }
-
+  if (t.includes("misjonsfest")) return {title:arrClean(value),meetingTypeHint:"Misjon"};
+  if (t.includes("julemesse")) return {title:arrClean(value),meetingTypeHint:"Julemesse"};
+  if (t.includes("huslydkveld")) return {title:arrClean(value),meetingTypeHint:"Møte"};
   return null;
 }
 
-function arrTryggheimInferYear(day, month, explicitYear, nowMs=Date.now()) {
-  if (explicitYear) return Number(explicitYear);
-
-  const now = new Date(nowMs);
-  let year = now.getUTCFullYear();
-  const candidate = Date.UTC(year, Number(month)-1, Number(day), 12, 0, 0);
-
-  // Dersom datoen uten år ligger tydelig bak oss, tolkes den som neste år.
-  if (candidate < nowMs - 30 * 86400000) year++;
-  return year;
+function arrTryggheimAffiliationFromText(value) {
+  const t = arrNormalize(value || "");
+  if (
+    t.includes("tryggheim ungdomsskule") ||
+    t.includes("tryggheim ungdomsskole")
+  ) return "Tryggheim ungdomsskule";
+  if (
+    t.includes("tryggheim vgs") ||
+    t.includes("tryggheim vidaregåande") ||
+    t.includes("tryggheim videregående")
+  ) return "Tryggheim VGS";
+  return "Tryggheim";
 }
 
-function arrTryggheimExtractLinks(html, pageUrl) {
+function arrTryggheimLocationText(event) {
+  const loc = event?.location;
+  if (!loc) return "";
+
+  if (typeof loc === "string") return arrClean(loc);
+
+  return arrClean([
+    loc.name,
+    loc.address?.streetAddress,
+    loc.address?.addressLocality,
+    loc.address?.postalCode,
+    loc.address?.addressRegion,
+    loc.address?.addressCountry
+  ].filter(Boolean).join(", "));
+}
+
+function arrTryggheimExplicitFutureStart(startDate, nowMs=Date.now()) {
+  const raw = arrClean(startDate || "");
+  // År må være eksplisitt i kilden. Ingen årsgjetting er tillatt.
+  const m = raw.match(
+    /^(20\d{2})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)?$/
+  );
+  if (!m) return null;
+
+  let iso = null;
+
+  if (m[4] != null) {
+    // Bevar oppgitt offset/Z dersom den finnes. Dersom AllEvents gir lokal
+    // ISO uten offset, tolk den eksplisitt som Europe/Oslo.
+    if (/Z$|[+-]\d{2}:?\d{2}$/.test(raw)) {
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return null;
+      iso = d.toISOString();
+    } else {
+      iso = arrOsloLocalIso(
+        Number(m[1]),Number(m[2]),Number(m[3]),
+        Number(m[4]),Number(m[5]),Number(m[6] || 0)
+      );
+    }
+  } else {
+    // Dato uten klokkeslett importeres ikke. Vi skal ikke gjette tid.
+    return null;
+  }
+
+  const ms = new Date(iso).getTime();
+  if (!Number.isFinite(ms) || ms <= nowMs) return null;
+  if (ms > nowMs + 400 * 86400000) return null;
+
+  return iso;
+}
+
+function arrTryggheimExplicitEnd(endDate, startIso) {
+  const raw = arrClean(endDate || "");
+  if (!raw) return null;
+
+  const m = raw.match(
+    /^(20\d{2})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?$/
+  );
+  if (!m) return null;
+
+  let iso;
+  if (/Z$|[+-]\d{2}:?\d{2}$/.test(raw)) {
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    iso = d.toISOString();
+  } else {
+    iso = arrOsloLocalIso(
+      Number(m[1]),Number(m[2]),Number(m[3]),
+      Number(m[4]),Number(m[5]),Number(m[6] || 0)
+    );
+  }
+
+  const endMs = new Date(iso).getTime();
+  const startMs = new Date(startIso).getTime();
+  return Number.isFinite(endMs) && endMs >= startMs ? iso : null;
+}
+
+function arrTryggheimCollectJsonLdEvents(value, out=[]) {
+  if (Array.isArray(value)) {
+    for (const item of value) arrTryggheimCollectJsonLdEvents(item,out);
+    return out;
+  }
+  if (!value || typeof value !== "object") return out;
+
+  const types = Array.isArray(value["@type"])
+    ? value["@type"]
+    : [value["@type"]];
+
+  if (types.some(t => arrNormalize(t || "") === "event")) {
+    out.push(value);
+  }
+
+  for (const child of Object.values(value)) {
+    if (child && typeof child === "object") {
+      arrTryggheimCollectJsonLdEvents(child,out);
+    }
+  }
+
+  return out;
+}
+
+function arrTryggheimJsonLdEvents(html) {
+  const events = [];
+
+  for (const m of String(html || "").matchAll(
+    /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+  )) {
+    let raw = String(m[1] || "").trim();
+    if (!raw) continue;
+
+    raw = raw
+      .replace(/^\s*<!--/, "")
+      .replace(/-->\s*$/, "")
+      .trim();
+
+    try {
+      const parsed = JSON.parse(raw);
+      arrTryggheimCollectJsonLdEvents(parsed,events);
+    } catch (_) {}
+  }
+
+  return events;
+}
+
+function arrTryggheimCandidateEventLinks(html, baseUrl) {
   const out = [];
   const seen = new Set();
 
-  for (const m of String(html || "").matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>/gi)) {
-    try {
-      const absolute = new URL(arrDecodeEntities(m[1] || ""), pageUrl);
-      if (!/^https?:$/.test(absolute.protocol)) continue;
-      if (!/(?:^|\.)tryggheim\.no$/i.test(absolute.hostname)) continue;
-      absolute.hash = "";
+  for (const m of String(html || "").matchAll(
+    /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi
+  )) {
+    const label = arrClean(
+      String(m[2] || "")
+        .replace(/<[^>]+>/g," ")
+        .replace(/&nbsp;/gi," ")
+        .replace(/&amp;/gi,"&")
+    );
+    const hrefRaw = arrClean(m[1] || "");
+    const probe = `${label} ${hrefRaw}`;
 
-      const href = absolute.href;
-      if (seen.has(href)) continue;
-      seen.add(href);
-      out.push(href);
+    if (!arrTryggheimAllowedTitle(probe)) continue;
+
+    try {
+      const u = new URL(hrefRaw,baseUrl);
+      if (!/(?:^|\.)allevents\.in$/i.test(u.hostname)) continue;
+      u.hash = "";
+      const href = u.href;
+      if (!seen.has(href)) {
+        seen.add(href);
+        out.push(href);
+      }
     } catch (_) {}
   }
 
   return out;
 }
 
-function arrTryggheimParsePage(html, pageUrl, nowMs=Date.now()) {
-  // V479: Streng parser. Ikke koble en dato fra ett avsnitt til et klokkeslett
-  // fra et annet. Bare eksplisitte arrangementsformuleringer med dato + tid
-  // i samme korte tekstsegment får bli event.
-  const text = arrClean(
-    arrHtmlToLines(html)
-      .split("\n")
-      .map(arrClean)
-      .filter(Boolean)
-      .join(" ")
+function arrTryggheimNormalizeStructuredEvent(event, pageUrl, nowMs=Date.now()) {
+  const allowed = arrTryggheimAllowedTitle(event?.name || "");
+  if (!allowed) return null;
+
+  const startTime = arrTryggheimExplicitFutureStart(event?.startDate,nowMs);
+  if (!startTime) return null;
+
+  const locationText = arrTryggheimLocationText(event);
+  const description = arrClean(
+    typeof event?.description === "string" ? event.description : ""
   );
 
-  const out = [];
-  const affiliation = arrTryggheimAffiliation(pageUrl, text);
+  // Vi skal kun ha arrangement PÅ Tryggheim.
+  const locationProbe = arrNormalize(`${locationText} ${description}`);
+  if (!locationProbe.includes("tryggheim")) return null;
 
-  const addEvent = ({
-    title,
-    meetingTypeHint,
-    year,
-    month,
-    day,
-    hour,
-    minute=0,
-    description=""
-  }) => {
-    const startTime = arrNlmOsloIso(
-      {year:Number(year),month:Number(month),day:Number(day)},
-      {hour:Number(hour),minute:Number(minute)}
-    );
-    if (!startTime) return;
+  const affiliation = arrTryggheimAffiliationFromText(
+    `${locationText} ${description}`
+  );
 
-    const ms = new Date(startTime).getTime();
-    if (!Number.isFinite(ms)) return;
-    if (ms < nowMs - 86400000 || ms > nowMs + 400*86400000) return;
+  const sourceUrl = arrClean(
+    (typeof event?.url === "string" && event.url) ||
+    pageUrl ||
+    ARR_TRYGGHEIM_ALLEVENTS_ORG_URL
+  );
 
-    out.push({
-      title,
-      startTime,
-      endTime:null,
-      organizer:"Tryggheim",
-      location:affiliation,
-      settlementHint:"Nærbø",
-      municipalityHint:"Hå",
-      meetingTypeHint,
-      organizationIds:["ORG-0004"],
-      description:[
-        `Gjelder: ${affiliation}.`,
-        arrClean(description)
-      ].filter(Boolean).join(" "),
-      sourceUrl:pageUrl
-    });
+  return {
+    title:allowed.title,
+    startTime,
+    endTime:arrTryggheimExplicitEnd(event?.endDate,startTime),
+    organizer:"Tryggheim",
+    location:affiliation,
+    settlementHint:"Nærbø",
+    municipalityHint:"Hå",
+    meetingTypeHint:allowed.meetingTypeHint,
+    organizationIds:["ORG-0004"],
+    description:description.slice(0,1000),
+    sourceUrl,
+    sourceEventId:arrClean(event?.identifier || event?.["@id"] || "") || undefined
   };
+}
 
-  // 1) Huslydkveld med basar.
-  // Autoritativ formulering i Tryggheim VGS-artikkelen:
-  // "... Huslydkveld med basar ... onsdag 30. september kl 19 ..."
-  {
-    const m = text.match(
-      /huslydkveld med basar[\s\S]{0,260}?onsdag\s+(\d{1,2})\.?\s+september(?:\s+(20\d{2}))?[\s\S]{0,80}?\bkl(?:\.|okka)?\s*(\d{1,2})(?:[.:](\d{2}))?/i
-    );
-    if (m) {
-      const day = Number(m[1]);
-      const year = arrTryggheimInferYear(day,9,m[2],nowMs);
-      addEvent({
-        title:"Huslydkveld med basar",
-        meetingTypeHint:"Basar",
-        year,
-        month:9,
-        day,
-        hour:Number(m[3]),
-        minute:Number(m[4] || 0),
-        description:"Huslydkveld med basar på Tryggheim VGS."
-      });
+async function arrFetchAndParseTryggheimAllEvents(
+  url=ARR_TRYGGHEIM_ALLEVENTS_ORG_URL
+) {
+  const nowMs = Date.now();
+  const orgHtml = await arrFetchText(url);
+  const out = [];
+
+  // Noen AllEvents-sider har ferdige Event-objekter på arrangørsiden.
+  for (const event of arrTryggheimJsonLdEvents(orgHtml)) {
+    const normalized = arrTryggheimNormalizeStructuredEvent(event,url,nowMs);
+    if (normalized) out.push(normalized);
+  }
+
+  // Hvis arrangørsiden bare viser kort/lenker, hent kun sider som heter
+  // Misjonsfest, Julemesse eller Huslydkveld.
+  const links = arrTryggheimCandidateEventLinks(orgHtml,url).slice(0,20);
+
+  for (const eventUrl of links) {
+    try {
+      const html = await arrFetchText(eventUrl);
+      for (const event of arrTryggheimJsonLdEvents(html)) {
+        const normalized = arrTryggheimNormalizeStructuredEvent(
+          event,eventUrl,nowMs
+        );
+        if (normalized) out.push(normalized);
+      }
+    } catch (_) {
+      // Én eventuell gammel/utløpt AllEvents-lenke skal ikke stoppe overvåkingen.
     }
   }
 
-  // 2) Generisk, men streng støtte for enkelte framtidige offentlige arrangementer.
-  // Krav: arrangementsnavn + dato + klokkeslett må stå i samme korte segment.
-  // Dette hindrer at publiseringsdato, påmeldingsfrist og andre klokkeslett
-  // kobles til selve arrangementet.
-  const months = {
-    januar:1,februar:2,mars:3,april:4,mai:5,juni:6,
-    juli:7,august:8,september:9,oktober:10,november:11,desember:12
-  };
-
-  const specs = [
-    {re:/\bmisjonskveld\b/i,title:"Misjonskveld",type:"Misjon"},
-    {re:/\bkveldsmøte\b/i,title:"Kveldsmøte",type:"Møte"},
-    {re:/\bgudstjeneste\b/i,title:"Gudstjeneste",type:"Gudstjeneste"},
-    {re:/\båpen skole\b|\bopen skule\b/i,title:"Åpen skole",type:"Annet"}
-  ];
-
-  const segments = text
-    .split(/(?<=[.!?])\s+|[•|]/)
-    .map(arrClean)
-    .filter(Boolean);
-
-  for (const segment of segments) {
-    if (segment.length > 320) continue;
-
-    const spec = specs.find(s => s.re.test(segment));
-    if (!spec) continue;
-
-    const dm = segment.match(
-      /\b(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)(?:\s+(20\d{2}))?/i
-    );
-    const tm = segment.match(
-      /\bkl(?:\.|okka)?\s*(\d{1,2})(?:[.:](\d{2}))?/i
-    );
-    if (!dm || !tm) continue;
-
-    // Ikke bruk påmeldingsfrister som arrangement.
-    if (/frist|påmeld|skjema|innan|senest/i.test(segment)) continue;
-
-    const month = months[arrNormalize(dm[2])];
-    const day = Number(dm[1]);
-    const year = arrTryggheimInferYear(day,month,dm[3],nowMs);
-
-    addEvent({
-      title:spec.title,
-      meetingTypeHint:spec.type,
-      year,month,day,
-      hour:Number(tm[1]),
-      minute:Number(tm[2] || 0),
-      description:segment.slice(0,500)
-    });
-  }
-
+  // 0 treff er et gyldig resultat. Per 21.09.2026 finnes det ikke nødvendigvis
+  // noen relevante framtidige arrangement; da skal gamle feilimporter ryddes bort.
   return arrDedupeParsed(out);
 }
 
-async function arrFetchAndParseTryggheim(url) {
-  const seedUrls = [
-    "https://vgs.tryggheim.no/aktuelt/",
-    "https://vgs.tryggheim.no/info/",
-    "https://vgs.tryggheim.no/info/info/besok-pa-skulen/",
-    "https://vgs.tryggheim.no/info/info/skoleruta/",
-    "https://vgs.tryggheim.no/aktuelt/avlsutningsfest-fredag-12-juni/",
-    "https://usk.tryggheim.no/informasjon/",
-    "https://usk.tryggheim.no/informasjon/info/skoleruta/",
-    "https://tryggheim.no/info/"
-  ];
-
-  // Kilden i Baserow kan peke til en av Tryggheim-sidene; ta den med også.
-  if (url) seedUrls.unshift(String(url).trim());
-
-  const queue = [...new Set(seedUrls)];
-  const fetched = new Set();
-  const out = [];
-  const stats = [];
-
-  // Begrens crawling for å holde importen forutsigbar.
-  while (queue.length && fetched.size < 28) {
-    const pageUrl = queue.shift();
-    if (!pageUrl || fetched.has(pageUrl)) continue;
-    fetched.add(pageUrl);
-
-    try {
-      const html = await arrFetchText(pageUrl);
-      const parsed = arrTryggheimParsePage(html, pageUrl);
-      out.push(...parsed);
-
-      stats.push({
-        url:pageUrl,
-        count:parsed.length
-      });
-
-      // V479: Ikke crawl hele historikken under Aktuelt. Gamle artikler kan
-      // inneholde datoer, publiseringstidspunkt og påmeldingsfrister som ser ut
-      // som nye arrangementer. Autoritative, eksplisitt valgte sider ligger i seedUrls.
-    } catch (err) {
-      stats.push({
-        url:pageUrl,
-        count:0,
-        error:arrClean(err?.message || String(err))
-      });
-    }
-  }
-
-  const deduped = arrFilterParsedEventWindow(arrDedupeParsed(out));
-
-  if (!deduped.length) {
-    throw new Error(
-      "Tryggheim-parser fant ingen framtidige arrangementer med både dato og klokkeslett. " +
-      JSON.stringify(stats.slice(0,12))
-    );
-  }
-
-  return deduped;
-}
 
 async function arrFetchAndParseNarbo(url) {
   const sources = [
