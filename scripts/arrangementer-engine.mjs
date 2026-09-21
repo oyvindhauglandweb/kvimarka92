@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v473-nlm-sor-jaeren-powerbi-2026-09-21";
+const ARRANGEMENT_ENGINE_VERSION = "v474-nlm-sor-jaeren-fixes-2026-09-21";
 
 const ARR_AREAS = {
   default: {
@@ -1712,42 +1712,82 @@ function arrMatchNlmVenueTarget(venue, targets) {
   return best;
 }
 
+function arrNlmValidDateParts(parts) {
+  if (!parts) return null;
+  const year = Number(parts.year);
+  const month = Number(parts.month);
+  const day = Number(parts.day);
+
+  if (
+    !Number.isInteger(year) || year < 2000 || year > 2100 ||
+    !Number.isInteger(month) || month < 1 || month > 12 ||
+    !Number.isInteger(day) || day < 1 || day > 31
+  ) return null;
+
+  const probe = new Date(Date.UTC(year,month-1,day));
+  if (
+    Number.isNaN(probe.getTime()) ||
+    probe.getUTCFullYear() !== year ||
+    probe.getUTCMonth()+1 !== month ||
+    probe.getUTCDate() !== day
+  ) return null;
+
+  return {year,month,day};
+}
+
 function arrNlmDateParts(value) {
   if (value == null || value === "") return null;
 
   if (typeof value === "number" && Number.isFinite(value)) {
-    // Excel/Power BI serial date fallback (1899-12-30 epoch).
+    // Power BI kan levere datoer som Excel/OLE Automation serial.
     const ms = Date.UTC(1899,11,30) + Math.round(value * 86400000);
     const d = new Date(ms);
-    return {
+    return arrNlmValidDateParts({
       year:d.getUTCFullYear(),
       month:d.getUTCMonth()+1,
       day:d.getUTCDate()
-    };
+    });
   }
 
   const text = String(value).trim();
-  let m = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) m = text.match(/^(\d{2})[./-](\d{2})[./-](\d{4})/);
 
+  let m = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:T|$)/);
   if (m) {
-    if (m[1].length === 4) {
-      return {year:Number(m[1]),month:Number(m[2]),day:Number(m[3])};
-    }
-    return {year:Number(m[3]),month:Number(m[2]),day:Number(m[1])};
+    return arrNlmValidDateParts({
+      year:Number(m[1]),
+      month:Number(m[2]),
+      day:Number(m[3])
+    });
   }
 
-  const ticks = text.match(/\/Date\((\d+)\)\//);
+  m = text.match(/^(\d{2})[./-](\d{2})[./-](\d{4})(?:\b|$)/);
+  if (m) {
+    return arrNlmValidDateParts({
+      year:Number(m[3]),
+      month:Number(m[2]),
+      day:Number(m[1])
+    });
+  }
+
+  const ticks = text.match(/\/Date\((-?\d+)(?:[+-]\d{4})?\)\//);
   if (ticks) {
     const d = new Date(Number(ticks[1]));
     if (!Number.isNaN(d.getTime())) {
-      return {year:d.getUTCFullYear(),month:d.getUTCMonth()+1,day:d.getUTCDate()};
+      return arrNlmValidDateParts({
+        year:d.getUTCFullYear(),
+        month:d.getUTCMonth()+1,
+        day:d.getUTCDate()
+      });
     }
   }
 
   const d = new Date(text);
   if (Number.isNaN(d.getTime())) return null;
-  return {year:d.getUTCFullYear(),month:d.getUTCMonth()+1,day:d.getUTCDate()};
+  return arrNlmValidDateParts({
+    year:d.getUTCFullYear(),
+    month:d.getUTCMonth()+1,
+    day:d.getUTCDate()
+  });
 }
 
 function arrNlmTimeParts(value) {
@@ -1760,16 +1800,44 @@ function arrNlmTimeParts(value) {
   }
 
   const text = String(value).trim();
-  const m = text.match(/(?:T|\b)(\d{1,2}):(\d{2})(?::\d{2})?/);
+
+  // Vanlige Power BI-formater: 19:30, 19:30:00,
+  // 1899-12-30T19:30:00 og tilsvarende ISO-tekst.
+  const m = text.match(/(?:T|\b)(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?/);
   if (m) {
     const hour = Number(m[1]);
     const minute = Number(m[2]);
-    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+    if (
+      Number.isInteger(hour) && hour >= 0 && hour <= 23 &&
+      Number.isInteger(minute) && minute >= 0 && minute <= 59
+    ) {
       return {hour,minute};
     }
   }
 
   return null;
+}
+
+function arrNlmOsloIso(dateParts, timeParts) {
+  const date = arrNlmValidDateParts(dateParts);
+  if (!date || !timeParts) return null;
+
+  const hour = Number(timeParts.hour);
+  const minute = Number(timeParts.minute);
+  if (
+    !Number.isInteger(hour) || hour < 0 || hour > 23 ||
+    !Number.isInteger(minute) || minute < 0 || minute > 59
+  ) return null;
+
+  try {
+    const iso = arrOsloLocalIso(
+      date.year,date.month,date.day,hour,minute,0
+    );
+    const parsed = new Date(iso);
+    return Number.isNaN(parsed.getTime()) ? null : iso;
+  } catch (_) {
+    return null;
+  }
 }
 
 function arrNlmLocalDateKey(iso) {
@@ -1949,15 +2017,16 @@ async function arrImportNlmSouthJaerenSupplement({
         continue;
       }
 
-      const startTime = arrOsloLocalIso(
-        date.year,date.month,date.day,time.hour,time.minute,0
-      );
+      const startTime = arrNlmOsloIso(date,time);
+      if (!startTime) {
+        sourceResult.diagnostics.missingDateOrTime++;
+        sourceResult.skipped++;
+        continue;
+      }
 
       let endTime = null;
       if (endDate) {
-        endTime = arrOsloLocalIso(
-          endDate.year,endDate.month,endDate.day,time.hour,time.minute,0
-        );
+        endTime = arrNlmOsloIso(endDate,time);
       }
 
       const descriptionParts = [];
@@ -1979,7 +2048,7 @@ async function arrImportNlmSouthJaerenSupplement({
         description:descriptionParts.join("\n"),
         sourceUrl:ARR_NLM_SOUTH_JAEREN_REPORT_URL,
         municipalityHint,
-        meetingTypeHint:arrNlmMeetingTypeHint(arrangement, Boolean(endDate)),
+        meetingTypeHint:arrNlmMeetingTypeHint(arrangement, Boolean(endTime)),
         organizationIds:nlmOrganizationId ? [nlmOrganizationId] : []
       };
 
@@ -3672,16 +3741,6 @@ async function arrFetchAndParseVigrestadSource(source, url) {
       sourceUrl:url
     });
   }
-
-  const generatedUngdomslaget = arrGenerateNarboUngdomslagetEvents();
-  out.push(...generatedUngdomslaget);
-  stats.push({
-    url:"generated://ungdomslaget-naerbo",
-    method:"generated-school-year-series",
-    count:generatedUngdomslaget.length,
-    first:generatedUngdomslaget[0]?.startTime || null,
-    last:generatedUngdomslaget.at(-1)?.startTime || null
-  });
 
   const deduped = arrDedupeParsed(out);
 
@@ -6782,6 +6841,16 @@ async function arrFetchAndParseNarbo(url) {
       });
     }
   }
+
+  const generatedUngdomslaget = arrGenerateNarboUngdomslagetEvents();
+  out.push(...generatedUngdomslaget);
+  stats.push({
+    url:"generated://ungdomslaget-naerbo",
+    method:"generated-school-year-series",
+    count:generatedUngdomslaget.length,
+    first:generatedUngdomslaget[0]?.startTime || null,
+    last:generatedUngdomslaget.at(-1)?.startTime || null
+  });
 
   const deduped = arrDedupeParsed(out);
 
