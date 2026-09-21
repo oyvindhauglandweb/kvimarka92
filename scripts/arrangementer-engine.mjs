@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v470-imi-eventcalendarapp-stable-id-2026-09-13";
+const ARRANGEMENT_ENGINE_VERSION = "v472-generated-ungdomslaget-naerbo-2026-09-21";
 
 const ARR_AREAS = {
   default: {
@@ -2960,6 +2960,16 @@ async function arrFetchAndParseVigrestadSource(source, url) {
     });
   }
 
+  const generatedUngdomslaget = arrGenerateNarboUngdomslagetEvents();
+  out.push(...generatedUngdomslaget);
+  stats.push({
+    url:"generated://ungdomslaget-naerbo",
+    method:"generated-school-year-series",
+    count:generatedUngdomslaget.length,
+    first:generatedUngdomslaget[0]?.startTime || null,
+    last:generatedUngdomslaget.at(-1)?.startTime || null
+  });
+
   const deduped = arrDedupeParsed(out);
 
   if (!deduped.length) {
@@ -5902,6 +5912,110 @@ function arrParseNarboHtml(html, sourceUrl, meetingTypeHint="") {
   }
 
   return arrDedupeParsed(out);
+}
+
+
+// V472: Generert skoleårsserie for Ungdomslaget på Nærbø Bedehus.
+// Det finnes ingen ekstern kalender for denne serien. Vi genererer kommende
+// lørdager i gjeldende skoleår, fra siste lørdag i august til andre lørdag i juni.
+// Unntak: juleferie 22.12–02.01 og påskeaften (lørdagen etter langfredag).
+function arrGregorianEasterSunday(year) {
+  // Meeus/Jones/Butcher-algoritmen for gregoriansk kalender.
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function arrLastSaturdayOfAugust(year) {
+  const d = new Date(Date.UTC(year, 7, 31));
+  const back = (d.getUTCDay() - 6 + 7) % 7;
+  d.setUTCDate(d.getUTCDate() - back);
+  return d;
+}
+
+function arrSecondSaturdayOfJune(year) {
+  const d = new Date(Date.UTC(year, 5, 1));
+  const forward = (6 - d.getUTCDay() + 7) % 7;
+  d.setUTCDate(d.getUTCDate() + forward + 7);
+  return d;
+}
+
+function arrSchoolYearForDate(now = new Date()) {
+  // Jan–jun tilhører skoleåret som startet året før.
+  // Jul–des tilhører skoleåret som starter samme år. Dette gjør at juli
+  // allerede peker frem mot kommende skoleår, slik at serien alltid ligger klar.
+  const month = now.getUTCMonth() + 1;
+  const year = now.getUTCFullYear();
+  const startYear = month <= 6 ? year - 1 : year;
+  return {
+    startYear,
+    endYear: startYear + 1
+  };
+}
+
+function arrIsChristmasBreakDate(year, month, day) {
+  return (month === 12 && day >= 22) || (month === 1 && day <= 2);
+}
+
+function arrGenerateNarboUngdomslagetEvents(nowMs = Date.now()) {
+  const now = new Date(nowMs);
+  const {startYear, endYear} = arrSchoolYearForDate(now);
+  const first = arrLastSaturdayOfAugust(startYear);
+  const last = arrSecondSaturdayOfJune(endYear);
+
+  const easterSunday = arrGregorianEasterSunday(endYear);
+  const easterSaturday = new Date(easterSunday.getTime() - 86400000);
+  const easterSaturdayKey = easterSaturday.toISOString().slice(0, 10);
+
+  const out = [];
+  for (
+    let cursor = new Date(first);
+    cursor.getTime() <= last.getTime();
+    cursor = new Date(cursor.getTime() + 7 * 86400000)
+  ) {
+    const year = cursor.getUTCFullYear();
+    const month = cursor.getUTCMonth() + 1;
+    const day = cursor.getUTCDate();
+    const dateKey = cursor.toISOString().slice(0, 10);
+
+    if (arrIsChristmasBreakDate(year, month, day)) continue;
+    if (dateKey === easterSaturdayKey) continue;
+
+    const startTime = arrOsloLocalIso(year, month, day, 20, 0, 0);
+    const endTime = arrOsloLocalIso(year, month, day, 21, 0, 0);
+
+    // Ikke regenerer utløpte møter ved hver import. Cleanup håndterer tidligere
+    // rader; generatoren sørger bare for dagens/fremtidige del av skoleåret.
+    if (new Date(endTime).getTime() < nowMs) continue;
+
+    out.push({
+      title:"Ungdomslaget",
+      startTime,
+      endTime,
+      organizer:"Ungdomslaget",
+      location:"Nærbø bedehus",
+      settlementHint:"Nærbø",
+      municipalityHint:"Hå",
+      meetingTypeHint:"Ungdom",
+      description:"",
+      sourceUrl:"https://www.facebook.com/groups/ungdomslaget/?locale=nb_NO",
+      sourceEventId:`generated-ungdomslaget-naerbo-${dateKey}`
+    });
+  }
+
+  return out;
 }
 
 async function arrFetchAndParseNarbo(url) {
