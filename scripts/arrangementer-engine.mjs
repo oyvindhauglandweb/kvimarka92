@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v480-tryggheim-allevents-watch-2026-09-21";
+const ARRANGEMENT_ENGINE_VERSION = "v481-haa-sokn-geography-2026-09-23";
 
 const ARR_AREAS = {
   default: {
@@ -3357,6 +3357,29 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
     }
   }
 
+  if (municipalityHint === "hå" || municipalityHint === "ha") {
+    const sourceId = arrNormalize(source?.[ARR_F.sources.sourceId] || "");
+    const sourceName = arrNormalize(source?.[ARR_F.sources.name] || "");
+    const isHaaChurchSource =
+      sourceId === "src-0003" ||
+      sourceName === arrNormalize("Den norske kirke – Hå") ||
+      sourceName === arrNormalize("Den norske kirke - Hå");
+
+    if (isHaaChurchSource) {
+      // Hå-kilden dekker flere sokn/tettsteder. En eventuell enkeltverdi i
+      // Sources.Default Settlement skal derfor aldri overstyre konkret
+      // stedsinformasjon fra selve arrangementet.
+      const explicitHaa =
+        findBest(item.settlementHint, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+        findBest(item.location, allRulesForMunicipality, {excludeMunicipalityName:true});
+
+      if (explicitHaa) {
+        if (explicitHaa.active === false) return null;
+        return [explicitHaa.rowId];
+      }
+    }
+  }
+
   if (singleSourceSettlementIsAuthoritative) {
     const defaultId = Number(allowedDefaultIds[0]);
 
@@ -6462,17 +6485,23 @@ function arrStripHtmlInline(value) {
 
 function arrHaaOrganizerFromLocation(location) {
   const loc = arrClean(location || "");
+  const n = arrNormalize(loc);
+
+  // V481: Sokn i Hå dekker flere tettsteder/kirker.
+  // Varhaug sokn: Varhaug + Vigrestad
+  // Ogna sokn: Ogna + Brusand + Sirevåg
+  // Nærbø sokn: Nærbø
+  //
+  // Disse må testes FØR den generiske "<sted> kyrkje -> <sted> sokn"-regelen,
+  // ellers blir f.eks. Vigrestad kyrkje feilaktig til "Vigrestad sokn".
+  if (/\b(varhaug|vigrestad)\b/i.test(n)) return "Varhaug sokn";
+  if (/\b(ogna|brusand|sirevåg|sirevag|stokkalandsmarka)\b/i.test(n)) return "Ogna sokn";
+  if (/\b(nærbø|narbo)\b/i.test(n)) return "Nærbø sokn";
 
   const church = loc.match(/^(.+?)\s+(?:kyrkje|kirke)(?:\s*,.*)?$/i);
   if (church && church[1]) {
     return `${arrClean(church[1])} sokn`;
   }
-
-  if (/stokkalandsmarka/i.test(loc)) return "Ogna sokn";
-  if (/vigrestad/i.test(loc)) return "Varhaug sokn";
-  if (/nærbø/i.test(loc)) return "Nærbø sokn";
-  if (/varhaug/i.test(loc)) return "Varhaug sokn";
-  if (/ogna/i.test(loc)) return "Ogna sokn";
 
   return "Hå Kyrkjelege Fellesråd";
 }
