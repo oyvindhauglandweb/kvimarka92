@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v482-haa-sokn-existing-geography-repair-2026-09-23";
+const ARRANGEMENT_ENGINE_VERSION = "v483-haa-sokn-organizer-settlement-fallback-2026-09-23";
 
 const ARR_AREAS = {
   default: {
@@ -3493,13 +3493,48 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
       // Hå-kilden dekker flere sokn/tettsteder. En eventuell enkeltverdi i
       // Sources.Default Settlement skal derfor aldri overstyre konkret
       // stedsinformasjon fra selve arrangementet.
+      //
+      // Prioritet:
+      // 1) eksplisitt tettsted fra parser/location
+      // 2) arrangørens sokn som geografisk fallback
+      //
+      // Dette er viktig for arrangementer med generiske locations som
+      // "Festhalen", "Utendørs" osv. De skal følge soknet, ikke havne på Nærbø.
       const explicitHaa =
         findBest(item.settlementHint, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
-        findBest(item.location, allRulesForMunicipality, {excludeMunicipalityName:true});
+        findBest(item.location, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+        findBest(item.title, allRulesForMunicipality, {excludeMunicipalityName:true});
 
       if (explicitHaa) {
         if (explicitHaa.active === false) return null;
         return [explicitHaa.rowId];
+      }
+
+      const organizerNorm = arrNormalize(item.organizer || "");
+      const organizerFallback =
+        organizerNorm === arrNormalize("Varhaug sokn") ? "Varhaug" :
+        organizerNorm === arrNormalize("Ogna sokn") ? "Ogna" :
+        organizerNorm === arrNormalize("Nærbø sokn") ? "Nærbø" :
+        "";
+
+      if (organizerFallback) {
+        const organizerSettlement = findRuleByName(
+          organizerFallback,
+          allRulesForMunicipality
+        );
+        if (organizerSettlement) {
+          if (organizerSettlement.active === false) return null;
+          return [organizerSettlement.rowId];
+        }
+      }
+
+      // For Hå-kirken skal vi aldri falle videre til en vilkårlig
+      // Default Settlement (historisk Nærbø) når soknet er kjent.
+      if (
+        organizerNorm === arrNormalize("Varhaug sokn") ||
+        organizerNorm === arrNormalize("Ogna sokn")
+      ) {
+        return [];
       }
     }
   }
