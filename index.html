@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Kvimarka 92</title>
-<!-- version: index-v5-hide-route-cases-from-admin-2026-06-25 -->
+<!-- version: index-v6-fast-menu-2026-09-23 -->
 
 <style>
 :root{
@@ -1975,8 +1975,8 @@ async function loadMenuForCurrentUser(){
       menuData = await fetchJson(`${API_BASE}/menu-public?ts=${Date.now()}`);
     }
 
-    routeCases = await fetchRouteCases();
     menuItems = menuData.items || [];
+    routeCases = [];
   }catch(error){
     console.warn("Could not load menu from Worker. Using local fallback menu.", error);
     routeCases = [];
@@ -1990,10 +1990,23 @@ async function loadMenuForCurrentUser(){
     }
   }
 
-  allMenuItems = ensureLocalAdminMenuItems(buildDynamicRouteCaseMenu(menuItems, routeCases));
+  allMenuItems = ensureLocalAdminMenuItems(menuItems);
 
   restoreMenuState();
   renderPathMenu();
+
+  // Ikke la Route Cases blokkere menyen. Flett dem inn når bakgrunnskallet er ferdig.
+  fetchRouteCases()
+    .then(cases => {
+      routeCases = Array.isArray(cases) ? cases : [];
+      allMenuItems = ensureLocalAdminMenuItems(
+        buildDynamicRouteCaseMenu(menuItems, routeCases)
+      );
+      renderPathMenu();
+    })
+    .catch(error => {
+      console.warn("Could not load route cases in background.", error);
+    });
 }
 
 async function retryAuthenticatedMenuAfterInitialPublicLoad(){
@@ -2023,15 +2036,62 @@ async function retryAuthenticatedMenuAfterInitialPublicLoad(){
 
 async function loadPage(){
   const statusBox = document.getElementById("statusBox");
+  let menuData = null;
+  let menuItems = [];
 
-  currentUser = await fetchCurrentUser({ attempts:2, delays:[350] });
+  // v6: /menu returnerer både bruker og meny. Dermed slipper startsiden først
+  // å vente på /whoami og DERETTER hente /menu i en ny sekvensiell runde.
+  // Hvis brukeren ikke er innlogget, faller vi direkte tilbake til /menu-public.
+  try{
+    menuData = await fetchJson(`${API_BASE}/menu?ts=${Date.now()}`, {
+      credentials:"include"
+    });
+
+    currentUser = menuData && menuData.user ? menuData.user : null;
+    menuItems = Array.isArray(menuData && menuData.items) ? menuData.items : [];
+  }catch(error){
+    currentUser = null;
+
+    try{
+      menuData = await fetchJson(`${API_BASE}/menu-public?ts=${Date.now()}`);
+      menuItems = Array.isArray(menuData && menuData.items) ? menuData.items : [];
+    }catch(publicError){
+      console.warn("Could not load initial menu from Worker. Using local fallback menu.", publicError);
+      menuItems = getFallbackMenuItems();
+
+      if(statusBox){
+        statusBox.className = "error-box";
+        statusBox.innerHTML = `Meny kunne ikke hentes fra Worker. Viser lokal nødmeny.<br><br>${esc(publicError.message || publicError)}`;
+        statusBox.style.display = "block";
+      }
+    }
+  }
+
   setupLoginWidget();
 
-  await loadMenuForCurrentUser();
+  // Vis selve hovedmenyen straks. Reiseruter er et supplement og skal ikke
+  // blokkere Public / Privat / Admin mens en større Route Cases-tabell leses.
+  routeCases = [];
+  allMenuItems = ensureLocalAdminMenuItems(menuItems);
+  restoreMenuState();
+  renderPathMenu();
 
   if(statusBox && statusBox.className !== "error-box"){
     statusBox.style.display = "none";
   }
+
+  // Hent dynamiske feriereiser i bakgrunnen.
+  fetchRouteCases()
+    .then(cases => {
+      routeCases = Array.isArray(cases) ? cases : [];
+      allMenuItems = ensureLocalAdminMenuItems(
+        buildDynamicRouteCaseMenu(menuItems, routeCases)
+      );
+      renderPathMenu();
+    })
+    .catch(error => {
+      console.warn("Could not load route cases in background.", error);
+    });
 
   if(!currentUser){
     retryAuthenticatedMenuAfterInitialPublicLoad();
