@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v483-haa-sokn-organizer-settlement-fallback-2026-09-23";
+const ARRANGEMENT_ENGINE_VERSION = "v484-baserow-read-retry-2026-09-23";
 
 const ARR_AREAS = {
   default: {
@@ -406,13 +406,45 @@ function arrSafeEqual(a,b) {
   return x === 0;
 }
 
+// V484: Baserow kan av og til svare med en kortvarig 502/503/504 eller
+// nettverks-reset under store paginerte lesinger. Lesekall er idempotente,
+// så de kan trygt prøves på nytt. Skrivekall røres ikke her.
+async function arrFetchBaserowReadWithRetry(url, options={}, label="Baserow GET") {
+  const retryableStatus = new Set([429,500,502,503,504]);
+  let lastError = null;
+
+  for (let attempt=1; attempt<=4; attempt++) {
+    try {
+      const response = await fetch(url, options);
+
+      if (response.ok) return response;
+
+      const body = await response.text().catch(() => "");
+      const message = `${label}: ${response.status} ${body}`.trim();
+
+      if (!retryableStatus.has(response.status) || attempt === 4) {
+        throw new Error(message);
+      }
+
+      lastError = new Error(message);
+    } catch (err) {
+      lastError = err;
+      if (attempt === 4) throw err;
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000 * (2 ** (attempt - 1))));
+  }
+
+  throw lastError || new Error(`${label}: ukjent lesefeil`);
+}
+
 async function arrListAllRows(env, tableId) {
   const out = [];
   let page = 1;
 
   while (true) {
     const url = `${arrApiBase(env)}/api/database/rows/table/${tableId}/?size=200&page=${page}`;
-    const r = await fetch(url, {headers:arrHeaders(env)});
+    const r = await arrFetchBaserowReadWithRetry(url, {headers:arrHeaders(env)}, `Baserow GET ${tableId} page ${page}`);
     if (!r.ok) throw new Error(`Baserow GET ${tableId} page ${page}: ${r.status} ${await r.text()}`);
 
     const data = await r.json();
@@ -437,7 +469,7 @@ async function arrListRowsFilteredEqual(env, tableId, fieldId, value) {
       `?size=${size}&page=${page}` +
       `&filter__field_${fieldId}__equal=${encodeURIComponent(String(value ?? ""))}`;
 
-    const res = await fetch(u,{headers:arrHeaders(env)});
+    const res = await arrFetchBaserowReadWithRetry(u,{headers:arrHeaders(env)}, `Baserow filtered GET ${tableId} field ${fieldId} page ${page}`);
     if (!res.ok) {
       throw new Error(
         `Baserow filtered GET ${tableId} field ${fieldId}: ${res.status} ${await res.text()}`
@@ -461,7 +493,7 @@ async function arrListRowsDateBefore(env, tableId, fieldId, isoDate, size=200) {
     `?size=${Math.max(1,Math.min(200,Number(size)||200))}&page=1` +
     `&filter__field_${fieldId}__date_before=${encodeURIComponent(String(isoDate || ""))}`;
 
-  const res = await fetch(u,{headers:arrHeaders(env)});
+  const res = await arrFetchBaserowReadWithRetry(u,{headers:arrHeaders(env)}, `Baserow date GET ${tableId}`);
   if (!res.ok) {
     throw new Error(
       `Baserow date-before GET ${tableId} field ${fieldId}: ${res.status} ${await res.text()}`
