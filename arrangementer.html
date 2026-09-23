@@ -440,7 +440,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v425-desktop-outlook-mobile-ics-2026-08-21";
+  const FRONTEND_VERSION = "v461-live-organizer-colors-2026-09-23";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -448,6 +448,7 @@
   // - kontaktskjema sendes via samme Worker
   const API_BASE = "https://kvimarka92-arrangementer-api.oyvind-haugland.workers.dev";
   const STATIC_EVENTS_URL = "./arrangementer-data.json";
+  const ORGANIZERS_API = `${API_BASE}/arrangementer/organizers`;
 
   const FILTER_STORAGE_KEY = "arrangementer.filters.v1";
   const SNAPSHOT_STORAGE_KEY = "arrangementer.snapshot.v1";
@@ -2045,6 +2046,35 @@
     saveFilters();
   }
 
+
+  async function loadLiveOrganizerSettings(fallback=[]) {
+    try {
+      const res = await fetch(
+        `${ORGANIZERS_API}?t=${Date.now()}`,
+        { cache:"no-store" }
+      );
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} ved henting av arrangørfarger`);
+      }
+
+      const data = await res.json();
+      if (!data || !Array.isArray(data.organizers)) {
+        throw new Error("Ugyldig svar fra arrangør-API");
+      }
+
+      return data.organizers;
+    } catch (error) {
+      // Fargeinnstillinger er presentasjonsdata. Kalenderen skal fortsatt
+      // fungere dersom Worker/Baserow er midlertidig utilgjengelig.
+      console.warn(
+        "Kunne ikke hente live arrangørfarger; bruker snapshot-farger.",
+        error
+      );
+      return Array.isArray(fallback) ? fallback : [];
+    }
+  }
+
   async function load(isManualRefresh = false) {
     const rememberedFilters = savedFilters();
     if (!isManualRefresh && rememberedFilters.search != null) {
@@ -2073,7 +2103,15 @@
         throw new Error("Ugyldig arrangementer-data.json");
       }
 
-      organizerSettings = Array.isArray(data.organizers) ? data.organizers : [];
+      const snapshotOrganizerSettings =
+        Array.isArray(data.organizers) ? data.organizers : [];
+
+      // V461: administrative arrangørfarger leses live fra Baserow via
+      // Arrangementer-Workeren på hver sideinnlasting/oppfriskning.
+      // Snapshotet er fallback dersom Worker/Baserow er utilgjengelig.
+      organizerSettings = await loadLiveOrganizerSettings(
+        snapshotOrganizerSettings
+      );
       rebuildOrganizerTextColorMap();
 
       const loadedEvents = data.events;
