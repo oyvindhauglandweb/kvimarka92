@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v481-haa-sokn-geography-2026-09-23";
+const ARRANGEMENT_ENGINE_VERSION = "v482-haa-sokn-existing-geography-repair-2026-09-23";
 
 const ARR_AREAS = {
   default: {
@@ -2678,20 +2678,30 @@ async function arrImportAllSources(env, options={}) {
 
     let preRepairUpdated = 0;
     try {
-      preRepairUpdated = await arrRepairExistingNarboMeetingTypes(
+      const narboRepairUpdated = await arrRepairExistingNarboMeetingTypes(
         env,
         source,
         existingEvents,
         typeRules
       );
+
+      const haaSettlementRepairUpdated = await arrRepairExistingHaaChurchSettlements(
+        env,
+        source,
+        existingEvents,
+        settlementRules
+      );
+
+      preRepairUpdated = narboRepairUpdated + haaSettlementRepairUpdated;
+
       if (preRepairUpdated) {
         sourceResult.updated += preRepairUpdated;
         result.updated += preRepairUpdated;
       }
     } catch (repairErr) {
-      // Klassifiseringsreparasjon skal ikke stoppe selve kildeimporten.
+      // Reparasjon av eksisterende metadata skal ikke stoppe selve kildeimporten.
       console.warn(
-        "Nærbø Meeting Type-reparasjon feilet:",
+        "Pre-import reparasjon feilet:",
         repairErr?.message || repairErr
       );
     }
@@ -3221,6 +3231,120 @@ async function arrRepairExistingNarboMeetingTypes(env, source, existingEvents, t
   for (const row of existingEvents) {
     const ids = targetById.get(Number(row.id));
     if (ids) row[ARR_F.events.meetingType] = ids;
+  }
+
+  return updates.length;
+}
+
+
+function arrIsHaaChurchSource(source) {
+  const id = arrNormalize(source?.[ARR_F.sources.sourceId] || "");
+  const name = arrNormalize(source?.[ARR_F.sources.name] || "");
+  return (
+    id === "src-0003" ||
+    name === arrNormalize("Den norske kirke – Hå") ||
+    name === arrNormalize("Den norske kirke - Hå")
+  );
+}
+
+function arrHaaOrganizerAllowedSettlements(organizer) {
+  const o = arrNormalize(organizer || "");
+  if (o === arrNormalize("Varhaug sokn")) return ["Varhaug","Vigrestad"];
+  if (o === arrNormalize("Ogna sokn")) return ["Ogna","Brusand","Sirevåg"];
+  if (o === arrNormalize("Nærbø sokn")) return ["Nærbø"];
+  return [];
+}
+
+async function arrRepairExistingHaaChurchSettlements(
+  env,
+  source,
+  existingEvents,
+  settlementRules
+) {
+  if (!arrIsHaaChurchSource(source)) return 0;
+
+  const sourceName = arrClean(source[ARR_F.sources.name] || "");
+  const sourceId = arrClean(source[ARR_F.sources.sourceId] || "");
+
+  const ruleByName = new Map(
+    settlementRules.map(rule => [arrNormalize(rule.name || ""), rule])
+  );
+  const nameByRowId = new Map(
+    settlementRules.map(rule => [Number(rule.rowId), arrClean(rule.name || "")])
+  );
+
+  const updates = [];
+
+  for (const row of existingEvents) {
+    if (row[ARR_F.events.manuallyEdited] === true) continue;
+
+    const eventSource = arrClean(row[ARR_F.events.source] || "");
+    if (eventSource !== sourceName && eventSource !== sourceId) continue;
+
+    const organizer = arrResolveHaaFellesraadOrganizer(
+      row[ARR_F.events.title] || "",
+      row[ARR_F.events.organizer] || eventSource || ""
+    );
+
+    const allowed = arrHaaOrganizerAllowedSettlements(organizer);
+    if (!allowed.length) continue;
+
+    const probe = arrNormalize([
+      row[ARR_F.events.location],
+      row[ARR_F.events.title],
+      row[ARR_F.events.description]
+    ].filter(Boolean).join(" "));
+
+    let targetName = "";
+    for (const name of allowed) {
+      const n = arrNormalize(name);
+      const escaped = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (new RegExp(`(^|[^a-z0-9æøå])${escaped}($|[^a-z0-9æøå])`, "i").test(probe)) {
+        targetName = name;
+        break;
+      }
+    }
+
+    // Hvis arrangementsteksten ikke angir ett av soknets tettsteder,
+    // bruk soknets hovedtettsted. Viktigst: aldri la Varhaug/Ogna havne på Nærbø.
+    if (!targetName) {
+      targetName =
+        arrNormalize(organizer) === arrNormalize("Varhaug sokn") ? "Varhaug" :
+        arrNormalize(organizer) === arrNormalize("Ogna sokn") ? "Ogna" :
+        "Nærbø";
+    }
+
+    const targetRule = ruleByName.get(arrNormalize(targetName));
+    if (!targetRule || targetRule.active === false) continue;
+
+    const currentIds = arrLinkedIds(row[ARR_F.events.settlement])
+      .map(Number)
+      .filter(Number.isFinite);
+    const currentNames = currentIds
+      .map(id => nameByRowId.get(id) || "")
+      .filter(Boolean);
+
+    if (
+      currentIds.length === 1 &&
+      currentIds[0] === Number(targetRule.rowId)
+    ) continue;
+
+    updates.push({
+      id: row.id,
+      [ARR_F.events.settlement]: [Number(targetRule.rowId)]
+    });
+  }
+
+  if (!updates.length) return 0;
+
+  await arrUpdateRowsBatch(env, ARR_TABLE.EVENTS, updates);
+
+  const targetById = new Map(
+    updates.map(u => [Number(u.id), u[ARR_F.events.settlement]])
+  );
+  for (const row of existingEvents) {
+    const ids = targetById.get(Number(row.id));
+    if (ids) row[ARR_F.events.settlement] = ids;
   }
 
   return updates.length;
