@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v484-baserow-read-retry-2026-09-23";
+const ARRANGEMENT_ENGINE_VERSION = "v485-haa-settlement-after-organizer-resolution-2026-09-23";
 
 const ARR_AREAS = {
   default: {
@@ -3542,7 +3542,20 @@ function arrResolveSettlementIds(item, source, settlementRules, allSettlementRul
         return [explicitHaa.rowId];
       }
 
-      const organizerNorm = arrNormalize(item.organizer || "");
+      // Viktig: Hå-parseren kan ha en generisk organizer
+      // ("Hå Kyrkjelege Fellesråd") når location bare er f.eks. "Festhalen"
+      // eller "Utendørs". Slutt-arrangøren blir først bestemt senere ved
+      // arrResolveHaaFellesraadOrganizer(), bl.a. fra tittelregler.
+      //
+      // Settlement må bruke DEN SAMME ferdig-resolverte arrangøren. Ellers
+      // blir raden skrevet med "Varhaug sokn", men settlement kan samtidig
+      // falle tilbake til Sources.Default Settlement = Nærbø.
+      const effectiveOrganizer = arrResolveHaaFellesraadOrganizer(
+        item.title,
+        item.organizer || source?.[ARR_F.sources.name] || ""
+      );
+      const organizerNorm = arrNormalize(effectiveOrganizer || "");
+
       const organizerFallback =
         organizerNorm === arrNormalize("Varhaug sokn") ? "Varhaug" :
         organizerNorm === arrNormalize("Ogna sokn") ? "Ogna" :
