@@ -1,0 +1,7901 @@
+const ARRANGEMENT_ENGINE_VERSION = "v486-global-private-event-filter-2026-10-05";
+
+const ARR_AREAS = {
+  default: {
+    name: "Felles",
+    tables: {
+      EVENTS: 1137493,
+      SOURCES: 1137506,
+      MEETING_TYPES: 1137511,
+      SETTLEMENTS: 1137544,
+    },
+    fields: {
+      events: {
+        eventId: "field_10177330",
+        title: "field_10177331",
+        startTime: "field_10177332",
+        endTime: "field_10177389",
+        meetingType: "field_10177390",
+        organizer: "field_10177394",
+        location: "field_10177397",
+        description: "field_10177398",
+        source: "field_10177399",
+        sourceUrl: "field_10177400",
+        sourceEventId: "field_10177438",
+        lastSeen: "field_10177439",
+        active: "field_10177442",
+        manuallyEdited: "field_10177443",
+        settlement: "field_10178013",
+        organizationIds: "field_10328066",
+      },
+      sources: {
+        sourceId: "field_10177445",
+        name: "field_10177446",
+        website: "field_10177447",
+        calendarUrl: "field_10177474",
+        sourceType: "field_10177498",
+        organizationIds: "field_10326887",
+        enabled: "field_10177499",
+        importMethod: "field_10177503",
+        lastImport: "field_10177505",
+        importStatus: "field_10177508",
+        defaultSettlement: "field_10178042",
+      },
+      meetingTypes: {
+        typeId: "field_10177509",
+        name: "field_10177510",
+        description: "field_10177511",
+        keywords: "field_10177858",
+        priority: "field_10177859",
+        active: "field_10177860",
+        sortOrder: "field_10177861",
+      },
+      settlements: {
+        settlementId: "field_10177956",
+        name: "field_10177957",
+        municipality: "field_10177958",
+        active: "field_10178007",
+        sortOrder: "field_10178009",
+      },
+    },
+  },
+
+
+  time: {
+    name: "Time",
+    databaseId: 554837,
+    sourceMunicipality: "Time",
+    tables: {
+      EVENTS: 1193653,
+      SOURCES: 1193657,
+      MEETING_TYPES: 1193654,
+      SETTLEMENTS: 1193655,
+    },
+    fields: {
+      events: {
+        eventId: "field_10794694",
+        title: "field_10794696",
+        startTime: "field_10794697",
+        endTime: "field_10794698",
+        meetingType: "field_10794699",
+        organizer: "field_10794700",
+        location: "field_10794701",
+        description: "field_10794702",
+        source: "field_10794703",
+        sourceUrl: "field_10794704",
+        sourceEventId: "field_10794705",
+        lastSeen: "field_10794706",
+        active: "field_10794707",
+        manuallyEdited: "field_10794708",
+        settlement: "field_10794709",
+        organizationIds: "field_10794710",
+      },
+      sources: {
+        sourceId: "field_10794743",
+        name: "field_10794745",
+        website: "field_10794746",
+        calendarUrl: "field_10794747",
+        sourceType: "field_10794748",
+        enabled: "field_10794749",
+        importMethod: "field_10794750",
+        lastImport: "field_10794751",
+        importStatus: "field_10794752",
+        defaultSettlement: "field_10794753",
+        organizationIds: "field_10794754",
+      },
+      meetingTypes: {
+        typeId: "field_10794713",
+        name: "field_10794715",
+        description: "field_10794716",
+        keywords: "field_10794717",
+        priority: "field_10794718",
+        active: "field_10794719",
+        sortOrder: "field_10794720",
+      },
+      settlements: {
+        settlementId: "field_10794729",
+        name: "field_10794731",
+        municipality: "field_10794732",
+        active: "field_10794733",
+        sortOrder: "field_10794734",
+      },
+    },
+  },
+
+  klepp: {
+    name: "Klepp",
+    databaseId: 554845,
+    sourceMunicipality: "Klepp",
+    tables: {
+      EVENTS: 1193659,
+      SOURCES: 1193663,
+      MEETING_TYPES: 1193660,
+      SETTLEMENTS: 1193662,
+    },
+    fields: {
+      events: {
+        eventId: "field_10794765",
+        title: "field_10794767",
+        startTime: "field_10794768",
+        endTime: "field_10794769",
+        meetingType: "field_10794770",
+        organizer: "field_10794771",
+        location: "field_10794772",
+        description: "field_10794773",
+        source: "field_10794774",
+        sourceUrl: "field_10794775",
+        sourceEventId: "field_10794776",
+        lastSeen: "field_10794777",
+        active: "field_10794778",
+        manuallyEdited: "field_10794779",
+        settlement: "field_10794780",
+        organizationIds: "field_10794781",
+      },
+      sources: {
+        sourceId: "field_10794804",
+        name: "field_10794806",
+        website: "field_10794807",
+        calendarUrl: "field_10794808",
+        sourceType: "field_10794809",
+        enabled: "field_10794810",
+        importMethod: "field_10794811",
+        lastImport: "field_10794812",
+        importStatus: "field_10794813",
+        defaultSettlement: "field_10794814",
+        organizationIds: "field_10794815",
+      },
+      meetingTypes: {
+        typeId: "field_10794782",
+        name: "field_10794784",
+        description: "field_10794785",
+        keywords: "field_10794786",
+        priority: "field_10794787",
+        active: "field_10794788",
+        sortOrder: "field_10794789",
+      },
+      settlements: {
+        settlementId: "field_10794796",
+        name: "field_10794798",
+        municipality: "field_10794799",
+        active: "field_10794800",
+        sortOrder: "field_10794801",
+      },
+    },
+  },
+
+  sandnes: {
+    name: "Sandnes",
+    databaseId: 528983,
+    tables: {
+      EVENTS: 1144908,
+      SOURCES: 1144922,
+      MEETING_TYPES: 1144925,
+      SETTLEMENTS: 1144926,
+    },
+    fields: {
+      events: {
+        eventId: "field_10252551",
+        title: "field_10252552",
+        startTime: "field_10252553",
+        endTime: "field_10252554",
+        meetingType: "field_10252555",
+        organizer: "field_10252556",
+        location: "field_10252557",
+        description: "field_10252558",
+        source: "field_10252559",
+        sourceUrl: "field_10252560",
+        sourceEventId: "field_10252561",
+        lastSeen: "field_10252562",
+        active: "field_10252563",
+        manuallyEdited: "field_10252564",
+        settlement: "field_10252776",
+        organizationIds: "field_10328050",
+      },
+      sources: {
+        sourceId: "field_10252702",
+        name: "field_10252703",
+        website: "field_10252704",
+        calendarUrl: "field_10252705",
+        sourceType: "field_10252706",
+        organizationIds: "field_10326888",
+        enabled: "field_10252707",
+        importMethod: "field_10252708",
+        lastImport: "field_10252709",
+        importStatus: "field_10252710",
+        defaultSettlement: "field_10252777",
+      },
+      meetingTypes: {
+        typeId: "field_10252723",
+        name: "field_10252724",
+        description: "field_10252725",
+        keywords: "field_10252726",
+        priority: "field_10252727",
+        active: "field_10252728",
+        sortOrder: "field_10252729",
+      },
+      settlements: {
+        settlementId: "field_10252736",
+        name: "field_10252737",
+        municipality: "field_10252738",
+        active: "field_10252739",
+        sortOrder: "field_10252740",
+      },
+    },
+  },
+
+  stavanger: {
+    name: "Stavanger",
+    databaseId: 529669,
+    tables: {
+      EVENTS: 1146207,
+      SOURCES: 1146151,
+      MEETING_TYPES: 1146150,
+      SETTLEMENTS: 1146149,
+    },
+    fields: {
+      events: {
+        eventId: "field_10266377",
+        title: "field_10266378",
+        startTime: "field_10266379",
+        endTime: "field_10266380",
+        meetingType: "field_10266381",
+        organizer: "field_10266382",
+        location: "field_10266383",
+        description: "field_10266384",
+        source: "field_10266385",
+        sourceUrl: "field_10266386",
+        sourceEventId: "field_10266387",
+        lastSeen: "field_10266388",
+        active: "field_10266389",
+        manuallyEdited: "field_10266390",
+        settlement: "field_10266392",
+        organizationIds: "field_10328031",
+      },
+      sources: {
+        sourceId: "field_10265707",
+        name: "field_10265708",
+        website: "field_10265709",
+        calendarUrl: "field_10265710",
+        sourceType: "field_10265711",
+        organizationIds: "field_10326892",
+        enabled: "field_10265712",
+        importMethod: "field_10265713",
+        lastImport: "field_10265714",
+        importStatus: "field_10265715",
+        defaultSettlement: "field_10265716",
+      },
+      meetingTypes: {
+        typeId: "field_10265697",
+        name: "field_10265698",
+        description: "field_10265699",
+        keywords: "field_10265700",
+        priority: "field_10265701",
+        active: "field_10265702",
+        sortOrder: "field_10265703",
+      },
+      settlements: {
+        settlementId: "field_10265688",
+        name: "field_10265689",
+        municipality: "field_10265690",
+        active: "field_10265691",
+        sortOrder: "field_10265692",
+      },
+    },
+  },
+
+};
+
+
+// V440: Felles regelbase i hoved-workspacet Arrangementskalender.
+// Tabellen leses alltid med default-tokenet, også når Sandnes/Stavanger importeres.
+const ARR_EVENT_RULES_TABLE = 1150075;
+const ARR_ORGANIZATIONS_TABLE = 1151956;
+const ARR_ORGANIZATIONS_F = {
+  organizationId: "field_10329028",
+  name: "field_10329029",
+  aliases: "field_10329030",
+  active: "field_10329033",
+};
+const ARR_EVENT_RULES_F = {
+  ruleId: "field_10306627",
+  active: "field_10306628",
+  priority: "field_10306629",
+  ruleType: "field_10306630",
+  sourceIdMatch: "field_10306631",
+  sourceNameMatch: "field_10306632",
+  sourceNameMatchType: "field_10306633",
+  organizationMatch: "field_10326958",
+  sourceOrganizationMatch: "field_10328747",
+  organizerMatch: "field_10306634",
+  organizerMatchType: "field_10306635",
+  titleMatch: "field_10306636",
+  titleMatchType: "field_10306637",
+  descriptionMatch: "field_10306638",
+  descriptionMatchType: "field_10306639",
+  locationMatch: "field_10306640",
+  locationMatchType: "field_10306641",
+  addMeetingTypes: "field_10306642",
+  removeMeetingTypes: "field_10306643",
+  replaceMeetingTypes: "field_10306644",
+  addOrganizations: "field_10328278",
+  removeOrganizations: "field_10328281",
+  replaceOrganizations: "field_10328284",
+  descriptionAppend: "field_10306645",
+  descriptionOverride: "field_10306646",
+  sourceUrlOverride: "field_10306647",
+  organizerOverride: "field_10306648",
+  locationOverride: "field_10306649",
+  settlementOverride: "field_10306650",
+  titleOverride: "field_10306651",
+  stopProcessing: "field_10306652",
+  validFrom: "field_10306653",
+  validUntil: "field_10306654",
+  notes: "field_10306655",
+  organizationNotes: "field_10328882",
+};
+let ARR_EVENT_RULE_ROWS_CACHE = null;
+let ARR_ORGANIZATION_ROWS_CACHE = null;
+
+let ARR_CURRENT_AREA = "default";
+let ARR_TABLE = ARR_AREAS.default.tables;
+let ARR_F = ARR_AREAS.default.fields;
+
+function arrUseArea(areaKey = "default") {
+  const key = String(areaKey || "default").trim().toLowerCase();
+  const area = ARR_AREAS[key];
+
+  if (!area) {
+    throw new Error(`Ukjent Arrangementer-område: ${areaKey}`);
+  }
+
+  ARR_CURRENT_AREA = key;
+  ARR_TABLE = area.tables;
+  ARR_F = area.fields;
+  return area;
+}
+
+function arrGetAreaConfig(areaKey = ARR_CURRENT_AREA) {
+  const key = String(areaKey || "default").trim().toLowerCase();
+  const area = ARR_AREAS[key];
+  if (!area) throw new Error(`Ukjent Arrangementer-område: ${areaKey}`);
+  return area;
+}
+
+const ARR_NORWEGIAN_MONTHS = {
+  januar:1, februar:2, mars:3, april:4, mai:5, juni:6,
+  juli:7, august:8, september:9, oktober:10, november:11, desember:12,
+};
+
+function arrApiBase(env) {
+  // V245: tilbake til den samme API-base-logikken som V241, som var bekreftet
+  // fungerende mot Arrangementskalender-tokenet. Batch-importen beholdes.
+  return String(env.BASEROW_API_BASE || "https://api.baserow.io").replace(/\/$/, "");
+}
+
+function arrHeaders(env, jsonBody=false) {
+  const h = {Authorization:`Token ${env.ARRANGEMENT_BASEROW_TOKEN}`, Accept:"application/json"};
+  if (jsonBody) h["Content-Type"] = "application/json";
+  return h;
+}
+
+
+function arrSafeEqual(a,b) {
+  if (!a || !b || a.length !== b.length) return false;
+  let x=0;
+  for (let i=0;i<a.length;i++) x |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return x === 0;
+}
+
+// V484: Baserow kan av og til svare med en kortvarig 502/503/504 eller
+// nettverks-reset under store paginerte lesinger. Lesekall er idempotente,
+// så de kan trygt prøves på nytt. Skrivekall røres ikke her.
+async function arrFetchBaserowReadWithRetry(url, options={}, label="Baserow GET") {
+  const retryableStatus = new Set([429,500,502,503,504]);
+  let lastError = null;
+
+  for (let attempt=1; attempt<=4; attempt++) {
+    try {
+      const response = await fetch(url, options);
+
+      if (response.ok) return response;
+
+      const body = await response.text().catch(() => "");
+      const message = `${label}: ${response.status} ${body}`.trim();
+
+      if (!retryableStatus.has(response.status) || attempt === 4) {
+        throw new Error(message);
+      }
+
+      lastError = new Error(message);
+    } catch (err) {
+      lastError = err;
+      if (attempt === 4) throw err;
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000 * (2 ** (attempt - 1))));
+  }
+
+  throw lastError || new Error(`${label}: ukjent lesefeil`);
+}
+
+async function arrListAllRows(env, tableId) {
+  const out = [];
+  let page = 1;
+
+  while (true) {
+    const url = `${arrApiBase(env)}/api/database/rows/table/${tableId}/?size=200&page=${page}`;
+    const r = await arrFetchBaserowReadWithRetry(url, {headers:arrHeaders(env)}, `Baserow GET ${tableId} page ${page}`);
+    if (!r.ok) throw new Error(`Baserow GET ${tableId} page ${page}: ${r.status} ${await r.text()}`);
+
+    const data = await r.json();
+    const rows = Array.isArray(data.results) ? data.results : [];
+    out.push(...rows);
+
+    if (!data.next || rows.length === 0) break;
+    page += 1;
+  }
+
+  return out;
+}
+
+async function arrListRowsFilteredEqual(env, tableId, fieldId, value) {
+  const out = [];
+  const size = 200;
+  let page = 1;
+
+  while (page <= 100) {
+    const u =
+      `${arrApiBase(env)}/api/database/rows/table/${tableId}/` +
+      `?size=${size}&page=${page}` +
+      `&filter__field_${fieldId}__equal=${encodeURIComponent(String(value ?? ""))}`;
+
+    const res = await arrFetchBaserowReadWithRetry(u,{headers:arrHeaders(env)}, `Baserow filtered GET ${tableId} field ${fieldId} page ${page}`);
+    if (!res.ok) {
+      throw new Error(
+        `Baserow filtered GET ${tableId} field ${fieldId}: ${res.status} ${await res.text()}`
+      );
+    }
+
+    const data = await res.json();
+    const rows = Array.isArray(data.results) ? data.results : [];
+    out.push(...rows);
+
+    if (!data.next || rows.length === 0) break;
+    page++;
+  }
+
+  return out;
+}
+
+async function arrListRowsDateBefore(env, tableId, fieldId, isoDate, size=200) {
+  const u =
+    `${arrApiBase(env)}/api/database/rows/table/${tableId}/` +
+    `?size=${Math.max(1,Math.min(200,Number(size)||200))}&page=1` +
+    `&filter__field_${fieldId}__date_before=${encodeURIComponent(String(isoDate || ""))}`;
+
+  const res = await arrFetchBaserowReadWithRetry(u,{headers:arrHeaders(env)}, `Baserow date GET ${tableId}`);
+  if (!res.ok) {
+    throw new Error(
+      `Baserow date-before GET ${tableId} field ${fieldId}: ${res.status} ${await res.text()}`
+    );
+  }
+
+  const data = await res.json();
+  return {
+    count:Number(data.count || 0),
+    rows:Array.isArray(data.results) ? data.results : []
+  };
+}
+
+
+async function arrCreateRow(env, tableId, body) {
+  const r = await fetch(`${arrApiBase(env)}/api/database/rows/table/${tableId}/`, {
+    method:"POST", headers:arrHeaders(env,true), body:JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`Baserow POST ${tableId}: ${r.status} ${await r.text()}`);
+  return r.json();
+}
+
+async function arrUpdateRow(env, tableId, rowId, body) {
+  const r = await fetch(`${arrApiBase(env)}/api/database/rows/table/${tableId}/${rowId}/`, {
+    method:"PATCH", headers:arrHeaders(env,true), body:JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`Baserow PATCH ${tableId}/${rowId}: ${r.status} ${await r.text()}`);
+  return r.json();
+}
+
+async function arrCreateRowsBatch(env, tableId, items, chunkSize=100) {
+  const input = Array.isArray(items) ? items.filter(Boolean) : [];
+  const created = [];
+  for (let i=0; i<input.length; i+=chunkSize) {
+    const chunk = input.slice(i, i+chunkSize);
+    if (!chunk.length) continue;
+    const r = await fetch(`${arrApiBase(env)}/api/database/rows/table/${tableId}/batch/?user_field_names=false`, {
+      method:"POST", headers:arrHeaders(env,true), body:JSON.stringify({items:chunk}),
+    });
+    if (!r.ok) throw new Error(`Baserow BATCH POST ${tableId}: ${r.status} ${await r.text()}`);
+    const data = await r.json();
+    if (Array.isArray(data)) created.push(...data);
+    else if (Array.isArray(data.items)) created.push(...data.items);
+    else if (Array.isArray(data.results)) created.push(...data.results);
+  }
+  return created;
+}
+
+async function arrUpdateRowsBatch(env, tableId, items, chunkSize=100) {
+  // V249: Baserow batch PATCH krever at hver row-id forekommer maks én gang.
+  // Samme arrangement kan bli truffet flere ganger i én kildeimport (f.eks.
+  // duplikate kalenderforekomster). Slå derfor sammen alle oppdateringer per id
+  // før vi sender batchen. Senere feltverdier vinner.
+  const mergedById = new Map();
+  for (const item of (Array.isArray(items) ? items : [])) {
+    if (!item) continue;
+    const id = Number(item.id);
+    if (!Number.isInteger(id) || id < 1) continue;
+    const previous = mergedById.get(id) || {id};
+    mergedById.set(id, {...previous, ...item, id});
+  }
+
+  const input = Array.from(mergedById.values());
+  const updated = [];
+  for (let i=0; i<input.length; i+=chunkSize) {
+    const chunk = input.slice(i, i+chunkSize);
+    if (!chunk.length) continue;
+    const r = await fetch(`${arrApiBase(env)}/api/database/rows/table/${tableId}/batch/?user_field_names=false`, {
+      method:"PATCH", headers:arrHeaders(env,true), body:JSON.stringify({items:chunk}),
+    });
+    if (!r.ok) throw new Error(`Baserow BATCH PATCH ${tableId}: ${r.status} ${await r.text()}`);
+    const data = await r.json();
+    if (Array.isArray(data)) updated.push(...data);
+    else if (Array.isArray(data.items)) updated.push(...data.items);
+    else if (Array.isArray(data.results)) updated.push(...data.results);
+  }
+  return updated;
+}
+
+async function arrDeleteRowsBatch(env, tableId, rowIds, chunkSize=200) {
+  const ids = [...new Set(
+    (Array.isArray(rowIds) ? rowIds : [])
+      .map(id => Number(id))
+      .filter(id => Number.isInteger(id) && id > 0)
+  )];
+
+  let deleted = 0;
+  for (let i=0; i<ids.length; i+=chunkSize) {
+    const chunk = ids.slice(i, i+chunkSize);
+    if (!chunk.length) continue;
+
+    const r = await fetch(
+      `${arrApiBase(env)}/api/database/rows/table/${tableId}/batch-delete/`,
+      {
+        method:"POST",
+        headers:arrHeaders(env,true),
+        body:JSON.stringify({items:chunk}),
+      }
+    );
+
+    if (!r.ok) {
+      const detail = await r.text();
+      throw new Error(
+        `Baserow BATCH DELETE ${tableId}: ${r.status} ${detail}. ` +
+        `Database-tokenet må ha Delete-tillatelse for Events-tabellen.`
+      );
+    }
+    deleted += chunk.length;
+  }
+  return deleted;
+}
+
+
+function arrOsloDateKey(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Oslo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(d);
+
+  const byType = Object.fromEntries(
+    parts.filter(p => p.type !== "literal").map(p => [p.type, p.value])
+  );
+
+  return `${byType.year}-${byType.month}-${byType.day}`;
+}
+
+// V469: fysisk sletting av ferdige arrangementer.
+// Regel:
+// 1) Har raden gyldig End Time: slett når End Time er passert.
+// 2) Mangler End Time: slett først når Start Time sin kalenderdato
+//    er før dagens dato i Europe/Oslo. Dermed beholdes arrangementet
+//    ut hele dagen selv om starttidspunktet er passert.
+// 3) Ugyldig/manglende Start Time slettes aldri automatisk.
+async function arrCleanupFinishedEvents(env, areaKey, options={}) {
+  arrUseArea(areaKey);
+
+  const now = options.now instanceof Date
+    ? options.now
+    : new Date(options.now || Date.now());
+
+  if (Number.isNaN(now.getTime())) {
+    throw new Error(`Cleanup ${areaKey}: ugyldig now-verdi.`);
+  }
+
+  const todayOslo = arrOsloDateKey(now);
+  const rows = Array.isArray(options.rows)
+    ? options.rows
+    : await arrListAllRows(env, ARR_TABLE.EVENTS);
+
+  const deleteIds = [];
+  let completedByEndTime = 0;
+  let completedByStartDate = 0;
+  let invalidDateRows = 0;
+
+  for (const row of rows) {
+    const rawEnd = arrClean(row[ARR_F.events.endTime] || "");
+    const rawStart = arrClean(row[ARR_F.events.startTime] || "");
+
+    if (rawEnd) {
+      const end = new Date(rawEnd);
+      if (Number.isNaN(end.getTime())) {
+        invalidDateRows++;
+        continue;
+      }
+
+      if (end.getTime() < now.getTime()) {
+        deleteIds.push(Number(row.id));
+        completedByEndTime++;
+      }
+      continue;
+    }
+
+    if (!rawStart) {
+      invalidDateRows++;
+      continue;
+    }
+
+    const start = new Date(rawStart);
+    if (Number.isNaN(start.getTime())) {
+      invalidDateRows++;
+      continue;
+    }
+
+    const startDayOslo = arrOsloDateKey(start);
+    if (startDayOslo && startDayOslo < todayOslo) {
+      deleteIds.push(Number(row.id));
+      completedByStartDate++;
+    }
+  }
+
+  const deleted = deleteIds.length
+    ? await arrDeleteRowsBatch(env, ARR_TABLE.EVENTS, deleteIds, 200)
+    : 0;
+
+  return {
+    area: areaKey,
+    areaName: arrGetAreaConfig(areaKey).name,
+    scanned: rows.length,
+    todayOslo,
+    completedByEndTime,
+    completedByStartDate,
+    invalidDateRows,
+    candidates: deleteIds.length,
+    deleted
+  };
+}
+
+
+function arrCellValue(v) {
+  if (v == null) return "";
+  if (typeof v === "object" && !Array.isArray(v)) return v.value ?? v.name ?? "";
+  return v;
+}
+
+function arrLinkedIds(v) {
+  if (!Array.isArray(v)) return [];
+  return v.map(x => typeof x === "number" ? x : x?.id).filter(Number.isFinite);
+}
+
+function arrLinkedNames(v) {
+  if (!Array.isArray(v)) return [];
+  return v.map(x => typeof x === "string" ? x : x?.value ?? x?.name).filter(Boolean);
+}
+
+function arrSortedLinkedIds(v) {
+  return [...new Set(arrLinkedIds(v).map(Number).filter(Number.isFinite))]
+    .sort((a,b) => a-b);
+}
+
+function arrSameIds(a,b) {
+  const aa = [...new Set((a || []).map(Number).filter(Number.isFinite))].sort((x,y)=>x-y);
+  const bb = [...new Set((b || []).map(Number).filter(Number.isFinite))].sort((x,y)=>x-y);
+  return aa.length === bb.length && aa.every((v,i) => v === bb[i]);
+}
+
+function arrRecordSandnesWriteVerification(result, requestItem, responseRow) {
+  const diag = result?.diagnostics?.linkWriteVerification;
+  if (!diag || diag.checked >= 24 || !requestItem || !responseRow) return;
+
+  const requestedSettlementIds =
+    Array.isArray(requestItem[ARR_F.events.settlement])
+      ? requestItem[ARR_F.events.settlement].map(Number).filter(Number.isFinite)
+      : [];
+
+  const requestedMeetingTypeIds =
+    Array.isArray(requestItem[ARR_F.events.meetingType])
+      ? requestItem[ARR_F.events.meetingType].map(Number).filter(Number.isFinite)
+      : [];
+
+  const actualSettlementIds =
+    arrSortedLinkedIds(responseRow[ARR_F.events.settlement]);
+
+  const actualMeetingTypeIds =
+    arrSortedLinkedIds(responseRow[ARR_F.events.meetingType]);
+
+  const settlementMatch =
+    arrSameIds(requestedSettlementIds, actualSettlementIds);
+
+  const meetingTypeMatch =
+    arrSameIds(requestedMeetingTypeIds, actualMeetingTypeIds);
+
+  diag.checked++;
+  if (settlementMatch) diag.settlementMatches++;
+  else diag.settlementMismatches++;
+
+  if (meetingTypeMatch) diag.meetingTypeMatches++;
+  else diag.meetingTypeMismatches++;
+
+  diag.samples.push({
+    rowId: Number(responseRow.id || requestItem.id || 0),
+    title: String(
+      responseRow[ARR_F.events.title] ??
+      requestItem[ARR_F.events.title] ??
+      ""
+    ),
+    requestedSettlementIds,
+    actualSettlementIds,
+    requestedMeetingTypeIds,
+    actualMeetingTypeIds,
+    rawSettlementReturned:
+      responseRow[ARR_F.events.settlement] ?? null,
+    rawMeetingTypeReturned:
+      responseRow[ARR_F.events.meetingType] ?? null,
+    returnedKeys: Object.keys(responseRow).filter(
+      key =>
+        key === ARR_F.events.settlement ||
+        key === ARR_F.events.meetingType ||
+        /10252565|10252555|settlement|meeting/i.test(key)
+    )
+  });
+}
+
+
+async function arrPurgeOldEventPage(env) {
+  const cutoffDate = new Date(Date.now() - 7 * 86400000);
+  // date_before works reliably with a date value in Baserow.
+  const cutoff = cutoffDate.toISOString().slice(0,10);
+
+  const found = await arrListRowsDateBefore(
+    env,
+    ARR_TABLE.EVENTS,
+    ARR_F.events.startTime,
+    cutoff,
+    200
+  );
+
+  const ids = found.rows.map(r => r.id);
+  const deleted = ids.length
+    ? await arrDeleteRowsBatch(env, ARR_TABLE.EVENTS, ids)
+    : 0;
+
+  return {
+    cutoff,
+    remainingBeforeDelete:found.count,
+    matched:ids.length,
+    deleted
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+function arrResolveHaaFellesraadOrganizer(title, organizer) {
+  const current = arrClean(organizer || "");
+  const normalizedCurrent = arrNormalize(current);
+
+  // V429: "Nærbø gamle sokn" finnes ikke som eget sokn.
+  // Alle slike arrangørverdier skal normaliseres til Nærbø sokn.
+  if (normalizedCurrent === arrNormalize("Nærbø gamle sokn")) {
+    return "Nærbø sokn";
+  }
+
+  if (normalizedCurrent !== arrNormalize("Hå Kyrkjelege Fellesråd")) {
+    return current;
+  }
+
+  const normalizedTitle = arrNormalize(title || "");
+
+  // V325: Hå Kyrkjelege Fellesråd skal aldri være slutt-arrangør.
+  // Eksakte Title-regler fra Baserow-oppryddingen:
+  // Samleregel: alle titler som inneholder "speider" skal til Varhaug sokn.
+  // Sammenligningen er case-insensitiv fordi normalizedTitle er normalisert.
+  if (normalizedTitle.includes("speider")) {
+    return "Varhaug sokn";
+  }
+
+  const titleRules = [
+    ["Klang av jul med Valen Vokalensemble & SSO", "Nærbø sokn"],
+    ["Kyrkjelydsfest", "Varhaug sokn"],
+    ["Med Jesus på jobb - lokalt og globalt", "Varhaug sokn"],
+    ["Pilegrimsvandring Holmane - Ogna", "Ogna sokn"],
+    ["Spød&Drøs", "Varhaug sokn"],
+    ["Temakveld: Synd – Verdens minst populære og mest frigjørende ide", "Ogna sokn"],
+  ];
+
+  for (const [ruleTitle, targetOrganizer] of titleRules) {
+    if (normalizedTitle === arrNormalize(ruleTitle)) {
+      return targetOrganizer;
+    }
+  }
+
+  // Avtalt fallback: alle andre Hå Kyrkjelege Fellesråd-arrangement
+  // flyttes til Varhaug sokn.
+  return "Varhaug sokn";
+}
+
+
+function arrSelectText(value) {
+  if (value == null) return "";
+  if (typeof value === "string") return arrClean(value);
+  if (typeof value === "object") return arrClean(value.value ?? value.name ?? "");
+  return arrClean(String(value));
+}
+
+function arrRuleCsvValues(value) {
+  return String(value ?? "")
+    .split(",")
+    .map(v => arrClean(v))
+    .filter(Boolean);
+}
+
+
+function arrOrganizationIds(value) {
+  return [...new Set(
+    String(value || "")
+      .split(/[;,]/)
+      .map(v => arrClean(v).toUpperCase())
+      .filter(v => /^ORG-\d{4,}$/.test(v))
+  )];
+}
+
+function arrOrganizationIdsMatch(actualValue, expectedValue) {
+  const rawExpected = arrClean(expectedValue || "").toUpperCase();
+  const actualIds = arrOrganizationIds(actualValue);
+
+  if (rawExpected === "NONE" || rawExpected === "EMPTY") {
+    return actualIds.length === 0;
+  }
+
+  const expected = arrOrganizationIds(expectedValue);
+  if (!expected.length) return true;
+  const actual = new Set(actualIds);
+  return expected.some(id => actual.has(id));
+}
+
+function arrApplyOrganizationIds(currentValue, addValue, removeValue, replace) {
+  let ids = replace ? [] : arrOrganizationIds(currentValue);
+  ids.push(...arrOrganizationIds(addValue));
+  const remove = new Set(arrOrganizationIds(removeValue));
+  return [...new Set(ids)].filter(id => !remove.has(id));
+}
+
+function arrRuleMatchValue(actual, expected, matchType) {
+  const wanted = arrNormalize(expected || "");
+  if (!wanted) return true;
+
+  const text = arrNormalize(actual || "");
+  const type = arrNormalize(arrSelectText(matchType) || "Exact");
+
+  if (type === "contains") return text.includes(wanted);
+  if (type === "starts with") return text.startsWith(wanted);
+  return text === wanted;
+}
+
+function arrRuleDateOnly(value) {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().slice(0,10);
+}
+
+function arrRuleAppliesToEvent(rule, item, source) {
+  if (rule[ARR_EVENT_RULES_F.active] === false) return false;
+
+  const eventDate = arrRuleDateOnly(item.startTime);
+  const validFrom = arrRuleDateOnly(rule[ARR_EVENT_RULES_F.validFrom]);
+  const validUntil = arrRuleDateOnly(rule[ARR_EVENT_RULES_F.validUntil]);
+
+  if (eventDate && validFrom && eventDate < validFrom) return false;
+  if (eventDate && validUntil && eventDate > validUntil) return false;
+
+  const sourceId = arrClean(source?.[ARR_F.sources.sourceId] || "");
+  const sourceName = arrClean(source?.[ARR_F.sources.name] || "");
+  const sourceOrganizationIds = source?.[ARR_F.sources.organizationIds] || "";
+  const eventOrganizationIds = item.organizationIds || "";
+  const organizer = arrClean(item.organizer || sourceName);
+  const title = arrClean(item.title || "");
+  const description = arrClean(item.description || "");
+  const location = arrClean(item.location || "");
+
+  if (!arrRuleMatchValue(
+    sourceId,
+    rule[ARR_EVENT_RULES_F.sourceIdMatch],
+    "Exact"
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    sourceName,
+    rule[ARR_EVENT_RULES_F.sourceNameMatch],
+    rule[ARR_EVENT_RULES_F.sourceNameMatchType]
+  )) return false;
+
+  if (!arrOrganizationIdsMatch(
+    eventOrganizationIds,
+    rule[ARR_EVENT_RULES_F.organizationMatch]
+  )) return false;
+
+  if (!arrOrganizationIdsMatch(
+    sourceOrganizationIds,
+    rule[ARR_EVENT_RULES_F.sourceOrganizationMatch]
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    organizer,
+    rule[ARR_EVENT_RULES_F.organizerMatch],
+    rule[ARR_EVENT_RULES_F.organizerMatchType]
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    title,
+    rule[ARR_EVENT_RULES_F.titleMatch],
+    rule[ARR_EVENT_RULES_F.titleMatchType]
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    description,
+    rule[ARR_EVENT_RULES_F.descriptionMatch],
+    rule[ARR_EVENT_RULES_F.descriptionMatchType]
+  )) return false;
+
+  if (!arrRuleMatchValue(
+    location,
+    rule[ARR_EVENT_RULES_F.locationMatch],
+    rule[ARR_EVENT_RULES_F.locationMatchType]
+  )) return false;
+
+  return true;
+}
+
+async function arrLoadEventRules(env) {
+  if (ARR_EVENT_RULE_ROWS_CACHE) return ARR_EVENT_RULE_ROWS_CACHE;
+
+  const token =
+    env.ARRANGEMENT_BASEROW_TOKEN_DEFAULT ||
+    env.ARRANGEMENT_BASEROW_TOKEN;
+
+  if (!token) {
+    throw new Error("Event Rules: default Baserow-token mangler.");
+  }
+
+  const centralEnv = {
+    ...env,
+    ARRANGEMENT_BASEROW_TOKEN: token
+  };
+
+  const rows = await arrListAllRows(centralEnv, ARR_EVENT_RULES_TABLE);
+
+  ARR_EVENT_RULE_ROWS_CACHE = rows
+    .filter(row => row[ARR_EVENT_RULES_F.active] !== false)
+    .sort((a,b) =>
+      Number(a[ARR_EVENT_RULES_F.priority] || 100) -
+      Number(b[ARR_EVENT_RULES_F.priority] || 100) ||
+      String(a[ARR_EVENT_RULES_F.ruleId] || "").localeCompare(
+        String(b[ARR_EVENT_RULES_F.ruleId] || ""),
+        "nb"
+      )
+    );
+
+  return ARR_EVENT_RULE_ROWS_CACHE;
+}
+
+
+async function arrLoadOrganizations(env) {
+  if (ARR_ORGANIZATION_ROWS_CACHE) return ARR_ORGANIZATION_ROWS_CACHE;
+
+  const token =
+    env.ARRANGEMENT_BASEROW_TOKEN_DEFAULT ||
+    env.ARRANGEMENT_BASEROW_TOKEN;
+
+  if (!token) throw new Error("Organizations: default Baserow-token mangler.");
+
+  const centralEnv = {...env, ARRANGEMENT_BASEROW_TOKEN: token};
+  const rows = await arrListAllRows(centralEnv, ARR_ORGANIZATIONS_TABLE);
+
+  ARR_ORGANIZATION_ROWS_CACHE = rows
+    .filter(row => row[ARR_ORGANIZATIONS_F.active] !== false)
+    .map(row => ({
+      id: arrClean(row[ARR_ORGANIZATIONS_F.organizationId] || "").toUpperCase(),
+      name: arrClean(row[ARR_ORGANIZATIONS_F.name] || ""),
+      aliases: arrClean(row[ARR_ORGANIZATIONS_F.aliases] || "")
+    }))
+    .filter(row => row.id);
+
+  return ARR_ORGANIZATION_ROWS_CACHE;
+}
+
+function arrValidateOrganizationIds(ids, organizations, context="Event Rules") {
+  const known = new Set((organizations || []).map(row => row.id));
+  const unknown = arrOrganizationIds(ids).filter(id => !known.has(id));
+  if (unknown.length) {
+    throw new Error(`${context}: ukjent Organization ID [${unknown.join(", ")}].`);
+  }
+}
+
+function arrOrganizationAliasValues(value) {
+  return String(value || "")
+    .split(/[;\n]/)
+    .map(v => arrClean(v))
+    .filter(Boolean);
+}
+
+function arrEscapeRegExp(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function arrDescriptionMatchesOrganizationAlias(description, alias) {
+  const text = arrClean(description || "");
+  const wanted = arrClean(alias || "");
+  if (!text || !wanted) return false;
+
+  // To-tegns forkortelser blir for tvetydige til automatisk klassifisering.
+  if (wanted.length < 3) return false;
+
+  // Korte forkortelser som NLM/NMS/NLL/IMF/NOR skal bare treffe som eget ord.
+  if (wanted.length <= 4 && !/\s/.test(wanted)) {
+    const escaped = arrEscapeRegExp(wanted);
+    return new RegExp(
+      `(^|[^\\p{L}\\p{N}])${escaped}([^\\p{L}\\p{N}]|$)`,
+      "iu"
+    ).test(text);
+  }
+
+  return arrNormalize(text).includes(arrNormalize(wanted));
+}
+
+function arrOrganizationIdsFromAliases(title, description, organizations) {
+  const ids = [];
+
+  for (const organization of organizations || []) {
+    const organizationId = arrClean(organization?.id || "").toUpperCase();
+    if (!organizationId) continue;
+
+    const aliases = arrOrganizationAliasValues(organization?.aliases || "");
+    if (!aliases.length) continue;
+
+    if (aliases.some(alias =>
+      arrDescriptionMatchesOrganizationAlias(title, alias) ||
+      arrDescriptionMatchesOrganizationAlias(description, alias)
+    )) {
+      ids.push(organizationId);
+    }
+  }
+
+  return [...new Set(ids)];
+}
+
+function arrFindMeetingTypeRuleStrict(rules, name) {
+  const wanted = arrClean(name || "");
+  if (!wanted) return null;
+  return rules.find(rule => arrClean(rule.name) === wanted) || null;
+}
+
+function arrApplyEventRules(item, source, eventRules, typeRules, organizations) {
+  const working = {...item};
+  working.organizationIds = arrOrganizationIds(working.organizationIds).join("; ");
+
+  const aliasOrganizationIds = arrOrganizationIdsFromAliases(
+    working.title,
+    working.description,
+    organizations
+  );
+  if (aliasOrganizationIds.length) {
+    working.organizationIds = arrApplyOrganizationIds(
+      working.organizationIds,
+      aliasOrganizationIds.join("; "),
+      "",
+      false
+    ).join("; ");
+  }
+
+  const appliedRuleIds = [];
+  let replaceMeetingTypes = false;
+  let addMeetingTypeNames = [];
+  let removeMeetingTypeNames = [];
+  let settlementOverride = "";
+
+  for (const rule of eventRules) {
+    if (!arrRuleAppliesToEvent(rule, working, source)) continue;
+
+    const ruleId = arrClean(rule[ARR_EVENT_RULES_F.ruleId] || `row-${rule.id}`);
+    appliedRuleIds.push(ruleId);
+
+    const adds = arrRuleCsvValues(rule[ARR_EVENT_RULES_F.addMeetingTypes]);
+    const removes = arrRuleCsvValues(rule[ARR_EVENT_RULES_F.removeMeetingTypes]);
+
+    if (rule[ARR_EVENT_RULES_F.replaceMeetingTypes] === true) {
+      replaceMeetingTypes = true;
+      addMeetingTypeNames = [];
+      removeMeetingTypeNames = [];
+    }
+
+    addMeetingTypeNames.push(...adds);
+    removeMeetingTypeNames.push(...removes);
+
+    const addOrganizationIds = rule[ARR_EVENT_RULES_F.addOrganizations] || "";
+    const removeOrganizationIds = rule[ARR_EVENT_RULES_F.removeOrganizations] || "";
+    arrValidateOrganizationIds(addOrganizationIds, organizations, `Event Rules ${ruleId}`);
+    arrValidateOrganizationIds(removeOrganizationIds, organizations, `Event Rules ${ruleId}`);
+    working.organizationIds = arrApplyOrganizationIds(
+      working.organizationIds,
+      addOrganizationIds,
+      removeOrganizationIds,
+      rule[ARR_EVENT_RULES_F.replaceOrganizations] === true
+    ).join("; ");
+
+    const descriptionOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.descriptionOverride] || ""
+    );
+    if (descriptionOverride) working.description = descriptionOverride;
+
+    const descriptionAppend = arrClean(
+      rule[ARR_EVENT_RULES_F.descriptionAppend] || ""
+    );
+    if (descriptionAppend) {
+      const existing = arrClean(working.description || "");
+      if (!arrNormalize(existing).includes(arrNormalize(descriptionAppend))) {
+        working.description = existing
+          ? `${existing}\n\n${descriptionAppend}`
+          : descriptionAppend;
+      }
+    }
+
+    const sourceUrlOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.sourceUrlOverride] || ""
+    );
+    if (sourceUrlOverride) working.sourceUrl = sourceUrlOverride;
+
+    const organizerOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.organizerOverride] || ""
+    );
+    if (organizerOverride) working.organizer = organizerOverride;
+
+    const locationOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.locationOverride] || ""
+    );
+    if (locationOverride) working.location = locationOverride;
+
+    const titleOverride = arrClean(
+      rule[ARR_EVENT_RULES_F.titleOverride] || ""
+    );
+    if (titleOverride) working.title = titleOverride;
+
+    const settlement = arrClean(
+      rule[ARR_EVENT_RULES_F.settlementOverride] || ""
+    );
+    if (settlement) settlementOverride = settlement;
+
+    if (rule[ARR_EVENT_RULES_F.stopProcessing] === true) break;
+  }
+
+  // Validate only rules that actually matched this event.
+  const unknownMeetingTypes = [...new Set(
+    [...addMeetingTypeNames, ...removeMeetingTypeNames].filter(
+      name => !arrFindMeetingTypeRuleStrict(typeRules, name)
+    )
+  )];
+
+  if (unknownMeetingTypes.length) {
+    throw new Error(
+      `Event Rules: ukjent Meeting Type [${unknownMeetingTypes.join(", ")}] ` +
+      `for regel/regler ${appliedRuleIds.join(", ")}. ` +
+      `Navn må stemme nøyaktig med Meeting Types.Name i ${ARR_CURRENT_AREA}.`
+    );
+  }
+
+  return {
+    item: working,
+    appliedRuleIds,
+    replaceMeetingTypes,
+    addMeetingTypeNames: [...new Set(addMeetingTypeNames)],
+    removeMeetingTypeNames: [...new Set(removeMeetingTypeNames)],
+    settlementOverride
+  };
+}
+
+function arrApplyRuleMeetingTypes(baseIds, ruleResult, typeRules) {
+  let ids = ruleResult.replaceMeetingTypes ? [] : [...(baseIds || [])];
+
+  for (const name of ruleResult.addMeetingTypeNames) {
+    const target = arrFindMeetingTypeRuleStrict(typeRules, name);
+    if (target) ids.push(Number(target.rowId));
+  }
+
+  const removeIds = new Set();
+  for (const name of ruleResult.removeMeetingTypeNames) {
+    const target = arrFindMeetingTypeRuleStrict(typeRules, name);
+    if (target) removeIds.add(Number(target.rowId));
+  }
+
+  ids = ids
+    .map(Number)
+    .filter(Number.isFinite)
+    .filter(id => !removeIds.has(id));
+
+  ids = [...new Set(ids)];
+
+  // "Annet" er kun fallback. Så snart arrangementet har minst én
+  // konkret Meeting Type skal "Annet" fjernes.
+  if (ids.length > 1) {
+    const annetRule = typeRules.find(
+      rule => arrNormalize(rule.name) === "annet"
+    );
+    if (annetRule) {
+      const annetId = Number(annetRule.rowId);
+      ids = ids.filter(id => id !== annetId);
+    }
+  }
+
+  // V455: "Møte" er en ren fallback-kategori.
+  const moteRule = typeRules.find(
+    rule => arrNormalize(rule.name) === "møte"
+  );
+  if (moteRule) {
+    const moteId = Number(moteRule.rowId);
+    if (ids.includes(moteId)) {
+      const specificIds = ids.filter(id => id !== moteId);
+      if (specificIds.length) {
+        ids = ids.filter(id => id !== moteId);
+      }
+    }
+  }
+
+  return ids;
+}
+
+
+function arrApplyOrganizationRulesOnly(item, source, eventRules, organizations) {
+  const working = {...item};
+  working.organizationIds = arrOrganizationIds(working.organizationIds).join("; ");
+  const appliedRuleIds = [];
+
+  const aliasOrganizationIds = arrOrganizationIdsFromAliases(
+    working.title,
+    working.description,
+    organizations
+  );
+
+  if (aliasOrganizationIds.length) {
+    working.organizationIds = arrApplyOrganizationIds(
+      working.organizationIds,
+      aliasOrganizationIds.join("; "),
+      "",
+      false
+    ).join("; ");
+  }
+
+  for (const rule of eventRules) {
+    if (!arrRuleAppliesToEvent(rule, working, source)) continue;
+
+    const addOrganizationIds = rule[ARR_EVENT_RULES_F.addOrganizations] || "";
+    const removeOrganizationIds = rule[ARR_EVENT_RULES_F.removeOrganizations] || "";
+    const replaceOrganizations = rule[ARR_EVENT_RULES_F.replaceOrganizations] === true;
+
+    if (
+      !arrOrganizationIds(addOrganizationIds).length &&
+      !arrOrganizationIds(removeOrganizationIds).length &&
+      !replaceOrganizations
+    ) {
+      continue;
+    }
+
+    const ruleId = arrClean(rule[ARR_EVENT_RULES_F.ruleId] || `row-${rule.id}`);
+    arrValidateOrganizationIds(addOrganizationIds, organizations, `Event Rules ${ruleId}`);
+    arrValidateOrganizationIds(removeOrganizationIds, organizations, `Event Rules ${ruleId}`);
+
+    working.organizationIds = arrApplyOrganizationIds(
+      working.organizationIds,
+      addOrganizationIds,
+      removeOrganizationIds,
+      replaceOrganizations
+    ).join("; ");
+
+    appliedRuleIds.push(ruleId);
+
+    if (rule[ARR_EVENT_RULES_F.stopProcessing] === true) break;
+  }
+
+  return {
+    organizationIds: arrOrganizationIds(working.organizationIds).join("; "),
+    appliedRuleIds,
+    aliasOrganizationIds
+  };
+}
+
+async function arrBackfillEventOrganizationIds(env, eventRules, organizations) {
+  const [events, sources] = await Promise.all([
+    arrListAllRows(env, ARR_TABLE.EVENTS),
+    arrListAllRows(env, ARR_TABLE.SOURCES),
+  ]);
+
+  const sourcesByName = new Map();
+  const sourcesById = new Map();
+
+  for (const source of sources) {
+    const name = arrClean(source[ARR_F.sources.name] || "");
+    const id = arrClean(source[ARR_F.sources.sourceId] || "");
+    if (name) sourcesByName.set(arrNormalize(name), source);
+    if (id) sourcesById.set(arrNormalize(id), source);
+  }
+
+  const updates = [];
+  const matchedRuleIds = [];
+  let matchedEvents = 0;
+  let aliasMatchedEvents = 0;
+
+  for (const row of events) {
+    const sourceText = arrClean(row[ARR_F.events.source] || "");
+    const source =
+      sourcesByName.get(arrNormalize(sourceText)) ||
+      sourcesById.get(arrNormalize(sourceText)) ||
+      {
+        [ARR_F.sources.name]: sourceText,
+        [ARR_F.sources.sourceId]: "",
+        [ARR_F.sources.organizationIds]: ""
+      };
+
+    const item = {
+      title: row[ARR_F.events.title] || "",
+      startTime: row[ARR_F.events.startTime] || "",
+      organizer: row[ARR_F.events.organizer] || "",
+      description: row[ARR_F.events.description] || "",
+      location: row[ARR_F.events.location] || "",
+      organizationIds: row[ARR_F.events.organizationIds] || "",
+    };
+
+    const applied = arrApplyOrganizationRulesOnly(
+      item,
+      source,
+      eventRules,
+      organizations
+    );
+
+    if (applied.appliedRuleIds.length) {
+      matchedEvents++;
+      matchedRuleIds.push(...applied.appliedRuleIds);
+    }
+    if (Array.isArray(applied.aliasOrganizationIds) && applied.aliasOrganizationIds.length) {
+      aliasMatchedEvents++;
+    }
+
+    const before = arrOrganizationIds(row[ARR_F.events.organizationIds] || "").join("; ");
+    const after = applied.organizationIds;
+
+    if (before !== after) {
+      updates.push({
+        id: row.id,
+        [ARR_F.events.organizationIds]: after
+      });
+    }
+  }
+
+  if (updates.length) {
+    await arrUpdateRowsBatch(env, ARR_TABLE.EVENTS, updates);
+  }
+
+  return {
+    scanned: events.length,
+    matchedEvents,
+    aliasMatchedEvents,
+    updated: updates.length,
+    matchedRuleIds: [...new Set(matchedRuleIds)]
+  };
+}
+
+function arrResolveRuleSettlementOverride(
+  settlementName,
+  settlementRules,
+  allSettlementRules,
+  activeSettlementIds
+) {
+  const wanted = arrNormalize(settlementName || "");
+  if (!wanted) return undefined;
+
+  const rule = allSettlementRules.find(r => r.normalized === wanted);
+  if (!rule) {
+    throw new Error(
+      `Event Rules: ukjent Settlement "${settlementName}" i ${ARR_CURRENT_AREA}.`
+    );
+  }
+
+  const id = Number(rule.rowId);
+  if (activeSettlementIds && !activeSettlementIds.has(id)) return null;
+  return [id];
+}
+
+
+
+// V476: Ungdomslaget kjøres som egen generert supplement-kilde.
+// Dette er bevisst skilt fra Nærbø-nettsideparseren. En feil eller kildevern-feil
+// på narbobedehus.no skal aldri blokkere oppretting/oppdatering av den faste serien.
+async function arrImportGeneratedNarboUngdomslagetSupplement({
+  env,
+  areaKey,
+  activeSources,
+  meetingTypes,
+  settlements,
+  organizations
+}) {
+  if (areaKey !== "default") return null;
+
+  const sourceResult = {
+    sourceId:"GENERATED-NARBO-UNGDOMSLAGET",
+    name:"Ungdomslaget Nærbø (generert)",
+    created:0,
+    updated:0,
+    skipped:0,
+    error:null,
+    createdEvents:[]
+  };
+
+  try {
+    const narboSource = (Array.isArray(activeSources) ? activeSources : [])
+      .find(source => arrIsNarboBedehusSource(source));
+
+    if (!narboSource) {
+      throw new Error("Fant ikke aktiv Source for Nærbø Bedehus.");
+    }
+
+    const typeRules = arrBuildTypeRules(meetingTypes);
+    const settlementRules = arrBuildSettlementRules(settlements);
+    const allSettlementRules = arrBuildSettlementRules(settlements, true);
+    const activeSettlementIds = new Set(settlementRules.map(r => Number(r.rowId)));
+
+    const misjonssambandet = (Array.isArray(organizations) ? organizations : [])
+      .find(org => arrNormalize(org?.name || "") === arrNormalize("Misjonssambandet"));
+    const misjonssambandetId = arrClean(misjonssambandet?.id || "ORG-0004");
+
+    const generated = arrGenerateNarboUngdomslagetEvents();
+    const existingEvents = await arrListAllRows(env, ARR_TABLE.EVENTS);
+    const existingBySourceEventId = new Map();
+
+    for (const row of existingEvents) {
+      const key = arrClean(row[ARR_F.events.sourceEventId] || "");
+      if (key.startsWith("generated-ungdomslaget-naerbo-")) {
+        existingBySourceEventId.set(key,row);
+      }
+    }
+
+    const updateItems = [];
+    const createItems = [];
+    const nowIso = new Date().toISOString();
+    const seen = new Set();
+
+    for (const item of generated) {
+      const sourceEventId = arrClean(item.sourceEventId || "");
+      if (!sourceEventId) {
+        sourceResult.skipped++;
+        continue;
+      }
+      seen.add(sourceEventId);
+
+      const normalizedItem = {
+        ...item,
+        organizer:"Nærbø Bedehus",
+        location:"Nærbø bedehus",
+        settlementHint:"Nærbø",
+        municipalityHint:"Hå",
+        meetingTypeHint:"Ungdom",
+        organizationIds:misjonssambandetId ? [misjonssambandetId] : [],
+        description:"Nærbø Kristelige Ungdomslag (NKUL) har møte hver lørdag kl. 20.00.",
+        sourceUrl:"https://www.facebook.com/groups/ungdomslaget/?locale=nb_NO"
+      };
+
+      const settlementIds = arrResolveSettlementIds(
+        normalizedItem,
+        narboSource,
+        settlementRules,
+        allSettlementRules,
+        activeSettlementIds
+      );
+
+      if (!Array.isArray(settlementIds) || !settlementIds.length) {
+        sourceResult.skipped++;
+        continue;
+      }
+
+      const typeIds = arrClassifyMeetingTypes(normalizedItem,typeRules);
+
+      const payload = {
+        [ARR_F.events.title]:"Ungdomslaget",
+        [ARR_F.events.startTime]:arrIsoOrNull(normalizedItem.startTime),
+        [ARR_F.events.endTime]:arrIsoOrNull(normalizedItem.endTime),
+        [ARR_F.events.meetingType]:typeIds,
+        [ARR_F.events.organizer]:"Nærbø Bedehus",
+        [ARR_F.events.location]:"Nærbø bedehus",
+        [ARR_F.events.description]:normalizedItem.description,
+        [ARR_F.events.source]:arrClean(narboSource[ARR_F.sources.name] || "Nærbø Bedehus"),
+        [ARR_F.events.sourceUrl]:normalizedItem.sourceUrl,
+        [ARR_F.events.sourceEventId]:sourceEventId,
+        [ARR_F.events.lastSeen]:nowIso,
+        [ARR_F.events.active]:true,
+        [ARR_F.events.settlement]:settlementIds.slice(0,1),
+        [ARR_F.events.organizationIds]:misjonssambandetId || ""
+      };
+
+      const existing = existingBySourceEventId.get(sourceEventId);
+      if (existing) {
+        if (existing[ARR_F.events.manuallyEdited] === true) {
+          updateItems.push({
+            id:existing.id,
+            [ARR_F.events.lastSeen]:nowIso,
+            [ARR_F.events.active]:true
+          });
+        } else {
+          updateItems.push({id:existing.id,...payload});
+        }
+      } else {
+        payload[ARR_F.events.eventId] =
+          `EVT-${(await arrSha256(sourceEventId)).slice(0,12).toUpperCase()}`;
+        createItems.push(payload);
+      }
+    }
+
+    // Deaktiver kun gamle genererte Ungdomslaget-rader som ikke lenger hører
+    // til den aktuelle skoleårsserien. Andre Nærbø-arrangementer røres ikke.
+    for (const row of existingBySourceEventId.values()) {
+      if (row[ARR_F.events.manuallyEdited] === true) continue;
+      const sourceEventId = arrClean(row[ARR_F.events.sourceEventId] || "");
+      if (seen.has(sourceEventId)) continue;
+
+      const start = new Date(row[ARR_F.events.startTime] || "");
+      if (!Number.isNaN(start.getTime()) && start.getTime() >= Date.now() - 86400000) {
+        updateItems.push({
+          id:row.id,
+          [ARR_F.events.active]:false,
+          [ARR_F.events.lastSeen]:nowIso
+        });
+      }
+    }
+
+    const createdRows = await arrCreateRowsBatch(
+      env,
+      ARR_TABLE.EVENTS,
+      createItems
+    );
+
+    if (updateItems.length) {
+      await arrUpdateRowsBatch(env,ARR_TABLE.EVENTS,updateItems);
+    }
+
+    sourceResult.created = createItems.length;
+    sourceResult.updated = updateItems.length;
+    sourceResult.createdEvents = createdRows.map(row => ({
+      rowId:Number(row.id || 0),
+      eventId:arrClean(row[ARR_F.events.eventId] || ""),
+      title:arrClean(row[ARR_F.events.title] || ""),
+      startTime:arrClean(row[ARR_F.events.startTime] || ""),
+      endTime:arrClean(row[ARR_F.events.endTime] || ""),
+      organizer:arrClean(row[ARR_F.events.organizer] || ""),
+      location:arrClean(row[ARR_F.events.location] || ""),
+      source:arrClean(row[ARR_F.events.source] || ""),
+      sourceEventId:arrClean(row[ARR_F.events.sourceEventId] || ""),
+      active:row[ARR_F.events.active] !== false
+    }));
+
+    return sourceResult;
+  } catch (err) {
+    sourceResult.error = String(err?.message || err);
+    return sourceResult;
+  }
+}
+
+// V473: Supplerende NLM-kilde for offentlig møteoversikt i region sørvest.
+// Power BI-queryen er filtrert til Område=Sør-Jæren og Region=Sørvest.
+// Vi importerer bare møter på steder som allerede finnes blant aktive lokale
+// Sources / deres eksisterende Events i det aktuelle området.
+//
+// Kilden kjøres som supplement etter de ordinære lokale kildene. Lokale
+// kalendere har prioritet: hvis samme sted/dato/tid allerede finnes lokalt,
+// opprettes ingen NLM-rad.
+const ARR_NLM_SOUTH_JAEREN_SOURCE_NAME = "NLM region sørvest";
+const ARR_NLM_SOUTH_JAEREN_SOURCE_ID = "NLM-SOR-JAEREN";
+const ARR_NLM_SOUTH_JAEREN_REPORT_URL =
+  "https://app.powerbi.com/view?r=eyJrIjoiY2M0ZmYzMDQtMjI3OS00OGRlLTg3ZGItMmE2YjFmYmQxMjIzIiwidCI6IjIzYmJhZjYyLTdiMTItNDk4Yi1hYzA0LTU2YWYxYzU0YThmNCIsImMiOjh9";
+const ARR_NLM_SOUTH_JAEREN_QUERY_URL =
+  "https://wabi-north-europe-j-primary-api.analysis.windows.net/public/reports/querydata?synchronous=true";
+const ARR_NLM_SOUTH_JAEREN_RESOURCE_KEY =
+  "cc4ff304-2279-48de-87db-2a6b1fbd1223";
+
+let ARR_NLM_SOUTH_JAEREN_CACHE = null;
+
+function arrNlmPowerBiPayload() {
+  const command = {
+    SemanticQueryDataShapeCommand: {
+      Query: {
+        Version: 2,
+        From: [{Name:"r",Entity:"Reiserute",Type:0}],
+        Select: [
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Møtested"},Name:"Reiserute.MØTESTED-BEDEHUS"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Arrangement"},Name:"Reiserute.ARRANGEMENT"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Dato"},Name:"Reiserute.Dato"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"kl"},Name:"Reiserute.Kl"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Til dato"},Name:"Reiserute.Til dato"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Talere"},Name:"Reiserute.Talere"},
+          {Column:{Expression:{SourceRef:{Source:"r"}},Property:"Info om møtet"},Name:"Reiserute.Info om møtet"}
+        ],
+        Where: [
+          {Condition:{In:{Expressions:[{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Område"}}],Values:[[{Literal:{Value:"'Sør-Jæren'"}}]]}}},
+          {Condition:{In:{Expressions:[{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Region"}}],Values:[[{Literal:{Value:"'Sørvest'"}}]]}}},
+          {Condition:{Not:{Expression:{StartsWith:{Left:{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Møtested"}},Right:{Literal:{Value:"'Region '"}}}}}}},
+          {Condition:{In:{Expressions:[{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Offentlig"}}],Values:[[{Literal:{Value:"'Offentlig'"}}]]}}},
+          {Condition:{In:{Expressions:[{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Progresjon"}}],Values:[[{Literal:{Value:"'Offentlig'"}}],[{Literal:{Value:"'Ordner selv'"}}]]}}},
+          {Condition:{Not:{Expression:{Comparison:{ComparisonKind:0,Left:{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Arrangement"}},Right:{Literal:{Value:"'Disponibel'"}}}}}}}
+        ],
+        OrderBy: [
+          {Direction:1,Expression:{Column:{Expression:{SourceRef:{Source:"r"}},Property:"Dato"}}}
+        ]
+      },
+      Binding: {
+        Primary:{Groupings:[{Projections:[0,1,2,3,4,5,6],Subtotal:1}]},
+        DataReduction:{DataVolume:3,Primary:{Window:{Count:500}}},
+        Version:1
+      },
+      ExecutionMetricsKind:1
+    }
+  };
+
+  return {
+    version:"1.0.0",
+    queries:[{
+      Query:{Commands:[command]},
+      CacheKey:JSON.stringify({Commands:[command]}),
+      QueryId:"",
+      ApplicationContext:{
+        DatasetId:"de933937-9588-4fd8-8f7d-a4bfa12a6db9",
+        Sources:[{
+          ReportId:"d08fd9b1-fb1f-45d5-bdff-5475084b56e6",
+          VisualId:"a55abdcab5c65c27eed4"
+        }]
+      }
+    }],
+    cancelQueries:[],
+    modelId:229242
+  };
+}
+
+function arrDecodePowerBiRows(responseJson) {
+  const data = responseJson?.results?.[0]?.result?.data;
+  const ds = data?.dsr?.DS?.[0];
+  if (!ds) throw new Error("NLM Power BI: response mangler dsr.DS[0]");
+
+  const valueDicts = ds.ValueDicts || {};
+  const rawRows = (Array.isArray(ds.PH) ? ds.PH : [])
+    .flatMap(ph => Array.isArray(ph?.DM0) ? ph.DM0 : []);
+
+  if (!rawRows.length) return [];
+
+  let columnDefs = null;
+  let prev = [];
+  const decoded = [];
+
+  for (const row of rawRows) {
+    if (Array.isArray(row?.S) && row.S.length) {
+      columnDefs = row.S;
+      prev = Array(columnDefs.length).fill(null);
+    }
+
+    const n = columnDefs?.length || 7;
+    if (prev.length !== n) prev = Array(n).fill(null);
+
+    const current = Array(n).fill(null);
+    const values = Array.isArray(row?.C) ? row.C : [];
+    const copyMask = Number(row?.R || 0);
+    const nullMask = Number(row?.["Ø"] || 0);
+    let valueIndex = 0;
+
+    for (let i=0; i<n; i++) {
+      const bit = 2 ** i;
+
+      if (copyMask & bit) {
+        current[i] = prev[i];
+      } else if (nullMask & bit) {
+        current[i] = null;
+      } else if (valueIndex < values.length) {
+        let value = values[valueIndex++];
+        const dictName = columnDefs?.[i]?.DN;
+        const dict = dictName ? valueDicts?.[dictName] : null;
+
+        if (
+          Array.isArray(dict) &&
+          Number.isInteger(value) &&
+          value >= 0 &&
+          value < dict.length
+        ) {
+          value = dict[value];
+        }
+
+        current[i] = value;
+      }
+
+      prev[i] = current[i];
+    }
+
+    decoded.push(current);
+  }
+
+  return decoded;
+}
+
+async function arrFetchNlmSouthJaerenRows() {
+  if (ARR_NLM_SOUTH_JAEREN_CACHE) return ARR_NLM_SOUTH_JAEREN_CACHE;
+
+  const payload = arrNlmPowerBiPayload();
+  let lastError = null;
+
+  for (let attempt=1; attempt<=3; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
+      let response;
+      try {
+        response = await fetch(ARR_NLM_SOUTH_JAEREN_QUERY_URL, {
+          method:"POST",
+          headers:{
+            "Accept":"application/json, text/plain, */*",
+            "Content-Type":"application/json;charset=UTF-8",
+            "Origin":"https://app.powerbi.com",
+            "Referer":"https://app.powerbi.com/",
+            "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/153.0.0.0 Safari/537.36",
+            "X-PowerBI-ResourceKey":ARR_NLM_SOUTH_JAEREN_RESOURCE_KEY
+          },
+          body:JSON.stringify(payload),
+          signal:controller.signal
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText || ""}`.trim());
+      }
+
+      const json = await response.json();
+      const rows = arrDecodePowerBiRows(json);
+
+      // Queryen bruker Window.Count=500. Ikke publiser et lydløst avkortet datasett.
+      if (rows.length >= 500) {
+        throw new Error(
+          "NLM Power BI returnerte 500 rader. Resultatet kan være avkortet; import stoppes."
+        );
+      }
+
+      if (!rows.length) {
+        throw new Error("NLM Power BI returnerte ingen møter for Sør-Jæren.");
+      }
+
+      ARR_NLM_SOUTH_JAEREN_CACHE = rows;
+      return rows;
+    } catch (err) {
+      lastError = err;
+      if (attempt < 3) {
+        await new Promise(resolve => setTimeout(resolve, attempt * 1500));
+      }
+    }
+  }
+
+  throw new Error(
+    `NLM Power BI kunne ikke hentes etter 3 forsøk: ${lastError?.message || lastError}`
+  );
+}
+
+function arrNlmVenueNorm(value) {
+  return arrNormalize(value || "")
+    .replace(/[(),.;:/\\]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function arrNlmVenueScore(wanted, alias) {
+  const a = arrNlmVenueNorm(wanted);
+  const b = arrNlmVenueNorm(alias);
+  if (!a || !b || Math.min(a.length,b.length) < 5) return 0;
+  if (a === b) return 10000 + a.length;
+
+  if (a.startsWith(b + " ") || b.startsWith(a + " ")) {
+    return 8000 + Math.min(a.length,b.length);
+  }
+
+  if (a.includes(" " + b + " ") || b.includes(" " + a + " ")) {
+    return 7000 + Math.min(a.length,b.length);
+  }
+
+  const at = new Set(a.split(" ").filter(x => x.length >= 3));
+  const bt = new Set(b.split(" ").filter(x => x.length >= 3));
+  const intersection = [...at].filter(x => bt.has(x)).length;
+  const union = new Set([...at,...bt]).size;
+  const ratio = union ? intersection / union : 0;
+
+  return intersection >= 2 && ratio >= 0.72
+    ? 5000 + Math.round(ratio * 1000)
+    : 0;
+}
+
+function arrBuildNlmVenueTargets(activeSources, existingEvents) {
+  const sourceTargets = [];
+  const sourceByNorm = new Map();
+
+  for (const source of activeSources) {
+    const name = arrClean(source[ARR_F.sources.name] || "");
+    const id = arrClean(source[ARR_F.sources.sourceId] || "");
+    const target = {source,name,id,aliases:new Set()};
+
+    if (name) {
+      target.aliases.add(name);
+      sourceByNorm.set(arrNormalize(name), target);
+    }
+    if (id) sourceByNorm.set(arrNormalize(id), target);
+    sourceTargets.push(target);
+  }
+
+  for (const event of existingEvents) {
+    if (event[ARR_F.events.active] === false) continue;
+
+    const sourceValue = arrNormalize(event[ARR_F.events.source] || "");
+    const target = sourceByNorm.get(sourceValue);
+    if (!target) continue;
+
+    const organizer = arrClean(event[ARR_F.events.organizer] || "");
+    const location = arrClean(event[ARR_F.events.location] || "");
+    if (organizer) target.aliases.add(organizer);
+    if (location) target.aliases.add(location);
+  }
+
+  return sourceTargets;
+}
+
+function arrMatchNlmVenueTarget(venue, targets) {
+  let best = null;
+
+  for (const target of targets) {
+    for (const alias of target.aliases) {
+      const score = arrNlmVenueScore(venue, alias);
+      if (!score) continue;
+
+      if (!best || score > best.score) {
+        best = {target,alias,score};
+      }
+    }
+  }
+
+  return best;
+}
+
+function arrNlmValidDateParts(parts) {
+  if (!parts) return null;
+  const year = Number(parts.year);
+  const month = Number(parts.month);
+  const day = Number(parts.day);
+
+  if (
+    !Number.isInteger(year) || year < 2000 || year > 2100 ||
+    !Number.isInteger(month) || month < 1 || month > 12 ||
+    !Number.isInteger(day) || day < 1 || day > 31
+  ) return null;
+
+  const probe = new Date(Date.UTC(year,month-1,day));
+  if (
+    Number.isNaN(probe.getTime()) ||
+    probe.getUTCFullYear() !== year ||
+    probe.getUTCMonth()+1 !== month ||
+    probe.getUTCDate() !== day
+  ) return null;
+
+  return {year,month,day};
+}
+
+function arrNlmDateParts(value) {
+  if (value == null || value === "") return null;
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    // Power BI kan levere datoer som Excel/OLE Automation serial.
+    const ms = Date.UTC(1899,11,30) + Math.round(value * 86400000);
+    const d = new Date(ms);
+    return arrNlmValidDateParts({
+      year:d.getUTCFullYear(),
+      month:d.getUTCMonth()+1,
+      day:d.getUTCDate()
+    });
+  }
+
+  const text = String(value).trim();
+
+  let m = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:T|$)/);
+  if (m) {
+    return arrNlmValidDateParts({
+      year:Number(m[1]),
+      month:Number(m[2]),
+      day:Number(m[3])
+    });
+  }
+
+  m = text.match(/^(\d{2})[./-](\d{2})[./-](\d{4})(?:\b|$)/);
+  if (m) {
+    return arrNlmValidDateParts({
+      year:Number(m[3]),
+      month:Number(m[2]),
+      day:Number(m[1])
+    });
+  }
+
+  const ticks = text.match(/\/Date\((-?\d+)(?:[+-]\d{4})?\)\//);
+  if (ticks) {
+    const d = new Date(Number(ticks[1]));
+    if (!Number.isNaN(d.getTime())) {
+      return arrNlmValidDateParts({
+        year:d.getUTCFullYear(),
+        month:d.getUTCMonth()+1,
+        day:d.getUTCDate()
+      });
+    }
+  }
+
+  const d = new Date(text);
+  if (Number.isNaN(d.getTime())) return null;
+  return arrNlmValidDateParts({
+    year:d.getUTCFullYear(),
+    month:d.getUTCMonth()+1,
+    day:d.getUTCDate()
+  });
+}
+
+function arrNlmTimeParts(value) {
+  if (value == null || value === "") return null;
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    const fraction = ((value % 1) + 1) % 1;
+    const minutes = Math.round(fraction * 24 * 60) % (24 * 60);
+    return {hour:Math.floor(minutes/60),minute:minutes%60};
+  }
+
+  const text = String(value).trim();
+
+  // Vanlige Power BI-formater: 19:30, 19:30:00,
+  // 1899-12-30T19:30:00 og tilsvarende ISO-tekst.
+  const m = text.match(/(?:T|\b)(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?/);
+  if (m) {
+    const hour = Number(m[1]);
+    const minute = Number(m[2]);
+    if (
+      Number.isInteger(hour) && hour >= 0 && hour <= 23 &&
+      Number.isInteger(minute) && minute >= 0 && minute <= 59
+    ) {
+      return {hour,minute};
+    }
+  }
+
+  return null;
+}
+
+function arrNlmOsloIso(dateParts, timeParts) {
+  const date = arrNlmValidDateParts(dateParts);
+  if (!date || !timeParts) return null;
+
+  const hour = Number(timeParts.hour);
+  const minute = Number(timeParts.minute);
+  if (
+    !Number.isInteger(hour) || hour < 0 || hour > 23 ||
+    !Number.isInteger(minute) || minute < 0 || minute > 59
+  ) return null;
+
+  try {
+    const iso = arrOsloLocalIso(
+      date.year,date.month,date.day,hour,minute,0
+    );
+    const parsed = new Date(iso);
+    return Number.isNaN(parsed.getTime()) ? null : iso;
+  } catch (_) {
+    return null;
+  }
+}
+
+function arrNlmLocalDateKey(iso) {
+  const d = new Date(iso || "");
+  if (Number.isNaN(d.getTime())) return "";
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone:"Europe/Oslo",
+    year:"numeric",
+    month:"2-digit",
+    day:"2-digit"
+  }).format(d);
+}
+
+function arrNlmTitleCompatible(nlmTitle, localTitle) {
+  const a = arrNormalize(nlmTitle || "");
+  const b = arrNormalize(localTitle || "");
+  if (!a || !b) return true;
+  if (a === b || a.includes(b) || b.includes(a)) return true;
+
+  // NLM bruker ofte generiske titler som "Møte" mens lokalkalenderen har
+  // mer detaljert tittel. Sted + dato + tid er da tilstrekkelig.
+  if (/^(møte|møter|møteuke|møtehelg|gudstjeneste)$/i.test(a)) return true;
+
+  const stop = new Set(["møte","møter","på","i","med","og","til"]);
+  const at = new Set(a.split(/\s+/).filter(x => x.length >= 3 && !stop.has(x)));
+  const bt = new Set(b.split(/\s+/).filter(x => x.length >= 3 && !stop.has(x)));
+  if (!at.size || !bt.size) return true;
+
+  const common = [...at].filter(x => bt.has(x)).length;
+  return common >= 1;
+}
+
+function arrNlmHasLocalDuplicate(item, existingEvents) {
+  const wantedDay = arrNlmLocalDateKey(item.startTime);
+  const wantedMs = new Date(item.startTime).getTime();
+  if (!wantedDay || !Number.isFinite(wantedMs)) return false;
+
+  return existingEvents.some(row => {
+    if (row[ARR_F.events.active] === false) return false;
+
+    const source = arrClean(row[ARR_F.events.source] || "");
+    if (arrNormalize(source) === arrNormalize(ARR_NLM_SOUTH_JAEREN_SOURCE_NAME)) {
+      return false;
+    }
+
+    const existingStart = row[ARR_F.events.startTime];
+    if (arrNlmLocalDateKey(existingStart) !== wantedDay) return false;
+
+    const existingMs = new Date(existingStart || "").getTime();
+    if (!Number.isFinite(existingMs)) return false;
+
+    // Inntil én times avvik tolereres mellom regional og lokal oversikt.
+    if (Math.abs(existingMs - wantedMs) > 60 * 60 * 1000) return false;
+
+    const venueMatches =
+      arrNlmVenueScore(item.location, row[ARR_F.events.location]) > 0 ||
+      arrNlmVenueScore(item.location, row[ARR_F.events.organizer]) > 0;
+
+    if (!venueMatches) return false;
+
+    return arrNlmTitleCompatible(
+      item.title,
+      row[ARR_F.events.title]
+    );
+  });
+}
+
+function arrNlmMeetingTypeHint(arrangement, hasEndDate) {
+  const value = arrNormalize(arrangement || "");
+  if (!value) return "";
+
+  if (hasEndDate && /^møt/i.test(value)) return "Møteveke / helg";
+  if (/^møter?$/i.test(value)) return "Møte";
+  if (/møteuke|møtehelg/i.test(value)) return "Møteveke / helg";
+  if (/gudstjeneste/i.test(value)) return "Gudstjeneste";
+  if (/basar/i.test(value)) return "Basar";
+  return arrangement;
+}
+
+function arrNlmOrganizationId(organizations) {
+  const target = arrNormalize("Misjonssambandet");
+  const row = (Array.isArray(organizations) ? organizations : []).find(org =>
+    arrNormalize(org?.name || "") === target
+  );
+  return arrClean(row?.id || "");
+}
+
+async function arrImportNlmSouthJaerenSupplement({
+  env,
+  areaKey,
+  activeSources,
+  meetingTypes,
+  settlements,
+  organizations
+}) {
+  if (!["default","time","klepp"].includes(areaKey)) return null;
+
+  const sourceResult = {
+    sourceId:ARR_NLM_SOUTH_JAEREN_SOURCE_ID,
+    name:ARR_NLM_SOUTH_JAEREN_SOURCE_NAME,
+    created:0,
+    updated:0,
+    skipped:0,
+    error:null,
+    createdEvents:[],
+    diagnostics:{
+      powerBiRows:0,
+      matchedVenueRows:0,
+      duplicateLocalRows:0,
+      unmatchedVenues:[],
+      missingDateOrTime:0
+    }
+  };
+
+  try {
+    const rawRows = await arrFetchNlmSouthJaerenRows();
+    sourceResult.diagnostics.powerBiRows = rawRows.length;
+
+    // Les etter ordinær lokal import slik at dedupe bruker ferske lokale data.
+    let existingEvents = await arrListAllRows(env, ARR_TABLE.EVENTS);
+    const venueTargets = arrBuildNlmVenueTargets(activeSources, existingEvents);
+    const typeRules = arrBuildTypeRules(meetingTypes);
+    const settlementRules = arrBuildSettlementRules(settlements);
+    const allSettlementRules = arrBuildSettlementRules(settlements, true);
+    const activeSettlementIds = new Set(settlementRules.map(r => Number(r.rowId)));
+    const nlmOrganizationId = arrNlmOrganizationId(organizations);
+    const nowIso = new Date().toISOString();
+
+    const existingNlmBySourceEventId = new Map();
+    const existingNlmRows = [];
+
+    for (const row of existingEvents) {
+      if (
+        arrNormalize(row[ARR_F.events.source] || "") ===
+        arrNormalize(ARR_NLM_SOUTH_JAEREN_SOURCE_NAME)
+      ) {
+        existingNlmRows.push(row);
+        const id = arrClean(row[ARR_F.events.sourceEventId] || "");
+        if (id) existingNlmBySourceEventId.set(id,row);
+      }
+    }
+
+    const seen = new Set();
+    const createItems = [];
+    const createKeys = [];
+    const updateItems = [];
+    const unmatchedVenues = new Set();
+    let matchedCandidateCount = 0;
+
+    for (const row of rawRows) {
+      const venue = arrClean(row?.[0] || "");
+      const arrangement = arrClean(row?.[1] || "");
+      const date = arrNlmDateParts(row?.[2]);
+      const time = arrNlmTimeParts(row?.[3]);
+      const endDate = arrNlmDateParts(row?.[4]);
+      const speaker = arrClean(row?.[5] || "");
+      const info = arrClean(row?.[6] || "");
+
+      if (!venue || !arrangement) {
+        sourceResult.skipped++;
+        continue;
+      }
+
+      const venueMatch = arrMatchNlmVenueTarget(venue, venueTargets);
+      if (!venueMatch) {
+        unmatchedVenues.add(venue);
+        sourceResult.skipped++;
+        continue;
+      }
+
+      matchedCandidateCount++;
+      sourceResult.diagnostics.matchedVenueRows++;
+
+      if (!date || !time) {
+        sourceResult.diagnostics.missingDateOrTime++;
+        sourceResult.skipped++;
+        continue;
+      }
+
+      const startTime = arrNlmOsloIso(date,time);
+      if (!startTime) {
+        sourceResult.diagnostics.missingDateOrTime++;
+        sourceResult.skipped++;
+        continue;
+      }
+
+      let endTime = null;
+      if (endDate) {
+        endTime = arrNlmOsloIso(endDate,time);
+      }
+
+      const descriptionParts = [];
+      if (speaker) descriptionParts.push(`Taler: ${speaker}`);
+      if (info) descriptionParts.push(info);
+
+      const matchedSource = venueMatch.target.source;
+      const municipalityHint =
+        areaKey === "default" ? "Hå" :
+        areaKey === "time" ? "Time" :
+        "Klepp";
+
+      const item = {
+        title:arrangement,
+        startTime,
+        endTime,
+        organizer:venueMatch.target.name || venue,
+        location:venue,
+        description:descriptionParts.join("\n"),
+        sourceUrl:ARR_NLM_SOUTH_JAEREN_REPORT_URL,
+        municipalityHint,
+        meetingTypeHint:arrNlmMeetingTypeHint(arrangement, Boolean(endTime)),
+        organizationIds:nlmOrganizationId ? [nlmOrganizationId] : []
+      };
+
+      const settlementIds = arrResolveSettlementIds(
+        item,
+        matchedSource,
+        settlementRules,
+        allSettlementRules,
+        activeSettlementIds
+      );
+
+      if (settlementIds === null || !Array.isArray(settlementIds) || !settlementIds.length) {
+        sourceResult.skipped++;
+        continue;
+      }
+
+      // Lokalkalenderen er autoritativ. Ikke lag regional dublett.
+      if (arrNlmHasLocalDuplicate(item, existingEvents)) {
+        sourceResult.diagnostics.duplicateLocalRows++;
+        sourceResult.skipped++;
+        continue;
+      }
+
+      const dateKey = `${String(date.year).padStart(4,"0")}-${String(date.month).padStart(2,"0")}-${String(date.day).padStart(2,"0")}`;
+      const semanticKey = [
+        arrNlmVenueNorm(venue),
+        dateKey,
+        `${String(time.hour).padStart(2,"0")}:${String(time.minute).padStart(2,"0")}`,
+        arrNormalize(arrangement)
+      ].join("|");
+
+      const sourceEventId =
+        `nlm-sor-jaeren-${(await arrSha256(semanticKey)).slice(0,20)}`;
+      seen.add(sourceEventId);
+
+      const typeIds = arrClassifyMeetingTypes(item,typeRules);
+      const payload = {
+        [ARR_F.events.title]:arrClean(item.title),
+        [ARR_F.events.startTime]:arrIsoOrNull(item.startTime),
+        [ARR_F.events.endTime]:arrIsoOrNull(item.endTime),
+        [ARR_F.events.meetingType]:typeIds,
+        [ARR_F.events.organizer]:arrClean(item.organizer),
+        [ARR_F.events.location]:arrClean(item.location),
+        [ARR_F.events.description]:arrClean(item.description),
+        [ARR_F.events.source]:ARR_NLM_SOUTH_JAEREN_SOURCE_NAME,
+        [ARR_F.events.sourceUrl]:ARR_NLM_SOUTH_JAEREN_REPORT_URL,
+        [ARR_F.events.sourceEventId]:sourceEventId,
+        [ARR_F.events.lastSeen]:nowIso,
+        [ARR_F.events.active]:true,
+        [ARR_F.events.settlement]:settlementIds.slice(0,1),
+        [ARR_F.events.organizationIds]:arrOrganizationIds(item.organizationIds).join("; ")
+      };
+
+      const existing = existingNlmBySourceEventId.get(sourceEventId);
+      if (existing) {
+        if (existing[ARR_F.events.manuallyEdited] === true) {
+          updateItems.push({
+            id:existing.id,
+            [ARR_F.events.lastSeen]:nowIso,
+            [ARR_F.events.active]:true
+          });
+        } else {
+          updateItems.push({id:existing.id,...payload});
+        }
+      } else {
+        payload[ARR_F.events.eventId] =
+          `EVT-${(await arrSha256(sourceEventId)).slice(0,12).toUpperCase()}`;
+        createItems.push(payload);
+        createKeys.push(sourceEventId);
+      }
+    }
+
+    sourceResult.diagnostics.unmatchedVenues =
+      [...unmatchedVenues].sort((a,b) => a.localeCompare(b,"nb"));
+
+    const existingActiveFuture = existingNlmRows.filter(row => {
+      if (row[ARR_F.events.active] === false) return false;
+      const d = new Date(row[ARR_F.events.startTime]);
+      return !Number.isNaN(d.getTime()) && d.getTime() >= Date.now() - 86400000;
+    }).length;
+
+    const newCount = createItems.length +
+      updateItems.filter(item => item[ARR_F.events.active] !== false).length;
+
+    if (
+      existingActiveFuture >= 10 &&
+      matchedCandidateCount < Math.max(3,Math.floor(existingActiveFuture * 0.35))
+    ) {
+      throw new Error(
+        `Kildevern: NLM Sør-Jæren matchet bare ${matchedCandidateCount} aktuelle lokale møter ` +
+        `mot ${existingActiveFuture} aktive NLM-rader fra før. Eksisterende data beholdes.`
+      );
+    }
+
+    // Deaktiver NLM-rader som ikke lenger finnes i vellykket Power BI-resultat.
+    const cutoff = new Date(Date.now() - 86400000);
+    for (const row of existingNlmRows) {
+      if (row[ARR_F.events.manuallyEdited] === true) continue;
+      const id = arrClean(row[ARR_F.events.sourceEventId] || "");
+      const start = new Date(row[ARR_F.events.startTime]);
+      if (
+        id &&
+        !seen.has(id) &&
+        !Number.isNaN(start.getTime()) &&
+        start >= cutoff
+      ) {
+        updateItems.push({id:row.id,[ARR_F.events.active]:false});
+      }
+    }
+
+    const createdRows = await arrCreateRowsBatch(
+      env,
+      ARR_TABLE.EVENTS,
+      createItems
+    );
+
+    if (updateItems.length) {
+      await arrUpdateRowsBatch(env,ARR_TABLE.EVENTS,updateItems);
+    }
+
+    sourceResult.created = createItems.length;
+    sourceResult.updated = updateItems.length;
+    sourceResult.createdEvents = createdRows.map(row => ({
+      rowId:Number(row.id || 0),
+      eventId:arrClean(row[ARR_F.events.eventId] || ""),
+      title:arrClean(row[ARR_F.events.title] || ""),
+      startTime:arrClean(row[ARR_F.events.startTime] || ""),
+      endTime:arrClean(row[ARR_F.events.endTime] || ""),
+      organizer:arrClean(row[ARR_F.events.organizer] || ""),
+      location:arrClean(row[ARR_F.events.location] || ""),
+      source:arrClean(row[ARR_F.events.source] || ""),
+      sourceEventId:arrClean(row[ARR_F.events.sourceEventId] || ""),
+      active:row[ARR_F.events.active] !== false
+    }));
+
+    return sourceResult;
+  } catch (err) {
+    sourceResult.error = String(err?.message || err);
+    return sourceResult;
+  }
+}
+
+
+async function arrImportAllSources(env, options={}) {
+  const areaKey = String(options.area || "default").trim().toLowerCase();
+  arrUseArea(areaKey);
+  const requestedSourceIds = new Set((options.sourceIds || []).map(x => String(x || '').trim()).filter(Boolean));
+  const doCleanup = options.cleanup !== false;
+  const includeDisabled = options.includeDisabled === true;
+  if (!env.ARRANGEMENT_BASEROW_TOKEN) throw new Error("Missing ARRANGEMENT_BASEROW_TOKEN");
+
+  // V242: Hent grunnlagsdata én gang. Selve event-skrivingen gjøres deretter
+  // med Baserow batch-endepunkter for å holde oss under Cloudflare Free-grensen
+  // på eksterne subrequests per Worker-invocation.
+  // V243: hent tabellene sekvensielt. Dette unngår at flere parallelle
+  // Baserow-kall ved starten av importen kan gi et svar uten godkjent
+  // Authorization-header i Worker-kjøringen.
+  const sources = await arrListAllRows(env,ARR_TABLE.SOURCES);
+  const meetingTypes = await arrListAllRows(env,ARR_TABLE.MEETING_TYPES);
+  const settlements = await arrListAllRows(env,ARR_TABLE.SETTLEMENTS);
+  const organizations = await arrLoadOrganizations(env);
+  const eventRules = await arrLoadEventRules(env);
+
+  // V463: Time/Klepp-tabellene ble opprinnelig kopiert fra fellesområdet.
+  // Kilde-tabellen kan derfor fortsatt inneholde rader fra flere kommuner.
+  // Importer kun kilder hvis Default Settlement peker til en settlement i
+  // områdets kommune. Dette hindrer at feil kommune skrives inn i dedikert DB.
+  const areaConfig = arrGetAreaConfig(areaKey);
+  const wantedMunicipality = arrNormalizeMunicipalityName(
+    areaConfig.sourceMunicipality || ""
+  );
+
+  const settlementMunicipalityByRowId = new Map(
+    settlements.map(row => [
+      Number(row.id),
+      arrNormalizeMunicipalityName(row[ARR_F.settlements.municipality] || "")
+    ])
+  );
+
+  // V464:
+  // Time/Klepp Events er nå manuelt ryddet slik at hver database bare
+  // inneholder sin egen kommune. Bruk eksisterende Events.Source som
+  // primært anker for hvilke Sources som hører til området.
+  //
+  // Default Settlement beholdes som sekundær kontroll/fallback. Dette er
+  // nødvendig fordi konvertering av et kopiert text-felt til link_row ikke
+  // nødvendigvis gjenoppretter gamle relasjoner automatisk.
+  let areaAnchorEvents = null;
+  const sourceAnchors = new Set();
+
+  if (wantedMunicipality && !requestedSourceIds.size) {
+    areaAnchorEvents = await arrListAllRows(env, ARR_TABLE.EVENTS);
+
+    for (const row of areaAnchorEvents) {
+      const sourceValue = arrNormalize(
+        arrClean(row[ARR_F.events.source] || "")
+      );
+      if (sourceValue) sourceAnchors.add(sourceValue);
+    }
+  }
+
+  const sourceBelongsToArea = source => {
+    if (!wantedMunicipality) return true;
+
+    const sourceId = arrNormalize(
+      arrClean(source[ARR_F.sources.sourceId] || "")
+    );
+    const sourceName = arrNormalize(
+      arrClean(source[ARR_F.sources.name] || "")
+    );
+
+    if (
+      (sourceId && sourceAnchors.has(sourceId)) ||
+      (sourceName && sourceAnchors.has(sourceName))
+    ) {
+      return true;
+    }
+
+    const linkedSettlementIds = arrLinkedIds(
+      source[ARR_F.sources.defaultSettlement]
+    )
+      .map(Number)
+      .filter(Number.isFinite);
+
+    return linkedSettlementIds.some(rowId =>
+      settlementMunicipalityByRowId.get(rowId) === wantedMunicipality
+    );
+  };
+
+  const activeSources = sources.filter(r => {
+    const sourceId = String(r[ARR_F.sources.sourceId] || '').trim();
+    const requested = !requestedSourceIds.size || requestedSourceIds.has(sourceId);
+    if (!requested) return false;
+    if (!sourceBelongsToArea(r)) return false;
+    if (r[ARR_F.sources.enabled] !== false) return true;
+    return includeDisabled && requestedSourceIds.has(sourceId);
+  });
+
+  // Fail safe: et dedikert område skal aldri "lykkes" med 0 kilder dersom
+  // det finnes enabled kilder i tabellen. Det tyder på feil link/schema.
+  if (wantedMunicipality && !requestedSourceIds.size) {
+    const enabledSourceCount = sources.filter(
+      r => r[ARR_F.sources.enabled] !== false
+    ).length;
+
+    if (enabledSourceCount > 0 && activeSources.length === 0) {
+      throw new Error(
+        `${areaConfig.name}: ingen kilder matcher eksisterende Events.Source eller kommunen ` +
+        `"${areaConfig.sourceMunicipality}" via Default Settlement. Import avbrytes før event-skriving.`
+      );
+    }
+  }
+
+  // V302: Ved kilde-for-kilde-import henter vi bare eksisterende Events for
+  // akkurat den/de kildene. Tidligere lastet hver import HELE Events-tabellen,
+  // og dette traff Worker resource limits når databasen ble stor.
+  let existingEvents = Array.isArray(areaAnchorEvents)
+    ? areaAnchorEvents
+    : [];
+
+  if (requestedSourceIds.size) {
+    for (const source of activeSources) {
+      const sourceName = arrClean(source[ARR_F.sources.name] || "");
+      const sourceId = arrClean(source[ARR_F.sources.sourceId] || "");
+
+
+      if (sourceName) {
+        existingEvents.push(
+          ...await arrListRowsFilteredEqual(
+            env,
+            ARR_TABLE.EVENTS,
+            ARR_F.events.source,
+            sourceName
+          )
+        );
+      }
+
+      // Eldre rader kan i noen versjoner ha Source satt til SRC-xxxx.
+      if (sourceId && sourceId !== sourceName) {
+        existingEvents.push(
+          ...await arrListRowsFilteredEqual(
+            env,
+            ARR_TABLE.EVENTS,
+            ARR_F.events.source,
+            sourceId
+          )
+        );
+      }
+    }
+
+    const byRowId = new Map();
+    for (const row of existingEvents) byRowId.set(Number(row.id),row);
+    existingEvents = [...byRowId.values()];
+  } else if (!Array.isArray(areaAnchorEvents)) {
+    existingEvents = await arrListAllRows(env,ARR_TABLE.EVENTS);
+  }
+
+  // V269: Arrangementskalenderen skal bare beholde 7 dager historikk.
+  // Eldre arrangementer slettes fysisk fra Baserow før ny import slik at
+  // radene faktisk frigjøres og Free-workspace holder seg under radgrensen.
+  const historyCutoff = new Date(Date.now() - 7 * 86400000);
+  const expiredEventIds = doCleanup
+    ? existingEvents
+        .filter(r => {
+          const start = new Date(r[ARR_F.events.startTime]);
+          return !Number.isNaN(start.getTime()) && start < historyCutoff;
+        })
+        .map(r => r.id)
+    : [];
+
+  const cleanupDeleted = expiredEventIds.length
+    ? await arrDeleteRowsBatch(env, ARR_TABLE.EVENTS, expiredEventIds)
+    : 0;
+
+  if (cleanupDeleted) {
+    const deletedSet = new Set(expiredEventIds.map(Number));
+    existingEvents = existingEvents.filter(r => !deletedSet.has(Number(r.id)));
+  }
+
+  // V486: Rydd også opp eksisterende aktive rader som nå omfattes av en
+  // global sperreregel. Dette gjør at gamle "Privat selskap"-arrangement
+  // forsvinner ved første ordinære import – ikke bare nye arrangement.
+  const globallyExcludedExisting = existingEvents.filter(r =>
+    r[ARR_F.events.active] !== false &&
+    arrIsGloballyExcludedEvent({
+      title:r[ARR_F.events.title],
+      description:r[ARR_F.events.description]
+    })
+  );
+
+  const globallyExcludedDeactivated = globallyExcludedExisting.length
+    ? (await arrUpdateRowsBatch(
+        env,
+        ARR_TABLE.EVENTS,
+        globallyExcludedExisting.map(r => ({
+          id:r.id,
+          [ARR_F.events.active]:false
+        }))
+      )).length
+    : 0;
+
+  if (globallyExcludedDeactivated) {
+    const excludedIds = new Set(
+      globallyExcludedExisting.map(r => Number(r.id))
+    );
+    for (const r of existingEvents) {
+      if (excludedIds.has(Number(r.id))) {
+        r[ARR_F.events.active] = false;
+      }
+    }
+  }
+
+  const typeRules = arrBuildTypeRules(meetingTypes);
+  const settlementRules = arrBuildSettlementRules(settlements);
+  const allSettlementRules = arrBuildSettlementRules(settlements, true);
+  const activeSettlementIds = new Set(settlementRules.map(r => Number(r.rowId)));
+  const existingBySourceEventId = new Map();
+  const existingByEventCalendarAppUrl = new Map();
+  const existingVarhaugBySemanticKey = new Map();
+  for (const r of existingEvents) {
+    const key = String(r[ARR_F.events.sourceEventId] || "").trim();
+    if (key) existingBySourceEventId.set(key,r);
+
+    // V470: EventCalendarApp/IMI-kirken kan levere ny VEVENT UID for samme
+    // konkrete arrangement ved senere feed-hentinger. DESCRIPTION inneholder
+    // derimot den stabile offentlige event-lenken. Bruk den som sekundær
+    // canonical nøkkel. Dette gjør også første kjøring trygg dersom det allerede
+    // finnes rader med gamle tilfeldige UID-er.
+    const eventCalendarUrl = arrExtractEventCalendarAppUrl(
+      r[ARR_F.events.description],
+      r[ARR_F.events.sourceUrl]
+    );
+    if (eventCalendarUrl) {
+      const current = existingByEventCalendarAppUrl.get(eventCalendarUrl);
+      existingByEventCalendarAppUrl.set(
+        eventCalendarUrl,
+        arrPreferEventCalendarExisting(current, r)
+      );
+    }
+
+    const eventSource = arrNormalize(r[ARR_F.events.source] || "");
+    if (
+      eventSource === arrNormalize("Varhaug Misjonshus") ||
+      eventSource === arrNormalize("SRC-0006")
+    ) {
+      const semanticKey = arrVarhaugSemanticKey(
+        r[ARR_F.events.title],
+        r[ARR_F.events.startTime]
+      );
+      if (semanticKey && !existingVarhaugBySemanticKey.has(semanticKey)) {
+        existingVarhaugBySemanticKey.set(semanticKey,r);
+      }
+    }
+  }
+
+  const result = {
+    ok:true,
+    area:areaKey,
+    areaName:arrGetAreaConfig(areaKey).name,
+    startedAt:new Date().toISOString(),
+    sources:[],
+    supplementalSources:[],
+    created:0,
+    updated:0,
+    errors:0,
+    requestedSourceIds:[...requestedSourceIds],
+    includeDisabled,
+    ruleEngine:{
+      tableId:ARR_EVENT_RULES_TABLE,
+      activeRules:eventRules.length,
+      appliedMatches:0,
+      matchedRuleIds:[]
+    },
+    organizationIdsBackfill:{
+      scanned:0,
+      matchedEvents:0,
+      updated:0,
+      matchedRuleIds:[]
+    },
+    diagnostics: (["time","klepp","sandnes","stavanger"].includes(areaKey)) ? {
+      tables: {
+        events: ARR_TABLE.EVENTS,
+        sources: ARR_TABLE.SOURCES,
+        meetingTypes: ARR_TABLE.MEETING_TYPES,
+        settlements: ARR_TABLE.SETTLEMENTS
+      },
+      rowsRead: {
+        sources: sources.length,
+        activeSources: activeSources.length,
+        sourceAnchorsFromExistingEvents: sourceAnchors.size,
+        meetingTypes: meetingTypes.length,
+        settlements: settlements.length,
+        activeSettlements: settlementRules.length
+      },
+      linkWriteVerification: {
+        checked: 0,
+        settlementMatches: 0,
+        settlementMismatches: 0,
+        meetingTypeMatches: 0,
+        meetingTypeMismatches: 0,
+        samples: []
+      },
+      settlementRows: settlementRules.slice(0, 50).map(rule => ({
+        rowId: rule.rowId,
+        name: rule.name,
+        municipality: rule.municipalityNormalized,
+        sortOrder: rule.sortOrder
+      })),
+      sources: []
+    } : null,
+    cleanup:{
+      enabled:doCleanup,
+      keepHistoryDays:7,
+      cutoff:historyCutoff.toISOString(),
+      deleted:cleanupDeleted,
+      globallyExcludedDeactivated,
+    }
+  };
+
+  for (const source of activeSources) {
+    const sourceResult = {
+      sourceId:source[ARR_F.sources.sourceId],
+      name:source[ARR_F.sources.name],
+      created:0,
+      updated:0,
+      skipped:0,
+      error:null,
+      createdEvents:[]
+    };
+    const now = new Date().toISOString();
+
+    const sourceDiagnostic = (["time","klepp","sandnes","stavanger"].includes(areaKey)) ? {
+      sourceId: arrClean(source[ARR_F.sources.sourceId] || ""),
+      name: arrClean(source[ARR_F.sources.name] || ""),
+      rawDefaultSettlement: source[ARR_F.sources.defaultSettlement] ?? null,
+      extractedDefaultSettlementIds: arrLinkedIds(
+        source[ARR_F.sources.defaultSettlement]
+      ).map(Number).filter(Number.isFinite),
+      sampleEvents: []
+    } : null;
+
+    if (sourceDiagnostic && result.diagnostics) {
+      result.diagnostics.sources.push(sourceDiagnostic);
+    }
+
+    let preRepairUpdated = 0;
+    try {
+      const narboRepairUpdated = await arrRepairExistingNarboMeetingTypes(
+        env,
+        source,
+        existingEvents,
+        typeRules
+      );
+
+      const haaSettlementRepairUpdated = await arrRepairExistingHaaChurchSettlements(
+        env,
+        source,
+        existingEvents,
+        settlementRules
+      );
+
+      preRepairUpdated = narboRepairUpdated + haaSettlementRepairUpdated;
+
+      if (preRepairUpdated) {
+        sourceResult.updated += preRepairUpdated;
+        result.updated += preRepairUpdated;
+      }
+    } catch (repairErr) {
+      // Reparasjon av eksisterende metadata skal ikke stoppe selve kildeimporten.
+      console.warn(
+        "Pre-import reparasjon feilet:",
+        repairErr?.message || repairErr
+      );
+    }
+
+    try {
+      const parsedRaw = await arrLoadSourceEvents(source);
+      const mergeOnly = parsedRaw && parsedRaw._mergeOnly === true;
+
+      // V313: Felles tidsfilter så tidlig som mulig etter at en kilde har
+      // levert sine rå/normaliserte events, før klassifisering og Baserow-arbeid.
+      // Kildespesifikke parsere skal fortsatt filtrere enda tidligere der det
+      // er mulig; dette er siste felles sikkerhetsnett.
+      const parsed = arrFilterParsedEventWindow(parsedRaw)
+        .filter(item => !arrIsGloballyExcludedEvent(item));
+
+      const seenKeys = new Set();
+      const createItems = [];
+      const createKeys = [];
+      const updateItems = [];
+
+      // V260: Fredheim Arena gikk først via en upresis HTML-parser og senere via
+      // korrekt Google Calendar/iCal. De to metodene lager ulike Source Event ID-er,
+      // så gamle feilaktige rader kan bli hengende igjen som aktive.
+      //
+      // For SRC-0009 gjør vi derfor en kontrollert "reset" ved hver vellykket import:
+      // alle tidligere Fredheim-rader markeres inaktive først. De arrangementene som
+      // faktisk finnes i den nåværende iCal-feeden oppdateres lenger nede i samme
+      // batch og får Active=true igjen. Dette krever ikke delete-rettighet i Baserow.
+      if (String(source[ARR_F.sources.sourceId] || "") === "SRC-0009") {
+        const sourceNameText = arrClean(source[ARR_F.sources.name] || "");
+        const sourceIdText = arrClean(source[ARR_F.sources.sourceId] || "");
+        for (const r of existingEvents) {
+          if (r[ARR_F.events.manuallyEdited] === true) continue;
+          const eventSourceText = arrClean(r[ARR_F.events.source] || "");
+          if (eventSourceText !== sourceNameText && eventSourceText !== sourceIdText) continue;
+          updateItems.push({id:r.id,[ARR_F.events.active]:false});
+        }
+      }
+
+      for (let item of parsed) {
+        if (!item.title || !item.startTime) {
+          sourceResult.skipped++;
+          continue;
+        }
+
+        const ruleResult = arrApplyEventRules(
+          item,
+          source,
+          eventRules,
+          typeRules,
+          organizations
+        );
+        item = ruleResult.item;
+
+        if (ruleResult.appliedRuleIds.length) {
+          result.ruleEngine.appliedMatches += ruleResult.appliedRuleIds.length;
+          result.ruleEngine.matchedRuleIds.push(...ruleResult.appliedRuleIds);
+        }
+
+        const sourceEventId = item.sourceEventId || await arrStableKey(source[ARR_F.sources.sourceId], item.startTime, item.title);
+        seenKeys.add(sourceEventId);
+
+        const baseTypeIds = arrClassifyMeetingTypes(item, typeRules);
+        const typeIds = arrApplyRuleMeetingTypes(
+          baseTypeIds,
+          ruleResult,
+          typeRules
+        );
+
+        const settlementIdsFromRule = arrResolveRuleSettlementOverride(
+          ruleResult.settlementOverride,
+          settlementRules,
+          allSettlementRules,
+          activeSettlementIds
+        );
+
+        const settlementIds = settlementIdsFromRule !== undefined
+          ? settlementIdsFromRule
+          : arrResolveSettlementIds(
+              item,
+              source,
+              settlementRules,
+              allSettlementRules,
+              activeSettlementIds
+            );
+
+        if (
+          sourceDiagnostic &&
+          sourceDiagnostic.sampleEvents.length < 12
+        ) {
+          const resolvedRules = Array.isArray(settlementIds)
+            ? settlementIds.map(id => {
+                const rule = allSettlementRules.find(
+                  candidate => Number(candidate.rowId) === Number(id)
+                );
+                return {
+                  rowId: Number(id),
+                  name: rule?.name || "",
+                  municipality: rule?.municipalityNormalized || ""
+                };
+              })
+            : null;
+
+          sourceDiagnostic.sampleEvents.push({
+            title: arrClean(item.title || ""),
+            location: arrClean(item.location || ""),
+            settlementHint: arrClean(item.settlementHint || ""),
+            municipalityHint: arrClean(item.municipalityHint || ""),
+            meetingTypeHint: arrClean(item.meetingTypeHint || ""),
+            resolvedSettlementIds: settlementIds,
+            resolvedSettlements: resolvedRules,
+            classifiedMeetingTypeIds: typeIds,
+            organizationIds: arrOrganizationIds(item.organizationIds)
+          });
+        }
+
+        // Settlement.Active = false fungerer som geografisk av/på-bryter.
+        if (settlementIds === null) {
+          sourceResult.skipped++;
+          continue;
+        }
+
+        const payload = {
+          [ARR_F.events.title]: arrClean(item.title),
+          [ARR_F.events.startTime]: arrIsoOrNull(item.startTime),
+          [ARR_F.events.endTime]: arrIsoOrNull(item.endTime),
+          [ARR_F.events.meetingType]: typeIds,
+          [ARR_F.events.organizer]: arrResolveHaaFellesraadOrganizer(
+            item.title,
+            item.organizer || source[ARR_F.sources.name]
+          ),
+          [ARR_F.events.location]: arrClean(item.location || source[ARR_F.sources.name]),
+          [ARR_F.events.description]: arrClean(item.description || ""),
+          [ARR_F.events.source]: arrClean(source[ARR_F.sources.name] || source[ARR_F.sources.sourceId] || ""),
+          [ARR_F.events.sourceUrl]: arrClean(item.sourceUrl || source[ARR_F.sources.calendarUrl] || source[ARR_F.sources.website] || ""),
+          [ARR_F.events.sourceEventId]: sourceEventId,
+          [ARR_F.events.lastSeen]: now,
+          [ARR_F.events.active]: true,
+          [ARR_F.events.settlement]: settlementIds.slice(0,1),
+          [ARR_F.events.organizationIds]: arrOrganizationIds(item.organizationIds).join("; "),
+        };
+
+        let existing = existingBySourceEventId.get(sourceEventId);
+
+        // V470: migreringsbro for EventCalendarApp/IMI-kirken.
+        // Dersom UID-en har skiftet, finn den eksisterende raden via den stabile
+        // event-lenken og oppdater samme rad. Payload-en under skriver samtidig
+        // den nye stabile Source Event ID-en tilbake til raden.
+        if (!existing) {
+          const stableUrl = arrExtractEventCalendarAppUrl(
+            item.description,
+            item.sourceUrl
+          );
+          const eventCalendarExisting = stableUrl
+            ? existingByEventCalendarAppUrl.get(stableUrl)
+            : null;
+
+          if (eventCalendarExisting) {
+            existing = eventCalendarExisting;
+            const oldKey = String(
+              eventCalendarExisting[ARR_F.events.sourceEventId] || ""
+            ).trim();
+            if (oldKey) seenKeys.add(oldKey);
+          }
+        }
+
+        // V334: Varhaug har samme møte både i årsplanen og på forsiden.
+        // De to visningene kan ha ulik tegnsetting, ekstra datotekst og historisk
+        // feil tegnkoding. Match derfor eksisterende rad også på en stabil,
+        // Varhaug-spesifikk semantisk nøkkel. Dette hindrer nye dubletter når
+        // Source Event ID endres etter at teksten blir reparert.
+        if (!existing && arrIsVarhaugSource(source)) {
+          const semanticKey = arrVarhaugSemanticKey(item.title,item.startTime);
+          const semanticExisting = semanticKey ? existingVarhaugBySemanticKey.get(semanticKey) : null;
+          if (semanticExisting) {
+            existing = semanticExisting;
+            const oldKey = String(semanticExisting[ARR_F.events.sourceEventId] || "").trim();
+            if (oldKey) seenKeys.add(oldKey);
+          }
+        }
+
+        if (existing) {
+          if (existing[ARR_F.events.manuallyEdited] === true) {
+            updateItems.push({
+              id:existing.id,
+              [ARR_F.events.lastSeen]:now,
+              [ARR_F.events.active]:true,
+            });
+          } else {
+            updateItems.push({id:existing.id, ...payload});
+          }
+        } else {
+          payload[ARR_F.events.eventId] = `EVT-${(await arrSha256(sourceEventId)).slice(0,12).toUpperCase()}`;
+          createItems.push(payload);
+          createKeys.push(sourceEventId);
+
+          if (arrIsVarhaugSource(source)) {
+            const semanticKey = arrVarhaugSemanticKey(item.title,item.startTime);
+            if (semanticKey) existingVarhaugBySemanticKey.set(semanticKey,payload);
+          }
+        }
+      }
+
+      // V314 sikkerhetsnett:
+      // En parser-/kildeendring skal aldri kunne "tømme" en Source ved et uhell.
+      // Hvis den nye importen plutselig finner dramatisk færre fremtidige Events
+      // enn vi allerede har aktive for samme Source, avbryt Source-importen før
+      // noen eksisterende rader deaktiveres.
+      const sourceNameTextForGuard = arrClean(source[ARR_F.sources.name] || "");
+      const sourceIdTextForGuard = arrClean(source[ARR_F.sources.sourceId] || "");
+      const existingActiveFuture = existingEvents.filter(r => {
+        if (r[ARR_F.events.active] === false) return false;
+        if (arrIsGloballyExcludedEvent({
+          title:r[ARR_F.events.title],
+          description:r[ARR_F.events.description]
+        })) return false;
+        const eventSourceText = arrClean(r[ARR_F.events.source] || "");
+        if (eventSourceText !== sourceNameTextForGuard && eventSourceText !== sourceIdTextForGuard) return false;
+        const d = new Date(r[ARR_F.events.startTime]);
+        return !Number.isNaN(d.getTime()) && d.getTime() >= Date.now() - 86400000;
+      }).length;
+
+      if (
+        !mergeOnly &&
+        existingActiveFuture >= 10 &&
+        parsed.length < Math.max(3, Math.floor(existingActiveFuture * 0.35))
+      ) {
+        throw new Error(
+          `Kildevern: ${sourceNameTextForGuard || sourceIdTextForGuard} ga bare ` +
+          `${parsed.length} arrangementer mot ${existingActiveFuture} aktive fra før. ` +
+          `Eksisterende data beholdes.`
+        );
+      }
+
+      // Deaktiver arrangementer som har forsvunnet fra en vellykket kilde.
+      // Også dette batches sammen med øvrige oppdateringer.
+      const allowEmptyAuthoritativeCleanup =
+        String(source[ARR_F.sources.sourceId] || "").trim() === "SRC-0031";
+
+      if ((parsed.length || allowEmptyAuthoritativeCleanup) && !mergeOnly) {
+        const sourceNameText = arrClean(source[ARR_F.sources.name] || "");
+        const sourceIdText = arrClean(source[ARR_F.sources.sourceId] || "");
+        const cutoff = new Date(Date.now()-86400000);
+
+        for (const r of existingEvents) {
+          if (r[ARR_F.events.manuallyEdited] === true) continue;
+          const eventSourceText = arrClean(r[ARR_F.events.source] || "");
+          if (eventSourceText !== sourceNameText && eventSourceText !== sourceIdText) continue;
+          const key = String(r[ARR_F.events.sourceEventId] || "");
+          const start = new Date(r[ARR_F.events.startTime]);
+          if (key && !seenKeys.has(key) && !Number.isNaN(start.getTime()) && start >= cutoff) {
+            updateItems.push({id:r.id,[ARR_F.events.active]:false});
+          }
+        }
+      }
+
+      const createdRows = await arrCreateRowsBatch(env, ARR_TABLE.EVENTS, createItems);
+
+      sourceResult.createdEvents = createdRows.map(row => ({
+        rowId: Number(row.id || 0),
+        eventId: arrClean(row[ARR_F.events.eventId] || ""),
+        title: arrClean(row[ARR_F.events.title] || ""),
+        startTime: arrClean(row[ARR_F.events.startTime] || ""),
+        endTime: arrClean(row[ARR_F.events.endTime] || ""),
+        organizer: arrClean(row[ARR_F.events.organizer] || ""),
+        location: arrClean(row[ARR_F.events.location] || ""),
+        source: arrClean(row[ARR_F.events.source] || ""),
+        sourceEventId: arrClean(row[ARR_F.events.sourceEventId] || ""),
+        active: row[ARR_F.events.active] !== false
+      }));
+
+      for (let i=0; i<createdRows.length; i++) {
+        const key = createKeys[i];
+        if (key) existingBySourceEventId.set(key, createdRows[i]);
+
+        if (areaKey === "sandnes") {
+          arrRecordSandnesWriteVerification(
+            result,
+            createItems[i],
+            createdRows[i]
+          );
+        }
+      }
+
+      if (updateItems.length) {
+        const updatedRows = await arrUpdateRowsBatch(
+          env,
+          ARR_TABLE.EVENTS,
+          updateItems
+        );
+
+        if (areaKey === "sandnes") {
+          const requestById = new Map(
+            updateItems.map(item => [Number(item.id), item])
+          );
+
+          for (const row of updatedRows) {
+            arrRecordSandnesWriteVerification(
+              result,
+              requestById.get(Number(row.id)),
+              row
+            );
+          }
+        }
+      }
+
+      sourceResult.created = createItems.length;
+      const normalUpdated = updateItems.filter(
+        item => Object.keys(item).length > 2 || item[ARR_F.events.lastSeen]
+      ).length;
+      sourceResult.updated = preRepairUpdated + normalUpdated;
+      result.created += createItems.length;
+      result.updated += normalUpdated;
+
+      await arrUpdateRow(env,ARR_TABLE.SOURCES,source.id,{
+        [ARR_F.sources.lastImport]:now,
+        [ARR_F.sources.importStatus]:`OK – ${parsed.length} lest, ${sourceResult.created} nye, ${sourceResult.updated} oppdatert`,
+      });
+    } catch (err) {
+      sourceResult.error = String(err?.message || err);
+      const pending = sourceResult.error.startsWith("VENTER –");
+      if (!pending) result.errors++;
+      try {
+        await arrUpdateRow(env,ARR_TABLE.SOURCES,source.id,{
+          [ARR_F.sources.lastImport]:new Date().toISOString(),
+          [ARR_F.sources.importStatus]:(pending ? sourceResult.error : `FEIL – ${sourceResult.error}`).slice(0,1000),
+        });
+      } catch (_) {}
+    }
+
+    result.sources.push(sourceResult);
+  }
+
+  // V476: Generert Ungdomslaget-serie er en uavhengig supplement-kilde.
+  // Den skal oppdateres selv om Nærbø-nettsideparseren feiler eller kildevern slår inn.
+  const ungdomslagetSupplement = await arrImportGeneratedNarboUngdomslagetSupplement({
+    env,
+    areaKey,
+    activeSources,
+    meetingTypes,
+    settlements,
+    organizations
+  });
+
+  if (ungdomslagetSupplement) {
+    result.supplementalSources.push(ungdomslagetSupplement);
+    result.created += Number(ungdomslagetSupplement.created || 0);
+    result.updated += Number(ungdomslagetSupplement.updated || 0);
+    if (ungdomslagetSupplement.error) result.errors++;
+  }
+
+  // V473: NLM Sør-Jæren kjøres etter lokale kilder, slik at lokalkalenderen
+  // alltid er autoritativ ved deduplisering.
+  const nlmSupplement = await arrImportNlmSouthJaerenSupplement({
+    env,
+    areaKey,
+    activeSources,
+    meetingTypes,
+    settlements,
+    organizations
+  });
+
+  if (nlmSupplement) {
+    result.supplementalSources.push(nlmSupplement);
+    result.created += Number(nlmSupplement.created || 0);
+    result.updated += Number(nlmSupplement.updated || 0);
+    if (nlmSupplement.error) result.errors++;
+  }
+
+  result.ruleEngine.matchedRuleIds = [...new Set(result.ruleEngine.matchedRuleIds)];
+
+  try {
+    result.organizationIdsBackfill = await arrBackfillEventOrganizationIds(
+      env,
+      eventRules,
+      organizations
+    );
+  } catch (organizationBackfillError) {
+    result.errors++;
+    result.organizationIdsBackfill = {
+      scanned:0,
+      matchedEvents:0,
+      updated:0,
+      matchedRuleIds:[],
+      error:String(organizationBackfillError?.message || organizationBackfillError)
+    };
+  }
+
+  result.finishedAt = new Date().toISOString();
+  result.ok = result.errors === 0;
+  return result;
+}
+
+function arrBuildTypeRules(rows) {
+  return rows.filter(r => r[ARR_F.meetingTypes.active] !== false).map(r => ({
+    rowId:r.id,
+    name:String(r[ARR_F.meetingTypes.name] || ""),
+    priority:Number(r[ARR_F.meetingTypes.priority] || 0),
+    keywords:String(r[ARR_F.meetingTypes.keywords] || "").split(/[;,\n]/).map(x => arrNormalize(x)).filter(Boolean),
+  })).sort((a,b) => b.priority-a.priority);
+}
+
+function arrMeetingTypeNameKey(value) {
+  // Match controlled Meeting Type names while ignoring harmless formatting
+  // differences such as "Sang/Musikk" vs "Sang / musikk".
+  return arrNormalize(value || "")
+    .replace(/[^a-z0-9æøå]+/gi, "");
+}
+
+function arrFindMeetingTypeRuleByName(rules, name) {
+  const key = arrMeetingTypeNameKey(name);
+  if (!key) return null;
+  return rules.find(rule => arrMeetingTypeNameKey(rule.name) === key) || null;
+}
+
+function arrNarboExplicitMeetingTypeHint(item) {
+  const sourceUrl = arrNormalize(item?.sourceUrl || "");
+  const title = arrNormalize(item?.title || "");
+  const location = arrNormalize(item?.location || "");
+
+  // Bare bruk disse eksplisitte reglene på Nærbø-data.
+  const isNarbo =
+    sourceUrl.includes("narbobedehus.no") ||
+    location.includes("nærbø bedehus") ||
+    location.includes("narbo bedehus");
+
+  if (!isNarbo) return "";
+
+  if (
+    title.includes("glad sang") ||
+    title.includes("emmaus") ||
+    title.includes("nærbø musikklag") ||
+    title.includes("narbo musikklag")
+  ) return "Sang / musikk";
+
+  if (
+    title.includes("kvisten") ||
+    title.includes("maks-klubben") ||
+    title.includes("maks klubben")
+  ) return "Barn";
+
+  if (
+    title.includes("nkul") ||
+    title.includes("nærbø kristelige ungdomslag") ||
+    title.includes("narbo kristelige ungdomslag") ||
+    title === "ungdomslaget" ||
+    title.startsWith("ungdomslaget ")
+  ) return "Ungdom";
+
+  if (title.includes("vi over 60")) return "Senior";
+
+  return "";
+}
+
+function arrClassifyMeetingTypes(item, rules) {
+  // Nærbø har mange arrangementer fra samme arrangør. Eksplisitt
+  // aktivitets-/tittelklassifisering skal derfor vinne over generelle keywords.
+  const narboHint = arrNormalize(arrNarboExplicitMeetingTypeHint(item));
+  if (narboHint) {
+    const exact = arrFindMeetingTypeRuleByName(rules, narboHint);
+    if (exact) return [exact.rowId];
+  }
+
+  const hint = arrNormalize(item.meetingTypeHint || "");
+  if (hint) {
+    const exact = arrFindMeetingTypeRuleByName(rules, hint);
+    if (exact) return [exact.rowId];
+  }
+
+  const text = arrNormalize([item.title,item.description,item.location].filter(Boolean).join(" "));
+  const ids = [];
+  for (const rule of rules) {
+    if (rule.keywords.some(k => text.includes(k))) ids.push(rule.rowId);
+  }
+
+  if (!ids.length) {
+    const fallback = rules.find(rule => arrNormalize(rule.name) === "annet");
+    if (fallback) ids.push(fallback.rowId);
+  }
+
+  return [...new Set(ids)];
+}
+
+function arrIsNarboBedehusSource(source) {
+  const name = arrNormalize(source?.[ARR_F.sources.name] || "");
+  const id = arrNormalize(source?.[ARR_F.sources.sourceId] || "");
+  return name.includes("nærbø bedehus") || name.includes("narbo bedehus") || id === "nærbø bedehus";
+}
+
+async function arrRepairExistingNarboMeetingTypes(env, source, existingEvents, typeRules) {
+  if (!arrIsNarboBedehusSource(source)) return 0;
+
+  const sourceName = arrClean(source[ARR_F.sources.name] || "");
+  const sourceId = arrClean(source[ARR_F.sources.sourceId] || "");
+  const updates = [];
+
+  for (const row of existingEvents) {
+    if (row[ARR_F.events.manuallyEdited] === true) continue;
+
+    const eventSource = arrClean(row[ARR_F.events.source] || "");
+    if (eventSource !== sourceName && eventSource !== sourceId) continue;
+
+    const hint = arrNarboExplicitMeetingTypeHint({
+      title: row[ARR_F.events.title],
+      location: row[ARR_F.events.location],
+      sourceUrl: row[ARR_F.events.sourceUrl],
+    });
+    if (!hint) continue;
+
+    const target = arrFindMeetingTypeRuleByName(typeRules, hint);
+    if (!target) continue;
+
+    const currentIds = arrLinkedIds(row[ARR_F.events.meetingType])
+      .map(Number)
+      .filter(Number.isFinite);
+
+    if (currentIds.length === 1 && currentIds[0] === Number(target.rowId)) continue;
+
+    updates.push({
+      id: row.id,
+      [ARR_F.events.meetingType]: [Number(target.rowId)]
+    });
+  }
+
+  if (!updates.length) return 0;
+
+  await arrUpdateRowsBatch(env, ARR_TABLE.EVENTS, updates);
+
+  // Hold den lokale kopien synkron slik at en vellykket kildeimport i samme
+  // kjøring ikke arbeider videre med gammel Meeting Type.
+  const targetById = new Map(updates.map(u => [Number(u.id), u[ARR_F.events.meetingType]]));
+  for (const row of existingEvents) {
+    const ids = targetById.get(Number(row.id));
+    if (ids) row[ARR_F.events.meetingType] = ids;
+  }
+
+  return updates.length;
+}
+
+
+function arrIsHaaChurchSource(source) {
+  const id = arrNormalize(source?.[ARR_F.sources.sourceId] || "");
+  const name = arrNormalize(source?.[ARR_F.sources.name] || "");
+  return (
+    id === "src-0003" ||
+    name === arrNormalize("Den norske kirke – Hå") ||
+    name === arrNormalize("Den norske kirke - Hå")
+  );
+}
+
+function arrHaaOrganizerAllowedSettlements(organizer) {
+  const o = arrNormalize(organizer || "");
+  if (o === arrNormalize("Varhaug sokn")) return ["Varhaug","Vigrestad"];
+  if (o === arrNormalize("Ogna sokn")) return ["Ogna","Brusand","Sirevåg"];
+  if (o === arrNormalize("Nærbø sokn")) return ["Nærbø"];
+  return [];
+}
+
+async function arrRepairExistingHaaChurchSettlements(
+  env,
+  source,
+  existingEvents,
+  settlementRules
+) {
+  if (!arrIsHaaChurchSource(source)) return 0;
+
+  const sourceName = arrClean(source[ARR_F.sources.name] || "");
+  const sourceId = arrClean(source[ARR_F.sources.sourceId] || "");
+
+  const ruleByName = new Map(
+    settlementRules.map(rule => [arrNormalize(rule.name || ""), rule])
+  );
+  const nameByRowId = new Map(
+    settlementRules.map(rule => [Number(rule.rowId), arrClean(rule.name || "")])
+  );
+
+  const updates = [];
+
+  for (const row of existingEvents) {
+    if (row[ARR_F.events.manuallyEdited] === true) continue;
+
+    const eventSource = arrClean(row[ARR_F.events.source] || "");
+    if (eventSource !== sourceName && eventSource !== sourceId) continue;
+
+    const organizer = arrResolveHaaFellesraadOrganizer(
+      row[ARR_F.events.title] || "",
+      row[ARR_F.events.organizer] || eventSource || ""
+    );
+
+    const allowed = arrHaaOrganizerAllowedSettlements(organizer);
+    if (!allowed.length) continue;
+
+    const probe = arrNormalize([
+      row[ARR_F.events.location],
+      row[ARR_F.events.title],
+      row[ARR_F.events.description]
+    ].filter(Boolean).join(" "));
+
+    let targetName = "";
+    for (const name of allowed) {
+      const n = arrNormalize(name);
+      const escaped = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (new RegExp(`(^|[^a-z0-9æøå])${escaped}($|[^a-z0-9æøå])`, "i").test(probe)) {
+        targetName = name;
+        break;
+      }
+    }
+
+    // Hvis arrangementsteksten ikke angir ett av soknets tettsteder,
+    // bruk soknets hovedtettsted. Viktigst: aldri la Varhaug/Ogna havne på Nærbø.
+    if (!targetName) {
+      targetName =
+        arrNormalize(organizer) === arrNormalize("Varhaug sokn") ? "Varhaug" :
+        arrNormalize(organizer) === arrNormalize("Ogna sokn") ? "Ogna" :
+        "Nærbø";
+    }
+
+    const targetRule = ruleByName.get(arrNormalize(targetName));
+    if (!targetRule || targetRule.active === false) continue;
+
+    const currentIds = arrLinkedIds(row[ARR_F.events.settlement])
+      .map(Number)
+      .filter(Number.isFinite);
+    const currentNames = currentIds
+      .map(id => nameByRowId.get(id) || "")
+      .filter(Boolean);
+
+    if (
+      currentIds.length === 1 &&
+      currentIds[0] === Number(targetRule.rowId)
+    ) continue;
+
+    updates.push({
+      id: row.id,
+      [ARR_F.events.settlement]: [Number(targetRule.rowId)]
+    });
+  }
+
+  if (!updates.length) return 0;
+
+  await arrUpdateRowsBatch(env, ARR_TABLE.EVENTS, updates);
+
+  const targetById = new Map(
+    updates.map(u => [Number(u.id), u[ARR_F.events.settlement]])
+  );
+  for (const row of existingEvents) {
+    const ids = targetById.get(Number(row.id));
+    if (ids) row[ARR_F.events.settlement] = ids;
+  }
+
+  return updates.length;
+}
+
+function arrNormalizeMunicipalityName(value) {
+  // Structured sources may return values such as "Sandnes kommune",
+  // while Settlements.Municipality contains "Sandnes".
+  // Normalize only the administrative suffix; do not broaden geography.
+  return arrNormalize(value || "")
+    .replace(/\s+kommune$/i, "")
+    .trim();
+}
+
+function arrBuildSettlementRules(rows, includeInactive=false) {
+  return rows
+    .filter(r => includeInactive || r[ARR_F.settlements.active] !== false)
+    .map(r => ({
+      rowId:r.id,
+      name:String(r[ARR_F.settlements.name] || ""),
+      normalized:arrNormalize(r[ARR_F.settlements.name] || ""),
+      municipality:String(r[ARR_F.settlements.municipality] || ""),
+      municipalityNormalized:arrNormalizeMunicipalityName(r[ARR_F.settlements.municipality] || ""),
+      sortOrder:Number(r[ARR_F.settlements.sortOrder] || 0),
+      active:r[ARR_F.settlements.active] !== false,
+    }))
+    .filter(r => r.normalized)
+    .sort((a,b) => b.normalized.length-a.normalized.length || a.sortOrder-b.sortOrder);
+}
+
+function arrResolveSettlementIds(item, source, settlementRules, allSettlementRules=settlementRules, activeSettlementIds=null) {
+  const municipalityHint = arrNormalizeMunicipalityName(item.municipalityHint || "");
+
+  const allRulesForMunicipality = municipalityHint
+    ? allSettlementRules.filter(rule => rule.municipalityNormalized === municipalityHint)
+    : allSettlementRules;
+
+  const rulesForMunicipality = municipalityHint
+    ? settlementRules.filter(rule => rule.municipalityNormalized === municipalityHint)
+    : settlementRules;
+
+  const findRuleByName = (name, rules=rulesForMunicipality) => {
+    const wanted = arrNormalize(name || "");
+    if (!wanted) return null;
+    return rules.find(rule => rule.normalized === wanted) || null;
+  };
+
+  const findBest = (value, rules=rulesForMunicipality, options={}) => {
+    const text = arrNormalize(value || "");
+    if (!text) return null;
+
+    const excludeMunicipalityName = options.excludeMunicipalityName === true;
+    const candidates = [];
+
+    for (const rule of rules) {
+      const needle = rule.normalized;
+      if (!needle) continue;
+
+      if (
+        excludeMunicipalityName &&
+        municipalityHint &&
+        needle === municipalityHint
+      ) {
+        continue;
+      }
+
+      const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const re = new RegExp(`(^|[^a-z0-9æøå])${escaped}($|[^a-z0-9æøå])`, "i");
+      const m = re.exec(text);
+
+      if (m) {
+        const matchStart = m.index + (m[1] ? m[1].length : 0);
+        candidates.push({
+          rule,
+          start: matchStart
+        });
+      }
+    }
+
+    if (!candidates.length) return null;
+
+    candidates.sort((a,b) =>
+      a.start-b.start ||
+      b.rule.normalized.length-a.rule.normalized.length ||
+      a.rule.sortOrder-b.rule.sortOrder
+    );
+
+    return candidates[0].rule;
+  };
+
+  const defaultIds = arrLinkedIds(source[ARR_F.sources.defaultSettlement])
+    .map(Number)
+    .filter(Number.isFinite);
+
+  const allowedDefaultIds = municipalityHint
+    ? defaultIds.filter(id =>
+        rulesForMunicipality.some(rule => Number(rule.rowId) === id)
+      )
+    : defaultIds;
+
+  // V436:
+  // Én eneste Sources.Settlements-kobling er eksplisitt administrativ
+  // konfigurasjon og skal overstyre teksttolking av sted, uansett workspace.
+  // Eksempler:
+  //   Fredheim Arena -> Soma
+  //   IMI-kirken -> Tjensvoll
+  //   Fotland bedehus -> Fotland
+  //
+  // Hvis kilden har flere Settlements, brukes fortsatt ordinær resolver.
+  const singleSourceSettlementIsAuthoritative =
+    allowedDefaultIds.length === 1;
+
+  // V454: Den norske kirke – Time er en fler-steds-kilde. Hvis selve
+  // arrangementet eksplisitt peker på Undheim, må dette slå en eventuell
+  // single Source.Settlement-default. Ellers blir Undheim-arrangementer
+  // feilaktig stående uten/med feil tettsted selv om parseren sender
+  // settlementHint="Undheim".
+  if (municipalityHint === "time") {
+    const explicitUndheimText = arrNormalize([
+      item.settlementHint,
+      item.location,
+      item.organizer,
+      item.title
+    ].filter(Boolean).join(" "));
+
+    if (
+      /(^|[^a-z0-9æøå])undheim($|[^a-z0-9æøå])/i.test(explicitUndheimText)
+    ) {
+      const undheim = findRuleByName("Undheim", allRulesForMunicipality);
+      if (undheim) {
+        if (undheim.active === false) return null;
+        return [undheim.rowId];
+      }
+    }
+  }
+
+  if (municipalityHint === "hå" || municipalityHint === "ha") {
+    const sourceId = arrNormalize(source?.[ARR_F.sources.sourceId] || "");
+    const sourceName = arrNormalize(source?.[ARR_F.sources.name] || "");
+    const isHaaChurchSource =
+      sourceId === "src-0003" ||
+      sourceName === arrNormalize("Den norske kirke – Hå") ||
+      sourceName === arrNormalize("Den norske kirke - Hå");
+
+    if (isHaaChurchSource) {
+      // Hå-kilden dekker flere sokn/tettsteder. En eventuell enkeltverdi i
+      // Sources.Default Settlement skal derfor aldri overstyre konkret
+      // stedsinformasjon fra selve arrangementet.
+      //
+      // Prioritet:
+      // 1) eksplisitt tettsted fra parser/location
+      // 2) arrangørens sokn som geografisk fallback
+      //
+      // Dette er viktig for arrangementer med generiske locations som
+      // "Festhalen", "Utendørs" osv. De skal følge soknet, ikke havne på Nærbø.
+      const explicitHaa =
+        findBest(item.settlementHint, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+        findBest(item.location, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+        findBest(item.title, allRulesForMunicipality, {excludeMunicipalityName:true});
+
+      if (explicitHaa) {
+        if (explicitHaa.active === false) return null;
+        return [explicitHaa.rowId];
+      }
+
+      // Viktig: Hå-parseren kan ha en generisk organizer
+      // ("Hå Kyrkjelege Fellesråd") når location bare er f.eks. "Festhalen"
+      // eller "Utendørs". Slutt-arrangøren blir først bestemt senere ved
+      // arrResolveHaaFellesraadOrganizer(), bl.a. fra tittelregler.
+      //
+      // Settlement må bruke DEN SAMME ferdig-resolverte arrangøren. Ellers
+      // blir raden skrevet med "Varhaug sokn", men settlement kan samtidig
+      // falle tilbake til Sources.Default Settlement = Nærbø.
+      const effectiveOrganizer = arrResolveHaaFellesraadOrganizer(
+        item.title,
+        item.organizer || source?.[ARR_F.sources.name] || ""
+      );
+      const organizerNorm = arrNormalize(effectiveOrganizer || "");
+
+      const organizerFallback =
+        organizerNorm === arrNormalize("Varhaug sokn") ? "Varhaug" :
+        organizerNorm === arrNormalize("Ogna sokn") ? "Ogna" :
+        organizerNorm === arrNormalize("Nærbø sokn") ? "Nærbø" :
+        "";
+
+      if (organizerFallback) {
+        const organizerSettlement = findRuleByName(
+          organizerFallback,
+          allRulesForMunicipality
+        );
+        if (organizerSettlement) {
+          if (organizerSettlement.active === false) return null;
+          return [organizerSettlement.rowId];
+        }
+      }
+
+      // For Hå-kirken skal vi aldri falle videre til en vilkårlig
+      // Default Settlement (historisk Nærbø) når soknet er kjent.
+      if (
+        organizerNorm === arrNormalize("Varhaug sokn") ||
+        organizerNorm === arrNormalize("Ogna sokn")
+      ) {
+        return [];
+      }
+    }
+  }
+
+  if (singleSourceSettlementIsAuthoritative) {
+    const defaultId = Number(allowedDefaultIds[0]);
+
+    if (activeSettlementIds && !activeSettlementIds.has(defaultId)) {
+      return null;
+    }
+
+    return [defaultId];
+  }
+
+  // V419: eksplisitte lokale aliaser der kilden bruker navn som ikke er
+  // identisk med bydelen i Settlements.
+  //
+  // Gand sokn / Gand kirke ligger i Sandved bydel.
+  // "Sandnes" som tidligere Settlement-navn er nå Sandnes sentrum, men Sandnes sentrum skal
+  // fortsatt være siste fallback og ikke slå mer spesifikke bydeler.
+  if (municipalityHint === "sandnes") {
+    const aliasText = arrNormalize([
+      item.organizer,
+      item.location,
+      item.title,
+      item.description,
+      item.settlementHint
+    ].filter(Boolean).join(" "));
+
+    const gandRe = /(^|[^a-z0-9æøå])gand(?:\s+sokn|\s+kirke)?($|[^a-z0-9æøå])/i;
+    if (gandRe.test(aliasText)) {
+      const sandved = findRuleByName("Sandved", allRulesForMunicipality);
+      if (sandved) {
+        if (sandved.active === false) return null;
+        return [sandved.rowId];
+      }
+    }
+  }
+
+  // Sjekk eksplisitte treff mot ALLE settlements i riktig kommune,
+  // inkludert deaktiverte. Et deaktivert eksplisitt sted skal ikke falle
+  // tilbake til en annen bydel.
+  const explicitSpecific =
+    findBest(item.location, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+    findBest(item.title, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+    findBest(item.description, allRulesForMunicipality, {excludeMunicipalityName:true}) ||
+    findBest(item.settlementHint, allRulesForMunicipality, {excludeMunicipalityName:true});
+
+  if (explicitSpecific && explicitSpecific.active === false) {
+    return null;
+  }
+
+  if (explicitSpecific && explicitSpecific.active !== false) {
+    return [explicitSpecific.rowId];
+  }
+
+  // Strukturert settlementHint før generelle fallback-regler.
+  let matched = findBest(
+    item.settlementHint,
+    rulesForMunicipality,
+    {excludeMunicipalityName:true}
+  );
+  if (matched) return [matched.rowId];
+
+  // Tillat deretter eksplisitt bruk av et aktivt Settlement-navn.
+  matched =
+    findBest(item.location, rulesForMunicipality) ||
+    findBest(item.title, rulesForMunicipality) ||
+    findBest(item.settlementHint, rulesForMunicipality) ||
+    findBest(item.description, rulesForMunicipality);
+
+  if (matched) return [matched.rowId];
+
+  // V419: Sandnes bydel "Sandnes" er omdøpt til "Sandnes sentrum".
+  // Sandnes sentrum er ABSOLUTT siste fallback for Sandnes kommune når kilden har
+  // flere mulige Settlements og eventet ikke kan knyttes til en annen bydel.
+  if (municipalityHint === "sandnes") {
+    const sentrum = findRuleByName("Sandnes sentrum", rulesForMunicipality);
+    if (sentrum) return [sentrum.rowId];
+  }
+
+  // Generisk kommune-fallback beholdes for andre kommuner der kommunenavnet
+  // også finnes som Settlement.
+  if (municipalityHint) {
+    const municipalitySettlement = rulesForMunicipality.find(
+      rule => rule.normalized === municipalityHint
+    );
+
+    if (municipalitySettlement) {
+      return [municipalitySettlement.rowId];
+    }
+  }
+
+  return [];
+}
+
+function arrFilterParsedEventWindow(items, nowMs=Date.now()) {
+  const fromMs = nowMs - 7 * 86400000;
+  const toMs = nowMs + 400 * 86400000;
+
+  return (Array.isArray(items) ? items : []).filter(item => {
+    if (!item?.startTime) return false;
+    const ts = new Date(item.startTime).getTime();
+    return Number.isFinite(ts) && ts >= fromMs && ts <= toMs;
+  });
+}
+
+async function arrLoadSourceEvents(source) {
+  const method = arrNormalize(arrCellValue(source[ARR_F.sources.importMethod]));
+  const url = String(source[ARR_F.sources.calendarUrl] || source[ARR_F.sources.website] || "").trim();
+  if (!url) throw new Error("Calendar URL mangler");
+
+  // Known sources take precedence over the free-text Import Method field.
+  const sourceId = String(source[ARR_F.sources.sourceId] || "").trim();
+  const sourceName = arrClean(source[ARR_F.sources.name] || "");
+
+  // V480: Tryggheim overvåkes kun via den offentlige AllEvents-arrangørsiden.
+  // Skolerute/aktuelt-sider brukes ikke som arrangementsgrunnlag.
+  if (sourceId === "SRC-0031") {
+    return arrFetchAndParseTryggheimAllEvents(
+      "https://allevents.in/org/tryggheim-vgs/17277959"
+    );
+  }
+
+  // V328: Vigrestad Misjonshus er delt opp i separate Sources, én per offentlig
+  // Google Calendar/romkalender. Dette gjør at hver kalender kan aktiveres eller
+  // deaktiveres uavhengig i Sources-tabellen. Ingen tittel-/nøkkelordfiltrering
+  // gjøres her; Enabled på Source er selve av/på-bryteren.
+  //
+  // Calendar URL for disse radene skal være den direkte Google Calendar ICS-URL-en.
+  // Vi normaliserer arrangør og sted slik at Source-navnet (f.eks. «Hovedsal»)
+  // ikke blir vist som en egen arrangør i portalen. Source Event ID prefikses med
+  // Source ID slik at identiske Google UID-er i to romkalendere ikke kolliderer.
+  // V330: Alle separate Vigrestad-romkilder SRC-0016..SRC-0026 behandles likt.
+  // Vi bruker Source ID som autoritativ avgrensning slik at navnevarianter som
+  // «Festsal og salong» ikke faller ut av spesialimporten. SRC-0027 Årsplaner
+  // er bevisst ikke med her (Google Drive/PDF og står deaktivert).
+  const vigrestadSplitSource = /^SRC-(?:001[6-9]|002[0-6])$/i.test(sourceId);
+  if (vigrestadSplitSource) {
+    return arrFetchAndParseVigrestadSource(source, url);
+  }
+
+  // V299: Hå har en komplett Agrando-kalender på haa.kyrkja.no.
+  // Den inneholder langt flere lokale aktiviteter enn Skjer i kirken.
+  // SRC-0003 bruker derfor Hå sin egen kalender; Time/Sandnes fortsetter
+  // foreløpig via Skjer i kirken.
+  if (sourceId === "SRC-0003") {
+    return arrFetchAndParseHaaAgrando("https://haa.kyrkja.no/Kalender");
+  }
+
+  // Den norske kirke / Skjer i kirken for Time, Sandnes og generiske kilder.
+  if (
+    sourceId === "SRC-0012" ||
+    sourceId === "SRC-0013" ||
+    /skjerikirken\.no\/menighet\//i.test(url)
+  ) {
+    const slug =
+      sourceId === "SRC-0012" ? "time-kyrkjelege-fellesrad" :
+      sourceId === "SRC-0013" ? "sandnes-kirkelige-fellesrad" :
+      (url.match(/\/menighet\/([^/?#]+)/i)?.[1] || "");
+
+    if (!slug) throw new Error("Skjer i kirken: mangler menighet/fellesråd-slug");
+    return arrFetchAndParseKirkenActivities(slug);
+  }
+
+  if (/haa\.kyrkja\.no/i.test(url)) {
+    return arrFetchAndParseHaaAgrando(url);
+  }
+  if (/pinsebetel\.no/i.test(url)) return arrFetchAndParseBetel(url);
+  if (/narbobedehus\.no/i.test(url)) return arrFetchAndParseNarbo(url);
+  if (/ognamisjonsforsamling\.no/i.test(url)) {
+    // V241: Ogna publiserer en fast offentlig Google Calendar iCal-feed.
+    // Bruk feeden direkte i stedet for å trekke URL-en ut av HTML hver gang.
+    return arrFetchAndParseIcal("https://calendar.google.com/calendar/ical/ognamisjonsforsamling%40gmail.com/public/basic.ics");
+  }
+  if (/varhaug-misjonshus\.no/i.test(url)) {
+    const website = String(source[ARR_F.sources.website] || url).trim();
+    return arrFetchAndParseVarhaug(website);
+  }
+  if (/obsbedehus\.no/i.test(url)) {
+    return arrFetchAndParseObsBedehus(url);
+  }
+  if (/bedehuskirken\.no/i.test(url)) {
+    return arrFetchAndParseBedehuskirken(url);
+  }
+  if (/kleppebedehus\.no/i.test(url)) {
+    // V313: Ikke bruk den enorme Google ICS-feeden (~1800 historiske VEVENT).
+    // Kleppe Bedehus viser kalenderen via WordPress Simple Calendar, så vi
+    // bruker pluginens ferdig avgrensede HTML/AJAX-visning direkte.
+    return arrFetchAndParseKleppeBedehus(
+      "https://kleppebedehus.no/calendar/kalender/"
+    );
+  }
+  if (/klepp\.frikyrkja\.no/i.test(url)) {
+    return arrFetchAndParseKleppFrikirke(url);
+  }
+  if (/brynefrikyrkje\.no/i.test(url)) {
+    return arrFetchAndParseBryneFrikirke(url);
+  }
+  if (/fredheimarena\.no/i.test(url)) {
+    // V258: Fredheim Arena bruker en offentlig Google Calendar.
+    // Hent den faktiske iCal-feeden direkte i stedet for å parse synlig HTML.
+    // Dette gir korrekte datoer/titler og alle publiserte kommende arrangementer,
+    // inkludert gjentakende hendelser som ekspanderes av den eksisterende iCal-parseren.
+    return arrFetchAndParseIcal(
+      "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics"
+    );
+  }
+  if (/vigrestadmisjonshus\.org/i.test(url)) {
+    return arrFetchAndParseVigrestad();
+  }
+  if (/ebeneser\.no/i.test(url)) {
+    return arrFetchAndParseEbeneser();
+  }
+  // V427: The Events Calendar sin ?ical=1-eksport på Lye er knyttet til
+  // den månedsvisningen URL-en gjelder. Hent derfor alle måneder fra
+  // inneværende måned og gjennom importvinduet (+400 dager), i stedet for
+  // bare måneden som vises akkurat nå.
+  if (/lyeforsamlingshus\.no/i.test(url)) {
+    return arrFetchAndParseLyeList(url);
+  }
+
+  // Accept the human-readable values used in the Sources table.
+  if (["ical","ics","i cal","i-calendar","ics/ical","ical/ics"].includes(method)) {
+    return arrFetchAndParseIcalFromPage(url);
+  }
+
+  if (["html parser","html","web page","webpage"].includes(method)) {
+    throw new Error(`VENTER – HTML-parser er ikke definert for denne kilden ennå: ${url}`);
+  }
+
+  if (["api/feed to be determined","api/feed","dynamic"].includes(method)) {
+    throw new Error(`VENTER – API/feed-parser er ikke definert for denne kilden ennå: ${url}`);
+  }
+
+  if (!method) {
+    if (/calendar\.google\.com\/calendar\/ical\//i.test(url) || /\.ics(?:\?|$)/i.test(url)) {
+      return arrFetchAndParseIcalFromPage(url);
+    }
+  }
+
+  throw new Error(`Import Method støttes ikke ennå: ${arrCellValue(source[ARR_F.sources.importMethod]) || "(tom)"}`);
+}
+
+
+async function arrKirkenGraphql(query) {
+  const endpoint = "https://skjeri-api.kirken.no/api/graphql";
+  const r = await fetch(endpoint,{
+    method:"POST",
+    headers:{
+      "User-Agent":"Kvimarka92-Arrangementskalender/1.0",
+      "Accept":"application/json",
+      "Content-Type":"application/json",
+      "Origin":"https://skjerikirken.no",
+      "Referer":"https://skjerikirken.no/"
+    },
+    body:JSON.stringify({query})
+  });
+
+  const raw = await r.text();
+  let data = null;
+  try { data = JSON.parse(raw); } catch (_) {}
+
+  if (!r.ok) {
+    throw new Error(`Skjer i kirken GraphQL HTTP ${r.status}: ${raw.slice(0,800)}`);
+  }
+  if (data?.errors?.length) {
+    throw new Error(`Skjer i kirken GraphQL: ${data.errors.map(e=>e.message).join(" | ")}`);
+  }
+  return data?.data || {};
+}
+
+function arrKirkenGqlString(value) {
+  return JSON.stringify(String(value ?? ""));
+}
+
+function arrKirkenLocation(church) {
+  const c = church || {};
+  const parts = [];
+
+  const name = arrClean(c.locationName || "");
+  if (name) parts.push(name);
+
+  const street = arrClean(c.street || "")
+    .replace(/\bundefined\b/gi,"")
+    .replace(/\s+/g," ")
+    .trim();
+  if (street && !/^undefined\b/i.test(street)) parts.push(street);
+
+  const postal = [arrClean(c.postalCode || ""), arrClean(c.postalArea || "")]
+    .filter(Boolean).join(" ");
+  if (postal) parts.push(postal);
+
+  return parts.join(", ");
+}
+
+
+function arrKirkenOrganizerName(item, church) {
+  const congregation = arrClean(church?.congregationName || "");
+  const coOrganizers = Array.isArray(item?.coOrganizers) ? item.coOrganizers : [];
+
+  // Hvis API-et faktisk oppgir et lokalt sokn, bruk det.
+  if (congregation && !/fellesr[aå]d/i.test(congregation)) {
+    return congregation;
+  }
+
+  // Enkelte aktiviteter kommer fra fellesrådet som hovedarrangør, men har
+  // lokalt sokn som medarrangør. Bruk soknet i så fall.
+  const localCoOrganizer = coOrganizers
+    .map(x => arrClean(x?.name || ""))
+    .find(name => name && /\bsokn\b/i.test(name));
+
+  if (localCoOrganizer) {
+    return localCoOrganizer;
+  }
+
+  // Skjer i kirken returnerer flere lokale arrangementer med f.eks.
+  // "Hå Kyrkjelege Fellesråd" som congregationName og ingen medarrangør.
+  // Da må arrangøren utledes av selve kirkestedet:
+  // "Nærbø kyrkje" -> "Nærbø sokn", "Bryne kyrkje" -> "Bryne sokn" osv.
+  const locationName = arrClean(church?.locationName || "");
+  const placeMatch = locationName.match(
+    /^(.+?)\s+(?:kyrkje|kirke)(?:\s.*)?$/i
+  );
+
+  if (placeMatch && placeMatch[1]) {
+    const base = arrClean(placeMatch[1])
+      .replace(/\s+(?:gamle|nye)$/i, "")
+      .trim();
+
+    if (base) {
+      return `${base} sokn`;
+    }
+  }
+
+  // PostalArea er en trygg siste lokal fallback når arrangementet er knyttet
+  // til et fellesråd og kirkestedet ikke har et vanlig "... kyrkje/kirke"-navn.
+  const postalArea = arrClean(church?.postalArea || "");
+  if (postalArea && congregation && /fellesr[aå]d/i.test(congregation)) {
+    return `${postalArea} sokn`;
+  }
+
+  return (
+    congregation ||
+    arrClean(coOrganizers?.[0]?.name || "") ||
+    "Den norske kirke"
+  );
+}
+
+
+function arrKirkenDateTimeIso(value) {
+  const raw = arrClean(value || "");
+  if (!raw) return null;
+
+  // Har kilden eksplisitt tidssone/UTC, behold den som et absolutt tidspunkt.
+  if (/[zZ]$|[+-]\d{2}:\d{2}$/.test(raw)) {
+    return arrIsoOrNull(raw);
+  }
+
+  // Skjer i kirken GraphQL leverer enkelte startTime/endTime som lokal
+  // veggklokketid uten tidssone. Node/GitHub Actions tolker slike strenger
+  // som UTC, som gir +1/+2 timer i frontend. Tolk dem eksplisitt som
+  // Europe/Oslo i stedet.
+  const m = raw.match(
+    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/
+  );
+  if (!m) return arrIsoOrNull(raw);
+
+  const iso = arrOsloLocalIso(
+    Number(m[1]),
+    Number(m[2]),
+    Number(m[3]),
+    Number(m[4]),
+    Number(m[5]),
+    Number(m[6] || 0)
+  );
+
+  // Bevar millisekunder bare når de faktisk finnes i kilden.
+  if (iso && m[7]) {
+    const ms = String(m[7]).padEnd(3, "0").slice(0, 3);
+    return iso.replace(/\.000Z$/, `.${ms}Z`);
+  }
+  return iso;
+}
+
+async function arrFetchAndParseKirkenActivities(slug) {
+  const pageUrl = `https://skjerikirken.no/menighet/${encodeURIComponent(slug)}`;
+  const html = await arrFetchText(pageUrl);
+
+  const nextDataMatch = html.match(
+    /<script[^>]+id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i
+  );
+  if (!nextDataMatch) {
+    throw new Error(`Skjer i kirken: fant ikke __NEXT_DATA__ for ${slug}`);
+  }
+
+  let nextData;
+  try {
+    nextData = JSON.parse(nextDataMatch[1]);
+  } catch (_) {
+    throw new Error(`Skjer i kirken: ugyldig __NEXT_DATA__ for ${slug}`);
+  }
+
+  const props = nextData?.props?.pageProps || {};
+  const orgNumbers = Array.isArray(props.orgNumbers)
+    ? props.orgNumbers.map(Number).filter(Number.isFinite)
+    : [];
+
+  // V289: orgNumbers kan også returnere aktiviteter der en enhet fra dette
+  // fellesrådet bare er medarrangør. De skal ikke importeres under feil kommune.
+  // Kilden er kommune-/fellesrådsspesifikk, så church.municipality må samsvare.
+  const expectedMunicipality =
+    slug === "ha-kyrkjelege-fellesrad" ? "Hå" :
+    slug === "time-kyrkjelege-fellesrad" ? "Time" :
+    slug === "sandnes-kirkelige-fellesrad" ? "Sandnes" :
+    arrClean(props.municipalityName || "");
+
+  if (!orgNumbers.length) {
+    throw new Error(`Skjer i kirken: fant ingen orgNumbers for ${slug}`);
+  }
+
+  const startDate = new Date(Date.now() - 7 * 86400000);
+  const endDate = new Date(Date.now() + 400 * 86400000);
+  const start = startDate.toISOString().slice(0,10);
+  const end = endDate.toISOString().slice(0,10);
+  const orgs = orgNumbers.join(",");
+
+  const all = [];
+  const limit = 100;
+  let offset = 0;
+  let total = null;
+
+  for (let page=0; page<30; page++) {
+    const query = `
+      query {
+        activities(
+          filter:{
+            orgNumbers:[${orgs}],
+            startTime:${arrKirkenGqlString(start)},
+            lessThanStartTime:${arrKirkenGqlString(end)}
+          },
+          paging:{
+            limit:${limit},
+            offset:${offset},
+            sortByDate:true,
+            sortDescending:false
+          }
+        ){
+          limit
+          offset
+          hasMore
+          total
+          items{
+            id
+            sourceId
+            seriesId
+            title
+            description
+            slug
+            startTime
+            endTime
+            eventUrl
+            homePageUrl
+            registrationUrl
+            source
+            status
+            church{
+              locationName
+              congregationName
+              municipality
+              county
+              street
+              postalCode
+              postalArea
+              contactName
+              buildingId
+              locationType
+            }
+            coOrganizers{
+              name
+              orgNr
+              municipalityName
+              slug
+            }
+          }
+        }
+      }
+    `;
+
+    const data = await arrKirkenGraphql(query);
+    const result = data?.activities;
+    if (!result || !Array.isArray(result.items)) {
+      throw new Error(`Skjer i kirken: activities mangler for ${slug}`);
+    }
+
+    total = Number(result.total ?? total ?? 0);
+    all.push(...result.items);
+
+    if (!result.hasMore || !result.items.length) break;
+    offset += result.items.length;
+    if (total && offset >= total) break;
+  }
+
+  const parsed = [];
+
+  for (const item of all) {
+    if (!item?.id || !item?.title || !item?.startTime) continue;
+    if (item.status !== null && item.status !== undefined && Number(item.status) !== 1) continue;
+
+    const church = item.church || {};
+
+    // Hard kildefilter: Hå-kilden skal bare gi Hå-arrangementer, Time bare
+    // Time og Sandnes bare Sandnes. Dette fjerner f.eks. Ganddal sokn fra Hå.
+    const churchMunicipality = arrClean(church.municipality || "");
+    if (
+      expectedMunicipality &&
+      churchMunicipality &&
+      arrNormalize(churchMunicipality) !== arrNormalize(expectedMunicipality)
+    ) {
+      continue;
+    }
+
+    const location = arrKirkenLocation(church) || arrClean(church.locationName || "");
+    const organizer = arrKirkenOrganizerName(item, church);
+
+    const sourceUrl =
+      arrClean(item.eventUrl || "") ||
+      (item.slug ? `https://skjerikirken.no/arrangement/${encodeURIComponent(item.slug)}` : pageUrl);
+
+    parsed.push({
+      sourceEventId:`kirken-${item.id}`,
+      title:arrClean(item.title),
+      startTime:arrKirkenDateTimeIso(item.startTime),
+      endTime:arrKirkenDateTimeIso(item.endTime),
+      organizer,
+      location,
+      description:arrClean(item.description || ""),
+      sourceUrl,
+      settlementHint:(() => {
+        const locationText = arrClean(location || "");
+        const organizerText = arrClean(organizer || "");
+
+        // V453: alle Skjer i kirken-arrangementer som faktisk gjelder
+        // Undheim kyrkje / Undheim sokn skal få tettsted Undheim.
+        if (
+          /\bUndheim kyrkje\b/i.test(locationText) ||
+          /\bUndheim sokn\b/i.test(organizerText)
+        ) {
+          return "Undheim";
+        }
+
+        return arrClean(church.postalArea || "");
+      })(),
+      municipalityHint:arrClean(church.municipality || props.municipalityName || ""),
+    });
+  }
+
+  if (!parsed.length && total) {
+    throw new Error(`Skjer i kirken: ${total} aktiviteter meldt, men ingen kunne parses for ${slug}`);
+  }
+
+  return arrDedupeParsed(parsed);
+}
+
+
+async function arrFetchAndParseVigrestadSource(source, url) {
+  if (!/calendar\.google\.com\/calendar\/ical\//i.test(url) && !/\.ics(?:\?|$)/i.test(url)) {
+    throw new Error("Vigrestad-underkilde må ha direkte Google Calendar ICS-adresse");
+  }
+
+  const sourceId = arrClean(source[ARR_F.sources.sourceId] || "vigrestad");
+  const parsed = await arrFetchAndParseIcal(url);
+  const out = [];
+
+  for (const item of parsed) {
+    if (!item?.startTime || !arrClean(item.title || "")) continue;
+
+    const rawId = item.sourceEventId || await arrStableKey(
+      "vigrestad-room",
+      item.startTime,
+      item.title,
+      item.endTime || ""
+    );
+
+    out.push({
+      ...item,
+      sourceEventId:`vigrestad-${arrNormalize(sourceId)}-${rawId}`,
+      organizer:"Vigrestad Misjonshus",
+      location:"Vigrestad Misjonshus",
+      sourceUrl:url
+    });
+  }
+
+  const deduped = arrDedupeParsed(out);
+
+  if (!deduped.length) {
+    // V407: Fuglareiret kan legitimt være helt tom.
+    // For SRC-0017 skal 0 arrangementer derfor regnes som en gyldig import,
+    // men som merge-only slik at eventuelle eldre rader ikke deaktiveres
+    // bare fordi kalenderen akkurat nå er tom.
+    if (sourceId === "SRC-0017") {
+      deduped._mergeOnly = true;
+      deduped._importNote =
+        "Vigrestad Misjonshus Fuglareiret: kalenderen er tom; dette er gyldig og eksisterende usette rader beholdes.";
+      return deduped;
+    }
+
+    throw new Error(
+      `Vigrestad-underkilde ${sourceId} ga ingen arrangementer i importvinduet`
+    );
+  }
+
+  return deduped;
+}
+
+
+async function arrFetchAndParseVigrestad() {
+  // Vigrestad Misjonshus publiserer separate offentlige Google-kalendere per rom.
+  // Første versjon bruker Hovedsal + Fuglareiret, som dekker de mest relevante
+  // offentlige aktivitetene uten å importere alle rombestillinger ukritisk.
+  const calendars = [
+    {
+      room:"Hovedsal",
+      url:"https://calendar.google.com/calendar/ical/c31ebf75ce40366d5917a6c5660f5f04caa81fe89f14f4f387198d8b973a3969%40group.calendar.google.com/public/basic.ics"
+    },
+    {
+      room:"Fuglareiret",
+      url:"https://calendar.google.com/calendar/ical/48036d86b771da59c556435c7a62eefff1ebebefed9ca39a24d4518dfb5ab1a3%40group.calendar.google.com/public/basic.ics"
+    }
+  ];
+
+  const publicHints = [
+    "gudstjeneste","møte","mote","bønn","bonn","bib","misjon","norkirken",
+    "fuglareiret","speidar","speider","yngres","unges","barnekor","kor",
+    "vi over 60","senior","basar","konsert","fest","samling","søndag","sondag",
+    "jule","påske","paske","årsmøte","arsmote","dugnad","kveld","formiddag"
+  ];
+  const privateHints = [
+    "privat","reservert","reservasjon","utleie","utleid","booking","opptatt",
+    "bryllup","bursdag","minnesamvær","minnesamver","selskap"
+  ];
+
+  const all = [];
+  for (const cal of calendars) {
+    const parsed = await arrFetchAndParseIcal(cal.url);
+    for (const item of parsed) {
+      const text = arrNormalize([item.title,item.description,item.location].filter(Boolean).join(" "));
+      if (!text) continue;
+      if (privateHints.some(h => text.includes(arrNormalize(h)))) continue;
+
+      // Fuglareiret-kalenderen er i seg selv en offentlig aktivitet. For Hovedsal
+      // krever vi et tydelig arrangements-signal for å unngå private rombookinger.
+      const isPublic = cal.room === "Fuglareiret" || publicHints.some(h => text.includes(arrNormalize(h)));
+      if (!isPublic) continue;
+
+      all.push({
+        ...item,
+        sourceEventId:`vigrestad-${arrNormalize(cal.room)}-${item.sourceEventId || await arrStableKey("vigrestad", item.startTime, item.title)}`,
+        location:"Vigrestad Misjonshus",
+        sourceUrl:"https://vigrestadmisjonshus.org/kalendere.html?v=2"
+      });
+    }
+  }
+
+  const deduped = arrDedupeParsed(all);
+  if (!deduped.length) throw new Error("Vigrestad-parser fant ingen offentlige arrangementer");
+  return deduped;
+}
+
+
+async function arrFetchAndParseLyeList(url) {
+  const parsedUrl = new URL(url);
+  const origin = parsedUrl.origin;
+  const startDate = new Date();
+  const startKey = `${startDate.getUTCFullYear()}-${String(startDate.getUTCMonth()+1).padStart(2,"0")}-01`;
+
+  // The Events Calendar sin måneds-ICS er bare én måned og de daterte
+  // ICS-endepunktene kan time ut fra GitHub Actions. Listevisningen er vanlig
+  // HTML og inneholder ferdige schema.org/Event-objekter i JSON-LD.
+  let nextUrl = `${origin}/events/liste/?tribe-bar-date=${startKey}`;
+  const visited = new Set();
+  const all = [];
+  let pages = 0;
+
+  const maxTs = Date.now() + 400 * 86400000;
+  const minTs = Date.now() - 7 * 86400000;
+
+  function extractJsonLdEvents(html, pageUrl) {
+    const found = [];
+    const scriptRe = /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+    let m;
+
+    while ((m = scriptRe.exec(html)) !== null) {
+      const raw = String(m[1] || "").trim();
+      if (!raw) continue;
+
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (_) {
+        continue;
+      }
+
+      const queue = Array.isArray(data) ? [...data] : [data];
+
+      while (queue.length) {
+        const item = queue.shift();
+        if (!item || typeof item !== "object") continue;
+
+        if (Array.isArray(item)) {
+          queue.push(...item);
+          continue;
+        }
+
+        if (item["@graph"] && Array.isArray(item["@graph"])) {
+          queue.push(...item["@graph"]);
+        }
+
+        const type = Array.isArray(item["@type"]) ? item["@type"] : [item["@type"]];
+        if (!type.some(v => String(v || "").toLowerCase() === "event")) continue;
+
+        const title = arrClean(item.name || "");
+        const startTime = arrClean(item.startDate || "");
+        if (!title || !startTime) continue;
+
+        const ts = new Date(startTime).getTime();
+        if (!Number.isFinite(ts) || ts < minTs || ts > maxTs) continue;
+
+        const eventUrl = arrClean(item.url || pageUrl);
+        const location =
+          arrClean(item.location?.name || item.location || "");
+        const organizer =
+          arrClean(item.organizer?.name || item.organizer || "");
+        const description =
+          arrClean(arrHtmlToLines(String(item.description || "")));
+
+        found.push({
+          sourceEventId: eventUrl
+            ? `lye-${eventUrl.replace(/^https?:\/\//i,"").replace(/[^a-z0-9æøå]+/gi,"-").replace(/^-|-$/g,"").slice(-120)}`
+            : null,
+          title,
+          startTime,
+          endTime: arrClean(item.endDate || "") || null,
+          organizer,
+          location,
+          description,
+          sourceUrl: eventUrl || pageUrl,
+          municipalityHint: "Time",
+          settlementHint: "Lye"
+        });
+      }
+    }
+
+    return found;
+  }
+
+  function extractNextListUrl(html, pageUrl) {
+    const anchors = [...html.matchAll(/<a\b([^>]*?)href=["']([^"']+)["']([^>]*)>/gi)];
+
+    for (const m of anchors) {
+      const attrs = `${m[1] || ""} ${m[3] || ""}`;
+      const href = arrDecodeEntities(m[2] || "").replace(/&amp;/g,"&");
+
+      if (
+        /\brel=["'][^"']*\bnext\b/i.test(attrs) ||
+        /tribe-events-c-nav__next/i.test(attrs)
+      ) {
+        try {
+          const absolute = new URL(href, pageUrl).href;
+          if (/\/events\/liste\//i.test(absolute)) return absolute;
+        } catch (_) {}
+      }
+    }
+
+    return null;
+  }
+
+  async function crawlFrom(startUrl) {
+    let currentUrl = startUrl;
+
+    while (currentUrl && pages < 60) {
+      if (visited.has(currentUrl)) break;
+      visited.add(currentUrl);
+      pages++;
+
+      const html = await arrFetchText(currentUrl);
+      const pageItems = extractJsonLdEvents(html, currentUrl);
+      all.push(...pageItems);
+
+      // Hvis siden allerede inneholder arrangementer etter importvinduet trenger
+      // vi ikke følge pagineringen videre.
+      const pageDates = pageItems
+        .map(item => new Date(item.startTime).getTime())
+        .filter(Number.isFinite);
+
+      if (pageDates.length && Math.max(...pageDates) >= maxTs) break;
+
+      const candidate = extractNextListUrl(html, currentUrl);
+      if (!candidate || visited.has(candidate)) break;
+      currentUrl = candidate;
+    }
+  }
+
+  await crawlFrom(nextUrl);
+
+  // V432: The Events Calendar kan av og til svare med en gyldig side uten
+  // Event-JSON-LD / paginering. Da prøver vi alternative, stabile innganger
+  // før vi erklærer kildefeil. Eksisterende kildevern sørger fortsatt for at
+  // gamle data beholdes hvis alle forsøkene skulle feile.
+  if (!all.length) {
+    const todayKey = new Date().toISOString().slice(0,10);
+    const fallbacks = [
+      `${origin}/events/liste/?tribe-bar-date=${todayKey}`,
+      `${origin}/events/liste/`,
+      `${origin}/events/maned/`
+    ];
+
+    for (const fallbackUrl of fallbacks) {
+      if (all.length) break;
+      if (visited.has(fallbackUrl)) continue;
+
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      await crawlFrom(fallbackUrl);
+    }
+  }
+
+  // Dedupliser. Event-URL er normalt unik i The Events Calendar.
+  const seen = new Set();
+  const unique = [];
+
+  for (const item of all) {
+    if (!item.sourceEventId) {
+      item.sourceEventId = `lye-${await arrStableKey("LYE", item.startTime, item.title)}`;
+    }
+
+    const key = `${item.sourceEventId}|${item.startTime}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(item);
+  }
+
+  if (!unique.length) {
+    throw new Error(`Lye-parser fant ingen arrangementer i listevisningen (${pages} side(r) lest)`);
+  }
+
+  return arrFilterParsedEventWindow(unique);
+}
+
+async function arrFetchAndParseIcalFromPage(url) {
+  // Direkte iCal-feeder har ikke alltid .ics som filendelse.
+  if (
+    /calendar\.google\.com\/calendar\/ical\//i.test(url) ||
+    /api\.eventcalendarapp\.com\/ics\//i.test(url) ||
+    /\.ics(?:\?|$)/i.test(url) ||
+    /[?&]ical=1(?:&|$)/i.test(url)
+  ) {
+    return arrFetchAndParseIcal(url);
+  }
+
+  const html = await arrFetchText(url);
+  const hrefMatches = [...html.matchAll(/href\s*=\s*["']([^"']+)["']/gi)].map(m => arrDecodeEntities(m[1]).replace(/&amp;/g,"&"));
+  let icsUrl = hrefMatches.find(h => /calendar\.google\.com\/calendar\/ical\//i.test(h) || /\.ics(?:\?|$)/i.test(h));
+
+  // Some WordPress/calendar plugins print the URL outside a normal href attribute.
+  if (!icsUrl) {
+    const raw = html.match(/https?:\/\/calendar\.google\.com\/calendar\/ical\/[^\s"'<>]+/i) || html.match(/https?:\/\/[^\s"'<>]+\.ics(?:\?[^\s"'<>]*)?/i);
+    if (raw) icsUrl = arrDecodeEntities(raw[0]).replace(/&amp;/g,"&");
+  }
+
+  if (!icsUrl) throw new Error(`Fant ingen iCal/ICS-lenke på ${url}`);
+  icsUrl = arrClean(String(icsUrl)).replace(/[)>]+$/g,"");
+  return arrFetchAndParseIcal(icsUrl);
+}
+
+async function arrFetchText(url) {
+  const headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+    "Accept": "text/calendar,text/plain,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "nb-NO,nb;q=0.9,no;q=0.8,en;q=0.7",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache"
+  };
+
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
+      let r;
+      try {
+        r = await fetch(url, {
+          headers,
+          redirect: "follow",
+          signal: controller.signal
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+
+      if (!r.ok) {
+        throw new Error(`HTTP ${r.status} ${r.statusText || ""}`.trim());
+      }
+
+      return await r.text();
+    } catch (err) {
+      lastError = err;
+
+      if (attempt < 3) {
+        await new Promise(resolve => setTimeout(resolve, attempt * 1500));
+      }
+    }
+  }
+
+  const cause =
+    lastError?.cause?.code ||
+    lastError?.cause?.message ||
+    lastError?.name ||
+    lastError?.message ||
+    "ukjent nettverksfeil";
+
+  throw new Error(`Kunne ikke hente kilde etter 3 forsøk (${cause}): ${url}`);
+}
+
+async function arrFetchAndParseIcal(url) {
+  const text = await arrFetchText(url);
+  return arrParseIcal(text,url);
+}
+
+function arrUnfoldIcal(text) {
+  return text.replace(/\r?\n[ \t]/g,"");
+}
+
+// V470: EventCalendarApp genererer ikke nødvendigvis en stabil VEVENT UID.
+// IMI-kirken har en stabil offentlig event-lenke i DESCRIPTION, f.eks.
+// https://imikirken.eventcalendarapp.com/u/20203/455760.
+// Denne lenken er derfor en bedre varig identitet enn UID.
+function arrExtractEventCalendarAppUrl(...values) {
+  for (const value of values) {
+    const valueText = String(value || "");
+    const match = valueText.match(
+      /https?:\/\/[a-z0-9.-]+\.eventcalendarapp\.com\/u\/(\d+)\/(\d+)/i
+    );
+    if (match) return match[0].replace(/[),.;]+$/g, "");
+  }
+  return "";
+}
+
+function arrEventCalendarAppStableId(...values) {
+  const url = arrExtractEventCalendarAppUrl(...values);
+  if (!url) return "";
+  const match = url.match(/\/u\/(\d+)\/(\d+)/i);
+  return match ? `eventcalendarapp-${match[1]}-${match[2]}` : "";
+}
+
+function arrPreferEventCalendarExisting(current, candidate) {
+  if (!current) return candidate;
+
+  const currentActive = current[ARR_F.events.active] !== false;
+  const candidateActive = candidate[ARR_F.events.active] !== false;
+  if (candidateActive !== currentActive) {
+    return candidateActive ? candidate : current;
+  }
+
+  const currentSeen = new Date(
+    current[ARR_F.events.lastSeen] || 0
+  ).getTime();
+  const candidateSeen = new Date(
+    candidate[ARR_F.events.lastSeen] || 0
+  ).getTime();
+
+  if (Number.isFinite(candidateSeen) && candidateSeen > currentSeen) {
+    return candidate;
+  }
+  if (Number.isFinite(currentSeen) && currentSeen > candidateSeen) {
+    return current;
+  }
+
+  return Number(candidate.id || 0) > Number(current.id || 0)
+    ? candidate
+    : current;
+}
+
+function arrParseIcal(text, sourceUrl) {
+  const unfolded = arrUnfoldIcal(text);
+  const allBlocks = unfolded.split("BEGIN:VEVENT").slice(1).map(x => x.split("END:VEVENT")[0]);
+
+  const out = [];
+  const nowMs = Date.now();
+  const fromMs = nowMs - 7 * 86400000;
+  const toMs = nowMs + 400 * 86400000;
+
+  // V312: Grovfiltrer VEVENT før arrParseIcalProps().
+  // Kleppe Bedehus har rundt 1800 historiske VEVENT-rader. Å fullparse alle
+  // disse i Workers Free er unødvendig og har gitt 503/resource-limit.
+  //
+  // RRULE-mastere beholdes alltid fordi en gammel DTSTART kan ha fremtidige
+  // forekomster. Vanlige enkeltarrangement og RECURRENCE-ID-unntak kan derimot
+  // forkastes svært billig ut fra YYYYMMDD i DTSTART-linjen.
+  const fromDateKey = new Date(fromMs).toISOString().slice(0,10).replace(/-/g,"");
+  const toDateKey = new Date(toMs).toISOString().slice(0,10).replace(/-/g,"");
+
+  const blocks = allBlocks.filter(block => {
+    if (/^RRULE(?:;|:)/mi.test(block)) return true;
+
+    const dt = block.match(/^DTSTART(?:;[^:]*)?:(\d{8})/mi);
+    if (!dt) return true;
+
+    const dateKey = dt[1];
+    return dateKey >= fromDateKey && dateKey <= toDateKey;
+  });
+
+  const parsedBlocks = blocks.map(block => ({block, props:arrParseIcalProps(block)}));
+
+  // Google Calendar stores recurring events as one VEVENT + RRULE. Earlier versions
+  // imported only the original DTSTART, which meant recurring future Ogna events never
+  // appeared. Expand the common recurrence rules into concrete occurrences here.
+  const exceptionKeys = new Set();
+  for (const entry of parsedBlocks) {
+    const uid = entry.props.UID?.value || "";
+    const recurrenceId = arrParseIcalDate(entry.props["RECURRENCE-ID"]?.value, entry.props["RECURRENCE-ID"]?.params);
+    if (uid && recurrenceId) exceptionKeys.add(`${uid}::${recurrenceId}`);
+  }
+
+  for (const entry of parsedBlocks) {
+    const {block, props} = entry;
+    const uid = props.UID?.value || null;
+    const start = arrParseIcalDate(props.DTSTART?.value, props.DTSTART?.params);
+    if (!start) continue;
+    const end = arrParseIcalDate(props.DTEND?.value, props.DTEND?.params);
+    const recurrenceId = arrParseIcalDate(props["RECURRENCE-ID"]?.value, props["RECURRENCE-ID"]?.params);
+    const title = arrIcalUnescape(props.SUMMARY?.value || "");
+    const location = arrIcalUnescape(props.LOCATION?.value || "");
+    const description = arrIcalUnescape(props.DESCRIPTION?.value || "");
+    const eventUrl = arrIcalUnescape(props.URL?.value || sourceUrl);
+    const eventCalendarStableId = arrEventCalendarAppStableId(
+      description,
+      eventUrl
+    );
+
+    if (recurrenceId) {
+      // V308: også enkeltstående unntak i en serie må ligge innenfor
+      // importvinduet. Tidligere ble historiske RECURRENCE-ID-rader beholdt.
+      const startMs = new Date(start).getTime();
+      if (Number.isFinite(startMs) && startMs >= fromMs && startMs <= toMs) {
+        out.push({
+          sourceEventId:eventCalendarStableId
+            ? `${eventCalendarStableId}::${recurrenceId}`
+            : (uid ? `${uid}::${recurrenceId}` : null),
+          title,
+          startTime:start,
+          endTime:end,
+          location,
+          description,
+          sourceUrl:eventUrl,
+        });
+      }
+      continue;
+    }
+
+    const rrule = props.RRULE?.value || "";
+    if (!rrule) {
+      // KRITISK V308-FIKS:
+      // Tidligere ble ALLE ikke-gjentakende VEVENT-rader importert uansett dato.
+      // Kleppe Bedehus sin Google Calendar inneholder rundt 1800 historiske
+      // VEVENT-rader. De ble dermed slettet av 7-dagers purge og opprettet på
+      // nytt ved hver import, samtidig som kildeimporten ble svært tung.
+      //
+      // Behold bare 7 dager historikk og 400 dager fremover, samme vindu som
+      // allerede brukes for RRULE-ekspansjon.
+      const startMs = new Date(start).getTime();
+      if (Number.isFinite(startMs) && startMs >= fromMs && startMs <= toMs) {
+        out.push({
+          sourceEventId:eventCalendarStableId || uid,
+          title,
+          startTime:start,
+          endTime:end,
+          location,
+          description,
+          sourceUrl:eventUrl
+        });
+      }
+      continue;
+    }
+
+    const durationMs = end ? Math.max(0, new Date(end).getTime() - new Date(start).getTime()) : null;
+    const exdates = arrIcalExdateSet(block);
+    const occurrences = arrExpandIcalRecurrence(props.DTSTART?.value, props.DTSTART?.params, rrule, fromMs, toMs);
+
+    for (const occurrenceStart of occurrences) {
+      if (exdates.has(occurrenceStart)) continue;
+      const occurrenceKey = eventCalendarStableId
+        ? `${eventCalendarStableId}::${occurrenceStart}`
+        : (uid ? `${uid}::${occurrenceStart}` : null);
+      if (occurrenceKey && exceptionKeys.has(occurrenceKey)) continue;
+      const occurrenceEnd = durationMs === null ? null : new Date(new Date(occurrenceStart).getTime() + durationMs).toISOString();
+      out.push({
+        sourceEventId:occurrenceKey,
+        title,
+        startTime:occurrenceStart,
+        endTime:occurrenceEnd,
+        location,
+        description,
+        sourceUrl:eventUrl,
+      });
+    }
+  }
+  return arrDedupeParsed(out);
+}
+
+function arrIcalExdateSet(block) {
+  const set = new Set();
+  for (const line of block.split(/\r?\n/)) {
+    if (!/^EXDATE(?:;|:)/i.test(line)) continue;
+    const idx = line.indexOf(":");
+    if (idx < 0) continue;
+    const left = line.slice(0,idx).split(";");
+    left.shift();
+    const params = {};
+    for (const p of left) {
+      const j=p.indexOf("=");
+      if (j>0) params[p.slice(0,j).toUpperCase()] = p.slice(j+1);
+    }
+    for (const raw of line.slice(idx+1).split(",")) {
+      const iso = arrParseIcalDate(raw.trim(), params);
+      if (iso) set.add(iso);
+    }
+  }
+  return set;
+}
+
+function arrParseRrule(value) {
+  const out = {};
+  for (const part of String(value || "").split(";")) {
+    const idx=part.indexOf("=");
+    if (idx>0) out[part.slice(0,idx).toUpperCase()] = part.slice(idx+1);
+  }
+  return out;
+}
+
+function arrExpandIcalRecurrence(dtStartValue, dtStartParams, ruleText, fromMs, toMs) {
+  const rule = arrParseRrule(ruleText);
+  const freq = String(rule.FREQ || "").toUpperCase();
+  const interval = Math.max(1, Number(rule.INTERVAL || 1));
+  const countLimit = rule.COUNT ? Math.max(1, Number(rule.COUNT)) : Infinity;
+  const untilIso = rule.UNTIL ? arrParseIcalDate(rule.UNTIL, {}) : null;
+  const untilMs = untilIso ? new Date(untilIso).getTime() : Infinity;
+  const maxMs = Math.min(toMs, untilMs);
+  const baseIso = arrParseIcalDate(dtStartValue, dtStartParams);
+  if (!baseIso || !freq) return baseIso ? [baseIso] : [];
+
+  const local = String(dtStartValue || "").match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/);
+  const isUtc = /Z$/.test(String(dtStartValue || ""));
+  const baseDate = new Date(baseIso);
+  const results = [];
+  let generated = 0;
+
+  const pushIso = iso => {
+    const ms = new Date(iso).getTime();
+    if (!Number.isFinite(ms) || ms > maxMs || generated >= countLimit) return false;
+    generated++;
+    if (ms >= fromMs && ms <= toMs) results.push(iso);
+    return true;
+  };
+
+  function makeLocalIso(y,m,d,h,mi,s) {
+    if (isUtc || !local) return new Date(Date.UTC(y,m-1,d,h,mi,s)).toISOString();
+    return arrOsloLocalIso(y,m,d,h,mi,s);
+  }
+
+  const baseY = local ? Number(local[1]) : baseDate.getUTCFullYear();
+  const baseM = local ? Number(local[2]) : baseDate.getUTCMonth()+1;
+  const baseD = local ? Number(local[3]) : baseDate.getUTCDate();
+  const baseH = local ? Number(local[4]) : baseDate.getUTCHours();
+  const baseMin = local ? Number(local[5]) : baseDate.getUTCMinutes();
+  const baseS = local ? Number(local[6]) : baseDate.getUTCSeconds();
+
+  if (freq === "DAILY") {
+    for (let n=0; generated<countLimit && n<2000; n+=interval) {
+      const d = new Date(Date.UTC(baseY,baseM-1,baseD+n));
+      const iso = makeLocalIso(d.getUTCFullYear(),d.getUTCMonth()+1,d.getUTCDate(),baseH,baseMin,baseS);
+      if (new Date(iso).getTime() > maxMs) break;
+      if (!pushIso(iso)) break;
+    }
+    return results;
+  }
+
+  if (freq === "WEEKLY") {
+    const dayMap={SU:0,MO:1,TU:2,WE:3,TH:4,FR:5,SA:6};
+    const baseDay = new Date(Date.UTC(baseY,baseM-1,baseD)).getUTCDay();
+    const byDays = String(rule.BYDAY || "").split(",").map(x=>x.replace(/^[-+]?\d+/,"")).map(x=>dayMap[x]).filter(x=>Number.isInteger(x));
+    const days = byDays.length ? [...new Set(byDays)].sort((a,b)=>a-b) : [baseDay];
+    const week0 = new Date(Date.UTC(baseY,baseM-1,baseD - baseDay));
+    outer: for (let week=0; week<600 && generated<countLimit; week+=interval) {
+      for (const dow of days) {
+        const d = new Date(week0.getTime() + (week*7+dow)*86400000);
+        if (d < new Date(Date.UTC(baseY,baseM-1,baseD))) continue;
+        const iso=makeLocalIso(d.getUTCFullYear(),d.getUTCMonth()+1,d.getUTCDate(),baseH,baseMin,baseS);
+        if (new Date(iso).getTime() > maxMs) break outer;
+        if (!pushIso(iso)) break outer;
+      }
+    }
+    return results;
+  }
+
+  if (freq === "MONTHLY") {
+    const monthDays = String(rule.BYMONTHDAY || baseD).split(",").map(Number).filter(n=>n>=1 && n<=31);
+    outer: for (let n=0; n<240 && generated<countLimit; n+=interval) {
+      const first = new Date(Date.UTC(baseY,baseM-1+n,1));
+      for (const md of monthDays) {
+        const d=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth(),md));
+        if (d.getUTCMonth()!==first.getUTCMonth()) continue;
+        if (d < new Date(Date.UTC(baseY,baseM-1,baseD))) continue;
+        const iso=makeLocalIso(d.getUTCFullYear(),d.getUTCMonth()+1,d.getUTCDate(),baseH,baseMin,baseS);
+        if (new Date(iso).getTime()>maxMs) break outer;
+        if (!pushIso(iso)) break outer;
+      }
+    }
+    return results;
+  }
+
+  if (freq === "YEARLY") {
+    for (let n=0;n<20 && generated<countLimit;n+=interval) {
+      const iso=makeLocalIso(baseY+n,baseM,baseD,baseH,baseMin,baseS);
+      if (new Date(iso).getTime()>maxMs) break;
+      if (!pushIso(iso)) break;
+    }
+    return results;
+  }
+
+  return [baseIso];
+}
+
+function arrParseIcalProps(block) {
+  const o = {};
+  for (const line of block.split(/\r?\n/)) {
+    const idx = line.indexOf(":");
+    if (idx < 0) continue;
+    const left = line.slice(0,idx);
+    const value = line.slice(idx+1);
+    const parts = left.split(";");
+    const name = parts.shift().toUpperCase();
+    const params = {};
+    for (const p of parts) {
+      const j = p.indexOf("=");
+      if (j > 0) params[p.slice(0,j).toUpperCase()] = p.slice(j+1);
+    }
+    o[name] = {value,params};
+  }
+  return o;
+}
+
+function arrParseIcalDate(value, params={}) {
+  if (!value) return null;
+  if (/^\d{8}$/.test(value)) return `${value.slice(0,4)}-${value.slice(4,6)}-${value.slice(6,8)}T00:00:00+02:00`;
+  const m = value.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/);
+  if (!m) return null;
+  const [,y,mo,d,h,mi,s,z] = m;
+  if (z === "Z") return new Date(`${y}-${mo}-${d}T${h}:${mi}:${s}Z`).toISOString();
+  // Local events are assumed Europe/Oslo. Offset conversion is resolved by JS through explicit offset helper.
+  return arrOsloLocalIso(Number(y),Number(mo),Number(d),Number(h),Number(mi),Number(s));
+}
+
+function arrBetelAttr(tag, name) {
+  const m = String(tag || "").match(new RegExp(`\\b${name}=["']([^"']*)["']`,"i"));
+  return m ? arrDecodeEntities(m[1]) : "";
+}
+
+function arrBetelStrip(html) {
+  return arrClean(
+    arrDecodeEntities(
+      String(html || "")
+        .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ")
+        .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi," ")
+        .replace(/<br\s*\/?>/gi," ")
+        .replace(/<[^>]+>/g," ")
+    ).replace(/\s+/g," ")
+  );
+}
+
+function arrParseBetelSimpleCalendarHtml(html, sourceUrl) {
+  const out = [];
+  const blockRe = /<li\b([^>]*\bclass=["'][^"']*\bsimcal-event\b[^"']*["'][^>]*)>([\s\S]*?)<\/li>/gi;
+  let m;
+
+  while ((m = blockRe.exec(String(html || ""))) !== null) {
+    const attrs = m[1];
+    const body = m[2];
+
+    let startSec = Number(arrBetelAttr(attrs,"data-start") || 0);
+    let endSec = Number(arrBetelAttr(attrs,"data-end") || 0);
+    let eventId = arrBetelAttr(attrs,"data-event-id") || arrBetelAttr(attrs,"data-id");
+
+    if (!startSec) {
+      const sm = body.match(/\bdata-event-start=["'](\d{9,13})["']/i);
+      if (sm) startSec = Number(sm[1]);
+    }
+    if (!endSec) {
+      const em = body.match(/\bdata-event-end=["'](\d{9,13})["']/i);
+      if (em) endSec = Number(em[1]);
+    }
+
+    const titleMatch =
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-title\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i) ||
+      body.match(/itemprop=["']name["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    const title = titleMatch ? arrBetelStrip(titleMatch[1]) : "";
+    if (!title || !startSec) continue;
+
+    // Simple Calendar bruker Unix-sekunder i data-attributtene.
+    if (startSec > 9999999999) startSec = Math.floor(startSec / 1000);
+    if (endSec > 9999999999) endSec = Math.floor(endSec / 1000);
+
+    const locationMatch =
+      body.match(/itemprop=["']location["'][^>]*>([\s\S]*?)<\/[^>]+>/i) ||
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-address\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    const descMatch =
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-description\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    out.push({
+      sourceEventId:eventId || undefined,
+      title,
+      startTime:new Date(startSec*1000).toISOString(),
+      endTime:endSec ? new Date(endSec*1000).toISOString() : null,
+      location:locationMatch ? arrBetelStrip(locationMatch[1]) : "Pinsemenigheten Betel, Nærbø",
+      description:descMatch ? arrBetelStrip(descMatch[1]) : "",
+      sourceUrl,
+    });
+  }
+
+  return arrDedupeParsed(out);
+}
+
+function arrBetelCalendarMeta(html) {
+  const raw = String(html || "");
+
+  const calendarTagMatch = raw.match(
+    /<div\b[^>]*class=["'][^"']*\bsimcal-default-calendar-list\b[^"']*["'][^>]*>/i
+  );
+  const tag = calendarTagMatch ? calendarTagMatch[0] : "";
+
+  const listTagMatch = raw.match(
+    /<div\b[^>]*class=["'][^"']*\bsimcal-events-list-container\b[^"']*["'][^>]*>/i
+  );
+  const listTag = listTagMatch ? listTagMatch[0] : "";
+
+  // V271: Simple Calendar markup varierer litt mellom første side og AJAX-svar.
+  // Bruk klassebasert tag først, men fall tilbake til direkte data-attributt-søk.
+  const firstNumber = (attr, preferredTag, minDigits=1, maxDigits=13) => {
+    const direct = Number(arrBetelAttr(preferredTag || "", attr) || 0);
+    if (direct) return direct;
+    const re = new RegExp(`\\b${attr}=["'](\\d{${minDigits},${maxDigits}})["']`, "i");
+    const mm = raw.match(re);
+    return mm ? Number(mm[1]) : 0;
+  };
+
+  // Calendar ID is normally a small WordPress post ID. Previous code
+  // incorrectly required 9-13 digits, which is suitable for timestamps only.
+  const id = firstNumber("data-calendar-id", tag, 1, 10);
+  const end = firstNumber("data-calendar-end", tag, 9, 13);
+  const next = firstNumber("data-next", listTag, 9, 13);
+  const prev = firstNumber("data-prev", listTag, 9, 13);
+
+  const isGrid = /\\bsimcal-default-calendar-grid\\b/i.test(raw);
+  const current = firstNumber("data-calendar-current", raw, 9, 13);
+  const eventsFirst = firstNumber("data-events-first", raw, 9, 13);
+
+  return {id,end,next,prev,isGrid,current,eventsFirst};
+}
+
+async function arrFetchBetelAjaxPage(calendarId, timestamp) {
+  const body = new URLSearchParams();
+  body.set("action","simcal_default_calendar_draw_list");
+  body.set("ts",String(timestamp));
+  body.set("id",String(calendarId));
+
+  const res = await fetch("https://pinsebetel.no/wp-admin/admin-ajax.php",{
+    method:"POST",
+    headers:{
+      "User-Agent":"Kvimarka92-Arrangementskalender/1.0",
+      "Accept":"application/json",
+      "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
+      "X-Requested-With":"XMLHttpRequest",
+      "Referer":"https://pinsebetel.no/hva-skjer/",
+    },
+    body:body.toString()
+  });
+
+  const raw = await res.text();
+  if (!res.ok) throw new Error(`Betel AJAX HTTP ${res.status}: ${raw.slice(0,300)}`);
+
+  let data;
+  try { data = JSON.parse(raw); }
+  catch (_) { throw new Error(`Betel AJAX ga ikke JSON: ${raw.slice(0,300)}`); }
+
+  if (!data || data.success === false || typeof data.data !== "string") {
+    throw new Error(`Betel AJAX ugyldig svar: ${raw.slice(0,500)}`);
+  }
+  return data.data;
+}
+
+
+function arrParseKleppeSimpleCalendarHtml(html, sourceUrl) {
+  const out = [];
+  const raw = String(html || "");
+
+  // Simple Calendar markup. This is deliberately the same narrow event block
+  // pattern already proven for Betel, but with Kleppe-specific fallback data.
+  const blockRe = /<li\b([^>]*\bclass=["'][^"']*\bsimcal-event\b[^"']*["'][^>]*)>([\s\S]*?)<\/li>/gi;
+  let m;
+
+  while ((m = blockRe.exec(raw)) !== null) {
+    const attrs = m[1];
+    const body = m[2];
+
+    let startSec = Number(arrBetelAttr(attrs,"data-start") || 0);
+    let endSec = Number(arrBetelAttr(attrs,"data-end") || 0);
+    const eventId =
+      arrBetelAttr(attrs,"data-event-id") ||
+      arrBetelAttr(attrs,"data-id") ||
+      "";
+
+    if (!startSec) {
+      const sm = body.match(/\bdata-event-start=["'](\d{9,13})["']/i);
+      if (sm) startSec = Number(sm[1]);
+    }
+    if (!endSec) {
+      const em = body.match(/\bdata-event-end=["'](\d{9,13})["']/i);
+      if (em) endSec = Number(em[1]);
+    }
+
+    if (startSec > 9999999999) startSec = Math.floor(startSec / 1000);
+    if (endSec > 9999999999) endSec = Math.floor(endSec / 1000);
+
+    // Tidligste mulige datofilter: forkast blokken før vi parser resten.
+    const startMs = startSec ? startSec * 1000 : 0;
+    const fromMs = Date.now() - 7 * 86400000;
+    const toMs = Date.now() + 400 * 86400000;
+    if (startMs && (startMs < fromMs || startMs > toMs)) continue;
+
+    const titleMatch =
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-title\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i) ||
+      body.match(/itemprop=["']name["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    const title = titleMatch ? arrBetelStrip(titleMatch[1]) : "";
+    if (!title || !startSec) continue;
+
+    const locationMatch =
+      body.match(/itemprop=["']location["'][^>]*>([\s\S]*?)<\/[^>]+>/i) ||
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-address\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    const descMatch =
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-description\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    const hrefMatch =
+      body.match(/<a\b[^>]*href=["']([^"']+)["'][^>]*>\s*(?:Se flere detaljer|More details)/i);
+
+    const startTime = new Date(startSec*1000).toISOString();
+
+    out.push({
+      sourceEventId:
+        eventId ||
+        `kleppe-${startSec}-${arrNormalize(title).slice(0,60)}`,
+      title,
+      startTime,
+      endTime:endSec ? new Date(endSec*1000).toISOString() : null,
+      location:locationMatch
+        ? arrBetelStrip(locationMatch[1])
+        : "Kleppe Bedehus, Kleppe",
+      description:descMatch ? arrBetelStrip(descMatch[1]) : "",
+      sourceUrl:hrefMatch
+        ? new URL(arrDecodeEntities(hrefMatch[1]),sourceUrl).href
+        : sourceUrl,
+      settlementHint:"Kleppe",
+      municipalityHint:"Klepp"
+    });
+  }
+
+  return arrDedupeParsed(out);
+}
+
+async function arrFetchSimpleCalendarGridPage({
+  baseUrl,
+  referer,
+  calendarId,
+  month,
+  year
+}) {
+  const body = new URLSearchParams();
+  body.set("action","simcal_default_calendar_draw_grid");
+  body.set("month",String(month));
+  body.set("year",String(year));
+  body.set("id",String(calendarId));
+
+  const res = await fetch(baseUrl,{
+    method:"POST",
+    headers:{
+      "User-Agent":"Kvimarka92-Arrangementskalender/1.0",
+      "Accept":"application/json",
+      "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
+      "X-Requested-With":"XMLHttpRequest",
+      "Referer":referer,
+    },
+    body:body.toString()
+  });
+
+  const raw = await res.text();
+  if (!res.ok) {
+    throw new Error(`Simple Calendar GRID AJAX HTTP ${res.status}: ${raw.slice(0,300)}`);
+  }
+
+  let data;
+  try { data = JSON.parse(raw); }
+  catch (_) {
+    throw new Error(`Simple Calendar GRID AJAX ga ikke JSON: ${raw.slice(0,300)}`);
+  }
+
+  if (!data || data.success === false || typeof data.data !== "string") {
+    throw new Error(`Simple Calendar GRID AJAX ugyldig svar: ${raw.slice(0,500)}`);
+  }
+
+  return data.data;
+}
+
+async function arrFetchSimpleCalendarAjaxPage({
+  baseUrl,
+  referer,
+  calendarId,
+  timestamp
+}) {
+  const body = new URLSearchParams();
+  body.set("action","simcal_default_calendar_draw_list");
+  body.set("ts",String(timestamp));
+  body.set("id",String(calendarId));
+
+  const res = await fetch(baseUrl,{
+    method:"POST",
+    headers:{
+      "User-Agent":"Kvimarka92-Arrangementskalender/1.0",
+      "Accept":"application/json",
+      "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
+      "X-Requested-With":"XMLHttpRequest",
+      "Referer":referer,
+    },
+    body:body.toString()
+  });
+
+  const raw = await res.text();
+  if (!res.ok) {
+    throw new Error(`Simple Calendar AJAX HTTP ${res.status}: ${raw.slice(0,300)}`);
+  }
+
+  let data;
+  try { data = JSON.parse(raw); }
+  catch (_) {
+    throw new Error(`Simple Calendar AJAX ga ikke JSON: ${raw.slice(0,300)}`);
+  }
+
+  if (!data || data.success === false || typeof data.data !== "string") {
+    throw new Error(`Simple Calendar AJAX ugyldig svar: ${raw.slice(0,500)}`);
+  }
+
+  return data.data;
+}
+
+async function arrFetchAndParseKleppeBedehus(url) {
+  const calendarUrl = "https://kleppebedehus.no/calendar/kalender/";
+  const html = await arrFetchText(calendarUrl);
+  const meta = arrBetelCalendarMeta(html);
+
+  const out = [...arrParseKleppeSimpleCalendarHtml(html,calendarUrl)];
+
+  if (!meta.id) {
+    throw new Error(
+      `Kleppe Bedehus: fant ikke calendarId i Simple Calendar-markup ` +
+      `(events=${out.length}, isGrid=${meta.isGrid ? "yes" : "no"})`
+    );
+  }
+
+  const ajaxUrl = "https://kleppebedehus.no/wp-admin/admin-ajax.php";
+
+  {
+    // V318: Kleppe Bedehus er bekreftet månedskalender/grid.
+    // Ikke stol på generisk class-detection her; siden eksponerer calendarId,
+    // current og eventsFirst, men class-navnet matcher ikke vår generiske test.
+    // Offisiell plugin-JS bruker:
+    // action=simcal_default_calendar_draw_grid + month + year + id.
+    //
+    // Vi trenger ikke data-next. Vi går direkte måned for måned fra neste
+    // måned og stopper ved 400-dagersgrensen / calendar-end.
+    const now = new Date();
+    const hardEndMs = Math.min(
+      Date.now() + 400 * 86400000,
+      meta.end ? meta.end * 1000 : Number.POSITIVE_INFINITY
+    );
+
+    let cursor = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+
+    for (let i=0; i<14 && cursor.getTime() <= hardEndMs; i++) {
+      const month = cursor.getUTCMonth() + 1;
+      const year = cursor.getUTCFullYear();
+
+      const pageHtml = await arrFetchSimpleCalendarGridPage({
+        baseUrl:ajaxUrl,
+        referer:calendarUrl,
+        calendarId:meta.id,
+        month,
+        year
+      });
+
+      out.push(...arrParseKleppeSimpleCalendarHtml(pageHtml,calendarUrl));
+      cursor = new Date(Date.UTC(year, month, 1));
+    }
+  }
+
+  const filtered = arrFilterParsedEventWindow(arrDedupeParsed(out));
+
+  if (!filtered.length) {
+    throw new Error(
+      `Kleppe Bedehus-parser fant ingen arrangementer ` +
+      `(calendarId=${meta.id || 0}, grid=${meta.isGrid ? "yes" : "no"})`
+    );
+  }
+
+  return filtered;
+}
+
+async function arrFetchAndParseBetel(url) {
+  // V267: Betel bruker Simple Calendar. Pluginens egen JS navigerer listevisningen
+  // via POST til admin-ajax.php med action=simcal_default_calendar_draw_list,
+  // ts=<neste timestamp> og id=<calendar id>. Vi gjør nøyaktig det samme.
+  const html = await arrFetchText(url);
+  const meta = arrBetelCalendarMeta(html);
+
+  if (!meta.id) {
+    // Sikker fallback til den gamle korte HTML-parseren.
+    const lines = arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
+    const out = [];
+    let currentDate = null;
+    const yearGuess = new Date().getFullYear();
+
+    for (const line of lines) {
+      const dm = line.match(/^(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)(?:\s+(\d{4}))?$/i);
+      if (dm) {
+        let year = Number(dm[4] || yearGuess);
+        const month = ARR_NORWEGIAN_MONTHS[arrNormalize(dm[3])];
+        const day = Number(dm[2]);
+        const now = new Date();
+        if (!dm[4] && month < now.getMonth()+1-6) year++;
+        currentDate = {year,month,day};
+        continue;
+      }
+      if (!currentDate) continue;
+      const em = line.match(/^(\d{1,2}):(\d{2})\s+(.+)$/);
+      if (em) {
+        out.push({
+          title:arrClean(em[3]),
+          startTime:arrOsloLocalIso(currentDate.year,currentDate.month,currentDate.day,Number(em[1]),Number(em[2]),0),
+          location:"Pinsemenigheten Betel, Nærbø",
+          sourceUrl:url,
+        });
+      }
+    }
+    if (!out.length) throw new Error("Betel-parser fant ingen arrangementer");
+    return arrDedupeParsed(out);
+  }
+
+  const out = [...arrParseBetelSimpleCalendarHtml(html,url)];
+  const visited = new Set();
+  let next = meta.next;
+  const hardEnd = meta.end || Math.floor((Date.now()+400*86400000)/1000);
+
+  // Typisk viser hver AJAX-side omtrent én måned. 18 hopp gir god margin
+  // samtidig som vi holder Worker-subrequests nede.
+  for (let i=0; i<18; i++) {
+    if (!next || visited.has(next) || next >= hardEnd) break;
+    visited.add(next);
+
+    const pageHtml = await arrFetchBetelAjaxPage(meta.id,next);
+    out.push(...arrParseBetelSimpleCalendarHtml(pageHtml,url));
+
+    const pageMeta = arrBetelCalendarMeta(
+      `<div class="simcal-default-calendar-list" data-calendar-id="${meta.id}" data-calendar-end="${hardEnd}"></div>${pageHtml}`
+    );
+    const newNext = pageMeta.next;
+
+    if (!newNext || newNext === next) break;
+    next = newNext;
+  }
+
+  const deduped = arrDedupeParsed(out);
+  if (!deduped.length) throw new Error("Betel Simple Calendar-parser fant ingen arrangementer");
+  return deduped;
+}
+
+function arrCornerstoneServiceDate(value) {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value === "number") {
+    const n = value < 100000000000 ? value * 1000 : value;
+    const d = new Date(n);
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  }
+  const s = String(value).trim();
+  const dotNet = s.match(/^\/Date\((\d+)(?:[+-]\d+)?\)\/$/);
+  if (dotNet) {
+    const d = new Date(Number(dotNet[1]));
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  }
+  if (/^\d{10,13}$/.test(s)) {
+    let n = Number(s);
+    if (s.length === 10) n *= 1000;
+    const d = new Date(n);
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  }
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+function arrCornerstoneItems(data) {
+  if (Array.isArray(data)) return data;
+  if (!data || typeof data !== "object") return [];
+  for (const key of ["events","results","data","items","calendar"]) {
+    if (Array.isArray(data[key])) return data[key];
+  }
+  return [];
+}
+
+async function arrFetchCornerstoneCalendarService(calendarUrl, sourcePrefix, fallbackLocation) {
+  const html = await arrFetchText(calendarUrl);
+
+  // Cornerstone skriver normalt serviceLink direkte i inline JavaScript.
+  const serviceMatch =
+    html.match(/var\s+serviceLink\s*=\s*["']([^"']+events_service[^"']*)["']/i) ||
+    html.match(/serviceLink\s*[:=]\s*["']([^"']+events_service[^"']*)["']/i);
+
+  if (!serviceMatch) {
+    throw new Error("Cornerstone serviceLink ble ikke funnet i kalendersiden");
+  }
+
+  const rawServiceLink = arrDecodeEntities(serviceMatch[1]).replace(/\\\//g,"/");
+  const serviceLink = new URL(rawServiceLink, calendarUrl).href;
+
+  // serviceLink inneholder normalt:
+  // .../events_service/start/:start-time/end/:end-time/url/<route>/view_id/<id>
+  const parsed = serviceLink.match(
+    /^(.*?\/events_service)\/start\/[^/]+\/end\/[^/]+\/url\/([^/]+)\/view_id\/([^/?#]+)/i
+  );
+  if (!parsed) {
+    throw new Error(`Cornerstone serviceLink-format ukjent: ${serviceLink}`);
+  }
+
+  const serviceBase = parsed[1];
+  const detailRoute = parsed[2];
+  const viewId = parsed[3];
+
+  const rangeStart = new Date();
+  rangeStart.setDate(rangeStart.getDate() - 14);
+  rangeStart.setHours(0,0,0,0);
+  const rangeEnd = new Date(rangeStart);
+  rangeEnd.setFullYear(rangeEnd.getFullYear() + 1);
+
+  function ymd(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
+
+  const variants = [
+    [String(rangeStart.getTime()), String(rangeEnd.getTime())],
+    [String(Math.floor(rangeStart.getTime()/1000)), String(Math.floor(rangeEnd.getTime()/1000))],
+    [ymd(rangeStart), ymd(rangeEnd)],
+    [rangeStart.toISOString(), rangeEnd.toISOString()],
+  ];
+
+  let lastError = null;
+
+  for (const [startValue,endValue] of variants) {
+    const u =
+      `${serviceBase}/start/${encodeURIComponent(startValue)}` +
+      `/end/${encodeURIComponent(endValue)}` +
+      `/url/${detailRoute}/view_id/${viewId}`;
+
+    try {
+      const responseText = await arrFetchText(u);
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        if (typeof data === "string") data = JSON.parse(data);
+      } catch (_) {
+        data = null;
+      }
+
+      const items = arrCornerstoneItems(data);
+      if (!items.length) continue;
+
+      const out = [];
+      for (const item of items) {
+        const title = arrClean(item.title || item.name || item.summary || "");
+        const startTime = arrCornerstoneServiceDate(
+          item.start || item.startTime || item.start_time || item.dateStart
+        );
+        if (!title || !startTime) continue;
+
+        const endTime = arrCornerstoneServiceDate(
+          item.end || item.endTime || item.end_time || item.dateEnd
+        );
+        const rawUrl = arrClean(item.url || item.href || item.link || "");
+        const id = String(item.id || item.event_id || item.eventId || "").trim();
+
+        out.push({
+          sourceEventId:id
+            ? `${sourcePrefix}-${id}`
+            : `${sourcePrefix}-${await arrStableKey(sourcePrefix,startTime,title)}`,
+          title,
+          startTime,
+          endTime,
+          location:arrClean(item.location || fallbackLocation),
+          description:arrClean(item.description || item.details || ""),
+          sourceUrl:rawUrl ? new URL(rawUrl, calendarUrl).href : calendarUrl,
+        });
+      }
+
+      if (out.length) {
+        return {
+          events:arrDedupeParsed(out),
+          serviceLink,
+          serviceBase,
+          detailRoute,
+          viewId,
+          workingUrl:u,
+        };
+      }
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error("Cornerstone service svarte uten arrangementer");
+}
+
+async function arrFetchAndParseObsBedehus(url) {
+  // V406: OBS Bedehus.
+  //
+  // De tre Wix-embedene viser at OBS bruker offentlige Google-kalendere.
+  // Vi går derfor direkte på Google Calendar iCal-feedene i stedet for å
+  // forsøke å parse Wix/filesusr-HTML.
+  //
+  // Kalender-ID-er hentet fra de offentlige iframe-ene:
+  //   Brusand: brusand@obsbedehus.no
+  //   Sirevåg: sirevagbedehus@gmail.com
+  //   Felles:  felles@obsbedehus.no
+  //   Ogna:    ogna@obsbedehus.no
+  //
+  // Dersom alle feedene kan leses, behandles dette som en komplett import.
+  // Hvis én feed feiler, bruker vi de andre som merge-only slik at eksisterende
+  // OBS-rader aldri deaktiveres på grunn av en midlertidig kildefeil.
+
+  const calendars = [
+    {
+      key: "brusand",
+      name: "Brusand",
+      calendarId: "brusand@obsbedehus.no",
+      location: "Brusand Bedehus"
+    },
+    {
+      key: "sirevag",
+      name: "Sirevåg",
+      calendarId: "sirevagbedehus@gmail.com",
+      location: "Sirevåg Bedehus"
+    },
+    {
+      key: "felles",
+      name: "Felles",
+      calendarId: "felles@obsbedehus.no",
+      location: "OBS Bedehus"
+    },
+    {
+      key: "ogna",
+      name: "Ogna",
+      calendarId: "ogna@obsbedehus.no",
+      location: "Ogna Bedehus"
+    }
+  ];
+
+  const all = [];
+  const failedCalendars = [];
+
+  for (const cal of calendars) {
+    const icsUrl =
+      "https://calendar.google.com/calendar/ical/" +
+      encodeURIComponent(cal.calendarId) +
+      "/public/basic.ics";
+
+    try {
+      const parsed = await arrFetchAndParseIcal(icsUrl);
+
+      for (const item of parsed) {
+        if (!item?.startTime || !arrClean(item.title || "")) {
+          continue;
+        }
+
+        const rawId =
+          item.sourceEventId ||
+          await arrStableKey(
+            "obs",
+            cal.key,
+            item.startTime,
+            item.title,
+            item.endTime || ""
+          );
+
+        all.push({
+          ...item,
+          sourceEventId: `obs-${cal.key}-${rawId}`,
+          location: arrClean(item.location || cal.location),
+          sourceUrl: icsUrl
+        });
+      }
+    } catch (error) {
+      failedCalendars.push({
+        key: cal.key,
+        name: cal.name,
+        error: String(error?.message || error || "ukjent feil")
+      });
+    }
+  }
+
+  const filtered = arrFilterParsedEventWindow(
+    arrDedupeParsed(all)
+  );
+
+  if (!filtered.length) {
+    const details = failedCalendars.length
+      ? ` Feilede kalendere: ${failedCalendars
+          .map(x => `${x.name}: ${x.error}`)
+          .join(" | ")}`
+      : "";
+
+    throw new Error(
+      `OBS Bedehus: Google Calendar-feedene ga ingen kommende arrangementer.${details}`
+    );
+  }
+
+  if (failedCalendars.length) {
+    filtered._mergeOnly = true;
+    filtered._importNote =
+      "OBS Bedehus: delvis Google Calendar-import; eksisterende usette rader beholdes. " +
+      "Feilet: " +
+      failedCalendars.map(x => x.name).join(", ");
+  }
+
+  return filtered;
+}
+
+async function arrFetchAndParseBedehuskirken(url) {
+  // V404: Bedehuskirken.
+  //
+  // Bedehuskirken bruker Cornerstone. Den offentlige kalenderen og forsiden
+  // viser fortsatt "Kommende eventer", men fullkalender-tjenesten kan returnere
+  // data som ikke gir noen arrangementer i vårt importvindu.
+  //
+  // Vi gjør derfor:
+  //   1) prøv komplett Cornerstone-kalender,
+  //   2) godta den bare dersom den faktisk inneholder arrangementer
+  //      innen importvinduet,
+  //   3) ellers bruk offentlig HTML som kontrollert merge-only fallback.
+  //
+  // Merge-only er viktig fordi HTML-listen bare viser et kort kommende-utdrag
+  // og derfor aldri må få lov til å deaktivere eksisterende Bedehuskirken-rader.
+
+  const calendarUrl = "https://bedehuskirken.no/kalender";
+  const homeUrl = "https://bedehuskirken.no/";
+
+  try {
+    const result = await arrFetchCornerstoneCalendarService(
+      calendarUrl,
+      "bedehuskirken",
+      "Bedehuskirken, Bryne"
+    );
+
+    const events = Array.isArray(result?.events) ? result.events : [];
+    const inImportWindow = arrFilterParsedEventWindow(events);
+
+    if (inImportWindow.length) {
+      return events;
+    }
+  } catch (_) {
+    // Fortsett til HTML-fallback.
+  }
+
+  const out = [];
+  const seen = new Set();
+
+  async function addEvent({
+    title,
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    endHour,
+    endMinute,
+    description,
+    sourceUrl,
+    eventNo
+  }) {
+    if (!title || !month) return;
+
+    const startTime = arrOsloLocalIso(
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      0
+    );
+
+    const endTime =
+      Number.isFinite(endHour) &&
+      Number.isFinite(endMinute)
+        ? arrOsloLocalIso(
+            year,
+            month,
+            day,
+            endHour,
+            endMinute,
+            0
+          )
+        : null;
+
+    const sourceEventId = eventNo
+      ? `bedehuskirken-${eventNo}`
+      : `bedehuskirken-html-${await arrStableKey(
+          "SRC-0011",
+          startTime,
+          title
+        )}`;
+
+    if (seen.has(sourceEventId)) return;
+    seen.add(sourceEventId);
+
+    out.push({
+      sourceEventId,
+      title: arrClean(title),
+      startTime,
+      endTime,
+      location: "Bedehuskirken, Bryne",
+      description: arrClean(description || ""),
+      sourceUrl: sourceUrl || calendarUrl
+    });
+  }
+
+  async function parseHtmlPage(html, pageUrl) {
+    // Først prøver vi event-lenker med eksplisitt Cornerstone-ID.
+    const linkRe =
+      /<a\b[^>]*href=["']([^"']*\/kalender\/arrangement\/calendar_event\/(\d+)[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
+
+    let m;
+
+    while ((m = linkRe.exec(html)) !== null) {
+      const eventNo = String(m[2] || "").trim();
+
+      const label = arrClean(
+        arrHtmlToLines(m[3]).replace(/\s+/g, " ")
+      );
+
+      const dm = label.match(
+        /^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i
+      );
+
+      if (!dm) continue;
+
+      const month =
+        ARR_NORWEGIAN_MONTHS[
+          arrNormalize(dm[4])
+        ];
+
+      await addEvent({
+        eventNo,
+        title: dm[1],
+        day: Number(dm[3]),
+        month,
+        year: Number(dm[5]),
+        hour: Number(dm[6]),
+        minute: Number(dm[7]),
+        endHour: dm[8] ? Number(dm[8]) : NaN,
+        endMinute: dm[9] ? Number(dm[9]) : NaN,
+        description: dm[10] || "",
+        sourceUrl: new URL(m[1], pageUrl).href
+      });
+    }
+
+    // Deretter ren tekst fra "Kommende eventer".
+    // Dagens side viser blant annet:
+    // "Kveldsgudstjeneste søndag 9 august 2026 | 19:00"
+    // "GN Fredag fredag 14 august 2026 | 20:00"
+    const lines = arrHtmlToLines(html)
+      .split("\n")
+      .map(arrClean)
+      .filter(Boolean);
+
+    for (const line of lines) {
+      const dm = line.match(
+        /^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i
+      );
+
+      if (!dm) continue;
+
+      const month =
+        ARR_NORWEGIAN_MONTHS[
+          arrNormalize(dm[4])
+        ];
+
+      await addEvent({
+        title: dm[1],
+        day: Number(dm[3]),
+        month,
+        year: Number(dm[5]),
+        hour: Number(dm[6]),
+        minute: Number(dm[7]),
+        endHour: dm[8] ? Number(dm[8]) : NaN,
+        endMinute: dm[9] ? Number(dm[9]) : NaN,
+        description: dm[10] || "",
+        sourceUrl: pageUrl
+      });
+    }
+  }
+
+  for (const pageUrl of [calendarUrl, homeUrl]) {
+    try {
+      const html = await arrFetchText(pageUrl);
+      await parseHtmlPage(html, pageUrl);
+    } catch (_) {}
+  }
+
+  if (!out.length) {
+    throw new Error(
+      "Bedehuskirken-parser fant ingen arrangementer i offentlig HTML"
+    );
+  }
+
+  const result = arrDedupeParsed(out);
+
+  // Offentlig HTML viser bare et kort kommende-utdrag.
+  // Oppdater/legg til det vi ser, men behold eksisterende usette rader.
+  result._mergeOnly = true;
+  result._importNote =
+    "Bedehuskirken: offentlig Kommende eventer-fallback; eksisterende usette rader beholdes.";
+
+  return result;
+}
+
+async function arrFetchAndParseKleppFrikirke(url) {
+  // V403: Klepp Frikyrkje.
+  //
+  // Klepp bruker Cornerstone. Den offentlige forsiden viser fortsatt
+  // "Komande hendingar", mens /kalender kan være tom i vanlig HTML.
+  //
+  // Vi gjør derfor:
+  //   1) prøv komplett Cornerstone-kalender,
+  //   2) godta den bare dersom den faktisk inneholder arrangementer
+  //      innen importvinduet,
+  //   3) ellers bruk forsiden som kontrollert merge-only fallback.
+  //
+  // Merge-only er viktig fordi forsiden bare viser et lite utsnitt og derfor
+  // aldri må få lov til å deaktivere de eksisterende Klepp-radene i Baserow.
+
+  const calendarUrl = "https://klepp.frikyrkja.no/kalender";
+  const homeUrl = "https://klepp.frikyrkja.no/";
+
+  try {
+    const result = await arrFetchCornerstoneCalendarService(
+      calendarUrl,
+      "klepp-frikirke",
+      "Klepp Frikyrkje, Kleppe"
+    );
+
+    const events = Array.isArray(result?.events) ? result.events : [];
+    const inImportWindow = arrFilterParsedEventWindow(events);
+
+    if (inImportWindow.length) {
+      return events;
+    }
+  } catch (_) {
+    // Fortsett til HTML-fallback.
+  }
+
+  const html = await arrFetchText(homeUrl);
+  const out = [];
+  const seen = new Set();
+
+  async function addEvent({
+    title,
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    endHour,
+    endMinute,
+    description,
+    sourceUrl,
+    eventNo
+  }) {
+    if (!title || !month) return;
+
+    const startTime = arrOsloLocalIso(
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      0
+    );
+
+    const endTime =
+      Number.isFinite(endHour) &&
+      Number.isFinite(endMinute)
+        ? arrOsloLocalIso(
+            year,
+            month,
+            day,
+            endHour,
+            endMinute,
+            0
+          )
+        : null;
+
+    const sourceEventId = eventNo
+      ? `klepp-frikirke-${eventNo}`
+      : `klepp-frikirke-html-${await arrStableKey(
+          "SRC-0014",
+          startTime,
+          title
+        )}`;
+
+    if (seen.has(sourceEventId)) return;
+    seen.add(sourceEventId);
+
+    out.push({
+      sourceEventId,
+      title: arrClean(title),
+      startTime,
+      endTime,
+      location: "Klepp Frikyrkje, Kleppe",
+      description: arrClean(description || ""),
+      sourceUrl: sourceUrl || homeUrl
+    });
+  }
+
+  // Først prøver vi event-lenker med eksplisitt Cornerstone-ID.
+  const linkRe =
+    /<a\b[^>]*href=["']([^"']*\/kalender\/kalender-detalj\/calendar_event\/(\d+)[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
+
+  let m;
+
+  while ((m = linkRe.exec(html)) !== null) {
+    const eventNo = String(m[2] || "").trim();
+
+    const label = arrClean(
+      arrHtmlToLines(m[3]).replace(/\s+/g, " ")
+    );
+
+    const dm = label.match(
+      /^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i
+    );
+
+    if (!dm) continue;
+
+    const month =
+      ARR_NORWEGIAN_MONTHS[
+        arrNormalize(dm[4])
+      ];
+
+    await addEvent({
+      eventNo,
+      title: dm[1],
+      day: Number(dm[3]),
+      month,
+      year: Number(dm[5]),
+      hour: Number(dm[6]),
+      minute: Number(dm[7]),
+      endHour: dm[8] ? Number(dm[8]) : NaN,
+      endMinute: dm[9] ? Number(dm[9]) : NaN,
+      description: dm[10] || "",
+      sourceUrl: new URL(m[1], homeUrl).href
+    });
+  }
+
+  // Deretter ren tekst fra "Komande hendingar".
+  // Eksempel på dagens side:
+  // "Kveldsmøte søndag 9 august 2026| 19:00"
+  const lines = arrHtmlToLines(html)
+    .split("\n")
+    .map(arrClean)
+    .filter(Boolean);
+
+  for (const line of lines) {
+    const dm = line.match(
+      /^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i
+    );
+
+    if (!dm) continue;
+
+    const month =
+      ARR_NORWEGIAN_MONTHS[
+        arrNormalize(dm[4])
+      ];
+
+    await addEvent({
+      title: dm[1],
+      day: Number(dm[3]),
+      month,
+      year: Number(dm[5]),
+      hour: Number(dm[6]),
+      minute: Number(dm[7]),
+      endHour: dm[8] ? Number(dm[8]) : NaN,
+      endMinute: dm[9] ? Number(dm[9]) : NaN,
+      description: dm[10] || "",
+      sourceUrl: homeUrl
+    });
+  }
+
+  if (!out.length) {
+    throw new Error(
+      "Klepp Frikyrkje-parser fant ingen arrangementer på forsiden"
+    );
+  }
+
+  const result = arrDedupeParsed(out);
+
+  // Forsiden viser bare kommende utdrag. Oppdater/legg til det vi ser,
+  // men behold alle eksisterende usette Klepp-rader.
+  result._mergeOnly = true;
+  result._importNote =
+    "Klepp Frikyrkje: offentlig Komande hendingar-fallback; eksisterende usette rader beholdes.";
+
+  return result;
+}
+
+async function arrFetchAndParseBryneFrikirke(url) {
+  // V401: Bryne Frikyrkje.
+  //
+  // Rotårsak 19.08.2026:
+  // Cornerstone events_service som tidligere ga hele kalenderen returnerer ikke
+  // lenger brukbare event-data. Den offentlige forsiden viser derimot fortsatt
+  // "Kommende hendelser". Vi bruker derfor:
+  //   1) events_service dersom den igjen virker,
+  //   2) offentlig HTML som kontrollert fallback.
+  //
+  // Fallbacken merkes som merge-only slik at en kort "Kommende hendelser"-liste
+  // ALDRI kan deaktivere de mange eksisterende Bryne-radene i Baserow.
+  const serviceBase = "https://brynefrikyrkje.no/_service/397657/events_service";
+  const detailRoute = "L2thbGVuZGVyL2thbGVuZGVyLWRldGFsaS9jYWxlbmRhcl9ldmVudC86aWQ%3D";
+  const viewId = "4306263";
+
+  const rangeStart = new Date();
+  rangeStart.setDate(rangeStart.getDate() - 14);
+  rangeStart.setHours(0,0,0,0);
+
+  const rangeEnd = new Date(rangeStart);
+  rangeEnd.setFullYear(rangeEnd.getFullYear() + 1);
+
+  function ymd(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
+  }
+
+  const rangeVariants = [
+    [String(rangeStart.getTime()), String(rangeEnd.getTime())],
+    [String(Math.floor(rangeStart.getTime()/1000)), String(Math.floor(rangeEnd.getTime()/1000))],
+    [ymd(rangeStart), ymd(rangeEnd)],
+    [rangeStart.toISOString(), rangeEnd.toISOString()],
+  ];
+
+  function parseServiceDate(value) {
+    if (value === null || value === undefined || value === "") return null;
+    if (typeof value === "number") {
+      const n = value < 100000000000 ? value * 1000 : value;
+      const d = new Date(n);
+      return Number.isNaN(d.getTime()) ? null : d.toISOString();
+    }
+    const s = String(value).trim();
+    const dotNet = s.match(/^\/Date\((\d+)(?:[+-]\d+)?\)\/$/);
+    if (dotNet) {
+      const d = new Date(Number(dotNet[1]));
+      return Number.isNaN(d.getTime()) ? null : d.toISOString();
+    }
+    if (/^\d{10,13}$/.test(s)) {
+      let n = Number(s);
+      if (s.length === 10) n *= 1000;
+      const d = new Date(n);
+      return Number.isNaN(d.getTime()) ? null : d.toISOString();
+    }
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  }
+
+  function normalizeServicePayload(data) {
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== "object") return [];
+    for (const key of ["events","results","data","items","calendar"]) {
+      if (Array.isArray(data[key])) return data[key];
+    }
+    return [];
+  }
+
+  for (const [startValue,endValue] of rangeVariants) {
+    const serviceUrl =
+      `${serviceBase}/start/${encodeURIComponent(startValue)}` +
+      `/end/${encodeURIComponent(endValue)}` +
+      `/url/${detailRoute}/view_id/${viewId}`;
+
+    try {
+      const responseText = await arrFetchText(serviceUrl);
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        if (typeof data === "string") data = JSON.parse(data);
+      } catch (_) {
+        data = null;
+      }
+
+      const items = normalizeServicePayload(data);
+      if (!items.length) continue;
+
+      const out = [];
+      for (const item of items) {
+        const title = arrClean(item.title || item.name || item.summary || "");
+        const startTime = parseServiceDate(item.start || item.startTime || item.start_time || item.dateStart);
+        if (!title || !startTime) continue;
+
+        const endTime = parseServiceDate(item.end || item.endTime || item.end_time || item.dateEnd);
+        const rawUrl = arrClean(item.url || item.href || item.link || "");
+        const id = String(item.id || item.event_id || item.eventId || "").trim();
+        const sourceEventId = id
+          ? `bryne-${id}`
+          : `bryne-service-${await arrStableKey("SRC-0008",startTime,title)}`;
+
+        out.push({
+          sourceEventId,
+          title,
+          startTime,
+          endTime,
+          location:arrClean(item.location || "Bryne Frikyrkje"),
+          description:arrClean(item.description || item.details || ""),
+          sourceUrl:rawUrl
+            ? new URL(rawUrl, "https://brynefrikyrkje.no/").href
+            : "https://brynefrikyrkje.no/kalender",
+        });
+      }
+
+      if (out.length) {
+        const deduped = arrDedupeParsed(out);
+
+        // Cornerstone-endepunktet kan returnere data som finnes teknisk,
+        // men som bare består av gamle/historiske arrangementer.
+        // Da må vi IKKE godta dette som en vellykket fullkalender-import,
+        // fordi det senere tidsfilteret ellers gir 0 og utløser kildevernet.
+        // Fortsett i stedet til HTML-fallbacken nedenfor.
+        const inImportWindow = arrFilterParsedEventWindow(deduped);
+        if (inImportWindow.length) {
+          return deduped;
+        }
+      }
+    } catch (_) {}
+  }
+
+  // Offentlig HTML-fallback.
+  // Nettsiden viser poster som:
+  // "Gudstjeneste - ... søndag 2 august 2026| 11:00 Beskrivelse ..."
+  // Gammel parser krevde slutt rett etter klokkeslett og fant derfor 0.
+  const urls = [
+    "https://brynefrikyrkje.no/",
+    "https://brynefrikyrkje.no/kalender/kalender-detalj/calendar_event/frikirken.no",
+  ];
+
+  const out = [];
+  const seen = new Set();
+
+  async function addParsedEvent({title,year,month,day,hour,minute,endHour,endMinute,description,sourceUrl,eventNo}) {
+    if (!title || !month) return;
+
+    const startTime = arrOsloLocalIso(year,month,day,hour,minute,0);
+    const endTime = Number.isFinite(endHour) && Number.isFinite(endMinute)
+      ? arrOsloLocalIso(year,month,day,endHour,endMinute,0)
+      : null;
+
+    const sourceEventId = eventNo
+      ? `bryne-${eventNo}`
+      : `bryne-html-${await arrStableKey("SRC-0008",startTime,title)}`;
+
+    if (seen.has(sourceEventId)) return;
+    seen.add(sourceEventId);
+
+    out.push({
+      sourceEventId,
+      title:arrClean(title),
+      startTime,
+      endTime,
+      location:"Bryne Frikyrkje",
+      description:arrClean(description || ""),
+      sourceUrl:sourceUrl || "https://brynefrikyrkje.no/",
+    });
+  }
+
+  async function addFromHtml(html, sourcePageUrl) {
+    const linkRe = /<a\b[^>]*href=["']([^"']*\/kalender\/kalender-detalj\/calendar_event\/(\d+)[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
+    let m;
+    while ((m = linkRe.exec(html)) !== null) {
+      const eventNo = String(m[2] || "").trim();
+      const label = arrClean(arrHtmlToLines(m[3]).replace(/\s+/g," "));
+      const dm = label.match(/^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i);
+      if (!dm) continue;
+
+      const month = ARR_NORWEGIAN_MONTHS[arrNormalize(dm[4])];
+      await addParsedEvent({
+        eventNo,
+        title:dm[1],
+        day:Number(dm[3]),
+        month,
+        year:Number(dm[5]),
+        hour:Number(dm[6]),
+        minute:Number(dm[7]),
+        endHour:dm[8] ? Number(dm[8]) : NaN,
+        endMinute:dm[9] ? Number(dm[9]) : NaN,
+        description:dm[10] || "",
+        sourceUrl:`https://brynefrikyrkje.no/kalender/kalender-detalj/calendar_event/${eventNo}`,
+      });
+    }
+
+    const lines = arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
+    for (const line of lines) {
+      const dm = line.match(/^(.+?)\s+(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s+(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})\s*(?:\|\s*)?(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?(?:\s+(.*))?$/i);
+      if (!dm) continue;
+
+      const month = ARR_NORWEGIAN_MONTHS[arrNormalize(dm[4])];
+      await addParsedEvent({
+        title:dm[1],
+        day:Number(dm[3]),
+        month,
+        year:Number(dm[5]),
+        hour:Number(dm[6]),
+        minute:Number(dm[7]),
+        endHour:dm[8] ? Number(dm[8]) : NaN,
+        endMinute:dm[9] ? Number(dm[9]) : NaN,
+        description:dm[10] || "",
+        sourceUrl:sourcePageUrl,
+      });
+    }
+  }
+
+  for (const sourcePageUrl of urls) {
+    try {
+      const html = await arrFetchText(sourcePageUrl);
+      await addFromHtml(html, sourcePageUrl);
+    } catch (_) {}
+  }
+
+  if (!out.length) {
+    throw new Error("Bryne Frikyrkje-parser fant ingen arrangementer");
+  }
+
+  const result = arrDedupeParsed(out);
+  result._mergeOnly = true;
+  result._importNote = "Bryne Frikyrkje: offentlig Kommende hendelser-fallback; eksisterende usette rader beholdes.";
+  return result;
+}
+
+function arrCsvRows(csv) {
+  const rows=[]; let row=[],cell="",quoted=false;
+  csv=String(csv||"").replace(/^\uFEFF/,"");
+  for(let i=0;i<csv.length;i++){
+    const ch=csv[i];
+    if(quoted){
+      if(ch==='"' && csv[i+1]==='"'){cell+='"';i++;}
+      else if(ch==='"')quoted=false;
+      else cell+=ch;
+    } else {
+      if(ch==='"')quoted=true;
+      else if(ch===','){row.push(cell);cell="";}
+      else if(ch==='\n'){row.push(cell.replace(/\r$/,""));rows.push(row);row=[];cell="";}
+      else cell+=ch;
+    }
+  }
+  if(cell.length||row.length){row.push(cell.replace(/\r$/,""));rows.push(row);}
+  return rows;
+}
+
+function arrEbeneserClock(value) {
+  const s=arrClean(value||"").replace(/\s+/g,"").replace(/^kl\.?/i,"");
+  if(!s)return null;
+  const parts=s.split(/[–—-]/);
+  const one=v=>{
+    let m=String(v||"").match(/^(\d{1,2})[:.](\d{2})$/);
+    if(m)return {h:Number(m[1]),min:Number(m[2])};
+    m=String(v||"").match(/^(\d{3,4})$/);
+    if(m){
+      const d=m[1].padStart(4,"0");
+      return {h:Number(d.slice(0,2)),min:Number(d.slice(2))};
+    }
+    m=String(v||"").match(/^(\d{1,2})$/);
+    return m?{h:Number(m[1]),min:0}:null;
+  };
+  const start=one(parts[0]);
+  const end=parts[1]?one(parts[1]):null;
+  if(!start || start.h>23 || start.min>59)return null;
+  return {start,end:end&&end.h<=23&&end.min<=59?end:null};
+}
+
+function arrEbeneserInferMonth(rows, header, dateCol, year) {
+  const weekdayMap={"søn":0,"son":0,"man":1,"tir":2,"ons":3,"tor":4,"fre":5,"lør":6,"lor":6};
+  const samples=[];
+  for(let r=header+1;r<rows.length;r++){
+    const dayMatch=arrClean(rows[r][dateCol]||"").match(/(\d{1,2})/);
+    if(!dayMatch)continue;
+    const wd=weekdayMap[arrNormalize(rows[r][Math.max(0,dateCol-1)]||"").slice(0,3)];
+    if(wd===undefined)continue;
+    samples.push({day:Number(dayMatch[1]),wd});
+  }
+  let bestMonth=null,bestScore=-1,bestValid=-1;
+  for(let m=1;m<=12;m++){
+    let score=0,valid=0;
+    for(const s of samples){
+      const dt=new Date(Date.UTC(year,m-1,s.day));
+      if(dt.getUTCMonth()!==m-1)continue;
+      valid++;
+      if(dt.getUTCDay()===s.wd)score++;
+    }
+    if(score>bestScore || (score===bestScore && valid>bestValid)){
+      bestMonth=m;bestScore=score;bestValid=valid;
+    }
+  }
+  return samples.length && bestScore >= Math.max(3,Math.floor(samples.length*0.75))
+    ? bestMonth : null;
+}
+
+async function arrDiscoverEbeneserGids() {
+  const id="1B7KHSH0YT9oY5LRNI0zBmSZhfHVr1ZLVk6fuoOtnVSc";
+  const urls=[
+    `https://docs.google.com/spreadsheets/d/${id}/htmlview`,
+    `https://docs.google.com/spreadsheets/d/${id}/edit?usp=sharing`
+  ];
+  const gids=new Set(["0"]);
+  const diagnostics=[];
+
+  for(const u of urls){
+    try{
+      const html=await arrFetchText(u);
+      const found=[...html.matchAll(/(?:[?&#]|\\u0026)gid(?:=|%3D)(\d+)/gi)].map(m=>m[1]);
+      found.forEach(g=>gids.add(g));
+      diagnostics.push({url:u,htmlLength:html.length,gids:[...new Set(found)].slice(0,100)});
+    }catch(error){
+      diagnostics.push({url:u,error:String(error?.message||error)});
+    }
+  }
+  return {gids:[...gids],diagnostics};
+}
+
+async function arrParseEbeneserGid(gid) {
+  const id="1B7KHSH0YT9oY5LRNI0zBmSZhfHVr1ZLVk6fuoOtnVSc";
+  const csv=await arrFetchText(`https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${encodeURIComponent(gid)}`);
+  const rows=arrCsvRows(csv);
+
+  let header=-1,dateCol=-1,timeCol=-1,activityCol=-1,year=2026;
+  for(let r=0;r<Math.min(rows.length,25);r++){
+    const n=rows[r].map(arrNormalize);
+    const d=n.indexOf("dato");
+    const k=n.findIndex(v=>v==="kl"||v==="kl.");
+    const a=n.indexOf("aktivitet");
+    if(d>=0&&k>=0&&a>=0){
+      header=r;dateCol=d;timeCol=k;activityCol=a;
+      const ym=rows[r].join(" ").match(/\b(20\d{2})\b/);
+      if(ym)year=Number(ym[1]);
+      break;
+    }
+  }
+  if(header<0)return {gid,rows,month:null,events:[]};
+
+  const month=arrEbeneserInferMonth(rows,header,dateCol,year);
+  if(!month)return {gid,rows,month:null,events:[]};
+
+  const events=[];
+  for(let r=header+1;r<rows.length;r++){
+    const row=rows[r];
+    const dm=arrClean(row[dateCol]||"").match(/(\d{1,2})/);
+    const title=arrClean(row[activityCol]||"");
+    const time=arrEbeneserClock(row[timeCol]||"");
+    if(!dm||!title||!time)continue;
+    if(/^(utleie|reservert|privat)\b/i.test(arrNormalize(title)))continue;
+
+    const day=Number(dm[1]);
+    const startTime=arrOsloLocalIso(year,month,day,time.start.h,time.start.min,0);
+    const endTime=time.end?arrOsloLocalIso(year,month,day,time.end.h,time.end.min,0):null;
+    events.push({
+      sourceEventId:`ebeneser-${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}-${String(time.start.h).padStart(2,"0")}${String(time.start.min).padStart(2,"0")}-${arrNormalize(title).replace(/[^a-z0-9æøå]+/g,"-").replace(/^-|-$/g,"").slice(0,60)}`,
+      title,startTime,endTime,
+      location:"Ebeneser Misjonsforsamling, Sandnes",
+      sourceUrl:"https://www.ebeneser.no/program"
+    });
+  }
+  return {gid,rows,month,events};
+}
+
+async function arrFetchAndParseEbeneser() {
+  const discovered=await arrDiscoverEbeneserGids();
+  const out=[];
+  for(const gid of discovered.gids){
+    try{out.push(...(await arrParseEbeneserGid(gid)).events);}catch(_){}
+  }
+  const floor=Date.now()-86400000;
+  const events=arrDedupeParsed(out).filter(e=>{
+    const t=new Date(e.startTime).getTime();
+    return Number.isNaN(t)||t>=floor;
+  });
+  if(!events.length){
+    throw new Error(`Ebeneser-parser fant ingen framtidige arrangementer. Oppdaget GID: ${discovered.gids.join(",")}`);
+  }
+  return events;
+}
+
+
+async function arrFetchAndParseFredheimArena(url) {
+  // Fredheim Arena publiserer arrangementer på /hva-skjer og egne /event/...-sider.
+  // Parseren leser arrangementskortene direkte fra HTML og er bevisst tolerant for
+  // både norsk datoformat og CMS-formatet som brukes på detaljsidene.
+  const pages = [
+    "https://fredheimarena.no/hva-skjer",
+    "https://www.fredheimarena.no/hva-skjer",
+    "https://fredheimarena.no/",
+  ];
+  const out = [];
+  const seen = new Set();
+
+  function parseDateText(text) {
+    const clean = arrClean(String(text || "").replace(/\s+/g," "));
+    let m = clean.match(/(?:Starter:?\s*)?(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})\s+(\d{1,2}):(\d{2})/i);
+    if (m) {
+      let year = Number(m[3]); if (year < 100) year += 2000;
+      return {start:arrOsloLocalIso(year,Number(m[2]),Number(m[1]),Number(m[4]),Number(m[5]),0)};
+    }
+    m = clean.match(/(?:Starter:?\s*)?(Jan(?:uar)?|Feb(?:ruar)?|Mar(?:s)?|Apr(?:il)?|Mai|May|Jun(?:i|e)?|Jul(?:i|y)?|Aug(?:ust)?|Sep(?:tember)?|Okt(?:ober)?|Oct(?:ober)?|Nov(?:ember)?|Des(?:ember)?|Dec(?:ember)?)\s+(\d{1,2}),?\s+(20\d{2})[^0-9]+(\d{1,2}):(\d{2})/i);
+    if (m) {
+      const monthMap={jan:1,januar:1,feb:2,februar:2,mar:3,mars:3,apr:4,april:4,mai:5,may:5,jun:6,juni:6,june:6,jul:7,juli:7,july:7,aug:8,august:8,sep:9,september:9,okt:10,oktober:10,oct:10,october:10,nov:11,november:11,des:12,desember:12,dec:12,december:12};
+      const key=arrNormalize(m[1]).replace(/[^a-zæøå]/g,"");
+      const mo=monthMap[key] || monthMap[key.slice(0,3)];
+      if (mo) return {start:arrOsloLocalIso(Number(m[3]),mo,Number(m[2]),Number(m[4]),Number(m[5]),0)};
+    }
+    m = clean.match(/(?:mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)?\s*(\d{1,2})\.?\s+(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember),?\s+(20\d{2})[^0-9]+(\d{1,2}):(\d{2})/i);
+    if (m) {
+      const mo=ARR_NORWEGIAN_MONTHS[arrNormalize(m[2])];
+      if (mo) return {start:arrOsloLocalIso(Number(m[3]),mo,Number(m[1]),Number(m[4]),Number(m[5]),0)};
+    }
+    return null;
+  }
+
+  function addEvent(slug, title, context, sourcePage) {
+    slug=String(slug||"").replace(/^\/+|\/+$/g,"");
+    title=arrClean(title || "");
+    if (!slug || !title) return;
+    const key=`fredheim-${slug}`;
+    if (seen.has(key)) return;
+    const parsed=parseDateText(context);
+    if (!parsed?.start) return;
+
+    let endTime=null;
+    const endMatch=String(context||"").match(/Slutter:?\s*(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})\s+(\d{1,2}):(\d{2})/i);
+    if (endMatch) {
+      let y=Number(endMatch[3]); if (y<100) y+=2000;
+      endTime=arrOsloLocalIso(y,Number(endMatch[2]),Number(endMatch[1]),Number(endMatch[4]),Number(endMatch[5]),0);
+    }
+
+    seen.add(key);
+    out.push({
+      sourceEventId:key,
+      title,
+      startTime:parsed.start,
+      endTime,
+      location:"Fredheim Arena, Sandnes",
+      description:"",
+      sourceUrl:`https://fredheimarena.no/event/${slug}`,
+    });
+  }
+
+  for (const pageUrl of pages) {
+    let html;
+    try { html=await arrFetchText(pageUrl); } catch (_) { continue; }
+
+    // Finn alle lenker til /event/... og bruk teksten rundt lenken som datokontekst.
+    const linkRe=/<a\b[^>]*href=["'](?:https?:\/\/[^"']+)?\/event\/([^"'?#]+)[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi;
+    let m;
+    while ((m=linkRe.exec(html))!==null) {
+      const slug=arrClean(m[1]);
+      const label=arrClean(arrHtmlToLines(m[2]).replace(/\s+/g," "));
+      const start=Math.max(0,m.index-1800), end=Math.min(html.length,linkRe.lastIndex+1800);
+      const context=arrHtmlToLines(html.slice(start,end)).replace(/\s+/g," ");
+      let title=label;
+      if (!title || /^(les mer|read more|se arrangement|vis arrangement)$/i.test(title)) {
+        const lines=arrHtmlToLines(html.slice(start,end)).split("\n").map(arrClean).filter(Boolean);
+        title=lines.find(x => x.length<180 && !/^(starter|slutter|les mer|read more|\d{1,2}[:.])/i.test(x)) || slug.replace(/-/g," ");
+      }
+      addEvent(slug,title,context,pageUrl);
+    }
+
+    // Enkel tekstfallback hvis CMS-et endrer anchor-markup, men fortsatt skriver
+    // arrangementer med /event/<slug> i HTML eller JSON.
+    const rawUrls=[...html.matchAll(/(?:https?:\\?\/\\?\/[^"'<> ]+)?\\?\/event\\?\/([a-z0-9æøå_-]+)/gi)];
+    for (const rm of rawUrls) {
+      const slug=String(rm[1]||"").replace(/\\/g,"");
+      if (!slug || seen.has(`fredheim-${slug}`)) continue;
+      const start=Math.max(0,rm.index-2200), end=Math.min(html.length,rm.index+2200);
+      const context=arrHtmlToLines(html.slice(start,end)).replace(/\s+/g," ");
+      const lines=arrHtmlToLines(html.slice(start,end)).split("\n").map(arrClean).filter(Boolean);
+      const title=lines.find(x=>x.length>2 && x.length<160 && !/^(starter|slutter|hva skjer|fredheim arena)$/i.test(x));
+      addEvent(slug,title,context,pageUrl);
+    }
+  }
+
+  const deduped=arrDedupeParsed(out);
+  if (!deduped.length) throw new Error("Fredheim Arena-parser fant ingen arrangementer");
+  return deduped;
+}
+
+async function arrFetchVarhaugText(url) {
+  const r = await fetch(url,{
+    headers:{
+      "User-Agent":"Kvimarka92-Arrangementskalender/1.0",
+      "Accept":"text/html,text/plain;q=0.9,*/*;q=0.5"
+    }
+  });
+  if (!r.ok) throw new Error(`Kilde svarte HTTP ${r.status}: ${url}`);
+
+  const bytes = await r.arrayBuffer();
+  const utf8 = new TextDecoder("utf-8").decode(bytes);
+
+  // Varhaug-siden har historisk gitt replacement-tegn ved vanlig UTF-8-dekoding.
+  // Hvis det skjer, prøv Windows-1252/Latin-1 før vi faller tilbake til UTF-8.
+  if (utf8.includes("\uFFFD")) {
+    for (const enc of ["windows-1252","iso-8859-1"]) {
+      try {
+        const candidate = new TextDecoder(enc).decode(bytes);
+        const badUtf8 = (utf8.match(/\uFFFD/g) || []).length;
+        const badCandidate = (candidate.match(/\uFFFD/g) || []).length;
+        if (badCandidate < badUtf8) return candidate;
+      } catch (_) {}
+    }
+  }
+  return utf8;
+}
+
+function arrFixVarhaugText(value) {
+  let s = arrClean(value || "");
+  if (!s) return "";
+
+  // Sikkerhetsnett for gamle/ufullstendig deklarerte tegnsett.
+  const replacements = [
+    [/M\uFFFDte/g,"Møte"], [/m\uFFFDte/g,"møte"],
+    [/M\uFFFDtesal/g,"Møtesal"], [/m\uFFFDtesal/g,"møtesal"],
+    [/Kj\uFFFDkken/g,"Kjøkken"], [/kj\uFFFDkken/g,"kjøkken"],
+    [/H\uFFFDgtid/g,"Høgtid"], [/\uFFFDrsf/g,"Årsf"],
+    [/\uFFFDrsm/g,"Årsm"], [/\uFFFDving/g,"Øving"]
+  ];
+  for (const [re,to] of replacements) s = s.replace(re,to);
+  return s;
+}
+
+function arrVarhaugCanonicalTitle(value) {
+  let s = arrNormalize(arrFixVarhaugText(value))
+    .replace(/[«»“”„"'`´]/g," ")
+    .replace(/\bs\s*u\s*n\s*d\s*a\s*g\b/g,"sundag")
+    .replace(/\bgudstjeneste\b/g,"gudsteneste")
+    .replace(/\bsemesterstart\b/g," ")
+    .replace(/\b\d{1,2}[./-]\d{1,2}(?:[./-]\d{2,4})?\b/g," ")
+    .replace(/\b\d{1,2}\.?\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\b/g," ")
+    .replace(/[^a-z0-9æøå]+/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+
+  return s;
+}
+
+function arrVarhaugSemanticKey(title,startTime) {
+  const start = arrIsoOrNull(startTime);
+  const titleKey = arrVarhaugCanonicalTitle(title);
+  return start && titleKey ? `${start}|${titleKey}` : "";
+}
+
+function arrVarhaugSameEvent(a,b) {
+  if (arrIsoOrNull(a?.startTime) !== arrIsoOrNull(b?.startTime)) return false;
+  const aa = arrVarhaugCanonicalTitle(a?.title);
+  const bb = arrVarhaugCanonicalTitle(b?.title);
+  if (!aa || !bb) return false;
+  return aa === bb || (Math.min(aa.length,bb.length) >= 6 && (aa.includes(bb) || bb.includes(aa)));
+}
+
+function arrIsVarhaugSource(source) {
+  const sourceId = arrClean(source?.[ARR_F.sources.sourceId] || "");
+  const name = arrNormalize(source?.[ARR_F.sources.name] || "");
+  return sourceId === "SRC-0006" || name === arrNormalize("Varhaug Misjonshus");
+}
+
+async function arrFetchAndParseVarhaug(url) {
+  // V334:
+  // - årsplanen er autoritativ langtidskilde
+  // - forsiden er kun supplement for nye/endret publisering
+  // - korrekt tegnsett forsøkes før parsering
+  // - samme møte fra årsplan + forside dedupliseres semantisk
+  const primary = [];
+  const supplement = [];
+  const year = 2026;
+  const longTermUrl = "https://www.varhaug-misjonshus.no/2026singl.html";
+
+  function stripCell(html) {
+    return arrFixVarhaugText(arrHtmlToLines(String(html || "")).replace(/\s+/g," "));
+  }
+
+  function parseClock(raw) {
+    const s = arrClean(raw || "").toLowerCase().replace(/\s+/g,"");
+    if (!s || /^(kveld|dagtid|til\d+)/i.test(s)) return null;
+    let m = s.match(/^(\d{1,2})[:.]?(\d{2})?(?:[–—-](\d{1,2})[:.]?(\d{2})?)?$/);
+    if (!m) return null;
+    const sh = Number(m[1]), sm = Number(m[2] || 0);
+    const eh = m[3] ? Number(m[3]) : null, em = m[3] ? Number(m[4] || 0) : null;
+    if (sh > 23 || sm > 59 || (eh !== null && (eh > 23 || em > 59))) return null;
+    return {sh,sm,eh,em};
+  }
+
+  function parseDateSpec(raw) {
+    const s = arrClean(raw || "").replace(/\s+/g,"");
+    let m = s.match(/^(\d{1,2})\/(\d{1,2})$/);
+    if (m) return [{day:Number(m[1]),month:Number(m[2])}];
+
+    m = s.match(/^(\d{1,2})-(\d{1,2})\/(\d{1,2})$/);
+    if (m) {
+      const d1=Number(m[1]), d2=Number(m[2]), month=Number(m[3]);
+      const result=[];
+      for (let d=d1; d<=d2 && d-d1<14; d++) result.push({day:d,month});
+      return result;
+    }
+
+    m = s.match(/^(\d{1,2})\/(\d{1,2})-(\d{1,2})\/(\d{1,2})$/);
+    if (m) {
+      const d1=Number(m[1]), m1=Number(m[2]), d2=Number(m[3]), m2=Number(m[4]);
+      const result=[];
+      const start=new Date(Date.UTC(year,m1-1,d1));
+      const end=new Date(Date.UTC(year,m2-1,d2));
+      for (let d=new Date(start), guard=0; d<=end && guard<14; d.setUTCDate(d.getUTCDate()+1),guard++) {
+        result.push({day:d.getUTCDate(),month:d.getUTCMonth()+1});
+      }
+      return result;
+    }
+    return [];
+  }
+
+  function rowLooksPublic(title, subOrganizer) {
+    const t = arrNormalize(title);
+    const o = arrNormalize(subOrganizer);
+    if (!t) return false;
+    if (/\b(styremøte|konfirmantundervisning|pynt til|begravelse|privat|utleie)\b/.test(t)) return false;
+    if (o === ">>>" && !/\b(møte|møteveke|lys over land|basar|gudstjeneste|gudsteneste|samling)\b/.test(t)) return false;
+    return true;
+  }
+
+  try {
+    const html = await arrFetchVarhaugText(longTermUrl);
+    const trRe = /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi;
+    let tr;
+    while ((tr = trRe.exec(html)) !== null) {
+      const cells = [];
+      const tdRe = /<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi;
+      let td;
+      while ((td = tdRe.exec(tr[1])) !== null) cells.push(stripCell(td[1]));
+      if (cells.length < 5) continue;
+
+      const dateText = cells[1] || "";
+      const subOrganizer = arrFixVarhaugText(cells[2] || "");
+      const title = arrFixVarhaugText(cells[3] || "");
+      const timeText = cells[4] || "";
+      const room = arrFixVarhaugText(cells[5] || "");
+
+      const dates = parseDateSpec(dateText);
+      const clock = parseClock(timeText);
+      if (!dates.length || !clock || !rowLooksPublic(title, subOrganizer)) continue;
+
+      for (const d of dates) {
+        const startTime = arrOsloLocalIso(year,d.month,d.day,clock.sh,clock.sm,0);
+        const endTime = clock.eh !== null
+          ? arrOsloLocalIso(year,d.month,d.day,clock.eh,clock.em,0)
+          : null;
+        const canonical = arrVarhaugCanonicalTitle(title);
+        primary.push({
+          sourceEventId:`varhaug-${year}-${String(d.month).padStart(2,"0")}-${String(d.day).padStart(2,"0")}-${String(clock.sh).padStart(2,"0")}${String(clock.sm).padStart(2,"0")}-${canonical.replace(/\s+/g,"-").slice(0,70)}`,
+          title,
+          startTime,
+          endTime,
+          location:"Varhaug Misjonshus",
+          description:[subOrganizer && `Arrangør: ${subOrganizer}`, room && `Rom: ${room}`].filter(Boolean).join(". "),
+          sourceUrl:longTermUrl,
+        });
+      }
+    }
+  } catch (_) {}
+
+  try {
+    const website = String(url || "https://www.varhaug-misjonshus.no/").trim();
+    const html = await arrFetchVarhaugText(website);
+    const lines = arrHtmlToLines(html).split("\n").map(x => arrFixVarhaugText(x)).filter(Boolean);
+    let inUpcoming=false, pendingTitle=null;
+    for (const line of lines) {
+      if (/^kva skjer:?$/i.test(line)) { inUpcoming=true; pendingTitle=null; continue; }
+      if (!inUpcoming) continue;
+      if (/^(sentrum menighet|misjonshusbladet|log in|søk etter:|kategorier|arkiv)$/i.test(line)) break;
+
+      const m=line.match(/^(\d{1,2})\.(\d{1,2})\.(20\d{2})\s+kl\.?\s*(\d{1,2})[:.](\d{2})(?:\s*[–—-]\s*(\d{1,2})[:.](\d{2}))?$/i);
+      if (m && pendingTitle) {
+        const item = {
+          title:pendingTitle,
+          startTime:arrOsloLocalIso(Number(m[3]),Number(m[2]),Number(m[1]),Number(m[4]),Number(m[5]),0),
+          endTime:m[6] ? arrOsloLocalIso(Number(m[3]),Number(m[2]),Number(m[1]),Number(m[6]),Number(m[7]),0) : null,
+          location:"Varhaug Misjonshus",
+          sourceUrl:website,
+        };
+
+        // Årsplanen vinner dersom forsiden beskriver samme møte.
+        if (!primary.some(p => arrVarhaugSameEvent(p,item))) supplement.push(item);
+        pendingTitle=null;
+        continue;
+      }
+      if (line.length<=220 && !/^\d/.test(line) && !/^©/.test(line)) pendingTitle=line;
+    }
+  } catch (_) {}
+
+  // Dedupe også internt i hver del med Varhaug-nøkkelen, ikke bare rå tittel.
+  const merged = [];
+  const seen = new Set();
+  for (const item of [...primary,...supplement]) {
+    const key = arrVarhaugSemanticKey(item.title,item.startTime);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    merged.push(item);
+  }
+
+  if (!merged.length) throw new Error("Varhaug-parser fant ingen arrangementer");
+  return merged;
+}
+
+
+function arrExtractJavascriptObjectAfterMarker(raw, markerText) {
+  const source = String(raw || "");
+  const markerIndex = source.indexOf(markerText);
+  if (markerIndex < 0) return null;
+
+  const start = source.indexOf("{", markerIndex + markerText.length);
+  if (start < 0) return null;
+
+  let depth = 0;
+  let inString = false;
+  let quote = "";
+  let escaped = false;
+
+  for (let i=start; i<source.length; i++) {
+    const ch = source[i];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (ch === "\\") {
+        escaped = true;
+        continue;
+      }
+      if (ch === quote) {
+        inString = false;
+        quote = "";
+      }
+      continue;
+    }
+
+    if (ch === '"' || ch === "'") {
+      inString = true;
+      quote = ch;
+      continue;
+    }
+
+    if (ch === "{") depth++;
+    if (ch === "}") {
+      depth--;
+      if (depth === 0) return source.slice(start, i + 1);
+    }
+  }
+
+  return null;
+}
+
+function arrStripHtmlInline(value) {
+  return arrClean(
+    arrDecodeEntities(
+      String(value || "")
+        .replace(/<br\s*\/?>/gi, " ")
+        .replace(/<[^>]+>/g, " ")
+    )
+  );
+}
+
+function arrHaaOrganizerFromLocation(location) {
+  const loc = arrClean(location || "");
+  const n = arrNormalize(loc);
+
+  // V481: Sokn i Hå dekker flere tettsteder/kirker.
+  // Varhaug sokn: Varhaug + Vigrestad
+  // Ogna sokn: Ogna + Brusand + Sirevåg
+  // Nærbø sokn: Nærbø
+  //
+  // Disse må testes FØR den generiske "<sted> kyrkje -> <sted> sokn"-regelen,
+  // ellers blir f.eks. Vigrestad kyrkje feilaktig til "Vigrestad sokn".
+  if (/\b(varhaug|vigrestad)\b/i.test(n)) return "Varhaug sokn";
+  if (/\b(ogna|brusand|sirevåg|sirevag|stokkalandsmarka)\b/i.test(n)) return "Ogna sokn";
+  if (/\b(nærbø|narbo)\b/i.test(n)) return "Nærbø sokn";
+
+  const church = loc.match(/^(.+?)\s+(?:kyrkje|kirke)(?:\s*,.*)?$/i);
+  if (church && church[1]) {
+    return `${arrClean(church[1])} sokn`;
+  }
+
+  return "Hå Kyrkjelege Fellesråd";
+}
+
+function arrHaaSettlementHintFromLocation(location) {
+  const loc = arrClean(location || "");
+  if (/nærbø/i.test(loc)) return "Nærbø";
+  if (/varhaug/i.test(loc)) return "Varhaug";
+  if (/vigrestad/i.test(loc)) return "Vigrestad";
+  if (/ogna/i.test(loc)) return "Ogna";
+  if (/brusand/i.test(loc)) return "Brusand";
+  if (/sirevåg/i.test(loc)) return "Sirevåg";
+  if (/stokkalandsmarka/i.test(loc)) return "Ogna";
+  return "";
+}
+
+async function arrFetchAndParseHaaAgrando(url) {
+  const calendarUrl = "https://haa.kyrkja.no/Kalender";
+  const html = await arrFetchText(calendarUrl);
+
+  // Agrando legger hele den ferdigrendrede kalenderen inn som JSON-data i
+  // et inline script og kaller OutputCalendar(data,...,'Months').
+  // Dermed trenger vi ikke simulere nettleseren eller bruke et skjult API.
+  const objectText =
+    arrExtractJavascriptObjectAfterMarker(html, "var data =") ||
+    arrExtractJavascriptObjectAfterMarker(html, "var data=");
+
+  if (!objectText) {
+    throw new Error("Hå Agrando: fant ikke innebygd kalenderdata (var data)");
+  }
+
+  let data;
+  try {
+    data = JSON.parse(objectText);
+  } catch (error) {
+    throw new Error(`Hå Agrando: ugyldig kalender-JSON: ${String(error?.message || error)}`);
+  }
+
+  let calendarHtml = "";
+
+  if (typeof data.Months === "string") {
+    calendarHtml = data.Months;
+  } else {
+    // Gjør parseren robust dersom Agrando endrer property-navn.
+    for (const value of Object.values(data || {})) {
+      if (
+        typeof value === "string" &&
+        /calendar-(?:item|event|date)/i.test(value) &&
+        /EventId=/i.test(value)
+      ) {
+        calendarHtml = value;
+        break;
+      }
+    }
+  }
+
+  if (!calendarHtml) {
+    throw new Error("Hå Agrando: fant ikke Months/kalender-HTML i dataobjektet");
+  }
+
+  const out = [];
+  const now = new Date();
+  let year = now.getFullYear();
+  let previousMonth = null;
+
+  // Del på hver datoblokk. Datoene står i kronologisk rekkefølge.
+  const dateRe = /<div[^>]*class=["'][^"']*calendar-date[^"']*["'][^>]*>\s*(\d{1,2})\.(\d{1,2})\s*<\/div>/gi;
+  const dateMatches = [...calendarHtml.matchAll(dateRe)];
+
+  for (let i=0; i<dateMatches.length; i++) {
+    const dm = dateMatches[i];
+    const day = Number(dm[1]);
+    const month = Number(dm[2]);
+
+    if (previousMonth != null && month < previousMonth) {
+      year += 1;
+    }
+    previousMonth = month;
+
+    const blockStart = dm.index + dm[0].length;
+    const blockEnd = i + 1 < dateMatches.length
+      ? dateMatches[i + 1].index
+      : calendarHtml.length;
+    const block = calendarHtml.slice(blockStart, blockEnd);
+
+    // Ett datofelt kan inneholde flere arrangementer.
+    const eventRe = /<div[^>]*class=["'][^"']*\bevent\b[^"']*["'][^>]*>[\s\S]*?<div[^>]*class=["'][^"']*event-time[^"']*["'][^>]*>\s*(?:kl\.?\s*)?(\d{1,2})[.:](\d{2})(?:\s*[–—-]\s*(?:kl\.?\s*)?(\d{1,2})[.:](\d{2}))?\s*<\/div>[\s\S]*?<p[^>]*class=["'][^"']*info-text[^"']*["'][^>]*>[\s\S]*?<a[^>]*href=["']([^"']*EventId=([^&"']+)[^"']*)["'][^>]*>([\s\S]*?)<\/a>[\s\S]*?<span[^>]*class=["'][^"']*calendar-label[^"']*["'][^>]*>([\s\S]*?)<\/span>[\s\S]*?<span[^>]*class=["'][^"']*calendar-location[^"']*["'][^>]*>([\s\S]*?)<\/span>/gi;
+
+    for (const em of block.matchAll(eventRe)) {
+      const startHour = Number(em[1]);
+      const startMinute = Number(em[2]);
+      const endHour = em[3] ? Number(em[3]) : null;
+      const endMinute = em[4] ? Number(em[4]) : null;
+      const relativeHref = arrDecodeEntities(em[5] || "");
+      const eventId = arrClean(em[6] || "");
+      const title = arrStripHtmlInline(em[7]);
+      const category = arrStripHtmlInline(em[8]);
+      const location = arrStripHtmlInline(em[9]);
+
+      if (!title || !eventId) continue;
+
+      const startTime = arrOsloLocalIso(year, month, day, startHour, startMinute, 0);
+      const endTime = endHour != null
+        ? arrOsloLocalIso(year, month, day, endHour, endMinute || 0, 0)
+        : null;
+
+      let sourceUrl = calendarUrl;
+      try {
+        sourceUrl = new URL(
+          relativeHref.replace(/^CalendarPage/i, "/Kalenderdetaljer"),
+          calendarUrl
+        ).href;
+      } catch (_) {}
+
+      // Agrando gjenbruker samme EventId for flere forekomster av samme
+      // aktivitet. Source Event ID må derfor være unik per forekomst.
+      // Tidligere brukte vi bare haa-<EventId>; da overskrev senere datoer
+      // tidligere datoer i Baserow (f.eks. Reload / Etter skoletid).
+      const occurrenceKey = `${eventId}|${startTime}`;
+
+      out.push({
+        sourceEventId:`haa-${eventId}-${(await arrSha256(occurrenceKey)).slice(0,12)}`,
+        title,
+        startTime,
+        endTime,
+        organizer:arrHaaOrganizerFromLocation(location),
+        location,
+        description:"",
+        sourceUrl,
+        settlementHint:arrHaaSettlementHintFromLocation(location),
+        municipalityHint:"Hå",
+        meetingTypeHint:category
+      });
+    }
+  }
+
+  // Kun relevant tidsvindu; siden kan inneholde litt eldre/nyere data.
+  const minTs = Date.now() - 7 * 86400000;
+  const maxTs = Date.now() + 400 * 86400000;
+  const filtered = out.filter(item => {
+    const ts = new Date(item.startTime).getTime();
+    return Number.isFinite(ts) && ts >= minTs && ts <= maxTs;
+  });
+
+  if (!filtered.length) {
+    throw new Error(`Hå Agrando-parser fant ingen arrangementer (rå=${out.length})`);
+  }
+
+  return arrDedupeParsed(filtered);
+}
+
+async function arrFetchAndParseHaa(url) {
+  const html = await arrFetchText(url);
+  const lines = arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
+  const out = [];
+  let explicitYear = null;
+  let currentDate = null;
+  let currentTime = null;
+  let pendingTitle = null;
+
+  for (let i=0;i<lines.length;i++) {
+    const line = lines[i];
+
+    if (/^20\d{2}$/.test(line)) {
+      explicitYear = Number(line);
+      continue;
+    }
+
+    // Handles both "16.08" and lines containing weekday + date.
+    const dm = line.match(/(?:^|\s)(\d{1,2})[.\/-](\d{1,2})(?:[.\/-](20\d{2}))?(?:$|\s)/);
+    if (dm) {
+      const day = Number(dm[1]);
+      const month = Number(dm[2]);
+      let year = Number(dm[3] || explicitYear || new Date().getFullYear());
+      if (!dm[3] && !explicitYear) {
+        const now = new Date();
+        const candidate = new Date(year,month-1,day,12,0,0);
+        if (candidate.getTime() < now.getTime()-180*86400000) year += 1;
+      }
+      currentDate = {year,month,day};
+    }
+
+    const tm = line.match(/(?:kl\.?\s*)?(\d{1,2})[.:](\d{2})(?:\s*[–-]\s*(?:kl\.?\s*)?(\d{1,2})[.:](\d{2}))?/i);
+    if (tm && currentDate) {
+      currentTime = {h:Number(tm[1]),m:Number(tm[2]),eh:tm[3] ? Number(tm[3]) : null,em:tm[4] ? Number(tm[4]) : null};
+
+      // Sometimes title/location are on the same line after the time.
+      const tail = arrClean(line.slice((tm.index || 0) + tm[0].length).replace(/^[-–—:\s]+/,""));
+      if (tail && !/^\d/.test(tail)) pendingTitle = tail;
+      continue;
+    }
+
+    if (!currentDate || !currentTime) continue;
+
+    if (!pendingTitle && arrLooksLikeHaaTitle(line)) {
+      pendingTitle = line;
+      continue;
+    }
+
+    if (pendingTitle && arrLooksLikeHaaLocation(line)) {
+      const startTime = arrOsloLocalIso(currentDate.year,currentDate.month,currentDate.day,currentTime.h,currentTime.m,0);
+      const endTime = currentTime.eh != null
+        ? arrOsloLocalIso(currentDate.year,currentDate.month,currentDate.day,currentTime.eh,currentTime.em || 0,0)
+        : null;
+      out.push({
+        title:pendingTitle,
+        startTime,
+        endTime,
+        location:line,
+        sourceUrl:url,
+      });
+      pendingTitle = null;
+      currentTime = null;
+      continue;
+    }
+
+    // If the next event starts without a separate location, keep it instead of losing it.
+    if (pendingTitle && arrLooksLikeHaaTitle(line) && !arrLooksLikeHaaNavigation(line)) {
+      const startTime = arrOsloLocalIso(currentDate.year,currentDate.month,currentDate.day,currentTime.h,currentTime.m,0);
+      out.push({title:pendingTitle,startTime,location:"",sourceUrl:url});
+      pendingTitle = line;
+      currentTime = null;
+    }
+  }
+
+  if (pendingTitle && currentDate && currentTime) {
+    out.push({
+      title:pendingTitle,
+      startTime:arrOsloLocalIso(currentDate.year,currentDate.month,currentDate.day,currentTime.h,currentTime.m,0),
+      location:"",
+      sourceUrl:url,
+    });
+  }
+
+  if (!out.length) throw new Error("Hå kyrkje-parser fant ingen arrangementer");
+  return arrDedupeParsed(out);
+}
+
+function arrLooksLikeHaaLocation(line) {
+  return /\b(kyrkje|kirke|kapell|kyrkjestove|menighetshus|bedehus)\b/i.test(line) && line.length <= 120;
+}
+
+function arrLooksLikeHaaNavigation(line) {
+  return /^(dåp|vigsel|gravplass|kyrkjelydane|fellesrådet|kontakt|søk|logg inn|alt fellesrådet)$/i.test(arrClean(line));
+}
+
+function arrLooksLikeHaaTitle(line) {
+  const text = arrClean(line);
+  if (!text || text.length > 220) return false;
+  if (arrLooksLikeHaaNavigation(text) || arrLooksLikeHaaLocation(text)) return false;
+  if (/^(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)$/i.test(text)) return false;
+  if (/^(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)$/i.test(text)) return false;
+  if (/^20\d{2}$/.test(text) || /^\d{1,2}[.\/-]\d{1,2}/.test(text) || /^(?:kl\.?\s*)?\d{1,2}[.:]\d{2}/i.test(text)) return false;
+  return true;
+}
+
+
+function arrParseNarboSimpleCalendarHtml(html, sourceUrl) {
+  const out = [];
+  const raw = String(html || "");
+
+  const blockRe =
+    /<li\b([^>]*\bclass=["'][^"']*\bsimcal-event\b[^"']*["'][^>]*)>([\s\S]*?)<\/li>/gi;
+  let m;
+
+  while ((m = blockRe.exec(raw)) !== null) {
+    const attrs = m[1];
+    const body = m[2];
+
+    let startSec = Number(arrBetelAttr(attrs,"data-start") || 0);
+    let endSec = Number(arrBetelAttr(attrs,"data-end") || 0);
+    const eventId =
+      arrBetelAttr(attrs,"data-event-id") ||
+      arrBetelAttr(attrs,"data-id") ||
+      "";
+
+    if (!startSec) {
+      const sm = body.match(/\bdata-event-start=["'](\d{9,13})["']/i);
+      if (sm) startSec = Number(sm[1]);
+    }
+    if (!endSec) {
+      const em = body.match(/\bdata-event-end=["'](\d{9,13})["']/i);
+      if (em) endSec = Number(em[1]);
+    }
+
+    if (startSec > 9999999999) startSec = Math.floor(startSec / 1000);
+    if (endSec > 9999999999) endSec = Math.floor(endSec / 1000);
+
+    const titleMatch =
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-title\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i) ||
+      body.match(/itemprop=["']name["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    const title = titleMatch ? arrBetelStrip(titleMatch[1]) : "";
+    if (!title || !startSec) continue;
+
+    const descMatch =
+      body.match(/<[^>]*class=["'][^"']*\bsimcal-event-description\b[^"']*["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+
+    const hrefMatch =
+      body.match(/<a\b[^>]*href=["']([^"']+)["'][^>]*>\s*(?:Se flere detaljer|More details)/i);
+
+    out.push({
+      sourceEventId:
+        eventId ||
+        `narbo-simcal-${startSec}-${arrNormalize(title).slice(0,60)}`,
+      title,
+      startTime:new Date(startSec*1000).toISOString(),
+      endTime:endSec ? new Date(endSec*1000).toISOString() : null,
+      location:"Nærbø bedehus",
+      description:descMatch ? arrBetelStrip(descMatch[1]) : "",
+      sourceUrl:hrefMatch
+        ? new URL(arrDecodeEntities(hrefMatch[1]),sourceUrl).href
+        : sourceUrl,
+      settlementHint:"Nærbø",
+      municipalityHint:"Hå"
+    });
+  }
+
+  return arrDedupeParsed(out);
+}
+
+async function arrFetchNarboMainCalendar() {
+  // V451: Den aktive Nærbø-siden /39-2/ inneholder to Simple Calendar-visninger.
+  // Listevisningen (calendar 48) viser bare et kort tidsrom, mens grid-kalenderen
+  // (calendar 109 per 2026-08-24) har langt større datodekning. Vi oppdager
+  // grid-ID fra HTML og henter månedene direkte via Simple Calendar AJAX.
+  const pageUrl = "https://narbobedehus.no/39-2/";
+  const ajaxUrl = "https://narbobedehus.no/wp-admin/admin-ajax.php";
+
+  const html = await arrFetchText(pageUrl);
+  const out = [...arrParseNarboSimpleCalendarHtml(html,pageUrl)];
+
+  const gridTagMatch = String(html).match(
+    /<div\b[^>]*class=["'][^"']*\bsimcal-default-calendar-grid\b[^"']*["'][^>]*>/i
+  );
+  const gridTag = gridTagMatch ? gridTagMatch[0] : "";
+  const calendarId = Number(arrBetelAttr(gridTag,"data-calendar-id") || 0);
+
+  if (!calendarId) {
+    throw new Error("Nærbø hovedkalender: fant ikke Simple Calendar grid-ID.");
+  }
+
+  const now = new Date();
+  let cursor = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+
+  // 15 måneder dekker hele det eksisterende importvinduet med god margin.
+  for (let i=0; i<15; i++) {
+    const month = cursor.getUTCMonth() + 1;
+    const year = cursor.getUTCFullYear();
+
+    const pageHtml = await arrFetchSimpleCalendarGridPage({
+      baseUrl:ajaxUrl,
+      referer:pageUrl,
+      calendarId,
+      month,
+      year
+    });
+
+    out.push(...arrParseNarboSimpleCalendarHtml(pageHtml,pageUrl));
+    cursor = new Date(Date.UTC(year, month, 1));
+  }
+
+  return arrDedupeParsed(out);
+}
+
+function arrParseNarboHtml(html, sourceUrl, meetingTypeHint="") {
+  const lines = arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
+  const out = [];
+
+  const detailRe = /^(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s*,?\s*(\d{1,2})\.\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\s+(20\d{2})\s+(\d{1,2}):(\d{2})(?:\s*[–—-]\s*(\d{1,2}):(\d{2}))?$/i;
+  const dateHeadingRe = /^(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)\s*,?\s*\d{1,2}\.\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\s*(20\d{2})?$/i;
+  const calendarJunkRe = /^(listevisning|kalendervisning|bruk kalendervisning for å se mer!?|man|tir|ons|tor|fre|lør|søn|august 20\d{2}|september 20\d{2}|oktober 20\d{2}|november 20\d{2}|desember 20\d{2})$/i;
+
+  function titleCandidate(line) {
+    const t = arrClean(line);
+    if (!t) return false;
+    if (arrLooksLikeNarboNoise(t)) return false;
+    if (dateHeadingRe.test(t) || detailRe.test(t) || calendarJunkRe.test(t)) return false;
+    if (/^[\d\s|•.-]+$/.test(t)) return false;
+    if (t.length > 220) return false;
+    return true;
+  }
+
+  for (let i=0; i<lines.length; i++) {
+    const m = lines[i].match(detailRe);
+    if (!m) continue;
+
+    // Finn nærmeste meningsfulle tekstlinje før dato/tid-linjen.
+    // På Nærbø-siden ligger det vanligvis:
+    //   [datooverskrift] -> [arrangementstittel] -> [dato + klokkeslett]
+    let title = "";
+    for (let j=i-1; j>=0 && j>=i-8; j--) {
+      if (titleCandidate(lines[j])) {
+        title = lines[j];
+        break;
+      }
+    }
+    if (!title) continue;
+
+    const month = ARR_NORWEGIAN_MONTHS[arrNormalize(m[3])];
+    const year = Number(m[4]);
+    const day = Number(m[2]);
+    if (!month) continue;
+
+    out.push({
+      title,
+      startTime:arrOsloLocalIso(year,month,day,Number(m[5]),Number(m[6]),0),
+      endTime:m[7] ? arrOsloLocalIso(year,month,day,Number(m[7]),Number(m[8]),0) : null,
+      location:"Nærbø bedehus",
+      sourceUrl,
+      meetingTypeHint,
+    });
+  }
+
+  return arrDedupeParsed(out);
+}
+
+
+// V472: Generert skoleårsserie for Ungdomslaget på Nærbø Bedehus.
+// Det finnes ingen ekstern kalender for denne serien. Vi genererer kommende
+// lørdager i gjeldende skoleår, fra siste lørdag i august til andre lørdag i juni.
+// Unntak: juleferie 22.12–02.01 og påskeaften (lørdagen etter langfredag).
+function arrGregorianEasterSunday(year) {
+  // Meeus/Jones/Butcher-algoritmen for gregoriansk kalender.
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function arrLastSaturdayOfAugust(year) {
+  const d = new Date(Date.UTC(year, 7, 31));
+  const back = (d.getUTCDay() - 6 + 7) % 7;
+  d.setUTCDate(d.getUTCDate() - back);
+  return d;
+}
+
+function arrSecondSaturdayOfJune(year) {
+  const d = new Date(Date.UTC(year, 5, 1));
+  const forward = (6 - d.getUTCDay() + 7) % 7;
+  d.setUTCDate(d.getUTCDate() + forward + 7);
+  return d;
+}
+
+function arrSchoolYearForDate(now = new Date()) {
+  // Jan–jun tilhører skoleåret som startet året før.
+  // Jul–des tilhører skoleåret som starter samme år. Dette gjør at juli
+  // allerede peker frem mot kommende skoleår, slik at serien alltid ligger klar.
+  const month = now.getUTCMonth() + 1;
+  const year = now.getUTCFullYear();
+  const startYear = month <= 6 ? year - 1 : year;
+  return {
+    startYear,
+    endYear: startYear + 1
+  };
+}
+
+function arrIsChristmasBreakDate(year, month, day) {
+  return (month === 12 && day >= 22) || (month === 1 && day <= 2);
+}
+
+function arrGenerateNarboUngdomslagetEvents(nowMs = Date.now()) {
+  const now = new Date(nowMs);
+  const {startYear, endYear} = arrSchoolYearForDate(now);
+  const first = arrLastSaturdayOfAugust(startYear);
+  const last = arrSecondSaturdayOfJune(endYear);
+
+  const easterSunday = arrGregorianEasterSunday(endYear);
+  const easterSaturday = new Date(easterSunday.getTime() - 86400000);
+  const easterSaturdayKey = easterSaturday.toISOString().slice(0, 10);
+
+  const out = [];
+  for (
+    let cursor = new Date(first);
+    cursor.getTime() <= last.getTime();
+    cursor = new Date(cursor.getTime() + 7 * 86400000)
+  ) {
+    const year = cursor.getUTCFullYear();
+    const month = cursor.getUTCMonth() + 1;
+    const day = cursor.getUTCDate();
+    const dateKey = cursor.toISOString().slice(0, 10);
+
+    if (arrIsChristmasBreakDate(year, month, day)) continue;
+    if (dateKey === easterSaturdayKey) continue;
+
+    const startTime = arrOsloLocalIso(year, month, day, 20, 0, 0);
+    const endTime = arrOsloLocalIso(year, month, day, 21, 0, 0);
+
+    // Ikke regenerer utløpte møter ved hver import. Cleanup håndterer tidligere
+    // rader; generatoren sørger bare for dagens/fremtidige del av skoleåret.
+    if (new Date(endTime).getTime() < nowMs) continue;
+
+    out.push({
+      title:"Ungdomslaget",
+      startTime,
+      endTime,
+      organizer:"Nærbø Bedehus",
+      location:"Nærbø bedehus",
+      settlementHint:"Nærbø",
+      municipalityHint:"Hå",
+      meetingTypeHint:"Ungdom",
+      organizationIds:["ORG-0004"],
+      description:"",
+      sourceUrl:"https://www.facebook.com/groups/ungdomslaget/?locale=nb_NO",
+      sourceEventId:`generated-ungdomslaget-naerbo-${dateKey}`
+    });
+  }
+
+  return out;
+}
+
+
+// V480: Tryggheim overvåkes kun via AllEvents-arrangørsiden.
+// Vi ser HELT bort fra skolerute, elev-/foreldrearrangement og gamle artikler.
+// Bare tre offentlige arrangementstyper er tillatt:
+//   - Misjonsfest
+//   - Julemesse
+//   - Huslydkveld
+// Et arrangement importeres bare når kilden oppgir et eksplisitt år i startdatoen
+// og starttidspunktet faktisk ligger i fremtiden.
+
+const ARR_TRYGGHEIM_ALLEVENTS_ORG_URL =
+  "https://allevents.in/org/tryggheim-vgs/17277959";
+
+function arrTryggheimAllowedTitle(value) {
+  const t = arrNormalize(value || "");
+  if (t.includes("misjonsfest")) return {title:arrClean(value),meetingTypeHint:"Misjon"};
+  if (t.includes("julemesse")) return {title:arrClean(value),meetingTypeHint:"Julemesse"};
+  if (t.includes("huslydkveld")) return {title:arrClean(value),meetingTypeHint:"Møte"};
+  return null;
+}
+
+function arrTryggheimAffiliationFromText(value) {
+  const t = arrNormalize(value || "");
+  if (
+    t.includes("tryggheim ungdomsskule") ||
+    t.includes("tryggheim ungdomsskole")
+  ) return "Tryggheim ungdomsskule";
+  if (
+    t.includes("tryggheim vgs") ||
+    t.includes("tryggheim vidaregåande") ||
+    t.includes("tryggheim videregående")
+  ) return "Tryggheim VGS";
+  return "Tryggheim";
+}
+
+function arrTryggheimLocationText(event) {
+  const loc = event?.location;
+  if (!loc) return "";
+
+  if (typeof loc === "string") return arrClean(loc);
+
+  return arrClean([
+    loc.name,
+    loc.address?.streetAddress,
+    loc.address?.addressLocality,
+    loc.address?.postalCode,
+    loc.address?.addressRegion,
+    loc.address?.addressCountry
+  ].filter(Boolean).join(", "));
+}
+
+function arrTryggheimExplicitFutureStart(startDate, nowMs=Date.now()) {
+  const raw = arrClean(startDate || "");
+  // År må være eksplisitt i kilden. Ingen årsgjetting er tillatt.
+  const m = raw.match(
+    /^(20\d{2})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)?$/
+  );
+  if (!m) return null;
+
+  let iso = null;
+
+  if (m[4] != null) {
+    // Bevar oppgitt offset/Z dersom den finnes. Dersom AllEvents gir lokal
+    // ISO uten offset, tolk den eksplisitt som Europe/Oslo.
+    if (/Z$|[+-]\d{2}:?\d{2}$/.test(raw)) {
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return null;
+      iso = d.toISOString();
+    } else {
+      iso = arrOsloLocalIso(
+        Number(m[1]),Number(m[2]),Number(m[3]),
+        Number(m[4]),Number(m[5]),Number(m[6] || 0)
+      );
+    }
+  } else {
+    // Dato uten klokkeslett importeres ikke. Vi skal ikke gjette tid.
+    return null;
+  }
+
+  const ms = new Date(iso).getTime();
+  if (!Number.isFinite(ms) || ms <= nowMs) return null;
+  if (ms > nowMs + 400 * 86400000) return null;
+
+  return iso;
+}
+
+function arrTryggheimExplicitEnd(endDate, startIso) {
+  const raw = arrClean(endDate || "");
+  if (!raw) return null;
+
+  const m = raw.match(
+    /^(20\d{2})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?$/
+  );
+  if (!m) return null;
+
+  let iso;
+  if (/Z$|[+-]\d{2}:?\d{2}$/.test(raw)) {
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    iso = d.toISOString();
+  } else {
+    iso = arrOsloLocalIso(
+      Number(m[1]),Number(m[2]),Number(m[3]),
+      Number(m[4]),Number(m[5]),Number(m[6] || 0)
+    );
+  }
+
+  const endMs = new Date(iso).getTime();
+  const startMs = new Date(startIso).getTime();
+  return Number.isFinite(endMs) && endMs >= startMs ? iso : null;
+}
+
+function arrTryggheimCollectJsonLdEvents(value, out=[]) {
+  if (Array.isArray(value)) {
+    for (const item of value) arrTryggheimCollectJsonLdEvents(item,out);
+    return out;
+  }
+  if (!value || typeof value !== "object") return out;
+
+  const types = Array.isArray(value["@type"])
+    ? value["@type"]
+    : [value["@type"]];
+
+  if (types.some(t => arrNormalize(t || "") === "event")) {
+    out.push(value);
+  }
+
+  for (const child of Object.values(value)) {
+    if (child && typeof child === "object") {
+      arrTryggheimCollectJsonLdEvents(child,out);
+    }
+  }
+
+  return out;
+}
+
+function arrTryggheimJsonLdEvents(html) {
+  const events = [];
+
+  for (const m of String(html || "").matchAll(
+    /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+  )) {
+    let raw = String(m[1] || "").trim();
+    if (!raw) continue;
+
+    raw = raw
+      .replace(/^\s*<!--/, "")
+      .replace(/-->\s*$/, "")
+      .trim();
+
+    try {
+      const parsed = JSON.parse(raw);
+      arrTryggheimCollectJsonLdEvents(parsed,events);
+    } catch (_) {}
+  }
+
+  return events;
+}
+
+function arrTryggheimCandidateEventLinks(html, baseUrl) {
+  const out = [];
+  const seen = new Set();
+
+  for (const m of String(html || "").matchAll(
+    /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi
+  )) {
+    const label = arrClean(
+      String(m[2] || "")
+        .replace(/<[^>]+>/g," ")
+        .replace(/&nbsp;/gi," ")
+        .replace(/&amp;/gi,"&")
+    );
+    const hrefRaw = arrClean(m[1] || "");
+    const probe = `${label} ${hrefRaw}`;
+
+    if (!arrTryggheimAllowedTitle(probe)) continue;
+
+    try {
+      const u = new URL(hrefRaw,baseUrl);
+      if (!/(?:^|\.)allevents\.in$/i.test(u.hostname)) continue;
+      u.hash = "";
+      const href = u.href;
+      if (!seen.has(href)) {
+        seen.add(href);
+        out.push(href);
+      }
+    } catch (_) {}
+  }
+
+  return out;
+}
+
+function arrTryggheimNormalizeStructuredEvent(event, pageUrl, nowMs=Date.now()) {
+  const allowed = arrTryggheimAllowedTitle(event?.name || "");
+  if (!allowed) return null;
+
+  const startTime = arrTryggheimExplicitFutureStart(event?.startDate,nowMs);
+  if (!startTime) return null;
+
+  const locationText = arrTryggheimLocationText(event);
+  const description = arrClean(
+    typeof event?.description === "string" ? event.description : ""
+  );
+
+  // Vi skal kun ha arrangement PÅ Tryggheim.
+  const locationProbe = arrNormalize(`${locationText} ${description}`);
+  if (!locationProbe.includes("tryggheim")) return null;
+
+  const affiliation = arrTryggheimAffiliationFromText(
+    `${locationText} ${description}`
+  );
+
+  const sourceUrl = arrClean(
+    (typeof event?.url === "string" && event.url) ||
+    pageUrl ||
+    ARR_TRYGGHEIM_ALLEVENTS_ORG_URL
+  );
+
+  return {
+    title:allowed.title,
+    startTime,
+    endTime:arrTryggheimExplicitEnd(event?.endDate,startTime),
+    organizer:"Tryggheim",
+    location:affiliation,
+    settlementHint:"Nærbø",
+    municipalityHint:"Hå",
+    meetingTypeHint:allowed.meetingTypeHint,
+    organizationIds:["ORG-0004"],
+    description:description.slice(0,1000),
+    sourceUrl,
+    sourceEventId:arrClean(event?.identifier || event?.["@id"] || "") || undefined
+  };
+}
+
+async function arrFetchAndParseTryggheimAllEvents(
+  url=ARR_TRYGGHEIM_ALLEVENTS_ORG_URL
+) {
+  const nowMs = Date.now();
+  const orgHtml = await arrFetchText(url);
+  const out = [];
+
+  // Noen AllEvents-sider har ferdige Event-objekter på arrangørsiden.
+  for (const event of arrTryggheimJsonLdEvents(orgHtml)) {
+    const normalized = arrTryggheimNormalizeStructuredEvent(event,url,nowMs);
+    if (normalized) out.push(normalized);
+  }
+
+  // Hvis arrangørsiden bare viser kort/lenker, hent kun sider som heter
+  // Misjonsfest, Julemesse eller Huslydkveld.
+  const links = arrTryggheimCandidateEventLinks(orgHtml,url).slice(0,20);
+
+  for (const eventUrl of links) {
+    try {
+      const html = await arrFetchText(eventUrl);
+      for (const event of arrTryggheimJsonLdEvents(html)) {
+        const normalized = arrTryggheimNormalizeStructuredEvent(
+          event,eventUrl,nowMs
+        );
+        if (normalized) out.push(normalized);
+      }
+    } catch (_) {
+      // Én eventuell gammel/utløpt AllEvents-lenke skal ikke stoppe overvåkingen.
+    }
+  }
+
+  // 0 treff er et gyldig resultat. Per 21.09.2026 finnes det ikke nødvendigvis
+  // noen relevante framtidige arrangement; da skal gamle feilimporter ryddes bort.
+  return arrDedupeParsed(out);
+}
+
+
+async function arrFetchAndParseNarbo(url) {
+  const sources = [
+    {url:"https://narbobedehus.no/glad-sang/", meetingTypeHint:"Sang / musikk"},
+    {url:"https://narbobedehus.no/emmaus/", meetingTypeHint:"Sang / musikk"},
+    {url:"https://narbobedehus.no/kvisten-barnelag/", meetingTypeHint:"Barn"},
+    {url:"https://narbobedehus.no/maks-klubben/", meetingTypeHint:"Barn"}
+  ];
+
+  const out = [];
+  const stats = [];
+
+  // V451: hovedkalenderen hentes fra den faktiske aktive Møter-siden og
+  // Simple Calendar GRID-AJAX. Dette erstatter den ustabile /calendar/moter/-URL-en.
+  try {
+    const parsed = await arrFetchNarboMainCalendar();
+    out.push(...parsed);
+    stats.push({
+      url:"https://narbobedehus.no/39-2/",
+      method:"simple-calendar-grid",
+      count:parsed.length,
+      first:parsed[0]?.startTime || null,
+      last:parsed.at(-1)?.startTime || null
+    });
+  } catch (err) {
+    stats.push({
+      url:"https://narbobedehus.no/39-2/",
+      method:"simple-calendar-grid",
+      count:0,
+      error:arrClean(err?.message || String(err))
+    });
+  }
+
+  for (const source of sources) {
+    try {
+      const html = await arrFetchText(source.url);
+      const parsed = arrParseNarboHtml(html, source.url, source.meetingTypeHint);
+      out.push(...parsed);
+      stats.push({
+        url:source.url,
+        count:parsed.length,
+        first:parsed[0]?.startTime || null,
+        last:parsed.at(-1)?.startTime || null
+      });
+    } catch (err) {
+      stats.push({
+        url:source.url,
+        count:0,
+        error:arrClean(err?.message || String(err))
+      });
+    }
+  }
+
+  const deduped = arrDedupeParsed(out);
+
+  if (!deduped.length) {
+    throw new Error("Nærbø-parser fant ingen arrangementer. " + JSON.stringify(stats));
+  }
+
+  const nowMs = Date.now();
+  const future = deduped
+    .map(item => new Date(item.startTime).getTime())
+    .filter(ts => Number.isFinite(ts) && ts >= nowMs);
+
+  const lastFuture = future.length ? Math.max(...future) : 0;
+  const daysAhead = lastFuture ? (lastFuture - nowMs) / 86400000 : 0;
+
+  if (future.length < 20 || daysAhead < 90) {
+    throw new Error(
+      `Nærbø-parser ga mistenkelig lav dekning: ${future.length} kommende arrangementer, ` +
+      `siste ${Math.round(daysAhead)} dager frem. Kilder=${JSON.stringify(stats)}`
+    );
+  }
+
+  return deduped;
+}
+
+function arrLooksLikeNarboNoise(line) {
+  return /^(alle arrangementer|kalendere?|møter|aktiviteter|kor og lag|publisert|stikkord:|i|av)$/i.test(arrClean(line)) || /^©/.test(line);
+}
+
+function arrHtmlToLines(html) {
+  let value = arrDecodeEntities(String(html ?? ""));
+
+  // Bevar lenkeadressen før øvrig HTML fjernes. Enkelte kilder leverer
+  // f.eks. <a href="URL"><u>URL</u></a> som tekst i DESCRIPTION.
+  value = value.replace(
+    /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
+    (_, href, label) => {
+      const cleanHref = arrDecodeEntities(String(href || "")).trim();
+      const cleanLabel = String(label || "").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+      if (!cleanHref) return cleanLabel;
+      if (!cleanLabel || cleanLabel === cleanHref) return cleanHref;
+      return `${cleanLabel} (${cleanHref})`;
+    }
+  );
+
+  return value
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,"\n")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,"\n")
+    .replace(/<br\s*\/?>/gi,"\n")
+    .replace(/<li\b[^>]*>/gi,"\n• ")
+    .replace(/<\/li>/gi,"")
+    .replace(/<\/?(?:ul|ol)\b[^>]*>/gi,"\n")
+    .replace(/<\/p>|<\/div>|<\/h[1-6]>|<\/tr>/gi,"\n")
+    .replace(/<[^>]+>/g," ")
+    .replace(/\r/g,"")
+    .split("\n")
+    .map(x=>x.replace(/\s+/g," ").trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+function arrDecodeEntities(s) {
+  let value = String(s ?? "");
+
+  // Enkelte kilder leverer HTML-entiteter i flere lag, f.eks.
+  // &amp;quot; eller &amp;amp;quot;. Dekod noen få runder slik at
+  // sluttresultatet blir vanlig tekst uten å risikere en endeløs løkke.
+  for (let pass = 0; pass < 4; pass++) {
+    const before = value;
+
+    value = value
+      .replace(/&nbsp;|&#160;/gi," ")
+      .replace(/&quot;/gi,'"')
+      .replace(/&#39;|&apos;/gi,"'")
+      .replace(/&ndash;/gi,"–")
+      .replace(/&mdash;/gi,"—")
+      .replace(/&hellip;/gi,"…")
+      .replace(/&laquo;/gi,"«")
+      .replace(/&raquo;/gi,"»")
+      .replace(/&aring;/gi,"å").replace(/&oslash;/gi,"ø").replace(/&aelig;/gi,"æ")
+      .replace(/&Aring;/g,"Å").replace(/&Oslash;/g,"Ø").replace(/&AElig;/g,"Æ")
+      .replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)))
+      .replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCodePoint(parseInt(n,16)))
+      .replace(/&amp;/gi,"&");
+
+    if (value === before) break;
+  }
+
+  return value;
+}
+
+
+// V486: Globale arrangement som aldri skal publiseres.
+// Gjelder alle kilder og alle kommuner.
+function arrIsGloballyExcludedEvent(event) {
+  const probe = arrNormalize([
+    event?.title,
+    event?.description,
+    event?.meetingTypeHint
+  ].filter(Boolean).join(" "));
+
+  // "Privat selskap" skal aldri inn i den offentlige arrangementsoversikten.
+  // Ta også høyde for den enkle skrivefeilen "Privat selskal".
+  return /\bprivat\s+selska(?:p|l)\b/i.test(probe);
+}
+
+function arrDedupeParsed(rows) {
+  const seen = new Set();
+  return rows.filter(r => {
+    const k = `${r.startTime}|${arrNormalize(r.title)}`;
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+}
+
+function arrClean(v) { return String(v ?? "").replace(/\s+/g," ").trim(); }
+function arrNormalize(v) { return arrClean(v).toLocaleLowerCase("no"); }
+function arrIsoOrNull(v) {
+  if (!v) return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+function arrIcalUnescape(v) {
+  return String(v || "").replace(/\\n/gi,"\n").replace(/\\,/g,",").replace(/\\;/g,";").replace(/\\\\/g,"\\");
+}
+
+async function arrStableKey(sourceId, start, title) {
+  return `${sourceId || "SRC"}:${(await arrSha256(`${start}|${arrNormalize(title)}`)).slice(0,24)}`;
+}
+async function arrSha256(value) {
+  const bytes = new TextEncoder().encode(String(value));
+  const digest = await crypto.subtle.digest("SHA-256",bytes);
+  return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+function arrOsloLocalIso(year,month,day,hour=0,minute=0,second=0) {
+  // Determine Europe/Oslo offset using Intl, including DST.
+  const approx = new Date(Date.UTC(year,month-1,day,hour,minute,second));
+  const parts = new Intl.DateTimeFormat("en-CA",{
+    timeZone:"Europe/Oslo",year:"numeric",month:"2-digit",day:"2-digit",
+    hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"
+  }).formatToParts(approx).reduce((o,p)=>(o[p.type]=p.value,o),{});
+  const represented = Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day),Number(parts.hour),Number(parts.minute),Number(parts.second));
+  const offsetMinutes = Math.round((represented-approx.getTime())/60000);
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const abs = Math.abs(offsetMinutes);
+  const off = `${sign}${String(Math.floor(abs/60)).padStart(2,"0")}:${String(abs%60).padStart(2,"0")}`;
+  return `${String(year).padStart(4,"0")}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}T${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}:${String(second).padStart(2,"0")}${off}`;
+}
+
+
+async function arrGetImportPlan(env) {
+  const rows = await arrListAllRows(env, ARR_TABLE.SOURCES);
+
+  return {
+    sources:rows
+      .filter(r => r[ARR_F.sources.enabled] !== false)
+      .map(r => ({
+        sourceId:arrClean(r[ARR_F.sources.sourceId] || ""),
+        name:arrClean(r[ARR_F.sources.name] || "")
+      }))
+      .filter(r => r.sourceId)
+  };
+}
+
+function arrVigrestadSemanticKey(title,startTime) {
+  const normalizedTitle = arrNormalize(title || "");
+  const iso = arrIsoOrNull(startTime);
+  if (!normalizedTitle || !iso) return "";
+  return `${iso}|${normalizedTitle}`;
+}
+
+async function arrRecoverVigrestadDuplicateRows(env) {
+  const rows = await arrListRowsFilteredEqual(
+    env,
+    ARR_TABLE.EVENTS,
+    ARR_F.events.organizer,
+    "Vigrestad Misjonshus"
+  );
+
+  const byKey = new Map();
+  for (const row of rows) {
+    const key = arrVigrestadSemanticKey(
+      row[ARR_F.events.title],
+      row[ARR_F.events.startTime]
+    );
+    if (!key) continue;
+    if (!byKey.has(key)) byKey.set(key, []);
+    byKey.get(key).push(row);
+  }
+
+  const reactivate = [];
+  for (const items of byKey.values()) {
+    const hasActive = items.some(r => r[ARR_F.events.active] !== false);
+    if (!hasActive) continue;
+
+    for (const row of items) {
+      if (row[ARR_F.events.active] === false) {
+        reactivate.push({
+          id: row.id,
+          [ARR_F.events.active]: true
+        });
+      }
+    }
+  }
+
+  if (reactivate.length) {
+    await arrUpdateRowsBatch(env, ARR_TABLE.EVENTS, reactivate);
+  }
+
+  return {
+    ok:true,
+    organizer:"Vigrestad Misjonshus",
+    reactivated:reactivate.length
+  };
+}
+
+async function arrDedupeExistingVigrestad(env) {
+  const rows = await arrListRowsFilteredEqual(
+    env,
+    ARR_TABLE.EVENTS,
+    ARR_F.events.organizer,
+    "Vigrestad Misjonshus"
+  );
+
+  const groups = new Map();
+  for (const row of rows) {
+    if (row[ARR_F.events.active] === false) continue;
+
+    const key = arrVigrestadSemanticKey(
+      row[ARR_F.events.title],
+      row[ARR_F.events.startTime]
+    );
+    if (!key) continue;
+
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  }
+
+  const updates = [];
+  let duplicateGroups = 0;
+
+  const score = row => {
+    let n = 0;
+    if (row[ARR_F.events.manuallyEdited] === true) n += 100000;
+    if (arrClean(row[ARR_F.events.description] || "")) n += 100;
+    if (arrClean(row[ARR_F.events.sourceUrl] || "")) n += 10;
+    if (arrClean(row[ARR_F.events.location] || "")) n += 5;
+    return n;
+  };
+
+  for (const items of groups.values()) {
+    if (items.length < 2) continue;
+    duplicateGroups++;
+
+    const ordered = [...items].sort((a,b) => {
+      const d = score(b) - score(a);
+      return d || Number(a.id || 0) - Number(b.id || 0);
+    });
+
+    // Behold én keeper. Manuelt redigerte rader blir aldri deaktivert.
+    const keeper = ordered[0];
+
+    for (const row of ordered.slice(1)) {
+      if (row[ARR_F.events.manuallyEdited] === true) continue;
+      updates.push({
+        id:row.id,
+        [ARR_F.events.active]:false
+      });
+    }
+  }
+
+  if (updates.length) {
+    await arrUpdateRowsBatch(env, ARR_TABLE.EVENTS, updates);
+  }
+
+  return {
+    ok:true,
+    organizer:"Vigrestad Misjonshus",
+    duplicateGroups,
+    deactivated:updates.length
+  };
+}
+
+
+
+
+
+
+
+export {
+  ARRANGEMENT_ENGINE_VERSION,
+  ARR_AREAS,
+  ARR_TABLE,
+  ARR_F,
+  arrUseArea,
+  arrGetAreaConfig,
+  arrApiBase,
+  arrHeaders,
+  arrListAllRows,
+  arrCreateRowsBatch,
+  arrUpdateRowsBatch,
+  arrCleanupFinishedEvents,
+  arrLoadOrganizations,
+  arrImportAllSources,
+  arrDedupeExistingVigrestad,
+  arrClean,
+  arrNormalize,
+  arrResolveHaaFellesraadOrganizer
+};
