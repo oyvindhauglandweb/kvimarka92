@@ -1,7 +1,7 @@
 {
   "schemaVersion": 6,
   "engineVersion": "v486-global-private-event-filter-2026-10-05",
-  "generatedAt": "2026-10-08T00:17:17.067Z",
+  "generatedAt": "2026-10-08T06:08:45.360Z",
   "areas": [
     {
       "key": "default",
@@ -29,23 +29,31 @@
       "eventsTable": 1146207
     }
   ],
-  "eventCount": 4641,
+  "eventCount": 4642,
   "importSummary": {
     "ok": false,
-    "startedAt": "2026-10-08T00:12:16.462Z",
-    "finishedAt": "2026-10-08T00:16:08.896Z",
-    "created": 119,
-    "updated": 3789,
-    "errors": 5,
-    "rawErrors": 5,
+    "startedAt": "2026-10-08T06:02:42.749Z",
+    "finishedAt": "2026-10-08T06:07:10.774Z",
+    "created": 98,
+    "updated": 2799,
+    "errors": 8,
+    "rawErrors": 8,
     "sourceCount": 35,
-    "successfulSources": 30,
+    "successfulSources": 27,
     "failedSources": [
       {
         "area": "default",
         "sourceId": "SRC-0001",
         "name": "Nærbø Bedehus",
-        "error": "Kildevern: Nærbø Bedehus ga bare 65 arrangementer mot 297 aktive fra før. Eksisterende data beholdes.",
+        "error": "Nærbø-parser fant ingen arrangementer. [{\"url\":\"https://narbobedehus.no/39-2/\",\"method\":\"simple-calendar-grid\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/39-2/\"},{\"url\":\"https://narbobedehus.no/glad-sang/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/glad-sang/\"},{\"url\":\"https://narbobedehus.no/emmaus/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/emmaus/\"},{\"url\":\"https://narbobedehus.no/kvisten-barnelag/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/kvisten-barnelag/\"},{\"url\":\"https://narbobedehus.no/maks-klubben/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/maks-klubben/\"}]",
+        "consecutiveFailures": 1,
+        "threshold": 1
+      },
+      {
+        "area": "default",
+        "sourceId": "SRC-0002",
+        "name": "Pinsemenigheten Betel",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://pinsebetel.no/hva-skjer/",
         "consecutiveFailures": 1,
         "threshold": 1
       },
@@ -74,10 +82,26 @@
         "threshold": 1
       },
       {
+        "area": "time",
+        "sourceId": "SRC-0028",
+        "name": "Lye Forsamlingshus",
+        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
+        "consecutiveFailures": 1,
+        "threshold": 1
+      },
+      {
         "area": "klepp",
         "sourceId": "SRC-0014",
         "name": "Klepp Frikyrkje",
         "error": "Kildevern: Klepp Frikyrkje ga bare 25 arrangementer mot 110 aktive fra før. Eksisterende data beholdes.",
+        "consecutiveFailures": 1,
+        "threshold": 1
+      },
+      {
+        "area": "klepp",
+        "sourceId": "SRC-0015",
+        "name": "Kleppe Bedehus",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://kleppebedehus.no/calendar/kalender/",
         "consecutiveFailures": 1,
         "threshold": 1
       }
@@ -88,7 +112,13 @@
         "area": "default",
         "sourceId": "SRC-0001",
         "name": "Nærbø Bedehus",
-        "error": "Kildevern: Nærbø Bedehus ga bare 65 arrangementer mot 297 aktive fra før. Eksisterende data beholdes."
+        "error": "Nærbø-parser fant ingen arrangementer. [{\"url\":\"https://narbobedehus.no/39-2/\",\"method\":\"simple-calendar-grid\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/39-2/\"},{\"url\":\"https://narbobedehus.no/glad-sang/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/glad-sang/\"},{\"url\":\"https://narbobedehus.no/emmaus/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/emmaus/\"},{\"url\":\"https://narbobedehus.no/kvisten-barnelag/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/kvisten-barnelag/\"},{\"url\":\"https://narbobedehus.no/maks-klubben/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/maks-klubben/\"}]"
+      },
+      {
+        "area": "default",
+        "sourceId": "SRC-0002",
+        "name": "Pinsemenigheten Betel",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://pinsebetel.no/hva-skjer/"
       },
       {
         "area": "default",
@@ -109,10 +139,22 @@
         "error": "Kildevern: Bryne Frikyrkje ga bare 25 arrangementer mot 94 aktive fra før. Eksisterende data beholdes."
       },
       {
+        "area": "time",
+        "sourceId": "SRC-0028",
+        "name": "Lye Forsamlingshus",
+        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)"
+      },
+      {
         "area": "klepp",
         "sourceId": "SRC-0014",
         "name": "Klepp Frikyrkje",
         "error": "Kildevern: Klepp Frikyrkje ga bare 25 arrangementer mot 110 aktive fra før. Eksisterende data beholdes."
+      },
+      {
+        "area": "klepp",
+        "sourceId": "SRC-0015",
+        "name": "Kleppe Bedehus",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://kleppebedehus.no/calendar/kalender/"
       }
     ],
     "sourceResults": [
@@ -121,9 +163,9 @@
         "sourceId": "SRC-0001",
         "name": "Nærbø Bedehus",
         "created": 0,
-        "updated": 44,
+        "updated": 0,
         "skipped": 0,
-        "error": "Kildevern: Nærbø Bedehus ga bare 65 arrangementer mot 297 aktive fra før. Eksisterende data beholdes.",
+        "error": "Nærbø-parser fant ingen arrangementer. [{\"url\":\"https://narbobedehus.no/39-2/\",\"method\":\"simple-calendar-grid\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/39-2/\"},{\"url\":\"https://narbobedehus.no/glad-sang/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/glad-sang/\"},{\"url\":\"https://narbobedehus.no/emmaus/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/emmaus/\"},{\"url\":\"https://narbobedehus.no/kvisten-barnelag/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/kvisten-barnelag/\"},{\"url\":\"https://narbobedehus.no/maks-klubben/\",\"count\":0,\"error\":\"Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://narbobedehus.no/maks-klubben/\"}]",
         "consecutiveFailures": 1,
         "alarm": true,
         "deferredAlarm": false,
@@ -133,27 +175,14 @@
         "area": "default",
         "sourceId": "SRC-0002",
         "name": "Pinsemenigheten Betel",
-        "created": 1,
-        "updated": 353,
+        "created": 0,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
-        "consecutiveFailures": 0,
-        "alarm": false,
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://pinsebetel.no/hva-skjer/",
+        "consecutiveFailures": 1,
+        "alarm": true,
         "deferredAlarm": false,
-        "createdEvents": [
-          {
-            "rowId": 81383,
-            "eventId": "EVT-BD2A76A129D7",
-            "title": "Morgenbønn på Betel",
-            "startTime": "2027-10-07T06:00:00Z",
-            "endTime": "",
-            "organizer": "Pinsemenigheten Betel",
-            "location": "Pinsemenigheten Betel",
-            "source": "Pinsemenigheten Betel",
-            "sourceEventId": "SRC-0002:ccc23df7050f71763e620a3d",
-            "active": true
-          }
-        ]
+        "createdEvents": []
       },
       {
         "area": "default",
@@ -181,7 +210,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81384,
+            "rowId": 81418,
             "eventId": "EVT-D058514F355F",
             "title": "Kveldsmøte",
             "startTime": "2026-10-04T17:30:00Z",
@@ -207,19 +236,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81385,
-            "eventId": "EVT-80C3AD08D83E",
-            "title": "Brusand, Møte Samemisjonen",
-            "startTime": "2026-10-04T17:00:00Z",
-            "endTime": "2026-10-04T18:30:00Z",
-            "organizer": "OBS Bedehus",
-            "location": "Brusand Bedehus",
-            "source": "OBS Bedehus",
-            "sourceEventId": "obs-brusand-69dr5h29197al1fqjt5956erqi@google.com",
-            "active": true
-          },
-          {
-            "rowId": 81386,
+            "rowId": 81419,
             "eventId": "EVT-255C431AE225",
             "title": "Brusand, Spisevenner",
             "startTime": "2026-10-06T10:30:00Z",
@@ -231,7 +248,19 @@
             "active": true
           },
           {
-            "rowId": 81387,
+            "rowId": 81420,
+            "eventId": "EVT-80C3AD08D83E",
+            "title": "Brusand, Møte Samemisjonen",
+            "startTime": "2026-10-04T17:00:00Z",
+            "endTime": "2026-10-04T18:30:00Z",
+            "organizer": "OBS Bedehus",
+            "location": "Brusand Bedehus",
+            "source": "OBS Bedehus",
+            "sourceEventId": "obs-brusand-69dr5h29197al1fqjt5956erqi@google.com",
+            "active": true
+          },
+          {
+            "rowId": 81421,
             "eventId": "EVT-1086303550D7",
             "title": "Sirevåg, Møte NLM. Taler: Kari-Anne Vatland",
             "startTime": "2026-10-06T17:30:00Z",
@@ -248,8 +277,8 @@
         "area": "default",
         "sourceId": "SRC-0006",
         "name": "Varhaug Misjonshus",
-        "created": 7,
-        "updated": 74,
+        "created": 6,
+        "updated": 75,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -257,7 +286,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81388,
+            "rowId": 81422,
             "eventId": "EVT-07A6B159FDC9",
             "title": "ten-samling",
             "startTime": "2026-10-02T16:30:00Z",
@@ -269,7 +298,7 @@
             "active": true
           },
           {
-            "rowId": 81389,
+            "rowId": 81423,
             "eventId": "EVT-94747ECA1790",
             "title": "Gudstjeneste/Awana",
             "startTime": "2026-10-04T09:00:00Z",
@@ -281,7 +310,7 @@
             "active": true
           },
           {
-            "rowId": 81390,
+            "rowId": 81424,
             "eventId": "EVT-4ADAB4702615",
             "title": "\"RIK Bibel\"",
             "startTime": "2026-10-06T17:30:00Z",
@@ -293,7 +322,7 @@
             "active": true
           },
           {
-            "rowId": 81391,
+            "rowId": 81425,
             "eventId": "EVT-6631E796828E",
             "title": "Redaksjonsmøte",
             "startTime": "2026-10-05T15:30:00Z",
@@ -305,7 +334,7 @@
             "active": true
           },
           {
-            "rowId": 81392,
+            "rowId": 81426,
             "eventId": "EVT-85CBFD293559",
             "title": "Eldretreff",
             "startTime": "2026-10-07T12:00:00Z",
@@ -317,7 +346,7 @@
             "active": true
           },
           {
-            "rowId": 81393,
+            "rowId": 81427,
             "eventId": "EVT-800DDD4B0E0C",
             "title": "Møteveke",
             "startTime": "2026-10-07T17:30:00Z",
@@ -326,18 +355,6 @@
             "location": "Varhaug Misjonshus",
             "source": "Varhaug Misjonshus",
             "sourceEventId": "varhaug-2026-10-07-1930-møteveke",
-            "active": true
-          },
-          {
-            "rowId": 81394,
-            "eventId": "EVT-E11712E7EA84",
-            "title": "Foreldremøte",
-            "startTime": "2026-10-19T17:30:00Z",
-            "endTime": "2026-10-19T19:30:00Z",
-            "organizer": "Varhaug Misjonshus",
-            "location": "Varhaug Misjonshus",
-            "source": "Varhaug Misjonshus",
-            "sourceEventId": "varhaug-2026-10-19-1930-foreldremøte",
             "active": true
           }
         ]
@@ -355,7 +372,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81395,
+            "rowId": 81428,
             "eventId": "EVT-8310213D7076",
             "title": "Møteveke Imf",
             "startTime": "2026-10-01T17:00:00Z",
@@ -367,31 +384,7 @@
             "active": true
           },
           {
-            "rowId": 81396,
-            "eventId": "EVT-9CF12D18BCEC",
-            "title": "Yngres",
-            "startTime": "2026-10-06T16:00:00Z",
-            "endTime": "2026-10-06T17:30:00Z",
-            "organizer": "Vigrestad Misjonshus",
-            "location": "Vigrestad Misjonshus",
-            "source": "Vigrestad Misjonshus",
-            "sourceEventId": "vigrestad-hovedsal-7aab20rohec8iel4cd8h3n6p08@google.com",
-            "active": true
-          },
-          {
-            "rowId": 81397,
-            "eventId": "EVT-7B5D42EFA621",
-            "title": "Møteveke Imf",
-            "startTime": "2026-10-02T17:00:00Z",
-            "endTime": "2026-10-02T19:30:00Z",
-            "organizer": "Vigrestad Misjonshus",
-            "location": "Vigrestad Misjonshus",
-            "source": "Vigrestad Misjonshus",
-            "sourceEventId": "vigrestad-hovedsal-3svjdi7sgqinla8q7knr5i1aqk@google.com",
-            "active": true
-          },
-          {
-            "rowId": 81398,
+            "rowId": 81429,
             "eventId": "EVT-531901D9D73D",
             "title": "Sundagsmøte",
             "startTime": "2026-10-04T17:30:00Z",
@@ -403,7 +396,7 @@
             "active": true
           },
           {
-            "rowId": 81399,
+            "rowId": 81430,
             "eventId": "EVT-4A46FA6C96A5",
             "title": "Møteveke Imf",
             "startTime": "2026-10-03T09:00:00Z",
@@ -415,7 +408,31 @@
             "active": true
           },
           {
-            "rowId": 81400,
+            "rowId": 81431,
+            "eventId": "EVT-9CF12D18BCEC",
+            "title": "Yngres",
+            "startTime": "2026-10-06T16:00:00Z",
+            "endTime": "2026-10-06T17:30:00Z",
+            "organizer": "Vigrestad Misjonshus",
+            "location": "Vigrestad Misjonshus",
+            "source": "Vigrestad Misjonshus",
+            "sourceEventId": "vigrestad-hovedsal-7aab20rohec8iel4cd8h3n6p08@google.com",
+            "active": true
+          },
+          {
+            "rowId": 81432,
+            "eventId": "EVT-7B5D42EFA621",
+            "title": "Møteveke Imf",
+            "startTime": "2026-10-02T17:00:00Z",
+            "endTime": "2026-10-02T19:30:00Z",
+            "organizer": "Vigrestad Misjonshus",
+            "location": "Vigrestad Misjonshus",
+            "source": "Vigrestad Misjonshus",
+            "sourceEventId": "vigrestad-hovedsal-3svjdi7sgqinla8q7knr5i1aqk@google.com",
+            "active": true
+          },
+          {
+            "rowId": 81433,
             "eventId": "EVT-FFAF174B5AA5",
             "title": "Barnekoret",
             "startTime": "2026-10-01T15:00:00Z",
@@ -427,7 +444,7 @@
             "active": true
           },
           {
-            "rowId": 81401,
+            "rowId": 81434,
             "eventId": "EVT-D977C83B2245",
             "title": "G1",
             "startTime": "2026-10-04T09:00:00Z",
@@ -439,7 +456,7 @@
             "active": true
           },
           {
-            "rowId": 81402,
+            "rowId": 81435,
             "eventId": "EVT-2F2DEEE89160",
             "title": "Internasjonal kvinnegruppe",
             "startTime": "2026-10-06T15:30:00Z",
@@ -465,7 +482,19 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81403,
+            "rowId": 81436,
+            "eventId": "EVT-A7C2AF032DAD",
+            "title": "Barnekoret",
+            "startTime": "2026-10-01T15:00:00Z",
+            "endTime": "2026-10-01T16:00:00Z",
+            "organizer": "Vigrestad Misjonshus",
+            "location": "Vigrestad Misjonshus",
+            "source": "Vigrestad Misjonshus Hovedsal",
+            "sourceEventId": "vigrestad-src-0016-2f9nl7selmh93di73kn9ev86ev@google.com::2026-10-01T17:00:00+02:00",
+            "active": true
+          },
+          {
+            "rowId": 81437,
             "eventId": "EVT-F7993D557B68",
             "title": "Yngres",
             "startTime": "2026-10-06T16:00:00Z",
@@ -477,7 +506,7 @@
             "active": true
           },
           {
-            "rowId": 81404,
+            "rowId": 81438,
             "eventId": "EVT-E3AC372EC35B",
             "title": "Sundagsmøte",
             "startTime": "2026-10-04T17:30:00Z",
@@ -489,7 +518,7 @@
             "active": true
           },
           {
-            "rowId": 81405,
+            "rowId": 81439,
             "eventId": "EVT-E109B99F1E09",
             "title": "Møteveke Imf",
             "startTime": "2026-10-03T09:00:00Z",
@@ -501,19 +530,7 @@
             "active": true
           },
           {
-            "rowId": 81406,
-            "eventId": "EVT-F17282DF7C61",
-            "title": "Møteveke Imf",
-            "startTime": "2026-10-02T17:00:00Z",
-            "endTime": "2026-10-02T19:30:00Z",
-            "organizer": "Vigrestad Misjonshus",
-            "location": "Vigrestad Misjonshus",
-            "source": "Vigrestad Misjonshus Hovedsal",
-            "sourceEventId": "vigrestad-src-0016-3svjdi7sgqinla8q7knr5i1aqk@google.com",
-            "active": true
-          },
-          {
-            "rowId": 81407,
+            "rowId": 81440,
             "eventId": "EVT-F4C896EF4D76",
             "title": "Møteveke Imf",
             "startTime": "2026-10-01T17:00:00Z",
@@ -525,15 +542,15 @@
             "active": true
           },
           {
-            "rowId": 81408,
-            "eventId": "EVT-A7C2AF032DAD",
-            "title": "Barnekoret",
-            "startTime": "2026-10-01T15:00:00Z",
-            "endTime": "2026-10-01T16:00:00Z",
+            "rowId": 81441,
+            "eventId": "EVT-F17282DF7C61",
+            "title": "Møteveke Imf",
+            "startTime": "2026-10-02T17:00:00Z",
+            "endTime": "2026-10-02T19:30:00Z",
             "organizer": "Vigrestad Misjonshus",
             "location": "Vigrestad Misjonshus",
             "source": "Vigrestad Misjonshus Hovedsal",
-            "sourceEventId": "vigrestad-src-0016-2f9nl7selmh93di73kn9ev86ev@google.com::2026-10-01T17:00:00+02:00",
+            "sourceEventId": "vigrestad-src-0016-3svjdi7sgqinla8q7knr5i1aqk@google.com",
             "active": true
           }
         ]
@@ -551,7 +568,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81409,
+            "rowId": 81442,
             "eventId": "EVT-2AA0A0A08107",
             "title": "Internasjonal kvinnegruppe",
             "startTime": "2026-10-06T15:30:00Z",
@@ -563,7 +580,7 @@
             "active": true
           },
           {
-            "rowId": 81410,
+            "rowId": 81443,
             "eventId": "EVT-64844A1B1F10",
             "title": "G1",
             "startTime": "2026-10-04T09:00:00Z",
@@ -589,7 +606,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81411,
+            "rowId": 81444,
             "eventId": "EVT-5DF0BDF80343",
             "title": "Internasjonal kvinnegruppe",
             "startTime": "2026-10-06T15:30:00Z",
@@ -654,7 +671,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81412,
+            "rowId": 81445,
             "eventId": "EVT-F7FCF68A426F",
             "title": "Eldrefest",
             "startTime": "2026-10-01T11:00:00Z",
@@ -680,7 +697,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81413,
+            "rowId": 81446,
             "eventId": "EVT-29301ACAD87A",
             "title": "G1",
             "startTime": "2026-10-04T09:00:00Z",
@@ -706,7 +723,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81414,
+            "rowId": 81447,
             "eventId": "EVT-97D68A46869D",
             "title": "Eldrefest",
             "startTime": "2026-10-01T12:00:00Z",
@@ -732,7 +749,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81415,
+            "rowId": 81448,
             "eventId": "EVT-2742A956027D",
             "title": "Yngres",
             "startTime": "2026-10-06T16:00:00Z",
@@ -744,7 +761,7 @@
             "active": true
           },
           {
-            "rowId": 81416,
+            "rowId": 81449,
             "eventId": "EVT-725A38406D1E",
             "title": "G1",
             "startTime": "2026-10-04T09:00:00Z",
@@ -770,7 +787,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 81417,
+            "rowId": 81450,
             "eventId": "EVT-3C4849E3D176",
             "title": "G1",
             "startTime": "2026-10-04T09:00:00Z",
@@ -848,7 +865,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 6527,
+            "rowId": 6544,
             "eventId": "EVT-DB9FA1B0FE7C",
             "title": "Kveldsgudstjeneste",
             "startTime": "2026-10-04T17:00:00Z",
@@ -874,7 +891,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 6528,
+            "rowId": 6545,
             "eventId": "EVT-310FF49B86EC",
             "title": "TT-koret Øving",
             "startTime": "2026-10-01T17:00:00Z",
@@ -886,7 +903,7 @@
             "active": true
           },
           {
-            "rowId": 6529,
+            "rowId": 6546,
             "eventId": "EVT-1D97703E3C68",
             "title": "Gudsteneste",
             "startTime": "2026-10-04T09:00:00Z",
@@ -898,7 +915,7 @@
             "active": true
           },
           {
-            "rowId": 6530,
+            "rowId": 6547,
             "eventId": "EVT-6C470A073AC7",
             "title": "Gudsteneste",
             "startTime": "2026-10-04T09:00:14Z",
@@ -910,7 +927,7 @@
             "active": true
           },
           {
-            "rowId": 6531,
+            "rowId": 6548,
             "eventId": "EVT-210B47C2132C",
             "title": "Kveldsmøte i kyrkjesalen",
             "startTime": "2026-10-04T17:30:00Z",
@@ -922,7 +939,7 @@
             "active": true
           },
           {
-            "rowId": 6532,
+            "rowId": 6549,
             "eventId": "EVT-8967B056D9E6",
             "title": "Bønnehus",
             "startTime": "2026-10-05T08:00:00Z",
@@ -934,7 +951,7 @@
             "active": true
           },
           {
-            "rowId": 6533,
+            "rowId": 6550,
             "eventId": "EVT-38ACE5D59E1C",
             "title": "Bønnehus",
             "startTime": "2026-10-05T17:00:00Z",
@@ -946,7 +963,7 @@
             "active": true
           },
           {
-            "rowId": 6534,
+            "rowId": 6551,
             "eventId": "EVT-BC6476273938",
             "title": "Øving greensax",
             "startTime": "2026-10-06T17:00:00Z",
@@ -958,7 +975,7 @@
             "active": true
           },
           {
-            "rowId": 6535,
+            "rowId": 6552,
             "eventId": "EVT-AEFB76844C56",
             "title": "Open Kyrkje",
             "startTime": "2026-10-07T08:00:00Z",
@@ -975,39 +992,14 @@
         "area": "time",
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
-        "created": 2,
-        "updated": 57,
+        "created": 0,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
-        "consecutiveFailures": 0,
-        "alarm": false,
+        "error": "Lye-parser fant ingen arrangementer i listevisningen (4 side(r) lest)",
+        "consecutiveFailures": 1,
+        "alarm": true,
         "deferredAlarm": false,
-        "createdEvents": [
-          {
-            "rowId": 6536,
-            "eventId": "EVT-13F991E153CE",
-            "title": "Varden",
-            "startTime": "2026-10-02T18:00:00Z",
-            "endTime": "2026-10-02T21:00:00Z",
-            "organizer": "Lye Forsamlingshus",
-            "location": "Lye forsamlingshus",
-            "source": "Lye Forsamlingshus",
-            "sourceEventId": "lye-www-lyeforsamlingshus-no-event-varden-5",
-            "active": true
-          },
-          {
-            "rowId": 6537,
-            "eventId": "EVT-0EF792B3A8F1",
-            "title": "Gudsteneste INN-kyrkja",
-            "startTime": "2026-10-04T08:00:00Z",
-            "endTime": "2026-10-04T11:30:00Z",
-            "organizer": "Lye Forsamlingshus",
-            "location": "Lye Forsamlingshus",
-            "source": "Lye Forsamlingshus",
-            "sourceEventId": "lye-www-lyeforsamlingshus-no-event-gudsteneste-inn-kyrkja-11",
-            "active": true
-          }
-        ]
+        "createdEvents": []
       },
       {
         "area": "time",
@@ -1022,7 +1014,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 6538,
+            "rowId": 6553,
             "eventId": "EVT-D4F41D055324",
             "title": "Ope hus",
             "startTime": "2026-10-02T17:00:00Z",
@@ -1048,7 +1040,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 6539,
+            "rowId": 6554,
             "eventId": "EVT-4CD6D384A4E1",
             "title": "Søndagsskolen",
             "startTime": "2026-10-04T09:15:00Z",
@@ -1060,7 +1052,7 @@
             "active": true
           },
           {
-            "rowId": 6540,
+            "rowId": 6555,
             "eventId": "EVT-0F5C0FBF02CA",
             "title": "Gratis lørdagsgrøt - for hele bygda",
             "startTime": "2026-10-03T10:00:00Z",
@@ -1072,7 +1064,7 @@
             "active": true
           },
           {
-            "rowId": 6541,
+            "rowId": 6556,
             "eventId": "EVT-07A4D2403D65",
             "title": "FUL: Taler Jon Peder Samdal",
             "startTime": "2026-10-03T17:30:00Z",
@@ -1084,7 +1076,7 @@
             "active": true
           },
           {
-            "rowId": 6542,
+            "rowId": 6557,
             "eventId": "EVT-F8BFF4FF681C",
             "title": "Søndagssamling - NLM - Arnt Magne Granberg",
             "startTime": "2026-10-04T09:00:00Z",
@@ -1096,7 +1088,7 @@
             "active": true
           },
           {
-            "rowId": 6543,
+            "rowId": 6558,
             "eventId": "EVT-CF91CA1C548A",
             "title": "Nattverdmøte",
             "startTime": "2026-10-07T17:30:00Z",
@@ -1139,207 +1131,14 @@
         "area": "klepp",
         "sourceId": "SRC-0015",
         "name": "Kleppe Bedehus",
-        "created": 16,
-        "updated": 539,
+        "created": 0,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
-        "consecutiveFailures": 0,
-        "alarm": false,
+        "error": "Kunne ikke hente kilde etter 3 forsøk (ETIMEDOUT): https://kleppebedehus.no/calendar/kalender/",
+        "consecutiveFailures": 1,
+        "alarm": true,
         "deferredAlarm": false,
-        "createdEvents": [
-          {
-            "rowId": 4678,
-            "eventId": "EVT-A420A892BCC4",
-            "title": "Barnehage (gymsal)",
-            "startTime": "2026-10-01T07:30:00Z",
-            "endTime": "2026-10-01T08:30:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1790839800-barnehage (gymsal)",
-            "active": true
-          },
-          {
-            "rowId": 4679,
-            "eventId": "EVT-7D29F696B0F8",
-            "title": "Barnehage (gymsal)",
-            "startTime": "2026-10-01T08:00:00Z",
-            "endTime": "2026-10-01T09:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1790841600-barnehage (gymsal)",
-            "active": true
-          },
-          {
-            "rowId": 4680,
-            "eventId": "EVT-DE5145FC5834",
-            "title": "Torsdagsmøte (lille sal)",
-            "startTime": "2026-10-01T17:30:00Z",
-            "endTime": "2026-10-01T19:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1790875800-torsdagsmøte (lille sal)",
-            "active": true
-          },
-          {
-            "rowId": 4681,
-            "eventId": "EVT-17DD83D1C484",
-            "title": "KRIK (gymsal)",
-            "startTime": "2026-10-02T15:30:00Z",
-            "endTime": "2026-10-02T17:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1790955000-krik (gymsal)",
-            "active": true
-          },
-          {
-            "rowId": 4682,
-            "eventId": "EVT-09E9556089BF",
-            "title": "Unge voksne",
-            "startTime": "2026-10-02T18:00:00Z",
-            "endTime": "2026-10-02T21:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1790964000-unge voksne",
-            "active": true
-          },
-          {
-            "rowId": 4683,
-            "eventId": "EVT-D9BAE624368F",
-            "title": "Lys over land",
-            "startTime": "2026-10-04T17:00:00Z",
-            "endTime": "2026-10-04T18:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1791133200-lys over land",
-            "active": true
-          },
-          {
-            "rowId": 4684,
-            "eventId": "EVT-6214EB8CE352",
-            "title": "Kongebarna (Foaje)",
-            "startTime": "2026-10-05T07:30:00Z",
-            "endTime": "2026-10-05T10:30:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1791185400-kongebarna (foaje)",
-            "active": true
-          },
-          {
-            "rowId": 4685,
-            "eventId": "EVT-6A059DD6795F",
-            "title": "Konfirmanter (mye av huset)",
-            "startTime": "2026-10-05T17:00:00Z",
-            "endTime": "2026-10-05T19:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1791219600-konfirmanter (mye av huset)",
-            "active": true
-          },
-          {
-            "rowId": 4686,
-            "eventId": "EVT-4892A709B459",
-            "title": "Alphakurs (lillesal, kjellerstue og kontoret)",
-            "startTime": "2026-10-06T17:00:00Z",
-            "endTime": "2026-10-06T19:30:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1791306000-alphakurs (lillesal, kjellerstue og kontoret)",
-            "active": true
-          },
-          {
-            "rowId": 4687,
-            "eventId": "EVT-A77B034CB0CB",
-            "title": "UF (Hele huset)",
-            "startTime": "2026-10-07T12:00:00Z",
-            "endTime": "2026-10-07T16:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1791374400-uf (hele huset)",
-            "active": true
-          },
-          {
-            "rowId": 4688,
-            "eventId": "EVT-F1BDCC4880D0",
-            "title": "Dansegruppe (gymsal)",
-            "startTime": "2026-10-07T16:00:00Z",
-            "endTime": "2026-10-07T17:30:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1791388800-dansegruppe (gymsal)",
-            "active": true
-          },
-          {
-            "rowId": 4689,
-            "eventId": "EVT-6AE97B28DCD2",
-            "title": "Mødre i bønn (foaje)",
-            "startTime": "2026-10-07T17:00:00Z",
-            "endTime": "2026-10-07T18:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1791392400-mødre i bønn (foaje)",
-            "active": true
-          },
-          {
-            "rowId": 4690,
-            "eventId": "EVT-90B4B0633370",
-            "title": "Barnehage (gymsal)",
-            "startTime": "2027-10-07T07:30:00Z",
-            "endTime": "2027-10-07T08:30:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1822894200-barnehage (gymsal)",
-            "active": true
-          },
-          {
-            "rowId": 4691,
-            "eventId": "EVT-7E77BC56063E",
-            "title": "Barnehage (gymsal)",
-            "startTime": "2027-10-07T08:00:00Z",
-            "endTime": "2027-10-07T09:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1822896000-barnehage (gymsal)",
-            "active": true
-          },
-          {
-            "rowId": 4692,
-            "eventId": "EVT-48BB5543FDDE",
-            "title": "Fokus barnelek (gymsal)",
-            "startTime": "2027-10-07T14:00:00Z",
-            "endTime": "2027-10-07T16:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1822917600-fokus barnelek (gymsal)",
-            "active": true
-          },
-          {
-            "rowId": 4693,
-            "eventId": "EVT-089A7EDA8581",
-            "title": "Torsdagsmøte (lille sal)",
-            "startTime": "2027-10-07T17:30:00Z",
-            "endTime": "2027-10-07T19:00:00Z",
-            "organizer": "Kleppe Bedehus",
-            "location": "Kleppe Bedehus",
-            "source": "Kleppe Bedehus",
-            "sourceEventId": "kleppe-1822930200-torsdagsmøte (lille sal)",
-            "active": true
-          }
-        ]
+        "createdEvents": []
       },
       {
         "area": "klepp",
@@ -1367,31 +1166,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 14990,
-            "eventId": "EVT-B44B9108DAA1",
-            "title": "TRE18",
-            "startTime": "2026-10-02T18:00:00Z",
-            "endTime": "2026-10-02T21:00:00Z",
-            "organizer": "Fredheim Arena",
-            "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-            "source": "Fredheim Arena",
-            "sourceEventId": "18um28r1uqph1o1tu8uos2jnct_R20260925T180000@google.com::2026-10-02T20:00:00+02:00",
-            "active": true
-          },
-          {
-            "rowId": 14991,
-            "eventId": "EVT-5D9A4D4DDC97",
-            "title": "Unge voksne",
-            "startTime": "2026-10-01T17:00:00Z",
-            "endTime": "2026-10-01T20:00:00Z",
-            "organizer": "Fredheim Arena",
-            "location": "Fredheim Arena",
-            "source": "Fredheim Arena",
-            "sourceEventId": "5E9A5065-1293-4D9F-A973-F3C51BEAF9CF::2026-10-01T19:00:00+02:00",
-            "active": true
-          },
-          {
-            "rowId": 14992,
+            "rowId": 15037,
             "eventId": "EVT-56EBAF51B354",
             "title": "Bønnemøte i kapellet",
             "startTime": "2026-10-07T08:30:00Z",
@@ -1403,43 +1178,19 @@
             "active": true
           },
           {
-            "rowId": 14993,
-            "eventId": "EVT-CD0C16352996",
-            "title": "Damer leser Bibelen",
-            "startTime": "2026-10-05T08:00:00Z",
-            "endTime": "2026-10-05T10:00:00Z",
-            "organizer": "Fredheim Arena",
-            "location": "stuå, Fredheim Arena",
-            "source": "Fredheim Arena",
-            "sourceEventId": "ecuh96j6ng0p8d8tu57k6v3k8r@google.com::2026-10-05T10:00:00+02:00",
-            "active": true
-          },
-          {
-            "rowId": 14994,
-            "eventId": "EVT-7FE989BE2FAD",
-            "title": "Zoom",
-            "startTime": "2026-10-02T16:30:00Z",
-            "endTime": "2026-10-02T18:00:00Z",
+            "rowId": 15038,
+            "eventId": "EVT-B38158BFC0C6",
+            "title": "Bønnemøte i kapellet",
+            "startTime": "2026-10-06T04:30:00Z",
+            "endTime": "2026-10-06T05:30:00Z",
             "organizer": "Fredheim Arena",
             "location": "Fredheim Arena",
             "source": "Fredheim Arena",
-            "sourceEventId": "2ccnfg67m2fqfnoi2gd2atmoe6@google.com::2026-10-02T18:30:00+02:00",
+            "sourceEventId": "6k77tn80uirsgq0f6n9ke6oejp@google.com::2026-10-06T06:30:00+02:00",
             "active": true
           },
           {
-            "rowId": 14995,
-            "eventId": "EVT-367D14E245FF",
-            "title": "Tidebønn og lunsj",
-            "startTime": "2026-10-02T09:15:00Z",
-            "endTime": "2026-10-02T10:00:00Z",
-            "organizer": "Fredheim Arena",
-            "location": "Fredheim Arena",
-            "source": "Fredheim Arena",
-            "sourceEventId": "09cm41iuif5ihik92cse7fjvpb@google.com::2026-10-02T11:15:00+02:00",
-            "active": true
-          },
-          {
-            "rowId": 14996,
+            "rowId": 15039,
             "eventId": "EVT-ADCAA1E47B57",
             "title": "Bibelkveld Sandnes",
             "startTime": "2026-10-06T17:00:00Z",
@@ -1451,7 +1202,55 @@
             "active": true
           },
           {
-            "rowId": 14997,
+            "rowId": 15040,
+            "eventId": "EVT-CD0C16352996",
+            "title": "Damer leser Bibelen",
+            "startTime": "2026-10-05T08:00:00Z",
+            "endTime": "2026-10-05T10:00:00Z",
+            "organizer": "Fredheim Arena",
+            "location": "stuå, Fredheim Arena",
+            "source": "Fredheim Arena",
+            "sourceEventId": "ecuh96j6ng0p8d8tu57k6v3k8r@google.com::2026-10-05T10:00:00+02:00",
+            "active": true
+          },
+          {
+            "rowId": 15041,
+            "eventId": "EVT-367D14E245FF",
+            "title": "Tidebønn og lunsj",
+            "startTime": "2026-10-02T09:15:00Z",
+            "endTime": "2026-10-02T10:00:00Z",
+            "organizer": "Fredheim Arena",
+            "location": "Fredheim Arena",
+            "source": "Fredheim Arena",
+            "sourceEventId": "09cm41iuif5ihik92cse7fjvpb@google.com::2026-10-02T11:15:00+02:00",
+            "active": true
+          },
+          {
+            "rowId": 15042,
+            "eventId": "EVT-B44B9108DAA1",
+            "title": "TRE18",
+            "startTime": "2026-10-02T18:00:00Z",
+            "endTime": "2026-10-02T21:00:00Z",
+            "organizer": "Fredheim Arena",
+            "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+            "source": "Fredheim Arena",
+            "sourceEventId": "18um28r1uqph1o1tu8uos2jnct_R20260925T180000@google.com::2026-10-02T20:00:00+02:00",
+            "active": true
+          },
+          {
+            "rowId": 15043,
+            "eventId": "EVT-5D9A4D4DDC97",
+            "title": "Unge voksne",
+            "startTime": "2026-10-01T17:00:00Z",
+            "endTime": "2026-10-01T20:00:00Z",
+            "organizer": "Fredheim Arena",
+            "location": "Fredheim Arena",
+            "source": "Fredheim Arena",
+            "sourceEventId": "5E9A5065-1293-4D9F-A973-F3C51BEAF9CF::2026-10-01T19:00:00+02:00",
+            "active": true
+          },
+          {
+            "rowId": 15044,
             "eventId": "EVT-69818575C812",
             "title": "Gudstjeneste kl.11.00-12.30",
             "startTime": "2026-10-04T09:00:00Z",
@@ -1463,15 +1262,15 @@
             "active": true
           },
           {
-            "rowId": 14998,
-            "eventId": "EVT-B38158BFC0C6",
-            "title": "Bønnemøte i kapellet",
-            "startTime": "2026-10-06T04:30:00Z",
-            "endTime": "2026-10-06T05:30:00Z",
+            "rowId": 15045,
+            "eventId": "EVT-7FE989BE2FAD",
+            "title": "Zoom",
+            "startTime": "2026-10-02T16:30:00Z",
+            "endTime": "2026-10-02T18:00:00Z",
             "organizer": "Fredheim Arena",
             "location": "Fredheim Arena",
             "source": "Fredheim Arena",
-            "sourceEventId": "6k77tn80uirsgq0f6n9ke6oejp@google.com::2026-10-06T06:30:00+02:00",
+            "sourceEventId": "2ccnfg67m2fqfnoi2gd2atmoe6@google.com::2026-10-02T18:30:00+02:00",
             "active": true
           }
         ]
@@ -1493,8 +1292,8 @@
         "area": "sandnes",
         "sourceId": "SRC-0013",
         "name": "Den norske kirke – Sandnes",
-        "created": 38,
-        "updated": 1088,
+        "created": 37,
+        "updated": 1090,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -1502,7 +1301,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 14999,
+            "rowId": 15046,
             "eventId": "EVT-1013A622D735",
             "title": "Knøttene åpen Barnehage",
             "startTime": "2026-10-01T06:30:00Z",
@@ -1514,7 +1313,7 @@
             "active": true
           },
           {
-            "rowId": 15000,
+            "rowId": 15047,
             "eventId": "EVT-822B347F8D25",
             "title": "Tripp Trapp Åpen barnehage",
             "startTime": "2026-10-01T07:00:00Z",
@@ -1526,7 +1325,7 @@
             "active": true
           },
           {
-            "rowId": 15001,
+            "rowId": 15048,
             "eventId": "EVT-0EBAA7CDFA98",
             "title": "Andakt Forsand bo- og aktivitetsenter",
             "startTime": "2026-10-01T08:30:00Z",
@@ -1538,7 +1337,7 @@
             "active": true
           },
           {
-            "rowId": 15002,
+            "rowId": 15049,
             "eventId": "EVT-F35FA2D64FD6",
             "title": "babysang",
             "startTime": "2026-10-01T10:00:00Z",
@@ -1550,7 +1349,7 @@
             "active": true
           },
           {
-            "rowId": 15003,
+            "rowId": 15050,
             "eventId": "EVT-FECBE5AE6E6E",
             "title": "øvelse Bogafjell Barnelovsang",
             "startTime": "2026-10-01T11:30:00Z",
@@ -1562,7 +1361,7 @@
             "active": true
           },
           {
-            "rowId": 15004,
+            "rowId": 15051,
             "eventId": "EVT-CE4042E6EA18",
             "title": "Pølsesang",
             "startTime": "2026-10-01T14:30:00Z",
@@ -1574,7 +1373,7 @@
             "active": true
           },
           {
-            "rowId": 15005,
+            "rowId": 15052,
             "eventId": "EVT-BDFBEA31E0CA",
             "title": "Mersmak",
             "startTime": "2026-10-01T15:00:00Z",
@@ -1586,7 +1385,7 @@
             "active": true
           },
           {
-            "rowId": 15006,
+            "rowId": 15053,
             "eventId": "EVT-7DB8DA4398A6",
             "title": "Språkverkstedet",
             "startTime": "2026-10-01T15:00:00Z",
@@ -1598,7 +1397,7 @@
             "active": true
           },
           {
-            "rowId": 15007,
+            "rowId": 15054,
             "eventId": "EVT-EC86B9F7EB64",
             "title": "Barnekoret øver på Delta, fra 5 år - 2. klasse",
             "startTime": "2026-10-01T15:30:00Z",
@@ -1610,7 +1409,7 @@
             "active": true
           },
           {
-            "rowId": 15008,
+            "rowId": 15055,
             "eventId": "EVT-8E5F8364A42C",
             "title": "Sandnes gospelkor - øvelse",
             "startTime": "2026-10-01T16:30:00Z",
@@ -1622,7 +1421,7 @@
             "active": true
           },
           {
-            "rowId": 15009,
+            "rowId": 15056,
             "eventId": "EVT-7578778C64E6",
             "title": "Husfellesskap 🏠✝️",
             "startTime": "2026-10-01T17:30:00Z",
@@ -1634,7 +1433,7 @@
             "active": true
           },
           {
-            "rowId": 15010,
+            "rowId": 15057,
             "eventId": "EVT-522DDEB6533C",
             "title": "Rolig aften Gand kirke",
             "startTime": "2026-10-01T18:00:00Z",
@@ -1646,7 +1445,7 @@
             "active": true
           },
           {
-            "rowId": 15011,
+            "rowId": 15058,
             "eventId": "EVT-584F08D9FC20",
             "title": "Alpha Ung Fellesskap ✝️❓",
             "startTime": "2026-10-02T15:30:00Z",
@@ -1658,7 +1457,7 @@
             "active": true
           },
           {
-            "rowId": 15012,
+            "rowId": 15059,
             "eventId": "EVT-DE11A49DCF27",
             "title": "NiKKO+ LAN | U-klubben i Gand 💯",
             "startTime": "2026-10-02T18:00:00Z",
@@ -1670,7 +1469,7 @@
             "active": true
           },
           {
-            "rowId": 15013,
+            "rowId": 15060,
             "eventId": "EVT-0D26EEAFB455",
             "title": "Gudstjeneste med nattverd og dåp",
             "startTime": "2026-10-04T09:00:00Z",
@@ -1682,7 +1481,7 @@
             "active": true
           },
           {
-            "rowId": 15014,
+            "rowId": 15061,
             "eventId": "EVT-BD4F11427C60",
             "title": "Gudstjeneste",
             "startTime": "2026-10-04T09:00:16Z",
@@ -1694,7 +1493,7 @@
             "active": true
           },
           {
-            "rowId": 15015,
+            "rowId": 15062,
             "eventId": "EVT-6B9AC5B5119C",
             "title": "Gudstjeneste",
             "startTime": "2026-10-04T09:00:19Z",
@@ -1706,7 +1505,7 @@
             "active": true
           },
           {
-            "rowId": 15016,
+            "rowId": 15063,
             "eventId": "EVT-C957DAC0881A",
             "title": "Gudstjeneste",
             "startTime": "2026-10-04T09:00:27Z",
@@ -1718,7 +1517,7 @@
             "active": true
           },
           {
-            "rowId": 15017,
+            "rowId": 15064,
             "eventId": "EVT-DE01EA068A77",
             "title": "Gudstjeneste",
             "startTime": "2026-10-04T09:00:44Z",
@@ -1730,7 +1529,7 @@
             "active": true
           },
           {
-            "rowId": 15018,
+            "rowId": 15065,
             "eventId": "EVT-D5616417BEFB",
             "title": "Gudstjeneste",
             "startTime": "2026-10-04T09:00:52Z",
@@ -1742,7 +1541,7 @@
             "active": true
           },
           {
-            "rowId": 15019,
+            "rowId": 15066,
             "eventId": "EVT-7225A32A81FF",
             "title": "Gudstjeneste",
             "startTime": "2026-10-04T09:00:55Z",
@@ -1754,7 +1553,7 @@
             "active": true
           },
           {
-            "rowId": 15020,
+            "rowId": 15067,
             "eventId": "EVT-1B7B9976D1FC",
             "title": "Gudstjeneste",
             "startTime": "2026-10-04T09:00:56Z",
@@ -1766,7 +1565,7 @@
             "active": true
           },
           {
-            "rowId": 15021,
+            "rowId": 15068,
             "eventId": "EVT-8F733DE919A2",
             "title": "Gudstjeneste Delta",
             "startTime": "2026-10-04T15:00:00Z",
@@ -1778,7 +1577,7 @@
             "active": true
           },
           {
-            "rowId": 15022,
+            "rowId": 15069,
             "eventId": "EVT-DD153C7C9C58",
             "title": "Gudstjeneste",
             "startTime": "2026-10-04T17:00:57Z",
@@ -1790,7 +1589,7 @@
             "active": true
           },
           {
-            "rowId": 15023,
+            "rowId": 15070,
             "eventId": "EVT-7BC603A69988",
             "title": "Tripp Trapp Åpen barnehage",
             "startTime": "2026-10-05T07:00:00Z",
@@ -1802,7 +1601,7 @@
             "active": true
           },
           {
-            "rowId": 15024,
+            "rowId": 15071,
             "eventId": "EVT-7C0B547FA4AE",
             "title": "Gå-tur i nærmiljøet",
             "startTime": "2026-10-05T09:00:00Z",
@@ -1814,7 +1613,7 @@
             "active": true
           },
           {
-            "rowId": 15025,
+            "rowId": 15072,
             "eventId": "EVT-EDF317B44923",
             "title": "Enkel kirke",
             "startTime": "2026-10-05T17:00:00Z",
@@ -1826,7 +1625,7 @@
             "active": true
           },
           {
-            "rowId": 15026,
+            "rowId": 15073,
             "eventId": "EVT-F34DBF65C558",
             "title": "Åpen kirke",
             "startTime": "2026-10-05T18:00:00Z",
@@ -1838,7 +1637,7 @@
             "active": true
           },
           {
-            "rowId": 15027,
+            "rowId": 15074,
             "eventId": "EVT-02CCBC2BBF33",
             "title": "Tripp Trapp Åpen barnehage",
             "startTime": "2026-10-06T07:00:00Z",
@@ -1850,7 +1649,7 @@
             "active": true
           },
           {
-            "rowId": 15028,
+            "rowId": 15075,
             "eventId": "EVT-CEC1144657C4",
             "title": "LUNCH i kirkestuen - kom og bli med!",
             "startTime": "2026-10-06T09:30:00Z",
@@ -1862,7 +1661,7 @@
             "active": true
           },
           {
-            "rowId": 15029,
+            "rowId": 15076,
             "eventId": "EVT-569612A5C4FA",
             "title": "Ikke GGmini, GGjr og Knøttesang pga høstferie",
             "startTime": "2026-10-06T15:00:00Z",
@@ -1874,7 +1673,7 @@
             "active": true
           },
           {
-            "rowId": 15030,
+            "rowId": 15077,
             "eventId": "EVT-84BA0CB72EB2",
             "title": "Språk-verksted",
             "startTime": "2026-10-06T16:00:00Z",
@@ -1886,7 +1685,7 @@
             "active": true
           },
           {
-            "rowId": 15031,
+            "rowId": 15078,
             "eventId": "EVT-B15A9E78F00B",
             "title": "Øvelse Gospel Gnist",
             "startTime": "2026-10-06T17:30:00Z",
@@ -1898,7 +1697,7 @@
             "active": true
           },
           {
-            "rowId": 15032,
+            "rowId": 15079,
             "eventId": "EVT-4FAA1305098C",
             "title": "IKKE Bibellesing på grunn av høstferie",
             "startTime": "2026-10-07T05:15:00Z",
@@ -1910,7 +1709,7 @@
             "active": true
           },
           {
-            "rowId": 15033,
+            "rowId": 15080,
             "eventId": "EVT-4037EC26452D",
             "title": "Pensjonisttreff",
             "startTime": "2026-10-07T09:30:00Z",
@@ -1922,7 +1721,7 @@
             "active": true
           },
           {
-            "rowId": 15034,
+            "rowId": 15081,
             "eventId": "EVT-5A892856C3E6",
             "title": "Hverdagsmesse",
             "startTime": "2026-10-07T11:00:00Z",
@@ -1934,27 +1733,15 @@
             "active": true
           },
           {
-            "rowId": 15035,
-            "eventId": "EVT-B7FEA249F3A4",
-            "title": "Språkverkstedet",
-            "startTime": "2027-11-11T16:00:00Z",
-            "endTime": "2027-11-11T18:00:00Z",
+            "rowId": 15082,
+            "eventId": "EVT-C6954D866577",
+            "title": "Velkommen til Kvinnefrokost",
+            "startTime": "2026-11-07T08:30:00Z",
+            "endTime": "2026-11-07T10:30:00Z",
             "organizer": "Sandnes sokn",
-            "location": "Sandnes menighetssenter, Eidsvollgata 44, 4307 Sandnes",
+            "location": "Menighetssalen (Sandnes), Eidsvollgata 44, 4307 Sandnes",
             "source": "Den norske kirke – Sandnes",
-            "sourceEventId": "kirken-eb707ce2-c935-45aa-8d9a-9653c50c8223",
-            "active": true
-          },
-          {
-            "rowId": 15036,
-            "eventId": "EVT-12809A159EFD",
-            "title": "Husfellesskap ✝️",
-            "startTime": "2027-11-11T18:30:00Z",
-            "endTime": "2027-11-11T20:30:00Z",
-            "organizer": "Gand sokn",
-            "location": "Gand kirke, Juvelveien 4, 4318 Sandnes",
-            "source": "Den norske kirke – Sandnes",
-            "sourceEventId": "kirken-6686c81c-59c6-49b4-bb3c-57fb8a32252c",
+            "sourceEventId": "kirken-7b3c91c2-61ec-4106-b44b-9a07de8a17a8",
             "active": true
           }
         ]
@@ -1972,7 +1759,7 @@
         "deferredAlarm": false,
         "createdEvents": [
           {
-            "rowId": 4642,
+            "rowId": 4646,
             "eventId": "EVT-D8DA1ED242A7",
             "title": "Hvilerom",
             "startTime": "2026-10-01T08:30:00Z",
@@ -1984,7 +1771,7 @@
             "active": true
           },
           {
-            "rowId": 4643,
+            "rowId": 4647,
             "eventId": "EVT-85D561C79D51",
             "title": "Gudstjeneste G11",
             "startTime": "2026-10-04T09:00:00Z",
@@ -1996,7 +1783,7 @@
             "active": true
           },
           {
-            "rowId": 4644,
+            "rowId": 4648,
             "eventId": "EVT-FD8425F6A99C",
             "title": "Gudstjeneste G18",
             "startTime": "2026-10-04T16:00:00Z",
@@ -2008,7 +1795,7 @@
             "active": true
           },
           {
-            "rowId": 4645,
+            "rowId": 4649,
             "eventId": "EVT-84CC82DB8EBB",
             "title": "Salmepub med Synnøve Aanensen",
             "startTime": "2026-10-04T17:00:00Z",
@@ -2028,10 +1815,10 @@
         "name": "Felles",
         "eventsTable": 1137493,
         "sourcesTable": 1137506,
-        "created": 35,
-        "updated": 1407,
-        "errors": 3,
-        "rawErrors": 3,
+        "created": 33,
+        "updated": 1011,
+        "errors": 4,
+        "rawErrors": 4,
         "sourceCount": 21,
         "supplementalSources": [
           {
@@ -2074,10 +1861,10 @@
         "name": "Time",
         "eventsTable": 1193653,
         "sourcesTable": 1193657,
-        "created": 17,
-        "updated": 414,
-        "errors": 1,
-        "rawErrors": 1,
+        "created": 15,
+        "updated": 357,
+        "errors": 2,
+        "rawErrors": 2,
         "sourceCount": 7,
         "supplementalSources": [
           {
@@ -3026,273 +2813,7 @@
               "name": "Lye Forsamlingshus",
               "rawDefaultSettlement": [],
               "extractedDefaultSettlementIds": [],
-              "sampleEvents": [
-                {
-                  "title": "Varden",
-                  "location": "Lye forsamlingshus",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    6
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Gudsteneste INN-kyrkja",
-                  "location": "",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    1
-                  ],
-                  "organizationIds": [
-                    "ORG-0008",
-                    "ORG-0004",
-                    "ORG-0007"
-                  ]
-                },
-                {
-                  "title": "Gudsteneste DNK",
-                  "location": "Lye forsamlingshus",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    1
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
-                  "title": "Bønn og lovsang, INN-kyrkja",
-                  "location": "",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3,
-                    8
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Varden 10:13",
-                  "location": "Lye forsamlingshus",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    6
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Strikkekafe",
-                  "location": "Hovedsal",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    13
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Varden",
-                  "location": "Lye forsamlingshus",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    6
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Gudsteneste INN-kyrkja",
-                  "location": "",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    1
-                  ],
-                  "organizationIds": [
-                    "ORG-0008",
-                    "ORG-0004",
-                    "ORG-0007"
-                  ]
-                },
-                {
-                  "title": "Bønnemøte",
-                  "location": "Loftet",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Babysong",
-                  "location": "Lye forsamlingshus",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    5
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Misjonskafe",
-                  "location": "",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    12
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Gudsteneste DNK",
-                  "location": "Lye forsamlingshus",
-                  "settlementHint": "Lye",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    10
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 10,
-                      "name": "Lye",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    1
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                }
-              ]
+              "sampleEvents": []
             },
             {
               "sourceId": "SRC-0029",
@@ -3322,154 +2843,7 @@
                   "organizationIds": []
                 },
                 {
-                  "title": "Brønn",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    19
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Bønnemøte",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Brønn",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    19
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Ope hus",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    6
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Bønnemøte",
-                  "location": "Fotland Bedehus",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Bønnemøte",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    3
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Brønn",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    19
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Temakveld – Harry Waldeland",
+                  "title": "Temakveld – Egil Vigdel",
                   "location": "Fossevegen 131, 4346 Bryne",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3490,8 +2864,97 @@
                   "organizationIds": []
                 },
                 {
-                  "title": "Jenteforening",
+                  "title": "Julemesse. Familiemøte",
                   "location": "Fotland Bedehus",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    20,
+                    7
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Julemesse",
+                  "location": "Fotland Bedehus",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    20
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Forening NMS",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    12
+                  ],
+                  "organizationIds": [
+                    "ORG-0005"
+                  ]
+                },
+                {
+                  "title": "Møte NLM – Kari Anne Vatland",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    12
+                  ],
+                  "organizationIds": [
+                    "ORG-0004"
+                  ]
+                },
+                {
+                  "title": "Jenteforening",
+                  "location": "Fossevegen 131, 4346 Bryne",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -3509,6 +2972,71 @@
                     5
                   ],
                   "organizationIds": []
+                },
+                {
+                  "title": "Jenteforening",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    5
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Brønn",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    19
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Forening NMS",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    12
+                  ],
+                  "organizationIds": [
+                    "ORG-0005"
+                  ]
                 },
                 {
                   "title": "Ope hus",
@@ -3532,7 +3060,7 @@
                   "organizationIds": []
                 },
                 {
-                  "title": "Bønnemøte",
+                  "title": "Jenteforening",
                   "location": "Fossevegen 131, 4346 Bryne",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3548,7 +3076,7 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    3
+                    5
                   ],
                   "organizationIds": []
                 }
@@ -3830,10 +3358,10 @@
         "name": "Klepp",
         "eventsTable": 1193659,
         "sourcesTable": 1193663,
-        "created": 16,
-        "updated": 539,
-        "errors": 1,
-        "rawErrors": 1,
+        "created": 0,
+        "updated": 0,
+        "errors": 2,
+        "rawErrors": 2,
         "sourceCount": 3,
         "supplementalSources": [
           {
@@ -4186,284 +3714,7 @@
               "name": "Kleppe Bedehus",
               "rawDefaultSettlement": [],
               "extractedDefaultSettlementIds": [],
-              "sampleEvents": [
-                {
-                  "title": "Barnehage (gymsal)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "Barnehage (gymsal)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "Torsdagsmøte (lille sal)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    22
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "KRIK (gymsal)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0014"
-                  ]
-                },
-                {
-                  "title": "Unge voksne",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "Lys over land",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    12
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "Kongebarna (Foaje)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "Konfirmanter (mye av huset)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "Alphakurs (lillesal, kjellerstue og kontoret)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "UF (Hele huset)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "Dansegruppe (gymsal)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "Mødre i bønn (foaje)",
-                  "location": "",
-                  "settlementHint": "Kleppe",
-                  "municipalityHint": "Klepp",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                }
-              ]
+              "sampleEvents": []
             }
           ]
         }
@@ -4473,8 +3724,8 @@
         "name": "Sandnes",
         "eventsTable": 1144908,
         "sourcesTable": 1144922,
-        "created": 47,
-        "updated": 1372,
+        "created": 46,
+        "updated": 1374,
         "errors": 0,
         "rawErrors": 0,
         "sourceCount": 3,
@@ -4502,75 +3753,7 @@
             "meetingTypeMismatches": 8,
             "samples": [
               {
-                "rowId": 14990,
-                "title": "TRE18",
-                "requestedSettlementIds": [
-                  21
-                ],
-                "actualSettlementIds": [
-                  21
-                ],
-                "requestedMeetingTypeIds": [
-                  15
-                ],
-                "actualMeetingTypeIds": [
-                  15
-                ],
-                "rawSettlementReturned": [
-                  {
-                    "id": 21,
-                    "value": "SET-0020",
-                    "order": "20.00000000000000000000"
-                  }
-                ],
-                "rawMeetingTypeReturned": [
-                  {
-                    "id": 15,
-                    "value": "MT-0015",
-                    "order": "15.00000000000000000000"
-                  }
-                ],
-                "returnedKeys": [
-                  "field_10252555",
-                  "field_10252776"
-                ]
-              },
-              {
-                "rowId": 14991,
-                "title": "Unge voksne",
-                "requestedSettlementIds": [
-                  21
-                ],
-                "actualSettlementIds": [
-                  21
-                ],
-                "requestedMeetingTypeIds": [
-                  15
-                ],
-                "actualMeetingTypeIds": [
-                  15
-                ],
-                "rawSettlementReturned": [
-                  {
-                    "id": 21,
-                    "value": "SET-0020",
-                    "order": "20.00000000000000000000"
-                  }
-                ],
-                "rawMeetingTypeReturned": [
-                  {
-                    "id": 15,
-                    "value": "MT-0015",
-                    "order": "15.00000000000000000000"
-                  }
-                ],
-                "returnedKeys": [
-                  "field_10252555",
-                  "field_10252776"
-                ]
-              },
-              {
-                "rowId": 14992,
+                "rowId": 15037,
                 "title": "Bønnemøte i kapellet",
                 "requestedSettlementIds": [
                   21
@@ -4604,8 +3787,8 @@
                 ]
               },
               {
-                "rowId": 14993,
-                "title": "Damer leser Bibelen",
+                "rowId": 15038,
+                "title": "Bønnemøte i kapellet",
                 "requestedSettlementIds": [
                   21
                 ],
@@ -4613,10 +3796,10 @@
                   21
                 ],
                 "requestedMeetingTypeIds": [
-                  15
+                  3
                 ],
                 "actualMeetingTypeIds": [
-                  15
+                  3
                 ],
                 "rawSettlementReturned": [
                   {
@@ -4627,9 +3810,9 @@
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 15,
-                    "value": "MT-0015",
-                    "order": "15.00000000000000000000"
+                    "id": 3,
+                    "value": "MT-0003",
+                    "order": "3.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -4638,75 +3821,7 @@
                 ]
               },
               {
-                "rowId": 14994,
-                "title": "Zoom",
-                "requestedSettlementIds": [
-                  21
-                ],
-                "actualSettlementIds": [
-                  21
-                ],
-                "requestedMeetingTypeIds": [
-                  15
-                ],
-                "actualMeetingTypeIds": [
-                  15
-                ],
-                "rawSettlementReturned": [
-                  {
-                    "id": 21,
-                    "value": "SET-0020",
-                    "order": "20.00000000000000000000"
-                  }
-                ],
-                "rawMeetingTypeReturned": [
-                  {
-                    "id": 15,
-                    "value": "MT-0015",
-                    "order": "15.00000000000000000000"
-                  }
-                ],
-                "returnedKeys": [
-                  "field_10252555",
-                  "field_10252776"
-                ]
-              },
-              {
-                "rowId": 14995,
-                "title": "Tidebønn og lunsj",
-                "requestedSettlementIds": [
-                  21
-                ],
-                "actualSettlementIds": [
-                  21
-                ],
-                "requestedMeetingTypeIds": [
-                  15
-                ],
-                "actualMeetingTypeIds": [
-                  15
-                ],
-                "rawSettlementReturned": [
-                  {
-                    "id": 21,
-                    "value": "SET-0020",
-                    "order": "20.00000000000000000000"
-                  }
-                ],
-                "rawMeetingTypeReturned": [
-                  {
-                    "id": 15,
-                    "value": "MT-0015",
-                    "order": "15.00000000000000000000"
-                  }
-                ],
-                "returnedKeys": [
-                  "field_10252555",
-                  "field_10252776"
-                ]
-              },
-              {
-                "rowId": 14996,
+                "rowId": 15039,
                 "title": "Bibelkveld Sandnes",
                 "requestedSettlementIds": [
                   21
@@ -4761,7 +3876,143 @@
                 ]
               },
               {
-                "rowId": 14997,
+                "rowId": 15040,
+                "title": "Damer leser Bibelen",
+                "requestedSettlementIds": [
+                  21
+                ],
+                "actualSettlementIds": [
+                  21
+                ],
+                "requestedMeetingTypeIds": [
+                  15
+                ],
+                "actualMeetingTypeIds": [
+                  15
+                ],
+                "rawSettlementReturned": [
+                  {
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
+                  }
+                ],
+                "rawMeetingTypeReturned": [
+                  {
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
+                  }
+                ],
+                "returnedKeys": [
+                  "field_10252555",
+                  "field_10252776"
+                ]
+              },
+              {
+                "rowId": 15041,
+                "title": "Tidebønn og lunsj",
+                "requestedSettlementIds": [
+                  21
+                ],
+                "actualSettlementIds": [
+                  21
+                ],
+                "requestedMeetingTypeIds": [
+                  15
+                ],
+                "actualMeetingTypeIds": [
+                  15
+                ],
+                "rawSettlementReturned": [
+                  {
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
+                  }
+                ],
+                "rawMeetingTypeReturned": [
+                  {
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
+                  }
+                ],
+                "returnedKeys": [
+                  "field_10252555",
+                  "field_10252776"
+                ]
+              },
+              {
+                "rowId": 15042,
+                "title": "TRE18",
+                "requestedSettlementIds": [
+                  21
+                ],
+                "actualSettlementIds": [
+                  21
+                ],
+                "requestedMeetingTypeIds": [
+                  15
+                ],
+                "actualMeetingTypeIds": [
+                  15
+                ],
+                "rawSettlementReturned": [
+                  {
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
+                  }
+                ],
+                "rawMeetingTypeReturned": [
+                  {
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
+                  }
+                ],
+                "returnedKeys": [
+                  "field_10252555",
+                  "field_10252776"
+                ]
+              },
+              {
+                "rowId": 15043,
+                "title": "Unge voksne",
+                "requestedSettlementIds": [
+                  21
+                ],
+                "actualSettlementIds": [
+                  21
+                ],
+                "requestedMeetingTypeIds": [
+                  15
+                ],
+                "actualMeetingTypeIds": [
+                  15
+                ],
+                "rawSettlementReturned": [
+                  {
+                    "id": 21,
+                    "value": "SET-0020",
+                    "order": "20.00000000000000000000"
+                  }
+                ],
+                "rawMeetingTypeReturned": [
+                  {
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
+                  }
+                ],
+                "returnedKeys": [
+                  "field_10252555",
+                  "field_10252776"
+                ]
+              },
+              {
+                "rowId": 15044,
                 "title": "Gudstjeneste kl.11.00-12.30",
                 "requestedSettlementIds": [
                   21
@@ -4816,8 +4067,8 @@
                 ]
               },
               {
-                "rowId": 14998,
-                "title": "Bønnemøte i kapellet",
+                "rowId": 15045,
+                "title": "Zoom",
                 "requestedSettlementIds": [
                   21
                 ],
@@ -4825,10 +4076,10 @@
                   21
                 ],
                 "requestedMeetingTypeIds": [
-                  3
+                  15
                 ],
                 "actualMeetingTypeIds": [
-                  3
+                  15
                 ],
                 "rawSettlementReturned": [
                   {
@@ -4839,9 +4090,9 @@
                 ],
                 "rawMeetingTypeReturned": [
                   {
-                    "id": 3,
-                    "value": "MT-0003",
-                    "order": "3.00000000000000000000"
+                    "id": 15,
+                    "value": "MT-0015",
+                    "order": "15.00000000000000000000"
                   }
                 ],
                 "returnedKeys": [
@@ -5455,213 +4706,6 @@
               ],
               "sampleEvents": [
                 {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "TRE18",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
                   "title": "ÅpenGymsal",
                   "location": "",
                   "settlementHint": "",
@@ -5685,30 +4729,7 @@
                   ]
                 },
                 {
-                  "title": "Zoom Hjemme hos",
-                  "location": "1. etasje Fredheim Arena",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Soul Church Gudstjeneste kl.11.00-12.30",
+                  "title": "Bønnemøte i kapellet",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -5724,7 +4745,237 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    1
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
@@ -6990,18 +6241,18 @@
     "cleanupFinishedEvents": {
       "preImport": {
         "phase": "pre-import",
-        "deleted": 3,
+        "deleted": 0,
         "areas": [
           {
             "area": "default",
             "areaName": "Felles",
-            "scanned": 1733,
+            "scanned": 1732,
             "todayOslo": "2026-10-08",
             "completedByEndTime": 0,
-            "completedByStartDate": 3,
+            "completedByStartDate": 0,
             "invalidDateRows": 0,
-            "candidates": 3,
-            "deleted": 3
+            "candidates": 0,
+            "deleted": 0
           },
           {
             "area": "time",
@@ -7017,7 +6268,7 @@
           {
             "area": "klepp",
             "areaName": "Klepp",
-            "scanned": 685,
+            "scanned": 689,
             "todayOslo": "2026-10-08",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
@@ -7028,7 +6279,7 @@
           {
             "area": "sandnes",
             "areaName": "Sandnes",
-            "scanned": 2282,
+            "scanned": 2284,
             "todayOslo": "2026-10-08",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
@@ -7051,7 +6302,7 @@
       },
       "postImport": {
         "phase": "post-import",
-        "deleted": 111,
+        "deleted": 97,
         "areas": [
           {
             "area": "default",
@@ -7067,29 +6318,29 @@
           {
             "area": "time",
             "areaName": "Time",
-            "scanned": 541,
+            "scanned": 539,
             "todayOslo": "2026-10-08",
-            "completedByEndTime": 17,
+            "completedByEndTime": 15,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
-            "candidates": 17,
-            "deleted": 17
+            "candidates": 15,
+            "deleted": 15
           },
           {
             "area": "klepp",
             "areaName": "Klepp",
-            "scanned": 701,
+            "scanned": 689,
             "todayOslo": "2026-10-08",
-            "completedByEndTime": 12,
+            "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
-            "candidates": 12,
-            "deleted": 12
+            "candidates": 0,
+            "deleted": 0
           },
           {
             "area": "sandnes",
             "areaName": "Sandnes",
-            "scanned": 2329,
+            "scanned": 2330,
             "todayOslo": "2026-10-08",
             "completedByEndTime": 45,
             "completedByStartDate": 0,
@@ -29671,6 +28922,29 @@
       "municipality": "Sandnes",
       "description": "Vi-klubbkveld for ungdommer fra 8.klasse og oppover. Denne gang skal vi ha turneringskveld! det vanker premier :) det blir også vanlig kveld med kiosk, sosialt, brettspill osv",
       "sourceUrl": "https://skjerikirken.no/arrangement/vi-klubbkveld-fra-klasse-47a3cffefe0c",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-C6954D866577",
+      "title": "Velkommen til Kvinnefrokost",
+      "startTime": "2026-11-07T08:30:00Z",
+      "endTime": "2026-11-07T10:30:00Z",
+      "meetingTypes": [
+        "Kvinner"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Sandnes sokn",
+      "location": "Menighetssalen (Sandnes), Eidsvollgata 44, 4307 Sandnes",
+      "settlement": "Sandnes sentrum",
+      "municipality": "Sandnes",
+      "description": "Velkommen til fellesskap og frokost for kvinner i alle aldre. Kom alene eller sammen med en venn. Pris kr 200,- som betales ved inngangen på Sandnes menighetssenter Tema: Kjære mi tid - bakom tid og rom og tanke Heidi Strand Harboe - forteller og dikter Musikalsk innslag v/Gro Årsvoll Arrangør: Damer i Sandnes menighet",
+      "sourceUrl": "https://skjerikirken.no/arrangement/velkommen-til-kvinnefrokost-9a07de8a17a8",
       "source": "Den norske kirke – Sandnes",
       "active": true
     },
@@ -97273,7 +96547,7 @@
         "Den norske kirke"
       ],
       "organizer": "Varhaug sokn",
-      "location": "Varhaug kyrkje,Varhaug kyrkjestove",
+      "location": "Varhaug kyrkjestove,Varhaug kyrkje",
       "settlement": "Varhaug",
       "municipality": "Hå",
       "description": "",
