@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v486-global-private-event-filter-2026-10-05";
+const ARRANGEMENT_ENGINE_VERSION = "v487-misjonssalen-sandnes-google-sheets-2026-10-21";
 
 const ARR_AREAS = {
   default: {
@@ -3830,6 +3830,12 @@ async function arrLoadSourceEvents(source) {
   if (/vigrestadmisjonshus\.org/i.test(url)) {
     return arrFetchAndParseVigrestad();
   }
+  if (
+    sourceName === "Misjonssalen Sandnes" ||
+    /misjonssalen\.no/i.test(url)
+  ) {
+    return arrFetchAndParseMisjonssalenSandnes();
+  }
   if (/ebeneser\.no/i.test(url)) {
     return arrFetchAndParseEbeneser();
   }
@@ -6208,6 +6214,414 @@ function arrCsvRows(csv) {
   }
   if(cell.length||row.length){row.push(cell.replace(/\r$/,""));rows.push(row);}
   return rows;
+}
+
+
+// V487: Misjonssalen Sandnes
+// Kalender-siden peker til to offentlige Google Sheets:
+//  - Rom- og aktivitetskalender
+//  - Søndagsmøter
+//
+// Vi bruker nettsiden som offentlig Source URL, men leser selve kalenderdataene
+// fra Google Sheets. Søndagsarket har datoer horisontalt. Aktivitetsarket
+// støttes konservativt når det har tydelige Dato/Kl/Aktivitet-kolonner.
+//
+// Viktige prinsipper:
+//  - bare eksplisitte kalenderår; ingen årsgjetting
+//  - bare arrangement i importvinduet
+//  - "Privat selskap", utleie/reservert o.l. importeres ikke
+//  - søndagsmøter bruker kl. 11:00 som dokumentert standardtid når arket
+//    ikke oppgir et annet klokkeslett
+//  - taler og tema tas med i beskrivelsen
+//  - Source URL i portalen peker til Misjonssalens kalenderside, ikke Sheets
+
+const ARR_MISJONSSALEN_WEB_URL = "https://www.misjonssalen.no/kalender";
+const ARR_MISJONSSALEN_LOCATION = "Misjonssalen Sandnes, Jærveien 107, Sandnes";
+
+function arrMisjonssalenFullDate(value) {
+  const s = arrClean(value || "");
+  let m = s.match(/\b(\d{1,2})[.\/-](\d{1,2})[.\/-](20\d{2})\b/);
+  if (!m) return null;
+
+  const day = Number(m[1]);
+  const month = Number(m[2]);
+  const year = Number(m[3]);
+  const probe = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    probe.getUTCFullYear() !== year ||
+    probe.getUTCMonth() !== month - 1 ||
+    probe.getUTCDate() !== day
+  ) return null;
+
+  return {year, month, day};
+}
+
+function arrMisjonssalenClock(value, fallbackHour=null, fallbackMinute=0) {
+  const s = arrClean(value || "");
+  const range = s.match(
+    /(?:kl(?:\.|okka)?\s*)?(\d{1,2})(?:[.:](\d{2}))?\s*[–—-]\s*(\d{1,2})(?:[.:](\d{2}))?/i
+  );
+  if (range) {
+    const sh = Number(range[1]), sm = Number(range[2] || 0);
+    const eh = Number(range[3]), em = Number(range[4] || 0);
+    if (sh <= 23 && sm <= 59 && eh <= 23 && em <= 59) {
+      return {start:{h:sh,min:sm},end:{h:eh,min:em}};
+    }
+  }
+
+  const one = s.match(/(?:\bkl(?:\.|okka)?\s*)(\d{1,2})(?:[.:](\d{2}))?/i);
+  if (one) {
+    const h = Number(one[1]), min = Number(one[2] || 0);
+    if (h <= 23 && min <= 59) return {start:{h,min},end:null};
+  }
+
+  const plain = s.match(/^\s*(\d{1,2})(?:[.:](\d{2}))?\s*$/);
+  if (plain) {
+    const h = Number(plain[1]), min = Number(plain[2] || 0);
+    if (h <= 23 && min <= 59) return {start:{h,min},end:null};
+  }
+
+  if (Number.isInteger(fallbackHour)) {
+    return {start:{h:fallbackHour,min:Number(fallbackMinute || 0)},end:null};
+  }
+  return null;
+}
+
+function arrMisjonssalenAllowedActivity(title) {
+  const t = arrNormalize(title || "");
+  if (!t) return false;
+
+  return !(
+    /\bprivat\s+selska(?:p|l)\b/i.test(t) ||
+    /\butleie\b/i.test(t) ||
+    /\breservert\b/i.test(t) ||
+    /\breservasjon\b/i.test(t) ||
+    /\bledig\b/i.test(t) ||
+    /\bdisponibel\b/i.test(t)
+  );
+}
+
+function arrMisjonssalenMeetingType(title) {
+  const t = arrNormalize(title || "");
+  if (/gudstjeneste|storsamling|søndagsmøte|sondagsmote/.test(t)) return "Gudstjeneste";
+  if (/bønn|bonn/.test(t)) return "Bønn";
+  if (/misjon|norea/.test(t)) return "Misjon";
+  if (/konsert|sang|lovsang/.test(t)) return "Sang / musikk";
+  if (/barn|ungkjerk|cubbies|sparks|t&t|trek/.test(t)) return "Barn";
+  if (/ungdom/.test(t)) return "Ungdom";
+  return "Møte";
+}
+
+function arrMisjonssalenCleanSundayTitle(value) {
+  let title = arrClean(value || "");
+  title = title
+    .replace(/\bkl(?:\.|okka)?\s*\d{1,2}(?:[.:]\d{2})?\b/ig, " ")
+    .replace(/\s+/g, " ")
+    .replace(/^[,;:\-–—\s]+|[,;:\-–—\s]+$/g, "")
+    .trim();
+
+  return title || "Gudstjeneste";
+}
+
+async function arrMisjonssalenDiscoverGids(sheetId) {
+  const gids = new Set(["0"]);
+  const pages = [
+    `https://docs.google.com/spreadsheets/d/${sheetId}/htmlview`,
+    `https://docs.google.com/spreadsheets/d/${sheetId}/edit`
+  ];
+
+  for (const page of pages) {
+    try {
+      const html = await arrFetchText(page);
+      for (const m of html.matchAll(/(?:[?&#]|\\u0026)gid(?:=|%3D)(\d+)/gi)) {
+        gids.add(m[1]);
+      }
+    } catch (_) {}
+  }
+  return [...gids];
+}
+
+async function arrMisjonssalenSheetCsv(sheetId, gid) {
+  return arrFetchText(
+    `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${encodeURIComponent(gid)}`
+  );
+}
+
+function arrMisjonssalenParseSundayRows(rows, gid, nowMs=Date.now()) {
+  if (!Array.isArray(rows) || !rows.length) return [];
+
+  let dateRow = -1;
+  let typeRow = -1;
+  let speakerRow = -1;
+  let themeRow = -1;
+  let bestDateCount = 0;
+
+  for (let r=0; r<Math.min(rows.length,40); r++) {
+    const normalized = rows[r].map(arrNormalize);
+
+    const firstMeaningful = normalized.find(Boolean) || "";
+    if (firstMeaningful === "type møte" || firstMeaningful === "type mote") typeRow = r;
+    if (firstMeaningful === "taler") speakerRow = r;
+    if (firstMeaningful === "tema") themeRow = r;
+
+    const dateCount = rows[r].filter(cell => !!arrMisjonssalenFullDate(cell)).length;
+    if (dateCount > bestDateCount) {
+      bestDateCount = dateCount;
+      dateRow = r;
+    }
+  }
+
+  if (dateRow < 0 || typeRow < 0 || bestDateCount < 2) return [];
+
+  const maxCols = Math.max(
+    rows[dateRow]?.length || 0,
+    rows[typeRow]?.length || 0,
+    speakerRow >= 0 ? (rows[speakerRow]?.length || 0) : 0,
+    themeRow >= 0 ? (rows[themeRow]?.length || 0) : 0
+  );
+
+  const out = [];
+  const fromMs = nowMs - 86400000;
+  const toMs = nowMs + 400 * 86400000;
+
+  for (let c=0; c<maxCols; c++) {
+    const date = arrMisjonssalenFullDate(rows[dateRow]?.[c]);
+    if (!date) continue;
+
+    const rawType = arrClean(rows[typeRow]?.[c] || "");
+    if (/ingen møte|avlyst|avlyst møte/i.test(arrNormalize(rawType))) continue;
+
+    // Misjonssalen dokumenterer søndagsgudstjeneste kl. 11.00 som standard.
+    // Dersom arket eksplisitt oppgir annen tid i Type møte, vinner den.
+    const clock = arrMisjonssalenClock(rawType, 11, 0);
+    if (!clock) continue;
+
+    const startTime = arrOsloLocalIso(
+      date.year,date.month,date.day,
+      clock.start.h,clock.start.min,0
+    );
+    const startMs = new Date(startTime).getTime();
+    if (!Number.isFinite(startMs) || startMs < fromMs || startMs > toMs) continue;
+
+    const endTime = clock.end
+      ? arrOsloLocalIso(
+          date.year,date.month,date.day,
+          clock.end.h,clock.end.min,0
+        )
+      : null;
+
+    const title = arrMisjonssalenCleanSundayTitle(rawType);
+    if (!arrMisjonssalenAllowedActivity(title)) continue;
+
+    const speaker = speakerRow >= 0 ? arrClean(rows[speakerRow]?.[c] || "") : "";
+    const theme = themeRow >= 0 ? arrClean(rows[themeRow]?.[c] || "") : "";
+
+    const description = [
+      speaker ? `Taler: ${speaker}` : "",
+      theme ? `Tema: ${theme}` : ""
+    ].filter(Boolean).join(". ");
+
+    out.push({
+      sourceEventId:
+        `misjonssalen-sunday-${gid}-${date.year}-${String(date.month).padStart(2,"0")}-` +
+        `${String(date.day).padStart(2,"0")}-${String(clock.start.h).padStart(2,"0")}` +
+        `${String(clock.start.min).padStart(2,"0")}-${arrNormalize(title).replace(/[^a-z0-9æøå]+/g,"-").replace(/^-|-$/g,"").slice(0,50)}`,
+      title,
+      startTime,
+      endTime,
+      organizer:"Misjonssalen Sandnes",
+      location:ARR_MISJONSSALEN_LOCATION,
+      settlementHint:"Sandnes sentrum",
+      municipalityHint:"Sandnes",
+      meetingTypeHint:arrMisjonssalenMeetingType(title),
+      description,
+      sourceUrl:ARR_MISJONSSALEN_WEB_URL
+    });
+  }
+
+  return out;
+}
+
+function arrMisjonssalenFindHeaderIndex(normalizedRow, candidates) {
+  return normalizedRow.findIndex(value =>
+    candidates.some(candidate => value === candidate || value.includes(candidate))
+  );
+}
+
+function arrMisjonssalenParseActivityRows(rows, gid, nowMs=Date.now()) {
+  if (!Array.isArray(rows) || !rows.length) return [];
+
+  let header = -1;
+  let dateCol = -1;
+  let timeCol = -1;
+  let titleCol = -1;
+  let descCol = -1;
+
+  for (let r=0; r<Math.min(rows.length,40); r++) {
+    const n = rows[r].map(arrNormalize);
+
+    const d = arrMisjonssalenFindHeaderIndex(n, ["dato","date"]);
+    const k = arrMisjonssalenFindHeaderIndex(n, ["kl","tid","klokkeslett","time"]);
+    const a = arrMisjonssalenFindHeaderIndex(
+      n,
+      ["aktivitet","arrangement","hendelse","møte","mote","navn"]
+    );
+
+    if (d >= 0 && k >= 0 && a >= 0 && new Set([d,k,a]).size === 3) {
+      header = r;
+      dateCol = d;
+      timeCol = k;
+      titleCol = a;
+      descCol = arrMisjonssalenFindHeaderIndex(
+        n,
+        ["info","beskrivelse","kommentar","merknad","tema"]
+      );
+      break;
+    }
+  }
+
+  if (header < 0) return [];
+
+  const out = [];
+  const fromMs = nowMs - 86400000;
+  const toMs = nowMs + 400 * 86400000;
+
+  for (let r=header+1; r<rows.length; r++) {
+    const row = rows[r];
+    const date = arrMisjonssalenFullDate(row[dateCol]);
+    const title = arrClean(row[titleCol] || "");
+    const clock = arrMisjonssalenClock(row[timeCol] || "");
+
+    // Her er vi bevisst strenge: aktivitetsarket må selv oppgi år og tid.
+    if (!date || !title || !clock) continue;
+    if (!arrMisjonssalenAllowedActivity(title)) continue;
+
+    const startTime = arrOsloLocalIso(
+      date.year,date.month,date.day,
+      clock.start.h,clock.start.min,0
+    );
+    const startMs = new Date(startTime).getTime();
+    if (!Number.isFinite(startMs) || startMs < fromMs || startMs > toMs) continue;
+
+    const endTime = clock.end
+      ? arrOsloLocalIso(
+          date.year,date.month,date.day,
+          clock.end.h,clock.end.min,0
+        )
+      : null;
+
+    const description = descCol >= 0 ? arrClean(row[descCol] || "") : "";
+
+    out.push({
+      sourceEventId:
+        `misjonssalen-activity-${gid}-${date.year}-${String(date.month).padStart(2,"0")}-` +
+        `${String(date.day).padStart(2,"0")}-${String(clock.start.h).padStart(2,"0")}` +
+        `${String(clock.start.min).padStart(2,"0")}-${arrNormalize(title).replace(/[^a-z0-9æøå]+/g,"-").replace(/^-|-$/g,"").slice(0,50)}`,
+      title,
+      startTime,
+      endTime,
+      organizer:"Misjonssalen Sandnes",
+      location:ARR_MISJONSSALEN_LOCATION,
+      settlementHint:"Sandnes sentrum",
+      municipalityHint:"Sandnes",
+      meetingTypeHint:arrMisjonssalenMeetingType(title),
+      description,
+      sourceUrl:ARR_MISJONSSALEN_WEB_URL
+    });
+  }
+
+  return out;
+}
+
+function arrMisjonssalenDedupe(events) {
+  const out = [];
+  const seenId = new Set();
+  const seenSemantic = new Set();
+
+  // Søndagsarket legges inn først av caller og får dermed prioritet
+  // dersom aktivitetsarket inneholder samme arrangement.
+  for (const event of events || []) {
+    const id = arrClean(event?.sourceEventId || "");
+    if (id && seenId.has(id)) continue;
+
+    const titleKey = arrNormalize(event?.title || "")
+      .replace(/\b(søndagsmøte|sondagsmote)\b/g,"gudstjeneste")
+      .replace(/\s+/g," ")
+      .trim();
+
+    const semanticKey = [
+      String(event?.startTime || "").slice(0,16),
+      titleKey
+    ].join("|");
+
+    if (seenSemantic.has(semanticKey)) continue;
+
+    if (id) seenId.add(id);
+    seenSemantic.add(semanticKey);
+    out.push(event);
+  }
+
+  return out;
+}
+
+async function arrFetchAndParseMisjonssalenSandnes() {
+  // ID-ene er hentet fra Misjonssalen sin egen /kalender-side.
+  const activitySheetId = "1jUFFxhsKbSd_hrXzypIEC8crH1RFjWz1fYywxFJ1Fno";
+  const sundaySheetId = "1QIqEQEvcrDAwYOP2LFxuqPR22c3cqnPIdcqqvdSXTKs";
+
+  const out = [];
+  const diagnostics = [];
+
+  // Søndagsmøter først: dette er den mest strukturerte og autoritative
+  // arrangementslisten og skal vinne ved eventuell duplikat.
+  for (const gid of await arrMisjonssalenDiscoverGids(sundaySheetId)) {
+    try {
+      const csv = await arrMisjonssalenSheetCsv(sundaySheetId,gid);
+      const events = arrMisjonssalenParseSundayRows(arrCsvRows(csv),gid);
+      out.push(...events);
+      diagnostics.push({sheet:"Søndagsmøter",gid,count:events.length});
+    } catch (error) {
+      diagnostics.push({
+        sheet:"Søndagsmøter",
+        gid,
+        count:0,
+        error:arrClean(error?.message || String(error))
+      });
+    }
+  }
+
+  // Rom- og aktivitetskalender: konservativ parser. Dersom strukturen ikke har
+  // eksplisitte Dato/Kl/Aktivitet-kolonner, importerer vi ingenting fra den
+  // i stedet for å gjette.
+  for (const gid of await arrMisjonssalenDiscoverGids(activitySheetId)) {
+    try {
+      const csv = await arrMisjonssalenSheetCsv(activitySheetId,gid);
+      const events = arrMisjonssalenParseActivityRows(arrCsvRows(csv),gid);
+      out.push(...events);
+      diagnostics.push({sheet:"Rom- og aktivitetskalender",gid,count:events.length});
+    } catch (error) {
+      diagnostics.push({
+        sheet:"Rom- og aktivitetskalender",
+        gid,
+        count:0,
+        error:arrClean(error?.message || String(error))
+      });
+    }
+  }
+
+  const events = arrFilterParsedEventWindow(
+    arrMisjonssalenDedupe(out)
+  ).filter(event => !arrIsGloballyExcludedEvent(event));
+
+  if (!events.length) {
+    throw new Error(
+      "Misjonssalen Sandnes-parser fant ingen framtidige offentlige arrangementer. " +
+      JSON.stringify(diagnostics.slice(0,30))
+    );
+  }
+
+  return events;
 }
 
 function arrEbeneserClock(value) {
