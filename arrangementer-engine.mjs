@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v488-misjonssalen-complete-public-events-2026-10-21";
+const ARRANGEMENT_ENGINE_VERSION = "v489-misjonssalen-fix-html-lines-2026-10-21";
 
 const ARR_AREAS = {
   default: {
@@ -6757,7 +6757,8 @@ function arrMisjonssalenPageYear(html,text,nowMs=Date.now()) {
 }
 
 function arrMisjonssalenParseCheckpointPage(html,pageUrl,nowMs=Date.now()) {
-  const text=arrHtmlToLines(html);
+  const lines=arrHtmlToLines(html);
+  const text=lines.join("\n");
   const yearMatch=text.match(/DATOER\s+FOR\s+CHECKPOINT[\s\S]{0,80}?(20\d{2})/i);
   const year=Number(yearMatch?.[1] || 0);
   if (!year) return [];
@@ -6793,7 +6794,8 @@ function arrMisjonssalenParseCheckpointPage(html,pageUrl,nowMs=Date.now()) {
 }
 
 function arrMisjonssalenParseJulemessaPage(html,pageUrl,nowMs=Date.now()) {
-  const text=arrHtmlToLines(html);
+  const lines=arrHtmlToLines(html);
+  const text=lines.join("\n");
   const year=Number(text.match(/Julemessa\s+(20\d{2})/i)?.[1] || 0);
   if (!year) return [];
 
@@ -6845,7 +6847,7 @@ function arrMisjonssalenParseJulemessaPage(html,pageUrl,nowMs=Date.now()) {
 }
 
 function arrMisjonssalenParseGenericPublicPage(html,pageUrl,nowMs=Date.now()) {
-  const lines=arrHtmlToLines(html).split("\n").map(arrClean).filter(Boolean);
+  const lines=arrHtmlToLines(html).map(arrClean).filter(Boolean);
   const text=lines.join(" ");
   const pageTitle=arrMisjonssalenPageTitle(html);
   const pageYear=arrMisjonssalenPageYear(html,text,nowMs);
@@ -7030,9 +7032,11 @@ async function arrFetchAndParseMisjonssalenSandnes() {
   // 3) Offisielle nettsider som supplement.
   const siteResult=await arrMisjonssalenParseOfficialSite(nowMs);
   siteEvents.push(...siteResult.events);
+  const siteFailures=(siteResult.diagnostics || []).filter(x => !x.ok);
   diagnostics.push({
     source:"Misjonssalen.no",
     count:siteEvents.length,
+    failedPages:siteFailures.length,
     pages:siteResult.diagnostics
   });
 
@@ -7055,10 +7059,12 @@ async function arrFetchAndParseMisjonssalenSandnes() {
 
   // Diagnostikk i loggen gjør det mulig å se om én delkilde faller ut uten at
   // hele Misjonssalen-importen må feile.
-  console.log("Misjonssalen Sandnes V488:", JSON.stringify({
+  console.log("Misjonssalen Sandnes V489:", JSON.stringify({
     sunday:sundayEvents.length,
     activity:activityEvents.length,
     website:siteEvents.length,
+    websitePagesOk:(siteResult.diagnostics || []).filter(x => x.ok).length,
+    websitePagesFailed:(siteResult.diagnostics || []).filter(x => !x.ok).length,
     afterDedupe:events.length
   }));
 
