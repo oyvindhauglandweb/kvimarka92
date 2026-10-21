@@ -1547,15 +1547,34 @@ function updateOrderSelectionVisual(id,checked){
     }
   },true);
 })();
-// V0025: Behandle musevalg på pointerup, uten forsinkelse til click/change.
-// Touchend fra V0024 beholdes uendret; tastatur og vanlige click fungerer fortsatt.
+// V0026: Bildevisning på PC bruker ett delegert click på en stabil container.
+// Ingen tidsbasert dobbeltklikk-sperre: hvert reelle museklikk blir behandlet.
+// V0024 touchend stopper syntetiske touch-klikk i capture-fasen over.
+(function installBestilleThumbnailSelection(){
+  const root=document.getElementById("itemList");
+  if(!root)return;
+  root.addEventListener("click",function(event){
+    const button=event.target&&event.target.closest&&event.target.closest("button.item-thumb-main");
+    if(!button||!root.contains(button))return;
+    const row=button.closest(".item-thumb-card[data-order-id]");
+    if(!row||!root.contains(row))return;
+    // Stopp inline onclick som inneholder en status fra forrige rendering.
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if(bestilleCacheReadOnly)return;
+    const id=Number(row.getAttribute("data-order-id"));
+    const item=items.find(value=>Number(value.id)===id);
+    if(item)toggleShouldBuy(id,!item.shouldBuy);
+  },true);
+})();
+// V0025: Behold pointerup for listevisning; bildevisning er håndtert separat.
 (function installBestilleMouseSelection(){
   const root=document.getElementById("itemList");
   if(!root)return;
   let pressed=null;
   let suppress=null;
   function targetOf(node){
-    const control=node&&node.closest&&node.closest(".item-thumb-main, input.item-check");
+    const control=node&&node.closest&&node.closest("input.item-check");
     if(!control||!root.contains(control))return null;
     const row=control.closest("[data-order-id]");
     if(!row||!root.contains(row))return null;
@@ -1582,8 +1601,6 @@ function updateOrderSelectionVisual(id,checked){
     suppress={id:start.id,control:start.control,time:Date.now()};
     toggleShouldBuy(start.id,!item.shouldBuy);
   });
-  // Et pointerup etterfølges normalt av click og eventuelt checkbox-change.
-  // Undertrykk bare den tilhørende click; andre museklikk og tastatur beholdes.
   root.addEventListener("click",function(event){
     if(!suppress)return;
     if(Date.now()-suppress.time>700){suppress=null;return;}
@@ -1884,7 +1901,7 @@ loadItems({cachedShown:bestilleCachedShown});
 
 <script>document.getElementById("newItemImage").addEventListener("change",handleNewItemImageChange);</script>
 <script src="handleliste-menu.js?v=30"></script>
-<div>V0025</div><script src="handleliste-item-dialog.js?v=6"></script>
+<div>V0026</div><script src="handleliste-item-dialog.js?v=6"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase: API_BASE,
