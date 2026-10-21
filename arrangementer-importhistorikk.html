@@ -1,3 +1,4 @@
+<!-- version: arrangementer-importhistorikk-v425-15min-timeout-2026-10-21 -->
 <!doctype html>
 <html lang="no">
 <head>
@@ -62,7 +63,7 @@ th{color:var(--muted)}
 <body>
 <div class="wrap">
   <h1>Importhistorikk</h1>
-  <p class="lead">De siste 50 kjøringene av Arrangementer-importen.</p>
+  <p class="lead">De siste fem kjøringene av Arrangementer-importen.</p>
   <div class="top">
     <a class="back" href="./arrangementer.html">← Arrangementer</a>
     <div>
@@ -325,7 +326,7 @@ th{color:var(--muted)}
         throw new Error(startData?.error || `Kunne ikke starte import (HTTP ${startRes.status}).`);
       }
 
-      const deadline=Date.now()+8*60*1000;
+      const deadline=Date.now()+15*60*1000;
 
       while(Date.now()<deadline){
         status.textContent="Import kjører i GitHub Actions – venter på ny historikk…";
@@ -348,7 +349,7 @@ th{color:var(--muted)}
         }catch(_){}
       }
 
-      throw new Error("Importen ble startet, men ny historikk ble ikke publisert innen 8 minutter.");
+      throw new Error("Importen ble startet, men ny historikk ble ikke publisert innen 15 minutter.");
     }catch(err){
       console.error(err);
       stopProgress();
