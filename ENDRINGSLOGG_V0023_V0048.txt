@@ -1,0 +1,7 @@
+Handleliste – optimalisert umiddelbar varevalg (2026-10-21)
+Kodegrunnlag: brukerens kvimarka92-main.zip fra GitHub.
+
+Bestille: V0022 -> V0023. Umiddelbar respons ved valg i liste- og bildevisning, status/antall oppdateres lokalt. API-lagring i bakgrunnen med sekvensiell behandling per vare, siste valg vinner. Ved lagringsfeil rulles visningen tilbake og feilen vises. Cache lagrer ikke ubekreftede tilstander. Tidligere nettbutikkfunksjon beholdt.
+Handle: V0047 -> V0048. Avkrysning oppdaterer bare valgt vare i DOM i stedet for å tegne hele listen på nytt. Som før lagres Handlet-avkrysninger lokalt og sendes ved Avslutt handel. Begge visningsmodi støttes.
+
+Test: HTML-inline JavaScript syntaks kontrollert med Node.js. Ingen produksjons/API-test mulig fra lokal pakke.
