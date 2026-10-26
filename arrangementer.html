@@ -57,6 +57,10 @@
     .list{display:flex;flex-direction:column;gap:18px}
     .day-group{background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
     .day-heading{padding:12px 15px;background:#181a1b;border-bottom:1px solid var(--line);font-weight:800;text-transform:capitalize}
+    .day-group.past .event{opacity:.62}
+    .day-group.past .day-heading{color:var(--muted)}
+    .day-group.today-group{outline:1px solid color-mix(in srgb,var(--accent) 55%,transparent);scroll-margin-top:12px}
+    .today-label{margin-left:9px;color:var(--accent);font-size:12px;font-weight:900;letter-spacing:.06em}
     .event{
       display:grid;
       grid-template-columns:110px minmax(0,1fr);
@@ -351,7 +355,7 @@
         </button>
       </nav>
     </div>
-    <p class="lead">Felles oversikt over kommende arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
+    <p class="lead">Felles oversikt over arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
 
     <section class="toolbar" aria-label="Filtre">
       <div class="field search-field">
@@ -440,7 +444,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v461-live-organizer-colors-2026-09-23";
+  const FRONTEND_VERSION = "v462-31-day-history-today-anchor-2026-10-26";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -869,7 +873,7 @@
 
     const remembered = savedFilters();
     els.status.textContent =
-      `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"} – viser sist lagrede oversikt`;
+      `${filtered.length} arrangement${filtered.length === 1 ? "" : "er"} – inkluderer siste 31 dager – viser sist lagrede oversikt`;
 
     requestAnimationFrame(() => {
       if (Number.isFinite(Number(remembered.scrollY))) {
@@ -902,6 +906,7 @@
 
   let events = [];
   let filtered = [];
+  let initialTodayScrollDone = false;
   let organizerSettings = [];
   let organizerTextColorByName = new Map();
   let combinedFavoritesActive = false;
@@ -1187,6 +1192,21 @@
     refreshOrganizationOptions();
   }
 
+  const HISTORY_RETENTION_DAYS = 31;
+
+  function eventHistoryReferenceDate(e) {
+    const end = asDate(e?.endTime);
+    if (end && !Number.isNaN(end.getTime())) return end;
+    return asDate(e?.startTime);
+  }
+
+  function eventInsideHistoryWindow(e, now=new Date()) {
+    const ref = eventHistoryReferenceDate(e);
+    if (!ref || Number.isNaN(ref.getTime())) return false;
+    const cutoff = new Date(now.getTime() - HISTORY_RETENTION_DAYS * 86400000);
+    return ref.getTime() >= cutoff.getTime();
+  }
+
   function applyFilters() {
     // Oppdater først Organisasjon-listen ut fra de andre filtrene. Dermed
     // kan en organisasjon som ikke lenger er relevant automatisk fjernes.
@@ -1248,7 +1268,7 @@
 
     els.status.className = "status";
     els.status.textContent =
-      `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"}`;
+      `${filtered.length} arrangement${filtered.length === 1 ? "" : "er"} – inkluderer siste 31 dager`;
 
     renderList();
     renderCalendar();
@@ -1537,8 +1557,16 @@
       return out;
     };
 
-    els.list.innerHTML = [...groups.entries()].map(([key, rows]) => {
-      const day = asDate(rows[0].startTime);
+    const todayKey = dateKey(new Date());
+    const entries = [...groups.entries()];
+    let todayInserted = false;
+
+    const renderDay = (key, rows) => {
+      const isToday = key === todayKey;
+      const isPast = key < todayKey;
+      const day = rows.length
+        ? asDate(rows[0].startTime)
+        : new Date();
 
       const items = rows.map(e => {
         const start = asDate(e.startTime);
@@ -1594,8 +1622,46 @@
         </article>`;
       }).join("");
 
-      return `<section class="day-group"><div class="day-heading">${escapeHtml(noDate.format(day))}</div>${items}</section>`;
-    }).join("");
+      const classes = ["day-group"];
+      if (isPast) classes.push("past");
+      if (isToday) classes.push("today-group");
+
+      const todayLabel = isToday ? '<span class="today-label">I DAG</span>' : "";
+      const anchor = isToday ? ' id="today-anchor"' : "";
+
+      return `<section class="${classes.join(" ")}"${anchor}><div class="day-heading">${escapeHtml(noDate.format(day))}${todayLabel}</div>${items}</section>`;
+    };
+
+    let html = "";
+
+    for (const [key, rows] of entries) {
+      if (!todayInserted && key > todayKey) {
+        html += renderDay(todayKey, []);
+        todayInserted = true;
+      }
+
+      html += renderDay(key, rows);
+      if (key === todayKey) todayInserted = true;
+    }
+
+    if (!todayInserted) {
+      html += renderDay(todayKey, []);
+    }
+
+    els.list.innerHTML = html;
+
+    // Første gang siden åpnes skal dagens dato ligge øverst i visningen.
+    // Tidligere arrangementer ligger fortsatt rett over og kan nås ved å
+    // scrolle opp, uten en egen historikkvisning.
+    if (!initialTodayScrollDone) {
+      initialTodayScrollDone = true;
+      requestAnimationFrame(() => {
+        document.getElementById("today-anchor")?.scrollIntoView({
+          block:"start",
+          behavior:"auto"
+        });
+      });
+    }
   }
 
 
@@ -2119,6 +2185,7 @@
         .filter(e => e.active !== false)
         .map(e => normalizeEventSettlementName({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
         .filter(e => asDate(e.startTime))
+        .filter(e => eventInsideHistoryWindow(e))
         .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
 
       reconcileFavoritesWithCurrentEvents();
@@ -2132,7 +2199,7 @@
       saveEventSnapshot();
       if (isManualRefresh) {
         els.status.className = "status";
-        els.status.textContent = `${filtered.length} kommende arrangementer – oppdatert nå`;
+        els.status.textContent = `${filtered.length} arrangementer – inkluderer siste 31 dager – oppdatert nå`;
       }
     } catch (err) {
       console.error(err);
