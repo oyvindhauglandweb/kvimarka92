@@ -1,4 +1,4 @@
-const ARRANGEMENT_ENGINE_VERSION = "v490-misjonssalen-month-tabs-2026-10-21";
+const ARRANGEMENT_ENGINE_VERSION = "v491-31-day-event-history-2026-10-26";
 
 const ARR_AREAS = {
   default: {
@@ -625,13 +625,14 @@ function arrOsloDateKey(value) {
   return `${byType.year}-${byType.month}-${byType.day}`;
 }
 
-// V469: fysisk sletting av ferdige arrangementer.
+// V491: behold ferdige arrangementer som historikk i 31 dager.
 // Regel:
-// 1) Har raden gyldig End Time: slett når End Time er passert.
-// 2) Mangler End Time: slett først når Start Time sin kalenderdato
-//    er før dagens dato i Europe/Oslo. Dermed beholdes arrangementet
-//    ut hele dagen selv om starttidspunktet er passert.
+// 1) Har raden gyldig End Time: slett først når End Time er mer enn 31 dager gammel.
+// 2) Mangler End Time: slett først når Start Time sin kalenderdato er eldre enn
+//    31-dagersgrensen i Europe/Oslo.
 // 3) Ugyldig/manglende Start Time slettes aldri automatisk.
+// 4) Kildesynkronisering får ikke deaktivere allerede ferdige arrangementer;
+//    cleanup-funksjonen eier historikkperioden.
 async function arrCleanupFinishedEvents(env, areaKey, options={}) {
   arrUseArea(areaKey);
 
@@ -644,6 +645,9 @@ async function arrCleanupFinishedEvents(env, areaKey, options={}) {
   }
 
   const todayOslo = arrOsloDateKey(now);
+  const historyRetentionDays = 31;
+  const historyCutoff = new Date(now.getTime() - historyRetentionDays * 86400000);
+  const historyCutoffOslo = arrOsloDateKey(historyCutoff);
   const rows = Array.isArray(options.rows)
     ? options.rows
     : await arrListAllRows(env, ARR_TABLE.EVENTS);
@@ -664,7 +668,7 @@ async function arrCleanupFinishedEvents(env, areaKey, options={}) {
         continue;
       }
 
-      if (end.getTime() < now.getTime()) {
+      if (end.getTime() < historyCutoff.getTime()) {
         deleteIds.push(Number(row.id));
         completedByEndTime++;
       }
@@ -683,7 +687,7 @@ async function arrCleanupFinishedEvents(env, areaKey, options={}) {
     }
 
     const startDayOslo = arrOsloDateKey(start);
-    if (startDayOslo && startDayOslo < todayOslo) {
+    if (startDayOslo && historyCutoffOslo && startDayOslo < historyCutoffOslo) {
       deleteIds.push(Number(row.id));
       completedByStartDate++;
     }
@@ -698,6 +702,8 @@ async function arrCleanupFinishedEvents(env, areaKey, options={}) {
     areaName: arrGetAreaConfig(areaKey).name,
     scanned: rows.length,
     todayOslo,
+    historyRetentionDays,
+    historyCutoffOslo,
     completedByEndTime,
     completedByStartDate,
     invalidDateRows,
@@ -1597,7 +1603,7 @@ async function arrImportGeneratedNarboUngdomslagetSupplement({
       if (seen.has(sourceEventId)) continue;
 
       const start = new Date(row[ARR_F.events.startTime] || "");
-      if (!Number.isNaN(start.getTime()) && start.getTime() >= Date.now() - 86400000) {
+      if (!Number.isNaN(start.getTime()) && start.getTime() >= Date.now()) {
         updateItems.push({
           id:row.id,
           [ARR_F.events.active]:false,
@@ -2352,7 +2358,7 @@ async function arrImportNlmSouthJaerenSupplement({
     }
 
     // Deaktiver NLM-rader som ikke lenger finnes i vellykket Power BI-resultat.
-    const cutoff = new Date(Date.now() - 86400000);
+    const cutoff = new Date(Date.now());
     for (const row of existingNlmRows) {
       if (row[ARR_F.events.manuallyEdited] === true) continue;
       const id = arrClean(row[ARR_F.events.sourceEventId] || "");
@@ -3010,7 +3016,7 @@ async function arrImportAllSources(env, options={}) {
       if ((parsed.length || allowEmptyAuthoritativeCleanup) && !mergeOnly) {
         const sourceNameText = arrClean(source[ARR_F.sources.name] || "");
         const sourceIdText = arrClean(source[ARR_F.sources.sourceId] || "");
-        const cutoff = new Date(Date.now()-86400000);
+        const cutoff = new Date(Date.now());
 
         for (const r of existingEvents) {
           if (r[ARR_F.events.manuallyEdited] === true) continue;
