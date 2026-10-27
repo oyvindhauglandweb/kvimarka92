@@ -61,6 +61,15 @@
     .day-group.past .day-heading{color:var(--muted)}
     .day-group.today-group{outline:1px solid color-mix(in srgb,var(--accent) 55%,transparent);scroll-margin-top:12px}
     .today-label{margin-left:9px;color:var(--accent);font-size:12px;font-weight:900;letter-spacing:.06em}
+    @media (max-width:900px){
+      .list.history-scroll-list{
+        overflow-y:auto;
+        -webkit-overflow-scrolling:touch;
+        overscroll-behavior-y:contain;
+        scrollbar-gutter:stable;
+        padding-right:1px;
+      }
+    }
     .event{
       display:grid;
       grid-template-columns:110px minmax(0,1fr);
@@ -444,7 +453,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v465-native-today-anchor-2026-10-27";
+  const FRONTEND_VERSION = "v466-mobile-bidirectional-event-list-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -869,6 +878,7 @@
     reconcileFavoritesWithCurrentEvents();
     populateFilters();
     restoreRememberedFilterControls();
+    listInitialPositionDone = false;
     applyFilters();
 
     const remembered = savedFilters();
@@ -902,7 +912,6 @@
 
   let events = [];
   let filtered = [];
-  let initialTodayScrollDone = false;
   let organizerSettings = [];
   let organizerTextColorByName = new Map();
   let combinedFavoritesActive = false;
@@ -1516,50 +1525,69 @@
     setTimeout(() => URL.revokeObjectURL(url), 30000);
   }
 
-  // Oppstartsprinsipp:
-  // - historikken ligger i DOM-en før dagens dato
-  // - siden åpnes på "I DAG" ved hjelp av nettleserens native ankerhopp
-  // - deretter gjøres ingen automatisk scrolling; brukeren kan bla fritt
-  //   oppover til historikken.
-  try {
-    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-  } catch (_) {}
+  // V466:
+  // På mobil er selve arrangementlisten en separat, vertikal scrollflate.
+  // Den åpner på "I DAG", mens historikken ligger fysisk over inne i samme
+  // scrollflate. Dermed kan brukeren bla motsatt vei til tidligere dager uten
+  // at hele nettsiden må starte midt i dokumentet.
+  let listInitialPositionDone = false;
 
-  let userHasStartedScrolling = false;
-
-  function markUserScrollInteraction() {
-    userHasStartedScrolling = true;
+  function isMobileEventListMode() {
+    return window.matchMedia("(max-width:900px)").matches;
   }
 
-  window.addEventListener("touchstart", markUserScrollInteraction, {once:true, passive:true});
-  window.addEventListener("wheel", markUserScrollInteraction, {once:true, passive:true});
-  window.addEventListener("pointerdown", markUserScrollInteraction, {once:true, passive:true});
-
-  function nativeJumpToTodayOnce() {
-    if (initialTodayScrollDone || userHasStartedScrolling) return;
-
-    const el = document.getElementById("today-anchor");
-    if (!el) return;
-
-    initialTodayScrollDone = true;
-
-    // Bruk native fragment-navigasjon i stedet for window.scrollTo().
-    // Dette oppfører seg mer stabilt på mobil og lar historikken over
-    // ankeret være fullt tilgjengelig ved vanlig tilbake-scrolling.
-    const oldHash = location.hash;
-    if (oldHash === "#today-anchor") {
-      el.scrollIntoView({block:"start", behavior:"auto"});
-    } else {
-      location.hash = "today-anchor";
+  function updateMobileListViewportHeight() {
+    if (!isMobileEventListMode()) {
+      els.list.classList.remove("history-scroll-list");
+      els.list.style.height = "";
+      els.list.style.maxHeight = "";
+      return;
     }
 
-    // Fjern hash fra adresselinjen uten å flytte siden.
-    requestAnimationFrame(() => {
-      try {
-        history.replaceState(null, "", location.pathname + location.search);
-      } catch (_) {}
-    });
+    els.list.classList.add("history-scroll-list");
+
+    // La listen bruke mesteparten av tilgjengelig skjermhøyde etter statuslinjen.
+    // Minimum sikrer at den fortsatt er brukbar når mobilbrowserens adresselinje
+    // eller tastatur reduserer viewporten midlertidig.
+    const top = els.list.getBoundingClientRect().top;
+    const available = Math.max(360, window.innerHeight - Math.max(12, top) - 12);
+    els.list.style.height = `${available}px`;
+    els.list.style.maxHeight = `${available}px`;
   }
+
+  function positionEventListAtToday(force=false) {
+    if (!force && listInitialPositionDone) return;
+
+    const today = document.getElementById("today-anchor");
+    if (!today) return;
+
+    updateMobileListViewportHeight();
+
+    if (isMobileEventListMode()) {
+      // Finn dagens posisjon inne i scroll-containeren, uavhengig av offsetParent.
+      const listRect = els.list.getBoundingClientRect();
+      const todayRect = today.getBoundingClientRect();
+      const target =
+        els.list.scrollTop +
+        (todayRect.top - listRect.top);
+
+      els.list.scrollTop = Math.max(0, target);
+      listInitialPositionDone = true;
+      return;
+    }
+
+    // Desktop beholder vanlig sidescroll, men kun én enkel posisjonering.
+    today.scrollIntoView({block:"start", behavior:"auto"});
+    listInitialPositionDone = true;
+  }
+
+  window.addEventListener("resize", () => {
+    const before = els.list.scrollTop;
+    updateMobileListViewportHeight();
+    if (isMobileEventListMode()) {
+      els.list.scrollTop = before;
+    }
+  }, {passive:true});
 
   function renderList() {
     clearCalendarBlobUrls();
@@ -1693,7 +1721,7 @@
 
     // Første gang siden åpnes skal dagens dato være første synlige dag.
     // Historikken ligger fysisk rett over og nås ved å bla motsatt vei.
-    nativeJumpToTodayOnce();
+    positionEventListAtToday();
   }
 
 
@@ -2227,7 +2255,7 @@
         restoreRememberedFilterControls();
       }
 
-      if (!userHasStartedScrolling) initialTodayScrollDone = false;
+      listInitialPositionDone = false;
       applyFilters();
       saveEventSnapshot();
       if (isManualRefresh) {
@@ -2253,6 +2281,7 @@
 
         populateFilters();
         restoreRememberedFilterControls();
+        listInitialPositionDone = false;
         applyFilters();
 
         const savedWhen = snapshot.savedAt
