@@ -444,7 +444,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v462-31-day-history-today-anchor-2026-10-26";
+  const FRONTEND_VERSION = "v463-today-first-stable-scroll-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -907,6 +907,8 @@
   let events = [];
   let filtered = [];
   let initialTodayScrollDone = false;
+  let initialTodayScrollCancelled = false;
+  let initialTodayScrollTimers = [];
   let organizerSettings = [];
   let organizerTextColorByName = new Map();
   let combinedFavoritesActive = false;
@@ -1520,6 +1522,58 @@
     setTimeout(() => URL.revokeObjectURL(url), 30000);
   }
 
+  // På mobil kan nettleseren gjenopprette forrige scrollposisjon etter at
+  // JavaScript først har hoppet til "I DAG". Vi slår derfor av automatisk
+  // scroll restoration og bekrefter startposisjonen noen ganger mens siden
+  // ferdig-renderes. Så snart brukeren selv begynner å bla, stopper vi.
+  try {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  } catch (_) {}
+
+  function cancelInitialTodayScroll() {
+    initialTodayScrollCancelled = true;
+    for (const id of initialTodayScrollTimers) clearTimeout(id);
+    initialTodayScrollTimers = [];
+  }
+
+  function scrollTodayToTop() {
+    if (initialTodayScrollCancelled) return;
+    const el = document.getElementById("today-anchor");
+    if (!el) return;
+
+    const y = Math.max(
+      0,
+      window.scrollY + el.getBoundingClientRect().top - 8
+    );
+    window.scrollTo({top:y, left:0, behavior:"auto"});
+  }
+
+  function scheduleInitialTodayScroll() {
+    if (initialTodayScrollDone || initialTodayScrollCancelled) return;
+    initialTodayScrollDone = true;
+
+    requestAnimationFrame(() => {
+      scrollTodayToTop();
+
+      for (const delay of [80, 220, 500, 900]) {
+        const id = setTimeout(scrollTodayToTop, delay);
+        initialTodayScrollTimers.push(id);
+      }
+    });
+
+    const cancel = () => cancelInitialTodayScroll();
+    window.addEventListener("touchstart", cancel, {once:true, passive:true});
+    window.addEventListener("wheel", cancel, {once:true, passive:true});
+    window.addEventListener("pointerdown", cancel, {once:true, passive:true});
+  }
+
+  window.addEventListener("load", () => {
+    if (!initialTodayScrollCancelled) {
+      const id = setTimeout(scrollTodayToTop, 60);
+      initialTodayScrollTimers.push(id);
+    }
+  }, {once:true});
+
   function renderList() {
     clearCalendarBlobUrls();
 
@@ -1650,18 +1704,9 @@
 
     els.list.innerHTML = html;
 
-    // Første gang siden åpnes skal dagens dato ligge øverst i visningen.
-    // Tidligere arrangementer ligger fortsatt rett over og kan nås ved å
-    // scrolle opp, uten en egen historikkvisning.
-    if (!initialTodayScrollDone) {
-      initialTodayScrollDone = true;
-      requestAnimationFrame(() => {
-        document.getElementById("today-anchor")?.scrollIntoView({
-          block:"start",
-          behavior:"auto"
-        });
-      });
-    }
+    // Første gang siden åpnes skal dagens dato være første synlige dag.
+    // Historikken ligger fysisk rett over og nås ved å bla motsatt vei.
+    scheduleInitialTodayScroll();
   }
 
 
