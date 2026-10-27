@@ -452,7 +452,26 @@
       .page-title{font-size:25px;text-align:center}
       .top-menu{gap:5px}
       .square-btn,.favorite-organizer-btn{width:42px;height:42px;min-width:42px}
-    }
+
+      /*
+       * V482 – iOS Safari i vanlig nettlesermodus:
+       * Safari har litt mindre effektiv bredde enn standalone/PWA-visningen.
+       * Bruk nesten hele viewporten og hold hovedmenyen på én rad.
+       */
+      body.ios-safari-browser .top-menu{
+        width:calc(100vw - 8px);
+        max-width:calc(100vw - 8px);
+        padding:6px;
+        gap:4px;
+        flex-wrap:nowrap;
+      }
+
+      body.ios-safari-browser .top-menu .square-btn{
+        width:auto;
+        min-width:38px;
+        max-width:46px;
+        flex:1 1 0;
+      }
 
 
 
@@ -606,7 +625,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v481-help-button-arrangement-manual-2026-10-27";
+  const FRONTEND_VERSION = "v482-ios-safari-wide-topmenu-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1047,6 +1066,15 @@
 
   // Nøkkelen brukes bare for å tillate start av GitHub Actions-jobben.
   // Selve Baserow-tokenet finnes kun som GitHub Secret og eksponeres ikke i frontend.
+
+  const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent || "");
+  const isStandaloneDisplay =
+    window.matchMedia?.("(display-mode: standalone)")?.matches === true ||
+    navigator.standalone === true;
+
+  if (isIosDevice && !isStandaloneDisplay) {
+    document.body.classList.add("ios-safari-browser");
+  }
 
   const $ = (id) => document.getElementById(id);
   const els = {
