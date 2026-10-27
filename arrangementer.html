@@ -109,6 +109,32 @@
       .toolbar .favorites-row{
         display:flex !important;
       }
+
+      body.history-mode .toolbar{
+        width:max-content;
+        max-width:calc(100vw - 40px);
+        margin-left:auto;
+        margin-right:auto;
+      }
+
+      body.history-mode .toolbar.filters-collapsed{
+        left:50%;
+        right:auto;
+        transform:translateX(-50%);
+        width:max-content;
+        max-width:calc(100vw - 40px);
+        padding:8px;
+        border-radius:14px;
+      }
+
+      body.history-mode .toolbar.filters-collapsed .favorites-row{
+        margin:0;
+        padding:0;
+      }
+
+      body.history-mode .toolbar.filters-collapsed #favoritesButtons{
+        gap:7px !important;
+      }
       .toolbar.filters-collapsed .favorites-row{
         display:flex !important;
       }
@@ -507,7 +533,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v472-filter-button-active-topmenu-background-2026-10-27";
+  const FRONTEND_VERSION = "v473-compact-favorites-background-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
