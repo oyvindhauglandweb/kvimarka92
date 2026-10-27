@@ -69,6 +69,12 @@
         scrollbar-gutter:stable;
         padding-right:1px;
       }
+      /* V467: .list er en flex-kolonne. Uten dette krymper alle daggrupper
+         for å få plass i den faste mobilhøyden og vises som tynne streker. */
+      .list.history-scroll-list > .day-group,
+      .list.history-scroll-list > .empty{
+        flex:0 0 auto;
+      }
     }
     .event{
       display:grid;
@@ -453,7 +459,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v466-mobile-bidirectional-event-list-2026-10-27";
+  const FRONTEND_VERSION = "v467-mobile-history-scroll-flex-fix-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
