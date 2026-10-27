@@ -61,19 +61,50 @@
     .day-group.past .day-heading{color:var(--muted)}
     .day-group.today-group{outline:1px solid color-mix(in srgb,var(--accent) 55%,transparent);scroll-margin-top:12px}
     .today-label{margin-left:9px;color:var(--accent);font-size:12px;font-weight:900;letter-spacing:.06em}
+    .history-toolbar-placeholder{display:none;height:0}
+
     @media (max-width:900px){
+      /* I historikkmodus ligger fellesmenyen over kalenderen. */
+      body.history-mode .top-menu{
+        position:fixed;
+        top:calc(env(safe-area-inset-top, 0px) + 8px);
+        left:50%;
+        transform:translateX(-50%);
+        z-index:1200;
+        width:max-content;
+        max-width:calc(100vw - 24px);
+      }
+
+      /* Filter/favoritt-panelet ligger under fellesmenyen. */
       body.history-mode .toolbar{
         position:fixed;
         left:20px;
         right:20px;
-        top:calc(env(safe-area-inset-top, 0px) + 12px);
-        z-index:1000;
+        top:calc(env(safe-area-inset-top, 0px) + 82px);
+        z-index:1100;
         max-height:52vh;
         overflow:auto;
         box-shadow:0 16px 34px rgba(0,0,0,.48);
       }
 
-      /* Historikken skal fortsette å rulle bak filterpanelet. */
+      /*
+       * Plassholderen beholder toolbarens plass i dokumentflyten.
+       * Dermed flytter ikke dagens dato seg når historikkmodus slås av/på.
+       */
+      body.history-mode .history-toolbar-placeholder{
+        display:block;
+      }
+
+      /* De fem hovedfiltrene kan skjules; søk og favoritter berøres ikke. */
+      .toolbar.filters-collapsed .filter-choice-field{
+        display:none !important;
+      }
+
+      /* Favorittene skal alltid være synlige. */
+      .toolbar .favorites-row{
+        display:flex !important;
+      }
+
       body.history-mode #list{
         position:relative;
         z-index:1;
@@ -368,6 +399,11 @@
         <button id="contactBtn" class="square-btn" type="button" title="Kontakt" aria-label="Kontakt">
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h17v13h-17z"/><path d="m4 6 8 7 8-7"/></svg>
         </button>
+        <button id="filterPanelToggleBtn" class="square-btn" type="button" title="Vis/skjul filtre" aria-label="Vis/skjul filtre" aria-pressed="false">
+          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6h16M7 12h10M10 18h4"/>
+          </svg>
+        </button>
         <button id="clearFiltersBtn" class="square-btn clear-filters-btn" type="button" title="Nullstill filtre" aria-label="Nullstill filtre" hidden>
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg>
         </button>
@@ -375,24 +411,25 @@
     </div>
     <p class="lead">Felles oversikt over arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
 
+    <div id="historyToolbarPlaceholder" class="history-toolbar-placeholder" aria-hidden="true"></div>
     <section class="toolbar" aria-label="Filtre">
       <div class="field search-field">
         <label for="search">Søk</label>
         <input id="search" type="search" placeholder="Søk i tittel, sted eller arrangør">
       </div>
-      <div class="field">
+      <div class="field filter-choice-field">
         <label for="typeFilter">Møtetype</label>
         <select id="typeFilter"><option value="">Alle møtetyper</option></select>
       </div>
-      <div class="field">
+      <div class="field filter-choice-field">
         <label for="municipalityFilter">Kommune</label>
         <select id="municipalityFilter"><option value="">Alle kommuner</option></select>
       </div>
-      <div class="field">
+      <div class="field filter-choice-field">
         <label for="settlementFilter">Tettsted</label>
         <select id="settlementFilter"><option value="">Alle tettsteder</option></select>
       </div>
-      <div class="field">
+      <div class="field filter-choice-field">
         <label for="organizerFilter">Arrangør</label>
         <select id="organizerFilter" class="organizer-native"><option value="">Alle arrangører</option></select>
         <div id="organizerCustom" class="organizer-custom">
@@ -400,7 +437,7 @@
           <div id="organizerCustomMenu" class="organizer-custom-menu" role="listbox"></div>
         </div>
       </div>
-      <div class="field">
+      <div class="field filter-choice-field">
         <label for="organizationFilter">Organisasjon</label>
         <select id="organizationFilter"><option value="">Alle organisasjoner</option></select>
       </div>
@@ -462,7 +499,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v470-history-toolbar-overlay-fix-2026-10-27";
+  const FRONTEND_VERSION = "v471-history-menu-filter-toggle-stable-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -909,7 +946,10 @@
     search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"), organization: $("organizationFilter"),
     viewToggleBtn:$("viewToggleBtn"), searchToggleBtn:$("searchToggleBtn"), themeToggleBtn:$("themeToggleBtn"),
     favoriteToggleBtn:$("favoriteToggleBtn"), contactBtn:$("contactBtn"),
+    filterPanelToggleBtn:$("filterPanelToggleBtn"),
     clearFiltersBtn:$("clearFiltersBtn"),
+    toolbar:document.querySelector(".toolbar"),
+    historyToolbarPlaceholder:$("historyToolbarPlaceholder"),
     contactModal:$("contactModal"), contactForm:$("contactForm"), contactCloseBtn:$("contactCloseBtn"), contactCancelBtn:$("contactCancelBtn"),
     contactSubject:$("contactSubject"), contactMessage:$("contactMessage"), contactName:$("contactName"), contactEmail:$("contactEmail"), contactWebsite:$("contactWebsite"), contactStatus:$("contactStatus"), contactSubmitBtn:$("contactSubmitBtn"),
     favoritesRow:$("favoritesRow"), favoritesButtons:$("favoritesButtons"),
@@ -1575,6 +1615,50 @@
     });
   }
 
+  // V471: Vis/skjul de fem hovedfiltrene. Favoritter forblir synlige.
+  let mainFiltersCollapsed = false;
+
+  function updateHistoryToolbarPlaceholder() {
+    if (!els.toolbar || !els.historyToolbarPlaceholder) return;
+
+    if (
+      document.body.classList.contains("history-mode") &&
+      window.matchMedia("(max-width:900px)").matches
+    ) {
+      const rect = els.toolbar.getBoundingClientRect();
+      const cs = getComputedStyle(els.toolbar);
+      const marginTop = parseFloat(cs.marginTop) || 0;
+      const marginBottom = parseFloat(cs.marginBottom) || 0;
+      els.historyToolbarPlaceholder.style.height =
+        `${Math.ceil(rect.height + marginTop + marginBottom)}px`;
+    } else {
+      els.historyToolbarPlaceholder.style.height = "0px";
+    }
+  }
+
+  function applyMainFilterVisibility() {
+    els.toolbar?.classList.toggle("filters-collapsed", mainFiltersCollapsed);
+
+    if (els.filterPanelToggleBtn) {
+      els.filterPanelToggleBtn.setAttribute(
+        "aria-pressed",
+        mainFiltersCollapsed ? "true" : "false"
+      );
+      const label = mainFiltersCollapsed ? "Vis filtre" : "Skjul filtre";
+      els.filterPanelToggleBtn.title = label;
+      els.filterPanelToggleBtn.setAttribute("aria-label", label);
+    }
+
+    requestAnimationFrame(updateHistoryToolbarPlaceholder);
+  }
+
+  els.filterPanelToggleBtn?.addEventListener("click", () => {
+    mainFiltersCollapsed = !mainFiltersCollapsed;
+    applyMainFilterVisibility();
+  });
+
+  applyMainFilterVisibility();
+
   // V469:
   // Når brukeren blar bakover fra dagens dato, vises filterpanelet som et
   // fast overlay over historikken. Når brukeren er på dagens dato eller
@@ -1598,17 +1682,37 @@
         return;
       }
 
-      // Når toppen av I-DAG-gruppen ligger under toppen av viewporten,
-      // befinner brukeren seg i historikken.
       const todayTop = today.getBoundingClientRect().top;
-      const inHistory = todayTop > 12;
+      const currentlyInHistory =
+        document.body.classList.contains("history-mode");
 
-      document.body.classList.toggle("history-mode", inHistory);
+      /*
+       * Hysterese: vi bruker to forskjellige grenser for inn/ut.
+       * Dette forhindrer blinking akkurat rundt overgangen.
+       */
+      const enterHistoryAt = 96;
+      const leaveHistoryAt = 24;
+
+      let inHistory = currentlyInHistory;
+
+      if (!currentlyInHistory && todayTop > enterHistoryAt) {
+        inHistory = true;
+      } else if (currentlyInHistory && todayTop < leaveHistoryAt) {
+        inHistory = false;
+      }
+
+      if (inHistory !== currentlyInHistory) {
+        document.body.classList.toggle("history-mode", inHistory);
+        requestAnimationFrame(updateHistoryToolbarPlaceholder);
+      }
     });
   }
 
   window.addEventListener("scroll", updateHistoryOverlayMode, {passive:true});
-  window.addEventListener("resize", updateHistoryOverlayMode, {passive:true});
+  window.addEventListener("resize", () => {
+    updateHistoryOverlayMode();
+    requestAnimationFrame(updateHistoryToolbarPlaceholder);
+  }, {passive:true});
 
   function renderList() {
     clearCalendarBlobUrls();
@@ -1743,7 +1847,10 @@
     // Første gang siden åpnes skal dagens dato være første synlige dag.
     // Historikken ligger fysisk rett over og nås ved å bla motsatt vei.
     positionPageAtTodayOnce();
-    requestAnimationFrame(updateHistoryOverlayMode);
+    requestAnimationFrame(() => {
+      updateHistoryOverlayMode();
+      updateHistoryToolbarPlaceholder();
+    });
   }
 
 
