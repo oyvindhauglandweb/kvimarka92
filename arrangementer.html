@@ -444,7 +444,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v464-today-first-free-history-scroll-2026-10-27";
+  const FRONTEND_VERSION = "v465-native-today-anchor-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1518,8 +1518,8 @@
 
   // Oppstartsprinsipp:
   // - historikken ligger i DOM-en før dagens dato
-  // - når den ferdige listen er rendret, plasseres "I DAG" øverst én gang
-  // - etter dette gjøres ingen automatisk scrolling; brukeren kan straks bla
+  // - siden åpnes på "I DAG" ved hjelp av nettleserens native ankerhopp
+  // - deretter gjøres ingen automatisk scrolling; brukeren kan bla fritt
   //   oppover til historikken.
   try {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -1535,26 +1535,29 @@
   window.addEventListener("wheel", markUserScrollInteraction, {once:true, passive:true});
   window.addEventListener("pointerdown", markUserScrollInteraction, {once:true, passive:true});
 
-  function scrollTodayToTopOnce() {
-    if (userHasStartedScrolling) return;
+  function nativeJumpToTodayOnce() {
+    if (initialTodayScrollDone || userHasStartedScrolling) return;
+
     const el = document.getElementById("today-anchor");
     if (!el) return;
 
-    const y = Math.max(
-      0,
-      window.scrollY + el.getBoundingClientRect().top - 8
-    );
-    window.scrollTo(0, y);
-  }
-
-  function scheduleInitialTodayScroll() {
-    if (initialTodayScrollDone || userHasStartedScrolling) return;
     initialTodayScrollDone = true;
 
+    // Bruk native fragment-navigasjon i stedet for window.scrollTo().
+    // Dette oppfører seg mer stabilt på mobil og lar historikken over
+    // ankeret være fullt tilgjengelig ved vanlig tilbake-scrolling.
+    const oldHash = location.hash;
+    if (oldHash === "#today-anchor") {
+      el.scrollIntoView({block:"start", behavior:"auto"});
+    } else {
+      location.hash = "today-anchor";
+    }
+
+    // Fjern hash fra adresselinjen uten å flytte siden.
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        scrollTodayToTopOnce();
-      });
+      try {
+        history.replaceState(null, "", location.pathname + location.search);
+      } catch (_) {}
     });
   }
 
@@ -1690,7 +1693,7 @@
 
     // Første gang siden åpnes skal dagens dato være første synlige dag.
     // Historikken ligger fysisk rett over og nås ved å bla motsatt vei.
-    scheduleInitialTodayScroll();
+    nativeJumpToTodayOnce();
   }
 
 
@@ -2245,6 +2248,7 @@
           .filter(e => e.active !== false)
           .map(e => normalizeEventSettlementName({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
           .filter(e => asDate(e.startTime))
+          .filter(e => eventInsideHistoryWindow(e))
           .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
 
         populateFilters();
