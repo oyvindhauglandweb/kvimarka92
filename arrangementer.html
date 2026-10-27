@@ -73,6 +73,11 @@
         z-index:1200;
         width:max-content;
         max-width:calc(100vw - 24px);
+        background:var(--panel);
+        border:1px solid var(--line);
+        border-radius:14px;
+        padding:8px;
+        box-shadow:0 12px 28px rgba(0,0,0,.45);
       }
 
       /* Filter/favoritt-panelet ligger under fellesmenyen. */
@@ -102,6 +107,9 @@
 
       /* Favorittene skal alltid være synlige. */
       .toolbar .favorites-row{
+        display:flex !important;
+      }
+      .toolbar.filters-collapsed .favorites-row{
         display:flex !important;
       }
 
@@ -499,7 +507,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v471-history-menu-filter-toggle-stable-2026-10-27";
+  const FRONTEND_VERSION = "v472-filter-button-active-topmenu-background-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1616,7 +1624,7 @@
   }
 
   // V471: Vis/skjul de fem hovedfiltrene. Favoritter forblir synlige.
-  let mainFiltersCollapsed = false;
+  let mainFiltersCollapsed = true;
 
   function updateHistoryToolbarPlaceholder() {
     if (!els.toolbar || !els.historyToolbarPlaceholder) return;
@@ -1640,11 +1648,16 @@
     els.toolbar?.classList.toggle("filters-collapsed", mainFiltersCollapsed);
 
     if (els.filterPanelToggleBtn) {
+      const filtersActive = !mainFiltersCollapsed;
+
       els.filterPanelToggleBtn.setAttribute(
         "aria-pressed",
-        mainFiltersCollapsed ? "true" : "false"
+        filtersActive ? "true" : "false"
       );
-      const label = mainFiltersCollapsed ? "Vis filtre" : "Skjul filtre";
+
+      els.filterPanelToggleBtn.classList.toggle("active", filtersActive);
+
+      const label = filtersActive ? "Skjul filtre" : "Vis filtre";
       els.filterPanelToggleBtn.title = label;
       els.filterPanelToggleBtn.setAttribute("aria-label", label);
     }
