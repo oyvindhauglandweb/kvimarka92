@@ -533,7 +533,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v473-compact-favorites-background-2026-10-27";
+  const FRONTEND_VERSION = "v475-backscroll-menu-favorites-today-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1698,11 +1698,14 @@
 
   applyMainFilterVisibility();
 
-  // V469:
-  // Når brukeren blar bakover fra dagens dato, vises filterpanelet som et
-  // fast overlay over historikken. Når brukeren er på dagens dato eller
-  // framover igjen, går filterpanelet tilbake til normal dokumentflyt.
+  // V475:
+  // Overlaymenyen vises:
+  //   1) alltid når brukeren befinner seg i historikken, eller
+  //   2) straks brukeren blar bakover/oppover, også i framtidsdelen.
+  // Når brukeren blar framover igjen utenfor historikken, skjules overlayen.
   let historyOverlayRaf = 0;
+  let lastPageScrollY = window.scrollY || 0;
+  let lastMeaningfulScrollDirection = 0; // -1 = bakover/oppover, +1 = framover/nedover
 
   function updateHistoryOverlayMode() {
     if (historyOverlayRaf) cancelAnimationFrame(historyOverlayRaf);
@@ -1712,36 +1715,55 @@
 
       if (!window.matchMedia("(max-width:900px)").matches) {
         document.body.classList.remove("history-mode");
+        lastPageScrollY = window.scrollY || 0;
         return;
       }
 
       const today = document.getElementById("today-anchor");
       if (!today) {
         document.body.classList.remove("history-mode");
+        lastPageScrollY = window.scrollY || 0;
         return;
       }
 
-      const todayTop = today.getBoundingClientRect().top;
-      const currentlyInHistory =
-        document.body.classList.contains("history-mode");
+      const currentY = window.scrollY || 0;
+      const delta = currentY - lastPageScrollY;
 
-      /*
-       * Hysterese: vi bruker to forskjellige grenser for inn/ut.
-       * Dette forhindrer blinking akkurat rundt overgangen.
-       */
-      const enterHistoryAt = 96;
-      const leaveHistoryAt = 24;
-
-      let inHistory = currentlyInHistory;
-
-      if (!currentlyInHistory && todayTop > enterHistoryAt) {
-        inHistory = true;
-      } else if (currentlyInHistory && todayTop < leaveHistoryAt) {
-        inHistory = false;
+      // Ignorer små iOS-/layoutbevegelser rundt 1–3 px.
+      if (Math.abs(delta) >= 5) {
+        lastMeaningfulScrollDirection = delta < 0 ? -1 : 1;
+        lastPageScrollY = currentY;
       }
 
-      if (inHistory !== currentlyInHistory) {
-        document.body.classList.toggle("history-mode", inHistory);
+      const todayTop = today.getBoundingClientRect().top;
+      const currentlyVisible =
+        document.body.classList.contains("history-mode");
+
+      // Hysterese rundt I DAG hindrer blinking.
+      const enterHistoryAt = 72;
+      const leaveHistoryAt = 18;
+
+      const definitelyInHistory = todayTop > enterHistoryAt;
+      const definitelyNotInHistory = todayTop < leaveHistoryAt;
+
+      let showOverlay = currentlyVisible;
+
+      if (definitelyInHistory) {
+        // I historikken skal menyen alltid være framme.
+        showOverlay = true;
+      } else if (lastMeaningfulScrollDirection < 0) {
+        // Bakoverscroll viser menyen med én gang, også før historikken.
+        showOverlay = true;
+      } else if (
+        lastMeaningfulScrollDirection > 0 &&
+        definitelyNotInHistory
+      ) {
+        // Fremoverscroll skjuler menyen igjen når vi er ute av historikken.
+        showOverlay = false;
+      }
+
+      if (showOverlay !== currentlyVisible) {
+        document.body.classList.toggle("history-mode", showOverlay);
         requestAnimationFrame(updateHistoryToolbarPlaceholder);
       }
     });
@@ -1749,9 +1771,11 @@
 
   window.addEventListener("scroll", updateHistoryOverlayMode, {passive:true});
   window.addEventListener("resize", () => {
+    lastPageScrollY = window.scrollY || 0;
     updateHistoryOverlayMode();
     requestAnimationFrame(updateHistoryToolbarPlaceholder);
   }, {passive:true});
+
 
   function renderList() {
     clearCalendarBlobUrls();
@@ -2079,6 +2103,32 @@
     els.viewToggleBtn.classList.toggle("active", calendar);
   }
 
+  function goToTodayAfterFavoriteSelection() {
+    // Kalender-visning skal tilbake til inneværende måned.
+    const now = new Date();
+    monthCursor = new Date(now.getFullYear(), now.getMonth(), 1);
+    renderCalendar();
+
+    // Listevisning skal starte på I DAG etter at filterresultatet er rendret.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const today = document.getElementById("today-anchor");
+        if (!today) return;
+
+        today.scrollIntoView({
+          block:"start",
+          behavior:"auto"
+        });
+
+        // Favorittvalg skal ikke etterlate overlaymodus aktivt ved I DAG.
+        lastPageScrollY = window.scrollY || 0;
+        lastMeaningfulScrollDirection = 0;
+        document.body.classList.remove("history-mode");
+        requestAnimationFrame(updateHistoryToolbarPlaceholder);
+      });
+    });
+  }
+
   function renderFavoriteButtons() {
     const favorites = loadFavorites();
     els.favoritesButtons.innerHTML = "";
@@ -2121,6 +2171,7 @@
         applyFilters();
         renderFavoriteButtons();
         updateFavoriteTopButton();
+        goToTodayAfterFavoriteSelection();
       });
 
       els.favoritesButtons.appendChild(allBtn);
@@ -2238,6 +2289,7 @@
         applyFilters();
         renderFavoriteButtons();
         updateFavoriteTopButton();
+        goToTodayAfterFavoriteSelection();
       });
 
       els.favoritesButtons.appendChild(btn);
