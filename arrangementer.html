@@ -143,6 +143,69 @@
         position:relative;
         z-index:1;
       }
+
+    @media (min-width:901px){
+      body.history-mode .top-menu{
+        position:fixed;
+        top:12px;
+        left:50%;
+        transform:translateX(-50%);
+        z-index:1200;
+        width:max-content;
+        max-width:calc(100vw - 40px);
+        background:var(--panel);
+        border:1px solid var(--line);
+        border-radius:14px;
+        padding:8px;
+        box-shadow:0 12px 28px rgba(0,0,0,.35);
+      }
+
+      body.history-mode .toolbar{
+        position:fixed;
+        top:86px;
+        left:50%;
+        transform:translateX(-50%);
+        z-index:1100;
+        width:max-content;
+        max-width:calc(100vw - 60px);
+        max-height:52vh;
+        overflow:auto;
+        box-shadow:0 16px 34px rgba(0,0,0,.35);
+      }
+
+      body.history-mode .history-toolbar-placeholder{
+        display:block;
+      }
+
+      .toolbar.filters-collapsed .filter-choice-field{
+        display:none !important;
+      }
+
+      .toolbar .favorites-row{
+        display:flex !important;
+      }
+
+      .toolbar.filters-collapsed .favorites-row{
+        display:flex !important;
+      }
+
+      body.history-mode .toolbar.filters-collapsed{
+        width:max-content;
+        padding:8px;
+        border-radius:14px;
+      }
+
+      body.history-mode .toolbar.filters-collapsed .favorites-row{
+        margin:0;
+        padding:0;
+      }
+
+      body.history-mode #list{
+        position:relative;
+        z-index:1;
+      }
+    }
+
     }
     .event{
       display:grid;
@@ -533,7 +596,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v475-backscroll-menu-favorites-today-2026-10-27";
+  const FRONTEND_VERSION = "v476-desktop-backscroll-menu-favorites-today-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1655,10 +1718,7 @@
   function updateHistoryToolbarPlaceholder() {
     if (!els.toolbar || !els.historyToolbarPlaceholder) return;
 
-    if (
-      document.body.classList.contains("history-mode") &&
-      window.matchMedia("(max-width:900px)").matches
-    ) {
+    if (document.body.classList.contains("history-mode")) {
       const rect = els.toolbar.getBoundingClientRect();
       const cs = getComputedStyle(els.toolbar);
       const marginTop = parseFloat(cs.marginTop) || 0;
@@ -1712,12 +1772,6 @@
 
     historyOverlayRaf = requestAnimationFrame(() => {
       historyOverlayRaf = 0;
-
-      if (!window.matchMedia("(max-width:900px)").matches) {
-        document.body.classList.remove("history-mode");
-        lastPageScrollY = window.scrollY || 0;
-        return;
-      }
 
       const today = document.getElementById("today-anchor");
       if (!today) {
