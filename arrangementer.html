@@ -61,7 +61,7 @@
     .day-group.past .day-heading{color:var(--muted)}
     .day-group.today-group{outline:1px solid color-mix(in srgb,var(--accent) 55%,transparent);scroll-margin-top:12px}
     .today-label{margin-left:9px;color:var(--accent);font-size:12px;font-weight:900;letter-spacing:.06em}
-    .history-toolbar-placeholder{display:none;height:0}
+    .toolbar-flow-slot{min-height:var(--toolbar-flow-height,0px)}
 
     @media (max-width:900px){
       /* I historikkmodus ligger fellesmenyen over kalenderen. */
@@ -96,9 +96,6 @@
        * Plassholderen beholder toolbarens plass i dokumentflyten.
        * Dermed flytter ikke dagens dato seg når historikkmodus slås av/på.
        */
-      body:is(.history-mode,.backscroll-menu) .history-toolbar-placeholder{
-        display:block;
-      }
 
       /* De fem hovedfiltrene kan skjules; søk og favoritter berøres ikke. */
       .toolbar.filters-collapsed .filter-choice-field{
@@ -174,10 +171,6 @@
         max-height:52vh;
         overflow:auto;
         box-shadow:0 16px 34px rgba(0,0,0,.35);
-      }
-
-      body:is(.history-mode,.backscroll-menu) .history-toolbar-placeholder{
-        display:block;
       }
 
       .toolbar.filters-collapsed .filter-choice-field{
@@ -517,8 +510,8 @@
     </div>
     <p class="lead">Felles oversikt over arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
 
-    <div id="historyToolbarPlaceholder" class="history-toolbar-placeholder" aria-hidden="true"></div>
-    <section class="toolbar" aria-label="Filtre">
+    <div id="toolbarFlowSlot" class="toolbar-flow-slot">
+      <section class="toolbar" aria-label="Filtre">
       <div class="field search-field">
         <label for="search">Søk</label>
         <input id="search" type="search" placeholder="Søk i tittel, sted eller arrangør">
@@ -554,7 +547,8 @@
       <div id="favoritesRow" class="favorites-row" aria-label="Favorittarrangører">
         <div id="favoritesButtons" style="display:flex;gap:7px;flex-wrap:wrap"></div>
       </div>
-    </section>
+      </section>
+    </div>
 
     <div id="status" class="status">Laster arrangementer…</div>
     <section id="list" class="list"></section>
@@ -605,7 +599,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v479-stable-today-threshold-compact-toolbar-2026-10-27";
+  const FRONTEND_VERSION = "v480-stable-overlay-no-scroll-jump-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1049,13 +1043,14 @@
 
   const $ = (id) => document.getElementById(id);
   const els = {
+    pageHead:document.querySelector(".page-head"),
     search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"), organization: $("organizationFilter"),
     viewToggleBtn:$("viewToggleBtn"), searchToggleBtn:$("searchToggleBtn"), themeToggleBtn:$("themeToggleBtn"),
     favoriteToggleBtn:$("favoriteToggleBtn"), contactBtn:$("contactBtn"),
     filterPanelToggleBtn:$("filterPanelToggleBtn"),
     clearFiltersBtn:$("clearFiltersBtn"),
     toolbar:document.querySelector(".toolbar"),
-    historyToolbarPlaceholder:$("historyToolbarPlaceholder"),
+    toolbarFlowSlot:$("toolbarFlowSlot"),
     contactModal:$("contactModal"), contactForm:$("contactForm"), contactCloseBtn:$("contactCloseBtn"), contactCancelBtn:$("contactCancelBtn"),
     contactSubject:$("contactSubject"), contactMessage:$("contactMessage"), contactName:$("contactName"), contactEmail:$("contactEmail"), contactWebsite:$("contactWebsite"), contactStatus:$("contactStatus"), contactSubmitBtn:$("contactSubmitBtn"),
     favoritesRow:$("favoritesRow"), favoritesButtons:$("favoritesButtons"),
@@ -1724,23 +1719,31 @@
   // V471: Vis/skjul de fem hovedfiltrene. Favoritter forblir synlige.
   let mainFiltersCollapsed = true;
 
-  function updateHistoryToolbarPlaceholder() {
-    if (!els.toolbar || !els.historyToolbarPlaceholder) return;
+  function updateOverlayFlowSlots() {
+    // Behold samme dokumenthøyde uansett om meny/toolbar er normal eller fixed.
+    // Dette forhindrer at nettleseren flytter kalenderen motsatt vei når
+    // overlayet slås av/på under scrolling.
+    if (els.toolbar && els.toolbarFlowSlot) {
+      const toolbarHeight = Math.ceil(els.toolbar.getBoundingClientRect().height);
+      if (toolbarHeight > 0) {
+        els.toolbarFlowSlot.style.setProperty(
+          "--toolbar-flow-height",
+          `${toolbarHeight}px`
+        );
+      }
+    }
 
-    if (
-      document.body.classList.contains("history-mode") ||
-      document.body.classList.contains("backscroll-menu")
-    ) {
-      const rect = els.toolbar.getBoundingClientRect();
-      const cs = getComputedStyle(els.toolbar);
-      const marginTop = parseFloat(cs.marginTop) || 0;
-      const marginBottom = parseFloat(cs.marginBottom) || 0;
-      els.historyToolbarPlaceholder.style.height =
-        `${Math.ceil(rect.height + marginTop + marginBottom)}px`;
-    } else {
-      els.historyToolbarPlaceholder.style.height = "0px";
+    if (els.pageHead) {
+      const current = Math.ceil(els.pageHead.getBoundingClientRect().height);
+      const stored = Number(els.pageHead.dataset.flowHeight || 0);
+      const height = Math.max(current, stored);
+      if (height > 0) {
+        els.pageHead.dataset.flowHeight = String(height);
+        els.pageHead.style.minHeight = `${height}px`;
+      }
     }
   }
+
 
   function applyMainFilterVisibility() {
     els.toolbar?.classList.toggle("filters-collapsed", mainFiltersCollapsed);
@@ -1760,7 +1763,7 @@
       els.filterPanelToggleBtn.setAttribute("aria-label", label);
     }
 
-    requestAnimationFrame(updateHistoryToolbarPlaceholder);
+    requestAnimationFrame(updateOverlayFlowSlots);
   }
 
   els.filterPanelToggleBtn?.addEventListener("click", () => {
@@ -1769,8 +1772,9 @@
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        measureTodayScrollY();
+        updateOverlayFlowSlots();
         lastPageScrollY = window.scrollY || 0;
+        lastMeaningfulScrollDirection = 0;
       });
     });
   });
@@ -1861,7 +1865,7 @@
 
       document.body.classList.toggle("backscroll-menu", backscrollMenu);
 
-      requestAnimationFrame(updateHistoryToolbarPlaceholder);
+      requestAnimationFrame(updateOverlayFlowSlots);
     });
   }
 
@@ -1869,12 +1873,16 @@
   window.addEventListener("resize", () => {
     lastPageScrollY = window.scrollY || 0;
     requestAnimationFrame(() => {
+      updateOverlayFlowSlots();
       measureTodayScrollY();
       updateOverlayClasses();
-      updateHistoryToolbarPlaceholder();
     });
   }, {passive:true});
 
+
+  requestAnimationFrame(() => {
+    updateOverlayFlowSlots();
+  });
 
   function renderList() {
     clearCalendarBlobUrls();
@@ -2011,10 +2019,11 @@
     positionPageAtTodayOnce();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
+        updateOverlayFlowSlots();
         measureTodayScrollY();
         lastPageScrollY = window.scrollY || 0;
+        lastMeaningfulScrollDirection = 0;
         updateOverlayClasses();
-        updateHistoryToolbarPlaceholder();
       });
     });
   }
@@ -2228,8 +2237,12 @@
         lastMeaningfulScrollDirection = 0;
         document.body.classList.remove("history-mode", "backscroll-menu");
         requestAnimationFrame(() => {
-          measureTodayScrollY();
-          updateHistoryToolbarPlaceholder();
+          requestAnimationFrame(() => {
+            measureTodayScrollY();
+            updateOverlayFlowSlots();
+            lastPageScrollY = window.scrollY || 0;
+            lastMeaningfulScrollDirection = 0;
+          });
         });
       });
     });
