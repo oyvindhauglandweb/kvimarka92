@@ -121,6 +121,8 @@
         left:50%;
         right:auto;
         transform:translateX(-50%);
+        display:block;
+        grid-template-columns:none;
         width:max-content;
         max-width:calc(100vw - 40px);
         padding:8px;
@@ -191,6 +193,8 @@
         left:50%;
         right:auto;
         transform:translateX(-50%);
+        display:block;
+        grid-template-columns:none;
         width:max-content;
         max-width:calc(100vw - 60px);
         padding:8px;
@@ -601,7 +605,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v478-desktop-favorites-compact-stable-backscroll-2026-10-27";
+  const FRONTEND_VERSION = "v479-stable-today-threshold-compact-toolbar-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1762,20 +1766,37 @@
   els.filterPanelToggleBtn?.addEventListener("click", () => {
     mainFiltersCollapsed = !mainFiltersCollapsed;
     applyMainFilterVisibility();
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        measureTodayScrollY();
+        lastPageScrollY = window.scrollY || 0;
+      });
+    });
   });
 
   applyMainFilterVisibility();
 
-  // V478:
-  // To separate tilstander:
-  //   - history-mode: vi er faktisk i historikken
-  //   - backscroll-menu: brukeren blar oppover/bakover utenfor historikken
-  //
-  // Dette hindrer at filterpanelet blinker når scrollretning og I-DAG-
-  // terskelen tidligere konkurrerte om samme klasse.
+  // V479:
+  // Overlaytilstand styres mot en stabil scrollposisjon for I DAG.
+  // Vi måler ikke lenger getBoundingClientRect().top mens overlayet er aktivt,
+  // fordi fixed toolbar/filter kan endre layout og skape blinking.
   let historyOverlayRaf = 0;
   let lastPageScrollY = window.scrollY || 0;
   let lastMeaningfulScrollDirection = 0; // -1 = opp/bakover, +1 = ned/framover
+  let todayScrollY = null;
+
+  function measureTodayScrollY() {
+    const today = document.getElementById("today-anchor");
+    if (!today) {
+      todayScrollY = null;
+      return;
+    }
+
+    // Absolutt dokumentposisjon. Fast/flytende overlay påvirker ikke denne
+    // så lenge vi bare måler når listen er ferdig rendret.
+    todayScrollY = window.scrollY + today.getBoundingClientRect().top;
+  }
 
   function updateOverlayClasses() {
     if (historyOverlayRaf) cancelAnimationFrame(historyOverlayRaf);
@@ -1783,41 +1804,52 @@
     historyOverlayRaf = requestAnimationFrame(() => {
       historyOverlayRaf = 0;
 
-      const today = document.getElementById("today-anchor");
-      if (!today) {
+      if (!document.getElementById("today-anchor")) {
         document.body.classList.remove("history-mode", "backscroll-menu");
         lastPageScrollY = window.scrollY || 0;
         return;
       }
 
+      if (!Number.isFinite(todayScrollY)) {
+        measureTodayScrollY();
+      }
+
       const currentY = window.scrollY || 0;
       const delta = currentY - lastPageScrollY;
 
+      // Ignorer små layout-/browserbevegelser.
       if (Math.abs(delta) >= 5) {
         lastMeaningfulScrollDirection = delta < 0 ? -1 : 1;
         lastPageScrollY = currentY;
       }
 
-      const todayTop = today.getBoundingClientRect().top;
       const wasHistory = document.body.classList.contains("history-mode");
 
-      // Hysterese for faktisk historikktilstand.
-      const enterHistoryAt = 72;
-      const leaveHistoryAt = 18;
+      // Stabil hysterese rundt den lagrede I-DAG-posisjonen.
+      const enterHistoryDistance = 72;
+      const leaveHistoryDistance = 20;
 
       let inHistory = wasHistory;
 
-      if (!wasHistory && todayTop > enterHistoryAt) {
+      if (
+        !wasHistory &&
+        Number.isFinite(todayScrollY) &&
+        currentY < todayScrollY - enterHistoryDistance
+      ) {
         inHistory = true;
-      } else if (wasHistory && todayTop < leaveHistoryAt) {
+      } else if (
+        wasHistory &&
+        Number.isFinite(todayScrollY) &&
+        currentY > todayScrollY - leaveHistoryDistance
+      ) {
         inHistory = false;
       }
 
       document.body.classList.toggle("history-mode", inHistory);
 
-      // Utenfor historikken skal oppoverscroll holde menyen stabilt synlig.
-      // Nedoverscroll skjuler den igjen.
-      let backscrollMenu = document.body.classList.contains("backscroll-menu");
+      // Utenfor historikken: oppoverscroll viser meny, nedoverscroll skjuler.
+      let backscrollMenu =
+        document.body.classList.contains("backscroll-menu");
 
       if (inHistory) {
         backscrollMenu = false;
@@ -1836,8 +1868,11 @@
   window.addEventListener("scroll", updateOverlayClasses, {passive:true});
   window.addEventListener("resize", () => {
     lastPageScrollY = window.scrollY || 0;
-    updateOverlayClasses();
-    requestAnimationFrame(updateHistoryToolbarPlaceholder);
+    requestAnimationFrame(() => {
+      measureTodayScrollY();
+      updateOverlayClasses();
+      updateHistoryToolbarPlaceholder();
+    });
   }, {passive:true});
 
 
@@ -1975,8 +2010,12 @@
     // Historikken ligger fysisk rett over og nås ved å bla motsatt vei.
     positionPageAtTodayOnce();
     requestAnimationFrame(() => {
-      updateOverlayClasses();
-      updateHistoryToolbarPlaceholder();
+      requestAnimationFrame(() => {
+        measureTodayScrollY();
+        lastPageScrollY = window.scrollY || 0;
+        updateOverlayClasses();
+        updateHistoryToolbarPlaceholder();
+      });
     });
   }
 
@@ -2188,7 +2227,10 @@
         lastPageScrollY = window.scrollY || 0;
         lastMeaningfulScrollDirection = 0;
         document.body.classList.remove("history-mode", "backscroll-menu");
-        requestAnimationFrame(updateHistoryToolbarPlaceholder);
+        requestAnimationFrame(() => {
+          measureTodayScrollY();
+          updateHistoryToolbarPlaceholder();
+        });
       });
     });
   }
