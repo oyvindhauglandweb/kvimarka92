@@ -61,6 +61,23 @@
     .day-group.past .day-heading{color:var(--muted)}
     .day-group.today-group{outline:1px solid color-mix(in srgb,var(--accent) 55%,transparent);scroll-margin-top:12px}
     .today-label{margin-left:9px;color:var(--accent);font-size:12px;font-weight:900;letter-spacing:.06em}
+    @media (max-width:900px){
+      body.history-mode .filters{
+        position:fixed;
+        left:20px;
+        right:20px;
+        top:calc(env(safe-area-inset-top, 0px) + 12px);
+        z-index:1000;
+        max-height:52vh;
+        overflow:auto;
+        box-shadow:0 16px 34px rgba(0,0,0,.48);
+      }
+
+      body.history-mode .history-filter-spacer{
+        display:block;
+        height:0;
+      }
+    }
     .event{
       display:grid;
       grid-template-columns:110px minmax(0,1fr);
@@ -444,7 +461,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v468-normal-page-scroll-with-history-2026-10-27";
+  const FRONTEND_VERSION = "v469-history-overlay-filters-2026-10-27";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1552,9 +1569,45 @@
           block:"start",
           behavior:"auto"
         });
+        requestAnimationFrame(updateHistoryOverlayMode);
       });
     });
   }
+
+  // V469:
+  // Når brukeren blar bakover fra dagens dato, vises filterpanelet som et
+  // fast overlay over historikken. Når brukeren er på dagens dato eller
+  // framover igjen, går filterpanelet tilbake til normal dokumentflyt.
+  let historyOverlayRaf = 0;
+
+  function updateHistoryOverlayMode() {
+    if (historyOverlayRaf) cancelAnimationFrame(historyOverlayRaf);
+
+    historyOverlayRaf = requestAnimationFrame(() => {
+      historyOverlayRaf = 0;
+
+      if (!window.matchMedia("(max-width:900px)").matches) {
+        document.body.classList.remove("history-mode");
+        return;
+      }
+
+      const today = document.getElementById("today-anchor");
+      if (!today) {
+        document.body.classList.remove("history-mode");
+        return;
+      }
+
+      // Når toppen av I-DAG-gruppen ligger under toppen av viewporten,
+      // befinner brukeren seg i historikken.
+      const todayTop = today.getBoundingClientRect().top;
+      const inHistory = todayTop > 12;
+
+      document.body.classList.toggle("history-mode", inHistory);
+    });
+  }
+
+  window.addEventListener("scroll", updateHistoryOverlayMode, {passive:true});
+  window.addEventListener("resize", updateHistoryOverlayMode, {passive:true});
 
   function renderList() {
     clearCalendarBlobUrls();
@@ -1689,6 +1742,7 @@
     // Første gang siden åpnes skal dagens dato være første synlige dag.
     // Historikken ligger fysisk rett over og nås ved å bla motsatt vei.
     positionPageAtTodayOnce();
+    requestAnimationFrame(updateHistoryOverlayMode);
   }
 
 
