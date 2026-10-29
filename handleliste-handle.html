@@ -3,6 +3,13 @@
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
 @media(max-width:700px){.store-match-line{gap:8px;}.store-logo{max-width:82px;max-height:32px;padding:3px;}}
+/* V0049: Kundeavis for aktiv butikkjede, ved siden av logoen. */
+.store-match-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex:0 0 auto;}
+.store-kundeavis-link{color:var(--link);font-weight:bold;font-size:14px;text-decoration:underline;text-underline-offset:2px;white-space:nowrap;}
+.store-kundeavis-link:hover{filter:brightness(1.2);}
+.store-kundeavis-link:focus-visible{outline:2px solid var(--link);outline-offset:3px;}
+@media(max-width:700px){.store-match-actions{gap:8px;}.store-kundeavis-link{font-size:13px;}}
+
 #storeMatchCard.chain-selectable{cursor:pointer;transition:background .15s ease;}
 #storeMatchCard.chain-selectable:hover{background:var(--button-hover);}
 #storeMatchCard.chain-selectable:focus{outline:2px solid var(--link);outline-offset:2px;}
@@ -2715,6 +2722,35 @@ function setStoreMatchStatus(message, type){
   status.innerHTML=message;
 }
 
+/* V0049: Lenken kommer fra Shopping store chains.Kundeavis (11907718), via Worker-API.
+ * Ingen direkte tilgang til Baserow fra nettleseren, og ingen ekstra polling.
+ */
+function kundeavisForChain(data,chain){
+  if(!chain||!data)return "";
+  const wanted=normalizeChainKey(chain);
+  const maps=[data.chainKundeavis,data.chainCustomerNewspapers,data.chainFlyers];
+  let raw="";
+  for(const map of maps){
+    if(!map||typeof map!=="object")continue;
+    const key=Object.keys(map).find(name=>normalizeChainKey(name)===wanted);
+    if(key){raw=map[key];break;}
+  }
+  if(!raw){
+    const directChain=getActualStoreChain(data)||relationText(data.chain);
+    if(normalizeChainKey(directChain)===wanted){
+      raw=data.kundeavis||data.customerNewspaperUrl||(data.store&&data.store.kundeavis)||"";
+    }
+  }
+  if(raw&&typeof raw==="object")raw=raw.url||raw.value||"";
+  return normalizeWebUrl(raw);
+}
+function storeMatchActions(data,chain,logoUrl){
+  const url=kundeavisForChain(data,chain);
+  const link=url ? `<a class="store-kundeavis-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" onkeydown="event.stopPropagation();" aria-label="Åpne kundeavis for ${esc(chain)}">Kundeavis</a>` : "";
+  const logo=storeMatchActions(data,chain,logoUrl);
+  return (link||logo)?`<div class="store-match-actions">${link}${logo}</div>`:"";
+}
+
 function formatStoreMatchResult(data){
   const matchStatus=String((data && data.storeMatchStatus) || "");
   const storeName=String((data && data.storeName) || (data && data.store && data.store.name) || "").trim();
@@ -2739,7 +2775,7 @@ function formatStoreMatchResult(data){
     const prefix=matchStatus === "Uncertain" ? "Mulig butikk" : "Du ser ut til å være hos";
     const suffix=matchStatus === "Uncertain" ? " · usikkert treff" : "";
     const text=`${prefix}: <strong>${esc(label)}</strong>${distanceText}${suffix}<br>GPS-nøyaktighet: ${esc(accuracy)}`;
-    const logo=logoUrl ? `<img class="store-logo" src="${esc(logoUrl)}" alt="${esc(storeChain || storeName)} logo" loading="lazy" decoding="async" onerror="this.style.display='none'">` : "";
+    const logo=storeMatchActions(data,storeChain,logoUrl);
     return `<div class="store-match-line"><div class="store-match-text">${text}</div>${logo}</div>`;
   }
 
@@ -2910,7 +2946,9 @@ async function enrichStoreMatchWithChainOrder(data){
       paymentAppUrl:paymentApp.url,
       paymentAppName:paymentApp.name,
       paymentAppEnabled:paymentApp.enabled,
-      chainPaymentApps:(orderData&&orderData.chainPaymentApps)||data.chainPaymentApps||{}
+      chainPaymentApps:(orderData&&orderData.chainPaymentApps)||data.chainPaymentApps||{},
+      chainKundeavis:(orderData&&orderData.chainKundeavis)||data.chainKundeavis||{},
+      kundeavis:(orderData&&orderData.kundeavis)||data.kundeavis||""
     });
   }catch(error){
     void logHandlelisteError({
@@ -3084,7 +3122,7 @@ async function loadManualChainOptions(){
   const data=await fetchJson(`${API_BASE}/shopping/type-order?chain=${encodeURIComponent("Standard")}&manualChoice=${Date.now()}`);
   const chains=manualChainNamesFromResponse(data);
   if(!chains.length)throw new Error("Fant ingen matvarekjeder å velge mellom.");
-  manualChainOptionsCache={chains,chainLogos:(data&&data.chainLogos)||{},chainPaymentApps:(data&&data.chainPaymentApps)||{}};
+  manualChainOptionsCache={chains,chainLogos:(data&&data.chainLogos)||{},chainPaymentApps:(data&&data.chainPaymentApps)||{},chainKundeavis:(data&&data.chainKundeavis)||{}};
   return manualChainOptionsCache;
 }
 
@@ -3123,6 +3161,8 @@ async function chooseManualChain(chain){
       paymentAppName:effectivePaymentApp.name,
       paymentAppEnabled:effectivePaymentApp.enabled,
       chainPaymentApps:(data&&data.chainPaymentApps)||cachedPaymentApps,
+      chainKundeavis:(data&&data.chainKundeavis)||(manualChainOptionsCache&&manualChainOptionsCache.chainKundeavis)||{},
+      kundeavis:(data&&data.kundeavis)||"",
       storeMatchStatus:"Manual",
       typeOrder:order,
       typeOrderChain:canonicalChain,
@@ -4169,7 +4209,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ if(!sho
   },1000);
 })();
 </script>
-<div>V0048</div><script src="handleliste-item-dialog.js?v=6"></script>
+<div>V0049</div><script src="handleliste-item-dialog.js?v=6"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase: API_BASE,

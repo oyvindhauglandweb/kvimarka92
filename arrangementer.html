@@ -57,158 +57,6 @@
     .list{display:flex;flex-direction:column;gap:18px}
     .day-group{background:var(--panel);border:1px solid #242424;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
     .day-heading{padding:12px 15px;background:#181a1b;border-bottom:1px solid var(--line);font-weight:800;text-transform:capitalize}
-    .day-group.past .event{opacity:.62}
-    .day-group.past .day-heading{color:var(--muted)}
-    .day-group.today-group{outline:1px solid color-mix(in srgb,var(--accent) 55%,transparent);scroll-margin-top:12px}
-    .today-label{margin-left:9px;color:var(--accent);font-size:12px;font-weight:900;letter-spacing:.06em}
-    .toolbar-flow-slot{min-height:var(--toolbar-flow-height,0px)}
-
-    @media (max-width:900px){
-      /* I historikkmodus ligger fellesmenyen over kalenderen. */
-      body:is(.history-mode,.backscroll-menu) .top-menu{
-        position:fixed;
-        top:calc(env(safe-area-inset-top, 0px) + 8px);
-        left:50%;
-        transform:translateX(-50%);
-        z-index:1200;
-        width:max-content;
-        max-width:calc(100vw - 24px);
-        background:var(--panel);
-        border:1px solid var(--line);
-        border-radius:14px;
-        padding:8px;
-        box-shadow:0 12px 28px rgba(0,0,0,.45);
-      }
-
-      /* Filter/favoritt-panelet ligger under fellesmenyen. */
-      body:is(.history-mode,.backscroll-menu) .toolbar{
-        position:fixed;
-        left:20px;
-        right:20px;
-        top:calc(env(safe-area-inset-top, 0px) + 82px);
-        z-index:1100;
-        max-height:52vh;
-        overflow:auto;
-        box-shadow:0 16px 34px rgba(0,0,0,.48);
-      }
-
-      /*
-       * Plassholderen beholder toolbarens plass i dokumentflyten.
-       * Dermed flytter ikke dagens dato seg når historikkmodus slås av/på.
-       */
-
-      /* De fem hovedfiltrene kan skjules; søk og favoritter berøres ikke. */
-      .toolbar.filters-collapsed .filter-choice-field{
-        display:none !important;
-      }
-
-      /* Favorittene skal alltid være synlige. */
-      .toolbar .favorites-row{
-        display:flex !important;
-      }
-
-      body:is(.history-mode,.backscroll-menu) .toolbar{
-        width:max-content;
-        max-width:calc(100vw - 40px);
-        margin-left:auto;
-        margin-right:auto;
-      }
-
-      body:is(.history-mode,.backscroll-menu) .toolbar.filters-collapsed{
-        left:50%;
-        right:auto;
-        transform:translateX(-50%);
-        display:block;
-        grid-template-columns:none;
-        width:max-content;
-        max-width:calc(100vw - 40px);
-        padding:8px;
-        border-radius:14px;
-      }
-
-      body:is(.history-mode,.backscroll-menu) .toolbar.filters-collapsed .favorites-row{
-        margin:0;
-        padding:0;
-      }
-
-      body:is(.history-mode,.backscroll-menu) .toolbar.filters-collapsed #favoritesButtons{
-        gap:7px !important;
-      }
-      .toolbar.filters-collapsed .favorites-row{
-        display:flex !important;
-      }
-
-      body:is(.history-mode,.backscroll-menu) #list{
-        position:relative;
-        z-index:1;
-      }
-    }
-
-    @media (min-width:901px){
-      body:is(.history-mode,.backscroll-menu) .top-menu{
-        position:fixed;
-        top:12px;
-        left:50%;
-        transform:translateX(-50%);
-        z-index:1200;
-        width:max-content;
-        max-width:calc(100vw - 40px);
-        background:var(--panel);
-        border:1px solid var(--line);
-        border-radius:14px;
-        padding:8px;
-        box-shadow:0 12px 28px rgba(0,0,0,.35);
-      }
-
-      body:is(.history-mode,.backscroll-menu) .toolbar{
-        position:fixed;
-        top:86px;
-        left:50%;
-        transform:translateX(-50%);
-        z-index:1100;
-        width:max-content;
-        max-width:calc(100vw - 60px);
-        max-height:52vh;
-        overflow:auto;
-        box-shadow:0 16px 34px rgba(0,0,0,.35);
-      }
-
-      .toolbar.filters-collapsed .filter-choice-field{
-        display:none !important;
-      }
-
-      .toolbar .favorites-row,
-      .toolbar.filters-collapsed .favorites-row{
-        display:flex !important;
-      }
-
-      body:is(.history-mode,.backscroll-menu) .toolbar.filters-collapsed{
-        left:50%;
-        right:auto;
-        transform:translateX(-50%);
-        display:block;
-        grid-template-columns:none;
-        width:max-content;
-        max-width:calc(100vw - 60px);
-        padding:8px;
-        border-radius:14px;
-      }
-
-      body:is(.history-mode,.backscroll-menu) .toolbar.filters-collapsed .favorites-row{
-        margin:0;
-        padding:0;
-      }
-
-      body:is(.history-mode,.backscroll-menu) .toolbar.filters-collapsed #favoritesButtons{
-        gap:7px !important;
-      }
-
-      body:is(.history-mode,.backscroll-menu) #list{
-        position:relative;
-        z-index:1;
-      }
-    }
-
     .event{
       display:grid;
       grid-template-columns:110px minmax(0,1fr);
@@ -452,26 +300,7 @@
       .page-title{font-size:25px;text-align:center}
       .top-menu{gap:5px}
       .square-btn,.favorite-organizer-btn{width:42px;height:42px;min-width:42px}
-
-      /*
-       * V483 – alle mobile visningsmoduser:
-       * Hold hele hovedmenyen på én rad også når X-knappen vises.
-       * Dette gjelder både vanlig Safari og standalone/snarvei.
-       */
-      .top-menu{
-        width:calc(100vw - 8px);
-        max-width:calc(100vw - 8px);
-        padding:6px;
-        gap:4px;
-        flex-wrap:nowrap;
-      }
-
-      .top-menu .square-btn{
-        width:auto;
-        min-width:38px;
-        max-width:46px;
-        flex:1 1 0;
-      }
+    }
 
 
 
@@ -514,47 +343,34 @@
         <button id="favoriteToggleBtn" class="square-btn" type="button" title="Legg valgt arrangør til/fra favoritter" aria-label="Legg valgt arrangør til/fra favoritter">
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg>
         </button>
-        <button id="helpBtn" class="square-btn" type="button" title="Hjelp" aria-label="Hjelp">
-          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="8.5"/>
-            <path d="M9.8 9.3a2.5 2.5 0 0 1 4.8 1c0 1.9-2.6 2.1-2.6 4"/>
-            <path d="M12 17.7h.01"/>
-          </svg>
-        </button>
         <button id="contactBtn" class="square-btn" type="button" title="Kontakt" aria-label="Kontakt">
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h17v13h-17z"/><path d="m4 6 8 7 8-7"/></svg>
-        </button>
-        <button id="filterPanelToggleBtn" class="square-btn" type="button" title="Vis/skjul filtre" aria-label="Vis/skjul filtre" aria-pressed="false">
-          <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 6h16M7 12h10M10 18h4"/>
-          </svg>
         </button>
         <button id="clearFiltersBtn" class="square-btn clear-filters-btn" type="button" title="Nullstill filtre" aria-label="Nullstill filtre" hidden>
           <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg>
         </button>
       </nav>
     </div>
-    <p class="lead">Felles oversikt over arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
+    <p class="lead">Felles oversikt over kommende arrangementer fra menigheter, bedehus og andre lokale kilder.</p>
 
-    <div id="toolbarFlowSlot" class="toolbar-flow-slot">
-      <section class="toolbar" aria-label="Filtre">
+    <section class="toolbar" aria-label="Filtre">
       <div class="field search-field">
         <label for="search">Søk</label>
         <input id="search" type="search" placeholder="Søk i tittel, sted eller arrangør">
       </div>
-      <div class="field filter-choice-field">
+      <div class="field">
         <label for="typeFilter">Møtetype</label>
         <select id="typeFilter"><option value="">Alle møtetyper</option></select>
       </div>
-      <div class="field filter-choice-field">
+      <div class="field">
         <label for="municipalityFilter">Kommune</label>
         <select id="municipalityFilter"><option value="">Alle kommuner</option></select>
       </div>
-      <div class="field filter-choice-field">
+      <div class="field">
         <label for="settlementFilter">Tettsted</label>
         <select id="settlementFilter"><option value="">Alle tettsteder</option></select>
       </div>
-      <div class="field filter-choice-field">
+      <div class="field">
         <label for="organizerFilter">Arrangør</label>
         <select id="organizerFilter" class="organizer-native"><option value="">Alle arrangører</option></select>
         <div id="organizerCustom" class="organizer-custom">
@@ -562,7 +378,7 @@
           <div id="organizerCustomMenu" class="organizer-custom-menu" role="listbox"></div>
         </div>
       </div>
-      <div class="field filter-choice-field">
+      <div class="field">
         <label for="organizationFilter">Organisasjon</label>
         <select id="organizationFilter"><option value="">Alle organisasjoner</option></select>
       </div>
@@ -573,8 +389,7 @@
       <div id="favoritesRow" class="favorites-row" aria-label="Favorittarrangører">
         <div id="favoritesButtons" style="display:flex;gap:7px;flex-wrap:wrap"></div>
       </div>
-      </section>
-    </div>
+    </section>
 
     <div id="status" class="status">Laster arrangementer…</div>
     <section id="list" class="list"></section>
@@ -625,7 +440,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v483-mobile-wide-topmenu-all-modes-2026-10-27";
+  const FRONTEND_VERSION = "v461-live-organizer-colors-2026-09-23";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -965,7 +780,8 @@
         settlement:els.settlement.value || "",
         organizer:els.organizer.value || "",
         organization:els.organization.value || "",
-        view:els.calendar.classList.contains("active") ? "calendar" : "list"
+        view:els.calendar.classList.contains("active") ? "calendar" : "list",
+        scrollY:Math.max(0,Math.round(window.scrollY || 0))
       }));
     } catch (_) {}
   }
@@ -1044,7 +860,6 @@
       .filter(e => e && e.active !== false)
       .map(e => normalizeEventSettlementName({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
       .filter(e => asDate(e.startTime))
-      .filter(e => eventInsideHistoryWindow(e))
       .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
 
     reconcileFavoritesWithCurrentEvents();
@@ -1054,9 +869,13 @@
 
     const remembered = savedFilters();
     els.status.textContent =
-      `${filtered.length} arrangement${filtered.length === 1 ? "" : "er"} – inkluderer siste 31 dager – viser sist lagrede oversikt`;
+      `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"} – viser sist lagrede oversikt`;
 
-
+    requestAnimationFrame(() => {
+      if (Number.isFinite(Number(remembered.scrollY))) {
+        window.scrollTo(0,Number(remembered.scrollY));
+      }
+    });
 
     return true;
   }
@@ -1069,14 +888,10 @@
 
   const $ = (id) => document.getElementById(id);
   const els = {
-    pageHead:document.querySelector(".page-head"),
     search: $("search"), type: $("typeFilter"), municipality: $("municipalityFilter"), settlement: $("settlementFilter"), organizer: $("organizerFilter"), organization: $("organizationFilter"),
     viewToggleBtn:$("viewToggleBtn"), searchToggleBtn:$("searchToggleBtn"), themeToggleBtn:$("themeToggleBtn"),
-    favoriteToggleBtn:$("favoriteToggleBtn"), helpBtn:$("helpBtn"), contactBtn:$("contactBtn"),
-    filterPanelToggleBtn:$("filterPanelToggleBtn"),
+    favoriteToggleBtn:$("favoriteToggleBtn"), contactBtn:$("contactBtn"),
     clearFiltersBtn:$("clearFiltersBtn"),
-    toolbar:document.querySelector(".toolbar"),
-    toolbarFlowSlot:$("toolbarFlowSlot"),
     contactModal:$("contactModal"), contactForm:$("contactForm"), contactCloseBtn:$("contactCloseBtn"), contactCancelBtn:$("contactCancelBtn"),
     contactSubject:$("contactSubject"), contactMessage:$("contactMessage"), contactName:$("contactName"), contactEmail:$("contactEmail"), contactWebsite:$("contactWebsite"), contactStatus:$("contactStatus"), contactSubmitBtn:$("contactSubmitBtn"),
     favoritesRow:$("favoritesRow"), favoritesButtons:$("favoritesButtons"),
@@ -1372,21 +1187,6 @@
     refreshOrganizationOptions();
   }
 
-  const HISTORY_RETENTION_DAYS = 31;
-
-  function eventHistoryReferenceDate(e) {
-    const end = asDate(e?.endTime);
-    if (end && !Number.isNaN(end.getTime())) return end;
-    return asDate(e?.startTime);
-  }
-
-  function eventInsideHistoryWindow(e, now=new Date()) {
-    const ref = eventHistoryReferenceDate(e);
-    if (!ref || Number.isNaN(ref.getTime())) return false;
-    const cutoff = new Date(now.getTime() - HISTORY_RETENTION_DAYS * 86400000);
-    return ref.getTime() >= cutoff.getTime();
-  }
-
   function applyFilters() {
     // Oppdater først Organisasjon-listen ut fra de andre filtrene. Dermed
     // kan en organisasjon som ikke lenger er relevant automatisk fjernes.
@@ -1448,7 +1248,7 @@
 
     els.status.className = "status";
     els.status.textContent =
-      `${filtered.length} arrangement${filtered.length === 1 ? "" : "er"} – inkluderer siste 31 dager`;
+      `${filtered.length} kommende arrangement${filtered.length === 1 ? "" : "er"}`;
 
     renderList();
     renderCalendar();
@@ -1700,216 +1500,6 @@
     setTimeout(() => URL.revokeObjectURL(url), 30000);
   }
 
-  // V468:
-  // Vanlig sidescroll beholdes. Hele siden kan rulles som før, slik at
-  // filter/meny forsvinner opp når brukeren blar framover i kalenderen.
-  //
-  // Historikken ligger fysisk før dagens dato i dokumentet. Ved første
-  // ferdige rendering plasserer vi "I DAG" øverst én gang. Etter dette
-  // gjøres ingen automatisk scrolling, så brukeren kan bla fritt begge veier.
-  try {
-    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-  } catch (_) {}
-
-  let startupTodayPositionDone = false;
-  let userHasInteracted = false;
-
-  function markUserInteraction() {
-    userHasInteracted = true;
-  }
-
-  window.addEventListener("touchstart", markUserInteraction, {once:true, passive:true});
-  window.addEventListener("wheel", markUserInteraction, {once:true, passive:true});
-  window.addEventListener("pointerdown", markUserInteraction, {once:true, passive:true});
-
-  function positionPageAtTodayOnce() {
-    if (startupTodayPositionDone || userHasInteracted) return;
-
-    const today = document.getElementById("today-anchor");
-    if (!today) return;
-
-    startupTodayPositionDone = true;
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (userHasInteracted) return;
-        today.scrollIntoView({
-          block:"start",
-          behavior:"auto"
-        });
-        requestAnimationFrame(updateOverlayClasses);
-      });
-    });
-  }
-
-  // V471: Vis/skjul de fem hovedfiltrene. Favoritter forblir synlige.
-  let mainFiltersCollapsed = true;
-
-  function updateOverlayFlowSlots() {
-    // Behold samme dokumenthøyde uansett om meny/toolbar er normal eller fixed.
-    // Dette forhindrer at nettleseren flytter kalenderen motsatt vei når
-    // overlayet slås av/på under scrolling.
-    if (els.toolbar && els.toolbarFlowSlot) {
-      const toolbarHeight = Math.ceil(els.toolbar.getBoundingClientRect().height);
-      if (toolbarHeight > 0) {
-        els.toolbarFlowSlot.style.setProperty(
-          "--toolbar-flow-height",
-          `${toolbarHeight}px`
-        );
-      }
-    }
-
-    if (els.pageHead) {
-      const current = Math.ceil(els.pageHead.getBoundingClientRect().height);
-      const stored = Number(els.pageHead.dataset.flowHeight || 0);
-      const height = Math.max(current, stored);
-      if (height > 0) {
-        els.pageHead.dataset.flowHeight = String(height);
-        els.pageHead.style.minHeight = `${height}px`;
-      }
-    }
-  }
-
-
-  function applyMainFilterVisibility() {
-    els.toolbar?.classList.toggle("filters-collapsed", mainFiltersCollapsed);
-
-    if (els.filterPanelToggleBtn) {
-      const filtersActive = !mainFiltersCollapsed;
-
-      els.filterPanelToggleBtn.setAttribute(
-        "aria-pressed",
-        filtersActive ? "true" : "false"
-      );
-
-      els.filterPanelToggleBtn.classList.toggle("active", filtersActive);
-
-      const label = filtersActive ? "Skjul filtre" : "Vis filtre";
-      els.filterPanelToggleBtn.title = label;
-      els.filterPanelToggleBtn.setAttribute("aria-label", label);
-    }
-
-    requestAnimationFrame(updateOverlayFlowSlots);
-  }
-
-  els.filterPanelToggleBtn?.addEventListener("click", () => {
-    mainFiltersCollapsed = !mainFiltersCollapsed;
-    applyMainFilterVisibility();
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        updateOverlayFlowSlots();
-        lastPageScrollY = window.scrollY || 0;
-        lastMeaningfulScrollDirection = 0;
-      });
-    });
-  });
-
-  applyMainFilterVisibility();
-
-  // V479:
-  // Overlaytilstand styres mot en stabil scrollposisjon for I DAG.
-  // Vi måler ikke lenger getBoundingClientRect().top mens overlayet er aktivt,
-  // fordi fixed toolbar/filter kan endre layout og skape blinking.
-  let historyOverlayRaf = 0;
-  let lastPageScrollY = window.scrollY || 0;
-  let lastMeaningfulScrollDirection = 0; // -1 = opp/bakover, +1 = ned/framover
-  let todayScrollY = null;
-
-  function measureTodayScrollY() {
-    const today = document.getElementById("today-anchor");
-    if (!today) {
-      todayScrollY = null;
-      return;
-    }
-
-    // Absolutt dokumentposisjon. Fast/flytende overlay påvirker ikke denne
-    // så lenge vi bare måler når listen er ferdig rendret.
-    todayScrollY = window.scrollY + today.getBoundingClientRect().top;
-  }
-
-  function updateOverlayClasses() {
-    if (historyOverlayRaf) cancelAnimationFrame(historyOverlayRaf);
-
-    historyOverlayRaf = requestAnimationFrame(() => {
-      historyOverlayRaf = 0;
-
-      if (!document.getElementById("today-anchor")) {
-        document.body.classList.remove("history-mode", "backscroll-menu");
-        lastPageScrollY = window.scrollY || 0;
-        return;
-      }
-
-      if (!Number.isFinite(todayScrollY)) {
-        measureTodayScrollY();
-      }
-
-      const currentY = window.scrollY || 0;
-      const delta = currentY - lastPageScrollY;
-
-      // Ignorer små layout-/browserbevegelser.
-      if (Math.abs(delta) >= 5) {
-        lastMeaningfulScrollDirection = delta < 0 ? -1 : 1;
-        lastPageScrollY = currentY;
-      }
-
-      const wasHistory = document.body.classList.contains("history-mode");
-
-      // Stabil hysterese rundt den lagrede I-DAG-posisjonen.
-      const enterHistoryDistance = 72;
-      const leaveHistoryDistance = 20;
-
-      let inHistory = wasHistory;
-
-      if (
-        !wasHistory &&
-        Number.isFinite(todayScrollY) &&
-        currentY < todayScrollY - enterHistoryDistance
-      ) {
-        inHistory = true;
-      } else if (
-        wasHistory &&
-        Number.isFinite(todayScrollY) &&
-        currentY > todayScrollY - leaveHistoryDistance
-      ) {
-        inHistory = false;
-      }
-
-      document.body.classList.toggle("history-mode", inHistory);
-
-      // Utenfor historikken: oppoverscroll viser meny, nedoverscroll skjuler.
-      let backscrollMenu =
-        document.body.classList.contains("backscroll-menu");
-
-      if (inHistory) {
-        backscrollMenu = false;
-      } else if (lastMeaningfulScrollDirection < 0) {
-        backscrollMenu = true;
-      } else if (lastMeaningfulScrollDirection > 0) {
-        backscrollMenu = false;
-      }
-
-      document.body.classList.toggle("backscroll-menu", backscrollMenu);
-
-      requestAnimationFrame(updateOverlayFlowSlots);
-    });
-  }
-
-  window.addEventListener("scroll", updateOverlayClasses, {passive:true});
-  window.addEventListener("resize", () => {
-    lastPageScrollY = window.scrollY || 0;
-    requestAnimationFrame(() => {
-      updateOverlayFlowSlots();
-      measureTodayScrollY();
-      updateOverlayClasses();
-    });
-  }, {passive:true});
-
-
-  requestAnimationFrame(() => {
-    updateOverlayFlowSlots();
-  });
-
   function renderList() {
     clearCalendarBlobUrls();
 
@@ -1947,16 +1537,8 @@
       return out;
     };
 
-    const todayKey = dateKey(new Date());
-    const entries = [...groups.entries()];
-    let todayInserted = false;
-
-    const renderDay = (key, rows) => {
-      const isToday = key === todayKey;
-      const isPast = key < todayKey;
-      const day = rows.length
-        ? asDate(rows[0].startTime)
-        : new Date();
+    els.list.innerHTML = [...groups.entries()].map(([key, rows]) => {
+      const day = asDate(rows[0].startTime);
 
       const items = rows.map(e => {
         const start = asDate(e.startTime);
@@ -2012,46 +1594,8 @@
         </article>`;
       }).join("");
 
-      const classes = ["day-group"];
-      if (isPast) classes.push("past");
-      if (isToday) classes.push("today-group");
-
-      const todayLabel = isToday ? '<span class="today-label">I DAG</span>' : "";
-      const anchor = isToday ? ' id="today-anchor"' : "";
-
-      return `<section class="${classes.join(" ")}"${anchor}><div class="day-heading">${escapeHtml(noDate.format(day))}${todayLabel}</div>${items}</section>`;
-    };
-
-    let html = "";
-
-    for (const [key, rows] of entries) {
-      if (!todayInserted && key > todayKey) {
-        html += renderDay(todayKey, []);
-        todayInserted = true;
-      }
-
-      html += renderDay(key, rows);
-      if (key === todayKey) todayInserted = true;
-    }
-
-    if (!todayInserted) {
-      html += renderDay(todayKey, []);
-    }
-
-    els.list.innerHTML = html;
-
-    // Første gang siden åpnes skal dagens dato være første synlige dag.
-    // Historikken ligger fysisk rett over og nås ved å bla motsatt vei.
-    positionPageAtTodayOnce();
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        updateOverlayFlowSlots();
-        measureTodayScrollY();
-        lastPageScrollY = window.scrollY || 0;
-        lastMeaningfulScrollDirection = 0;
-        updateOverlayClasses();
-      });
-    });
+      return `<section class="day-group"><div class="day-heading">${escapeHtml(noDate.format(day))}</div>${items}</section>`;
+    }).join("");
   }
 
 
@@ -2241,39 +1785,6 @@
     els.viewToggleBtn.classList.toggle("active", calendar);
   }
 
-  function goToTodayAfterFavoriteSelection() {
-    // Kalender-visning skal tilbake til inneværende måned.
-    const now = new Date();
-    monthCursor = new Date(now.getFullYear(), now.getMonth(), 1);
-    renderCalendar();
-
-    // Listevisning skal starte på I DAG etter at filterresultatet er rendret.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const today = document.getElementById("today-anchor");
-        if (!today) return;
-
-        today.scrollIntoView({
-          block:"start",
-          behavior:"auto"
-        });
-
-        // Favorittvalg skal ikke etterlate overlaymodus aktivt ved I DAG.
-        lastPageScrollY = window.scrollY || 0;
-        lastMeaningfulScrollDirection = 0;
-        document.body.classList.remove("history-mode", "backscroll-menu");
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            measureTodayScrollY();
-            updateOverlayFlowSlots();
-            lastPageScrollY = window.scrollY || 0;
-            lastMeaningfulScrollDirection = 0;
-          });
-        });
-      });
-    });
-  }
-
   function renderFavoriteButtons() {
     const favorites = loadFavorites();
     els.favoritesButtons.innerHTML = "";
@@ -2316,7 +1827,6 @@
         applyFilters();
         renderFavoriteButtons();
         updateFavoriteTopButton();
-        goToTodayAfterFavoriteSelection();
       });
 
       els.favoritesButtons.appendChild(allBtn);
@@ -2434,7 +1944,6 @@
         applyFilters();
         renderFavoriteButtons();
         updateFavoriteTopButton();
-        goToTodayAfterFavoriteSelection();
       });
 
       els.favoritesButtons.appendChild(btn);
@@ -2610,7 +2119,6 @@
         .filter(e => e.active !== false)
         .map(e => normalizeEventSettlementName({...e, startTime:e.startTime || e.start, endTime:e.endTime || e.end}))
         .filter(e => asDate(e.startTime))
-        .filter(e => eventInsideHistoryWindow(e))
         .sort((a,b) => asDate(a.startTime)-asDate(b.startTime));
 
       reconcileFavoritesWithCurrentEvents();
@@ -2620,13 +2128,11 @@
         restoreRememberedFilterControls();
       }
 
-      if (!userHasInteracted) startupTodayPositionDone = false;
-      if (!userHasInteracted) startupTodayPositionDone = false;
       applyFilters();
       saveEventSnapshot();
       if (isManualRefresh) {
         els.status.className = "status";
-        els.status.textContent = `${filtered.length} arrangementer – inkluderer siste 31 dager – oppdatert nå`;
+        els.status.textContent = `${filtered.length} kommende arrangementer – oppdatert nå`;
       }
     } catch (err) {
       console.error(err);
@@ -2910,9 +2416,6 @@
     applyTheme(currentTheme() === "light" ? "dark" : "light");
   });
   els.favoriteToggleBtn.addEventListener("click", toggleCurrentOrganizerFavorite);
-  els.helpBtn?.addEventListener("click", () => {
-    location.href = "help.html?case=Arrangement%20manual&back=arrangementer.html";
-  });
   els.contactBtn.addEventListener("click", openContactModal);
   els.contactCloseBtn.addEventListener("click", closeContactModal);
   els.contactCancelBtn.addEventListener("click", closeContactModal);

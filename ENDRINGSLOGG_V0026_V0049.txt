@@ -1,0 +1,13 @@
+Handleliste V0026/V0049 - 2026-10-29
+
+Utgangspunkt: kvimarka92_V0026_V0048_PUBLISH.zip.
+Bestille V0026 er uendret. Handle V0049 legger lenken "Kundeavis" til venstre for valgt kjedelogo i butikkstatusen, bare når URL finnes.
+Lenken åpner ny fane og stopper klikkbobling så kjedevelgeren ikke åpnes.
+Støtter både automatisk GPS-match og manuell kjedevalg.
+
+OBS: Cloudflare Worker er ikke del av denne GitHub-pakken. Worker-endepunktet /shopping/type-order må lese
+Shopping store chains (1039513), felt Kundeavis (11907718), og returnere en av:
+  chainKundeavis: {"Coop Mega":"https://..."}  (anbefalt)
+eller kundeavis: "https://..." for valgt kjede.
+Inntil dette er gjort blir lenken skjult, også hvis Baserow har verdi.
+Ingen lenke skal vises for ugyldig/tom URL. Ingen nye API-kall er lagt til.
