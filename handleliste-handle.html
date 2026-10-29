@@ -3,7 +3,7 @@
 .store-match-text{min-width:0;flex:1;}
 .store-logo{max-width:104px;max-height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:4px;border:1px solid var(--border);}
 @media(max-width:700px){.store-match-line{gap:8px;}.store-logo{max-width:82px;max-height:32px;padding:3px;}}
-/* V0049: Kundeavis for aktiv butikkjede, ved siden av logoen. */
+/* V0050: Kundeavis for aktiv butikkjede, ved siden av logoen. */
 .store-match-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex:0 0 auto;}
 .store-kundeavis-link{color:var(--link);font-weight:bold;font-size:14px;text-decoration:underline;text-underline-offset:2px;white-space:nowrap;}
 .store-kundeavis-link:hover{filter:brightness(1.2);}
@@ -2722,7 +2722,7 @@ function setStoreMatchStatus(message, type){
   status.innerHTML=message;
 }
 
-/* V0049: Lenken kommer fra Shopping store chains.Kundeavis (11907718), via Worker-API.
+/* V0050: Lenken kommer fra Shopping store chains.Kundeavis (11907718), via Worker-API.
  * Ingen direkte tilgang til Baserow fra nettleseren, og ingen ekstra polling.
  */
 function kundeavisForChain(data,chain){
@@ -2747,7 +2747,7 @@ function kundeavisForChain(data,chain){
 function storeMatchActions(data,chain,logoUrl){
   const url=kundeavisForChain(data,chain);
   const link=url ? `<a class="store-kundeavis-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" onkeydown="event.stopPropagation();" aria-label="Åpne kundeavis for ${esc(chain)}">Kundeavis</a>` : "";
-  const logo=storeMatchActions(data,chain,logoUrl);
+  const logo=logoUrl ? `<img class="store-logo" src="${esc(logoUrl)}" alt="${esc(chain||"Matvarekjede")} logo" loading="lazy" decoding="async" onerror="this.style.display='none'">` : "";
   return (link||logo)?`<div class="store-match-actions">${link}${logo}</div>`:"";
 }
 
@@ -2765,8 +2765,8 @@ function formatStoreMatchResult(data){
   if(data && data.manualChain){
     const chain=getActualStoreChain(data)||relationText(data.typeOrderChain);
     const text=`Matvarekjede valgt manuelt: <strong>${esc(chain||"Standard")}</strong>.`;
-    const logo=logoUrl ? `<img class="store-logo" src="${esc(logoUrl)}" alt="${esc(chain||"Matvarekjede")} logo" loading="lazy" decoding="async" onerror="this.style.display='none'">` : "";
-    return `<div class="store-match-line"><div class="store-match-text">${text}</div>${logo}</div>`;
+    const actions=storeMatchActions(data,chain,logoUrl);
+    return `<div class="store-match-line"><div class="store-match-text">${text}</div>${actions}</div>`;
   }
 
   if(storeName){
@@ -4209,7 +4209,7 @@ loadItems().then(()=>maybeResumeShoppingFinishWorkflow()).catch(error=>{ if(!sho
   },1000);
 })();
 </script>
-<div>V0049</div><script src="handleliste-item-dialog.js?v=6"></script>
+<div>V0050</div><script src="handleliste-item-dialog.js?v=6"></script>
 <script>
 HandlelisteItemDialog.configure({
   apiBase: API_BASE,
