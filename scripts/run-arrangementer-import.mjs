@@ -765,7 +765,11 @@ async function readAreaSnapshotEvents(areaKey, organizationNameById) {
   }
 
   const now = Date.now();
-  const fromMs = now - 6 * 60 * 60 * 1000;
+
+  // V474: Publisert snapshot skal inneholde samme 31-dagers historikk som
+  // Baserow nå beholder. Tidligere var grensen bare 6 timer tilbake.
+  const historyRetentionDays = 31;
+  const fromMs = now - historyRetentionDays * 86400000;
   const toMs = now + 370 * 86400000;
   const events = [];
 
@@ -791,8 +795,19 @@ async function readAreaSnapshotEvents(areaKey, organizationNameById) {
     ) continue;
 
     const startTime = row[f.events.startTime] || null;
+    const endTime = row[f.events.endTime] || null;
     const startMs = new Date(startTime).getTime();
-    if (!Number.isFinite(startMs) || startMs < fromMs || startMs > toMs) continue;
+    const endMs = new Date(endTime).getTime();
+
+    if (!Number.isFinite(startMs) || startMs > toMs) continue;
+
+    // Historikkgrensen vurderes mot sluttid når den finnes, ellers starttid.
+    const historyReferenceMs =
+      Number.isFinite(endMs) && endMs >= startMs
+        ? endMs
+        : startMs;
+
+    if (historyReferenceMs < fromMs) continue;
 
     const rawSettlementLink = row[f.events.settlement];
     let settlementRecords = resolveSettlementLinks(rawSettlementLink);
@@ -1019,6 +1034,10 @@ async function buildSnapshot(importSummary) {
   }
 
   allEvents.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+  console.log(
+    `Snapshot-vindu: siste 31 dager + framtid (${allEvents.length} rader før dedupe).`
+  );
 
   // Vigrestad-dedupe skjer fortsatt kun i publisert snapshot.
   const vigrestadSnapshotDedupe = dedupeVigrestadSnapshot(allEvents);
