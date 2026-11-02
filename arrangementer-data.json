@@ -1,7 +1,7 @@
 {
   "schemaVersion": 6,
   "engineVersion": "v491-31-day-event-history-2026-10-26",
-  "generatedAt": "2026-11-02T06:04:56.411Z",
+  "generatedAt": "2026-11-02T23:35:16.005Z",
   "areas": [
     {
       "key": "default",
@@ -29,18 +29,34 @@
       "eventsTable": 1146207
     }
   ],
-  "eventCount": 4469,
+  "eventCount": 4514,
   "importSummary": {
     "ok": false,
-    "startedAt": "2026-11-02T05:59:44.238Z",
-    "finishedAt": "2026-11-02T06:04:08.827Z",
-    "created": 0,
-    "updated": 4081,
-    "errors": 3,
-    "rawErrors": 3,
+    "startedAt": "2026-11-02T23:29:43.446Z",
+    "finishedAt": "2026-11-02T23:34:36.930Z",
+    "created": 4,
+    "updated": 3520,
+    "errors": 4,
+    "rawErrors": 4,
     "sourceCount": 36,
-    "successfulSources": 33,
+    "successfulSources": 32,
     "failedSources": [
+      {
+        "area": "default",
+        "sourceId": "SRC-0001",
+        "name": "Nærbø Bedehus",
+        "error": "Kildevern: Nærbø Bedehus ga bare 55 arrangementer mot 305 aktive fra før. Eksisterende data beholdes.",
+        "consecutiveFailures": 1,
+        "threshold": 1
+      },
+      {
+        "area": "default",
+        "sourceId": "SRC-0002",
+        "name": "Pinsemenigheten Betel",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (AbortError): https://pinsebetel.no/hva-skjer/",
+        "consecutiveFailures": 1,
+        "threshold": 1
+      },
       {
         "area": "default",
         "sourceId": "SRC-0021",
@@ -50,18 +66,10 @@
         "threshold": 1
       },
       {
-        "area": "time",
-        "sourceId": "SRC-0028",
-        "name": "Lye Forsamlingshus",
-        "error": "Kunne ikke hente kilde etter 3 forsøk (UND_ERR_CONNECT_TIMEOUT): https://www.lyeforsamlingshus.no/events/liste/?tribe-bar-date=2026-11-01",
-        "consecutiveFailures": 1,
-        "threshold": 1
-      },
-      {
         "area": "klepp",
         "sourceId": "SRC-0014",
         "name": "Klepp Frikyrkje",
-        "error": "Kildevern: Klepp Frikyrkje ga bare 25 arrangementer mot 95 aktive fra før. Eksisterende data beholdes.",
+        "error": "Kildevern: Klepp Frikyrkje ga bare 25 arrangementer mot 94 aktive fra før. Eksisterende data beholdes.",
         "consecutiveFailures": 1,
         "threshold": 1
       }
@@ -70,21 +78,27 @@
     "rawFailedSources": [
       {
         "area": "default",
+        "sourceId": "SRC-0001",
+        "name": "Nærbø Bedehus",
+        "error": "Kildevern: Nærbø Bedehus ga bare 55 arrangementer mot 305 aktive fra før. Eksisterende data beholdes."
+      },
+      {
+        "area": "default",
+        "sourceId": "SRC-0002",
+        "name": "Pinsemenigheten Betel",
+        "error": "Kunne ikke hente kilde etter 3 forsøk (AbortError): https://pinsebetel.no/hva-skjer/"
+      },
+      {
+        "area": "default",
         "sourceId": "SRC-0021",
         "name": "Vigrestad Misjonshus Småsal",
         "error": "Vigrestad-underkilde SRC-0021 ga ingen arrangementer i importvinduet"
       },
       {
-        "area": "time",
-        "sourceId": "SRC-0028",
-        "name": "Lye Forsamlingshus",
-        "error": "Kunne ikke hente kilde etter 3 forsøk (UND_ERR_CONNECT_TIMEOUT): https://www.lyeforsamlingshus.no/events/liste/?tribe-bar-date=2026-11-01"
-      },
-      {
         "area": "klepp",
         "sourceId": "SRC-0014",
         "name": "Klepp Frikyrkje",
-        "error": "Kildevern: Klepp Frikyrkje ga bare 25 arrangementer mot 95 aktive fra før. Eksisterende data beholdes."
+        "error": "Kildevern: Klepp Frikyrkje ga bare 25 arrangementer mot 94 aktive fra før. Eksisterende data beholdes."
       }
     ],
     "sourceResults": [
@@ -93,11 +107,11 @@
         "sourceId": "SRC-0001",
         "name": "Nærbø Bedehus",
         "created": 0,
-        "updated": 317,
+        "updated": 40,
         "skipped": 0,
-        "error": null,
-        "consecutiveFailures": 0,
-        "alarm": false,
+        "error": "Kildevern: Nærbø Bedehus ga bare 55 arrangementer mot 305 aktive fra før. Eksisterende data beholdes.",
+        "consecutiveFailures": 1,
+        "alarm": true,
         "deferredAlarm": false,
         "createdEvents": []
       },
@@ -106,11 +120,11 @@
         "sourceId": "SRC-0002",
         "name": "Pinsemenigheten Betel",
         "created": 0,
-        "updated": 348,
+        "updated": 0,
         "skipped": 0,
-        "error": null,
-        "consecutiveFailures": 0,
-        "alarm": false,
+        "error": "Kunne ikke hente kilde etter 3 forsøk (AbortError): https://pinsebetel.no/hva-skjer/",
+        "consecutiveFailures": 1,
+        "alarm": true,
         "deferredAlarm": false,
         "createdEvents": []
       },
@@ -119,7 +133,7 @@
         "sourceId": "SRC-0003",
         "name": "Den norske kirke – Hå",
         "created": 0,
-        "updated": 324,
+        "updated": 321,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -132,7 +146,7 @@
         "sourceId": "SRC-0004",
         "name": "Ogna Misjonsforsamling",
         "created": 0,
-        "updated": 14,
+        "updated": 13,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -145,7 +159,7 @@
         "sourceId": "SRC-0005",
         "name": "OBS Bedehus",
         "created": 0,
-        "updated": 42,
+        "updated": 41,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -158,7 +172,7 @@
         "sourceId": "SRC-0006",
         "name": "Varhaug Misjonshus",
         "created": 0,
-        "updated": 55,
+        "updated": 53,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -171,7 +185,7 @@
         "sourceId": "SRC-0007",
         "name": "Vigrestad Misjonshus",
         "created": 0,
-        "updated": 164,
+        "updated": 165,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -184,7 +198,7 @@
         "sourceId": "SRC-0016",
         "name": "Vigrestad Misjonshus Hovedsal",
         "created": 0,
-        "updated": 214,
+        "updated": 215,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -209,14 +223,27 @@
         "area": "default",
         "sourceId": "SRC-0018",
         "name": "Vigrestad Misjonshus Baksal nord",
-        "created": 0,
+        "created": 1,
         "updated": 67,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
         "alarm": false,
         "deferredAlarm": false,
-        "createdEvents": []
+        "createdEvents": [
+          {
+            "rowId": 85411,
+            "eventId": "EVT-85B255FED5CF",
+            "title": "Møteveke imf",
+            "startTime": "2026-11-13T18:30:00Z",
+            "endTime": "2026-11-13T20:30:00Z",
+            "organizer": "Vigrestad Misjonshus",
+            "location": "Vigrestad Misjonshus",
+            "source": "Vigrestad Misjonshus Baksal nord",
+            "sourceEventId": "vigrestad-src-0018-qoi4u84kigt5u8q3fvbqb9cp2o@google.com",
+            "active": true
+          }
+        ]
       },
       {
         "area": "default",
@@ -300,14 +327,27 @@
         "area": "default",
         "sourceId": "SRC-0025",
         "name": "Vigrestad Misjonshus Ope hus",
-        "created": 0,
+        "created": 1,
         "updated": 27,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
         "alarm": false,
         "deferredAlarm": false,
-        "createdEvents": []
+        "createdEvents": [
+          {
+            "rowId": 85412,
+            "eventId": "EVT-03B38753576B",
+            "title": "Ungdomsgjeng",
+            "startTime": "2026-11-08T16:00:00Z",
+            "endTime": "2026-11-08T18:00:00Z",
+            "organizer": "Vigrestad Misjonshus",
+            "location": "Vigrestad Misjonshus",
+            "source": "Vigrestad Misjonshus Ope hus",
+            "sourceEventId": "vigrestad-src-0025-ufh9dvdce078makeat52i5uh04@google.com",
+            "active": true
+          }
+        ]
       },
       {
         "area": "default",
@@ -366,7 +406,7 @@
         "sourceId": "SRC-0008",
         "name": "Bryne Frikyrkje",
         "created": 0,
-        "updated": 76,
+        "updated": 75,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -405,11 +445,11 @@
         "sourceId": "SRC-0028",
         "name": "Lye Forsamlingshus",
         "created": 0,
-        "updated": 0,
+        "updated": 45,
         "skipped": 0,
-        "error": "Kunne ikke hente kilde etter 3 forsøk (UND_ERR_CONNECT_TIMEOUT): https://www.lyeforsamlingshus.no/events/liste/?tribe-bar-date=2026-11-01",
-        "consecutiveFailures": 1,
-        "alarm": true,
+        "error": null,
+        "consecutiveFailures": 0,
+        "alarm": false,
         "deferredAlarm": false,
         "createdEvents": []
       },
@@ -418,7 +458,7 @@
         "sourceId": "SRC-0029",
         "name": "Fotland Bedehus",
         "created": 0,
-        "updated": 22,
+        "updated": 21,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -430,14 +470,27 @@
         "area": "time",
         "sourceId": "SRC-0030",
         "name": "Frøyland Forsamlingshus",
-        "created": 0,
+        "created": 1,
         "updated": 88,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
         "alarm": false,
         "deferredAlarm": false,
-        "createdEvents": []
+        "createdEvents": [
+          {
+            "rowId": 8890,
+            "eventId": "EVT-61A8D7A6A729",
+            "title": "Onsdagsmøte",
+            "startTime": "2027-11-03T18:30:00Z",
+            "endTime": "2027-11-03T19:30:00Z",
+            "organizer": "Frøyland Forsamlingshus",
+            "location": "Frøyland Forsamlingshus",
+            "source": "Frøyland Forsamlingshus",
+            "sourceEventId": "040000008200E00074C5B7101A82E00800000000AAE2916079C4DA010000000000000000100000008D040B04A8D8254288595FBDA2DB4BD0::2027-11-03T19:30:00+01:00",
+            "active": true
+          }
+        ]
       },
       {
         "area": "time",
@@ -459,7 +512,7 @@
         "created": 0,
         "updated": 0,
         "skipped": 0,
-        "error": "Kildevern: Klepp Frikyrkje ga bare 25 arrangementer mot 95 aktive fra før. Eksisterende data beholdes.",
+        "error": "Kildevern: Klepp Frikyrkje ga bare 25 arrangementer mot 94 aktive fra før. Eksisterende data beholdes.",
         "consecutiveFailures": 1,
         "alarm": true,
         "deferredAlarm": false,
@@ -496,7 +549,7 @@
         "sourceId": "SRC-0009",
         "name": "Fredheim Arena",
         "created": 0,
-        "updated": 261,
+        "updated": 280,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -508,21 +561,34 @@
         "area": "sandnes",
         "sourceId": "SRC-0010",
         "name": "Ebeneser Misjonsforsamling",
-        "created": 0,
+        "created": 1,
         "updated": 13,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
         "alarm": false,
         "deferredAlarm": false,
-        "createdEvents": []
+        "createdEvents": [
+          {
+            "rowId": 21251,
+            "eventId": "EVT-335EFC79C0F2",
+            "title": "Juletrefest",
+            "startTime": "2026-12-27T16:00:00Z",
+            "endTime": "",
+            "organizer": "Ebeneser Misjonsforsamling",
+            "location": "Ebeneser Misjonsforsamling, Sandnes",
+            "source": "Ebeneser Misjonsforsamling",
+            "sourceEventId": "ebeneser-2026-12-27-1700-juletrefest",
+            "active": true
+          }
+        ]
       },
       {
         "area": "sandnes",
         "sourceId": "SRC-0013",
         "name": "Den norske kirke – Sandnes",
         "created": 0,
-        "updated": 1096,
+        "updated": 1105,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -535,7 +601,7 @@
         "sourceId": "SRC-0014",
         "name": "Misjonssalen Sandnes",
         "created": 0,
-        "updated": 52,
+        "updated": 51,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -548,7 +614,7 @@
         "sourceId": "SRC-IMI",
         "name": "IMI-kirken",
         "created": 0,
-        "updated": 48,
+        "updated": 47,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -563,10 +629,10 @@
         "name": "Felles",
         "eventsTable": 1137493,
         "sourcesTable": 1137506,
-        "created": 0,
-        "updated": 1692,
-        "errors": 1,
-        "rawErrors": 1,
+        "created": 2,
+        "updated": 1062,
+        "errors": 3,
+        "rawErrors": 3,
         "sourceCount": 21,
         "supplementalSources": [
           {
@@ -609,10 +675,10 @@
         "name": "Time",
         "eventsTable": 1193653,
         "sourcesTable": 1193657,
-        "created": 0,
-        "updated": 386,
-        "errors": 1,
-        "rawErrors": 1,
+        "created": 1,
+        "updated": 429,
+        "errors": 0,
+        "rawErrors": 0,
         "sourceCount": 7,
         "supplementalSources": [
           {
@@ -704,29 +770,6 @@
               "rawDefaultSettlement": [],
               "extractedDefaultSettlementIds": [],
               "sampleEvents": [
-                {
-                  "title": "Afterschool",
-                  "location": "Bryne Frikyrkje",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    7
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 7,
-                      "name": "Bryne",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    6
-                  ],
-                  "organizationIds": [
-                    "ORG-0002"
-                  ]
-                },
                 {
                   "title": "Vil du ta en prat med pastor?",
                   "location": "Bryne Frikyrkje",
@@ -961,6 +1004,29 @@
                 },
                 {
                   "title": "Alphakurs",
+                  "location": "Bryne Frikyrkje",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    7
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 7,
+                      "name": "Bryne",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
+                  ],
+                  "organizationIds": [
+                    "ORG-0002"
+                  ]
+                },
+                {
+                  "title": "Styrketrening på Bryne",
                   "location": "Bryne Frikyrkje",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1560,7 +1626,271 @@
               "name": "Lye Forsamlingshus",
               "rawDefaultSettlement": [],
               "extractedDefaultSettlementIds": [],
-              "sampleEvents": []
+              "sampleEvents": [
+                {
+                  "title": "Gudsteneste INN-kyrkja",
+                  "location": "",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    1
+                  ],
+                  "organizationIds": [
+                    "ORG-0008",
+                    "ORG-0004",
+                    "ORG-0007"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte",
+                  "location": "Loftet",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Babysong",
+                  "location": "Lye forsamlingshus",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    5
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Strikkekafe",
+                  "location": "Hovedsal",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    13
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Komitemøte, felles mannssamling, loftet.",
+                  "location": "",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    22
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Gudsteneste DNK",
+                  "location": "Lye forsamlingshus",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    1
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Bønn og lovsang, INN-kyrkja",
+                  "location": "",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3,
+                    8
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Varden 10:13",
+                  "location": "Lye forsamlingshus",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    6
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Varden",
+                  "location": "Lye forsamlingshus",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    6
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Gudsteneste INN-kyrkja",
+                  "location": "",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    1
+                  ],
+                  "organizationIds": [
+                    "ORG-0008",
+                    "ORG-0004",
+                    "ORG-0007"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte",
+                  "location": "Loftet",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Babysong",
+                  "location": "Lye forsamlingshus",
+                  "settlementHint": "Lye",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    10
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 10,
+                      "name": "Lye",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    5
+                  ],
+                  "organizationIds": []
+                }
+              ]
             },
             {
               "sourceId": "SRC-0029",
@@ -1568,28 +1898,6 @@
               "rawDefaultSettlement": [],
               "extractedDefaultSettlementIds": [],
               "sampleEvents": [
-                {
-                  "title": "Julemesse. Familiemøte",
-                  "location": "Fotland Bedehus",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    20,
-                    7
-                  ],
-                  "organizationIds": []
-                },
                 {
                   "title": "Møte NLM – Kari Anne Vatland",
                   "location": "Fossevegen 131, 4346 Bryne",
@@ -1635,48 +1943,6 @@
                   "organizationIds": []
                 },
                 {
-                  "title": "Ope hus",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    6
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Brønn",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    19
-                  ],
-                  "organizationIds": []
-                },
-                {
                   "title": "Bønnemøte",
                   "location": "Fossevegen 131, 4346 Bryne",
                   "settlementHint": "",
@@ -1698,7 +1964,7 @@
                   "organizationIds": []
                 },
                 {
-                  "title": "Jenteforening",
+                  "title": "Brønn",
                   "location": "Fossevegen 131, 4346 Bryne",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1714,12 +1980,12 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    5
+                    19
                   ],
                   "organizationIds": []
                 },
                 {
-                  "title": "Ope hus",
+                  "title": "Forening NMS",
                   "location": "Fossevegen 131, 4346 Bryne",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1735,30 +2001,11 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    6
+                    12
                   ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Ope hus",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    6
-                  ],
-                  "organizationIds": []
+                  "organizationIds": [
+                    "ORG-0005"
+                  ]
                 },
                 {
                   "title": "Brønn",
@@ -1782,8 +2029,8 @@
                   "organizationIds": []
                 },
                 {
-                  "title": "Julemesse",
-                  "location": "Fotland Bedehus",
+                  "title": "Jenteforening",
+                  "location": "Fossevegen 131, 4346 Bryne",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1798,7 +2045,7 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    20
+                    5
                   ],
                   "organizationIds": []
                 },
@@ -1820,6 +2067,92 @@
                   ],
                   "classifiedMeetingTypeIds": [
                     5
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Ope hus",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    6
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Forening NMS",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    12
+                  ],
+                  "organizationIds": [
+                    "ORG-0005"
+                  ]
+                },
+                {
+                  "title": "Brønn",
+                  "location": "Fotland Bedehus",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    19
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Brønn",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    19
                   ],
                   "organizationIds": []
                 }
@@ -2175,29 +2508,6 @@
               "extractedDefaultSettlementIds": [],
               "sampleEvents": [
                 {
-                  "title": "Dugnad i Frikyrkja",
-                  "location": "Klepp Frikyrkje, Kleppe",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    20
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 20,
-                      "name": "Kleppe",
-                      "municipality": "klepp"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    14
-                  ],
-                  "organizationIds": [
-                    "ORG-0002"
-                  ]
-                },
-                {
                   "title": "Alpha-kurs",
                   "location": "Klepp Frikyrkje, Kleppe",
                   "settlementHint": "",
@@ -2446,6 +2756,29 @@
                   ],
                   "classifiedMeetingTypeIds": [
                     14
+                  ],
+                  "organizationIds": [
+                    "ORG-0002"
+                  ]
+                },
+                {
+                  "title": "Alpha-kurs",
+                  "location": "Klepp Frikyrkje, Kleppe",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    20
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 20,
+                      "name": "Kleppe",
+                      "municipality": "klepp"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
                   ],
                   "organizationIds": [
                     "ORG-0002"
@@ -2745,8 +3078,8 @@
         "name": "Sandnes",
         "eventsTable": 1144908,
         "sourcesTable": 1144922,
-        "created": 0,
-        "updated": 1422,
+        "created": 1,
+        "updated": 1449,
         "errors": 0,
         "rawErrors": 0,
         "sourceCount": 4,
@@ -3649,7 +3982,7 @@
               ],
               "sampleEvents": [
                 {
-                  "title": "Zoom juleavslutning",
+                  "title": "UVKonferansen",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3672,8 +4005,8 @@
                   ]
                 },
                 {
-                  "title": "Soul Church Gudstjeneste kl.11.00-12.30",
-                  "location": "",
+                  "title": "TRE18 Sommerleir ☀️🍉",
+                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -3688,30 +4021,7 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    1
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "Zoom Hjemme hos",
-                  "location": "1. etasje Fredheim Arena",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
+                    13
                   ],
                   "organizationIds": [
                     "ORG-0008"
@@ -3741,7 +4051,7 @@
                   ]
                 },
                 {
-                  "title": "Barnekirka",
+                  "title": "Soul Church Gudstjeneste kl.11.00-12.30",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3757,14 +4067,14 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    22
+                    1
                   ],
                   "organizationIds": [
                     "ORG-0008"
                   ]
                 },
                 {
-                  "title": "Barnekirka",
+                  "title": "Bønnemøte i kapellet",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3780,14 +4090,14 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    22
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
                   ]
                 },
                 {
-                  "title": "Barnekirka",
+                  "title": "Bønnemøte i kapellet",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3803,14 +4113,14 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    22
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
                   ]
                 },
                 {
-                  "title": "Barnekirka",
+                  "title": "Bønnemøte i kapellet",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3826,14 +4136,14 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    22
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
                   ]
                 },
                 {
-                  "title": "Barnekirka",
+                  "title": "Bønnemøte i kapellet",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3849,14 +4159,14 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    22
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
                   ]
                 },
                 {
-                  "title": "Barnekirka",
+                  "title": "Bønnemøte i kapellet",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3872,37 +4182,14 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    22
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
                   ]
                 },
                 {
-                  "title": "TRE18 på RUSH",
-                  "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Soma",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0008"
-                  ]
-                },
-                {
-                  "title": "TRE18 Hjemme Hos",
+                  "title": "Bønnemøte i kapellet",
                   "location": "",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -3918,7 +4205,53 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    15
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": [
+                    "ORG-0008"
+                  ]
+                },
+                {
+                  "title": "Bønnemøte i kapellet",
+                  "location": "",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Soma",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
                   ],
                   "organizationIds": [
                     "ORG-0008"
@@ -4173,7 +4506,7 @@
                   ]
                 },
                 {
-                  "title": "Lørdagsbønn",
+                  "title": "Juletrefest",
                   "location": "Ebeneser Misjonsforsamling, Sandnes",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -4189,14 +4522,15 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    12
+                    12,
+                    13
                   ],
                   "organizationIds": [
                     "ORG-0004"
                   ]
                 },
                 {
-                  "title": "Årsmøte for 2026",
+                  "title": "Lørdagsbønn",
                   "location": "Ebeneser Misjonsforsamling, Sandnes",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -4335,190 +4669,6 @@
                   ]
                 },
                 {
-                  "title": "Kaffidrøsen",
-                  "location": "Bogafjell kirke, Lyngholen 3, 4324 Sandnes",
-                  "settlementHint": "Sandnes",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    12
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 12,
-                      "name": "Bogafjell",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    22
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
-                  "title": "Gå-tur i nærmiljøet",
-                  "location": "Riska kirke, Amboltveien 2, 4310 Hommersåk",
-                  "settlementHint": "Hommersåk",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    28
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 28,
-                      "name": "Riska",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    13
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
-                  "title": "Håndarbeidsgruppe",
-                  "location": "Sandnes menighetssenter, Eidsvollgata 44, 4307 Sandnes",
-                  "settlementHint": "Sandnes",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    22
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 22,
-                      "name": "Sandnes sentrum",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
-                  "title": "Språkkafè",
-                  "location": "Forsand kyrkje, Kyrkjevegen 49, 4110 Forsand",
-                  "settlementHint": "Forsand",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    19
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 19,
-                      "name": "Forsand",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
-                  "title": "Enkel kirke",
-                  "location": "Riska kirke, Amboltveien 2, 4310 Hommersåk",
-                  "settlementHint": "Hommersåk",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    28
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 28,
-                      "name": "Riska",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    22
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
-                  "title": "Åpen kirke",
-                  "location": "Sandnes kirke, Kirkegaten, 4307 Sandnes",
-                  "settlementHint": "Sandnes",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    22
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 22,
-                      "name": "Sandnes sentrum",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    13
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
-                  "title": "Knøttene åpen Barnehage",
-                  "location": "Riska kirke, Amboltveien 2, 4310 Hommersåk",
-                  "settlementHint": "Hommersåk",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    28
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 28,
-                      "name": "Riska",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
-                  "title": "Tripp Trapp Åpen barnehage",
-                  "location": "Hana kirke, Åsveien 124, 4328 Sandnes",
-                  "settlementHint": "Sandnes",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    13
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 13,
-                      "name": "Hana",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    13
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
                   "title": "Hverdagsgudstjeneste. Ronald",
                   "location": "Hana kirke, Åsveien 124, 4328 Sandnes",
                   "settlementHint": "Sandnes",
@@ -4559,6 +4709,193 @@
                   ],
                   "classifiedMeetingTypeIds": [
                     15
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Babymassasje",
+                  "location": "Riska kirke, Amboltveien 2, 4310 Hommersåk",
+                  "settlementHint": "Hommersåk",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    28
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 28,
+                      "name": "Riska",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Barnecellegrupper for 5.-og 6.klasse",
+                  "location": "Bogafjell kirke - hovedkjøkken, Lyngholen 3, 4324 Sandnes",
+                  "settlementHint": "Sandnes",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    12
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 12,
+                      "name": "Bogafjell",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Påveihjem",
+                  "location": "Ganddal Menighetssenter 1.etasje Lite, Jonashagen 1, 4323 Sandnes",
+                  "settlementHint": "Sandnes",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    11
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 11,
+                      "name": "Ganddal",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    6
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "T&T",
+                  "location": "Riska kirke, Amboltveien 2, 4310 Hommersåk",
+                  "settlementHint": "Hommersåk",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    28
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 28,
+                      "name": "Riska",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    4,
+                    13
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Tirsdagssprell",
+                  "location": "Sandnes menighetssenter, Eidsvollgata 44, 4307 Sandnes",
+                  "settlementHint": "Sandnes",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    22
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 22,
+                      "name": "Sandnes sentrum",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    7,
+                    13
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Språk-verksted",
+                  "location": "Riska kirke, Amboltveien 2, 4310 Hommersåk",
+                  "settlementHint": "Hommersåk",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    28
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 28,
+                      "name": "Riska",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    10
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Lura og Sandnes kirkekor - øvelse i Sandnes kirke",
+                  "location": "Sandnes kirke, Kirkegaten, 4307 Sandnes",
+                  "settlementHint": "Sandnes",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    22
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 22,
+                      "name": "Sandnes sentrum",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    8
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Øvelse Gospel Gnist",
+                  "location": "Riska kirke, Amboltveien 2, 4311 Hommersåk",
+                  "settlementHint": "Hommersåk",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    28
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 28,
+                      "name": "Riska",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    1,
+                    8
                   ],
                   "organizationIds": [
                     "ORG-0001"
@@ -4707,27 +5044,6 @@
                   "organizationIds": []
                 },
                 {
-                  "title": "IKF styremøte",
-                  "location": "Misjonssalen Sandnes, Jærveien 107, Sandnes",
-                  "settlementHint": "Sandnes sentrum",
-                  "municipalityHint": "Sandnes",
-                  "meetingTypeHint": "Møte",
-                  "resolvedSettlementIds": [
-                    22
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 22,
-                      "name": "Sandnes sentrum",
-                      "municipality": "sandnes"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    22
-                  ],
-                  "organizationIds": []
-                },
-                {
                   "title": "Internasjonal møteplass",
                   "location": "Misjonssalen Sandnes, Jærveien 107, Sandnes",
                   "settlementHint": "Sandnes sentrum",
@@ -4831,6 +5147,27 @@
                     22
                   ],
                   "organizationIds": []
+                },
+                {
+                  "title": "Konsert Jæren Gospelkor",
+                  "location": "Misjonssalen Sandnes, Jærveien 107, Sandnes",
+                  "settlementHint": "Sandnes sentrum",
+                  "municipalityHint": "Sandnes",
+                  "meetingTypeHint": "Sang / musikk",
+                  "resolvedSettlementIds": [
+                    22
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 22,
+                      "name": "Sandnes sentrum",
+                      "municipality": "sandnes"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    8
+                  ],
+                  "organizationIds": []
                 }
               ]
             }
@@ -4843,7 +5180,7 @@
         "eventsTable": 1146207,
         "sourcesTable": 1146151,
         "created": 0,
-        "updated": 48,
+        "updated": 47,
         "errors": 0,
         "rawErrors": 0,
         "sourceCount": 1,
@@ -5484,10 +5821,10 @@
           {
             "area": "default",
             "areaName": "Felles",
-            "scanned": 1773,
-            "todayOslo": "2026-11-02",
+            "scanned": 1776,
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5497,10 +5834,10 @@
           {
             "area": "time",
             "areaName": "Time",
-            "scanned": 443,
-            "todayOslo": "2026-11-02",
+            "scanned": 445,
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5511,9 +5848,9 @@
             "area": "klepp",
             "areaName": "Klepp",
             "scanned": 672,
-            "todayOslo": "2026-11-02",
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5523,10 +5860,10 @@
           {
             "area": "sandnes",
             "areaName": "Sandnes",
-            "scanned": 2199,
-            "todayOslo": "2026-11-02",
+            "scanned": 2237,
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5537,9 +5874,9 @@
             "area": "stavanger",
             "areaName": "Stavanger",
             "scanned": 51,
-            "todayOslo": "2026-11-02",
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5555,10 +5892,10 @@
           {
             "area": "default",
             "areaName": "Felles",
-            "scanned": 1773,
-            "todayOslo": "2026-11-02",
+            "scanned": 1778,
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5568,10 +5905,10 @@
           {
             "area": "time",
             "areaName": "Time",
-            "scanned": 443,
-            "todayOslo": "2026-11-02",
+            "scanned": 446,
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5582,9 +5919,9 @@
             "area": "klepp",
             "areaName": "Klepp",
             "scanned": 672,
-            "todayOslo": "2026-11-02",
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5594,10 +5931,10 @@
           {
             "area": "sandnes",
             "areaName": "Sandnes",
-            "scanned": 2199,
-            "todayOslo": "2026-11-02",
+            "scanned": 2238,
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5608,9 +5945,9 @@
             "area": "stavanger",
             "areaName": "Stavanger",
             "scanned": 51,
-            "todayOslo": "2026-11-02",
+            "todayOslo": "2026-11-03",
             "historyRetentionDays": 31,
-            "historyCutoffOslo": "2026-10-02",
+            "historyCutoffOslo": "2026-10-03",
             "completedByEndTime": 0,
             "completedByStartDate": 0,
             "invalidDateRows": 0,
@@ -5721,9 +6058,9 @@
     },
     "snapshotDedupe": {
       "organizer": "Vigrestad Misjonshus",
-      "duplicateGroups": 182,
-      "overlapGroups": 182,
-      "removedFromSnapshot": 296,
+      "duplicateGroups": 184,
+      "overlapGroups": 184,
+      "removedFromSnapshot": 300,
       "exactDuplicatesRemoved": 7,
       "baserowRowsChanged": 0
     }
@@ -6208,29 +6545,6 @@
       "description": "",
       "sourceUrl": "https://www.google.com/calendar/event?eid=M2hvMTBjZmRoc2I0M2w3MnQ1bWRzamNtbjFfMjAyNjEwMjZUMDgzMDAwWiBiOGlvM2Q4Z3FiaGFkcGN1dmVvdmhkcTFmY0Bn&ctz=Europe/Oslo",
       "source": "Kleppe Bedehus",
-      "active": true
-    },
-    {
-      "id": "EVT-6FEEBD277D3E",
-      "title": "Damer leser Bibelen",
-      "startTime": "2026-10-26T09:00:00Z",
-      "endTime": "2026-10-26T11:00:00Z",
-      "meetingTypes": [
-        "Annet"
-      ],
-      "organizationIds": [
-        "ORG-0008"
-      ],
-      "organizations": [
-        "Indremisjonsforbundet"
-      ],
-      "organizer": "Fredheim Arena",
-      "location": "stuå, Fredheim Arena",
-      "settlement": "Soma",
-      "municipality": "Sandnes",
-      "description": "Hver mandag kl 10-12 samles vi i Nystua til Bibellesing. Deltakerantall varierer fra 4-15. Gjennomsnitt er 11 stk.<br><br>«Damer leser Bibelen» er et åpent tiltak, og alle er velkommen. Formålet med treffene, er å få mer kunnskap i Bibelen. Vi kjenner på at i godt voksen alder, så lengter vi etter mer Bibel kunnskap og derfor ble dette tiltaket startet februar 2017.<br><br>Vi tror at når Ordet blir lest høyt, samtidig som vi leser i egen Bibel, har det en stor betydning. Deretter samtaler vi, undres og tenker sammen. Og prøver så å finne ut hva dette kan bety for oss i dag.<br><br><em>Høre – Lese – Gjøre.</em><br><br>Ledelsen av mandagene blir delt mellom flere. Servering er kaffe/te+++<br><br>Kontaktperson: Magny Tekse<br><br>----<br>Damer leser Bibelen er arrangementer som drives av en selvstendig gruppe medlemmer/frivillige i Fredheim Arena i tillegg til andre, på eget initiativ.",
-      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
-      "source": "Fredheim Arena",
       "active": true
     },
     {
@@ -10375,7 +10689,6 @@
       "startTime": "2026-11-02T16:00:00Z",
       "endTime": "2026-11-02T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -11457,7 +11770,7 @@
       "active": true
     },
     {
-      "id": "EVT-FC9622EABF4A",
+      "id": "EVT-32C367DB6B0A",
       "title": "Yngres",
       "startTime": "2026-11-03T17:00:00Z",
       "endTime": "2026-11-03T18:30:00Z",
@@ -11472,8 +11785,8 @@
       "settlement": "Vigrestad",
       "municipality": "Hå",
       "description": "",
-      "sourceUrl": "https://calendar.google.com/calendar/ical/62873ba3c515ae09f3324e3890a0151696948ac077fb45edf7a6dc29850bca6f%40group.calendar.google.com/public/basic.ics",
-      "source": "Vigrestad Misjonshus Ope hus",
+      "sourceUrl": "https://vigrestadmisjonshus.org/kalendere.html?v=2",
+      "source": "Vigrestad Misjonshus",
       "active": true
     },
     {
@@ -11520,6 +11833,25 @@
       "description": "",
       "sourceUrl": "https://skjerikirken.no/arrangement/oving-greensax-ada41279af5f",
       "source": "Den norske kirke – Time",
+      "active": true
+    },
+    {
+      "id": "EVT-27CCED469F0B",
+      "title": "Kveldsmøte - Sarepta - Torstein Landås taler",
+      "startTime": "2026-11-03T18:00:00Z",
+      "endTime": "2026-11-03T19:00:00Z",
+      "meetingTypes": [
+        "Møte"
+      ],
+      "organizationIds": [],
+      "organizations": [],
+      "organizer": "Frøyland Forsamlingshus",
+      "location": "Frøyland Forsamlingshus",
+      "settlement": "Kverneland",
+      "municipality": "Time",
+      "description": "",
+      "sourceUrl": "https://www.froylandforsamlingshus.no/",
+      "source": "Frøyland Forsamlingshus",
       "active": true
     },
     {
@@ -11620,6 +11952,29 @@
       "active": true
     },
     {
+      "id": "EVT-3751080EBC03",
+      "title": "Møte, BPA Sola",
+      "startTime": "2026-11-03T18:00:00Z",
+      "endTime": "2026-11-03T20:00:00Z",
+      "meetingTypes": [
+        "Møte"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Gand sokn",
+      "location": "Gand kirke, Juvelveien 4, 4318 Sandnes",
+      "settlement": "Sandved",
+      "municipality": "Sandnes",
+      "description": "",
+      "sourceUrl": "https://skjerikirken.no/arrangement/gand-kirkekor-ovelse-2801435411b7",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-87109456DB67",
       "title": "NaMu-storsamling",
       "startTime": "2026-11-03T18:00:00Z",
@@ -11682,29 +12037,6 @@
       "municipality": "Sandnes",
       "description": "Gospel Gnist er et lavterskel gospelkor for voksne. Vi øver hver tirsdag og opptrer på konserter, gudstjenester og andre arrangementer i lokalmiljøet. Her er du velkommen til å stikke innom for å sjekke ut om dette er noe for deg. Her er det ikke krav om noen forkunnskaper for å delta.",
       "sourceUrl": "https://skjerikirken.no/arrangement/ovelse-gospelgnist-1c79a75b6d8b",
-      "source": "Den norske kirke – Sandnes",
-      "active": true
-    },
-    {
-      "id": "EVT-3751080EBC03",
-      "title": "Gand kirkekor øvelse",
-      "startTime": "2026-11-03T18:30:00Z",
-      "endTime": "2026-11-03T20:30:00Z",
-      "meetingTypes": [
-        "Sang / musikk"
-      ],
-      "organizationIds": [
-        "ORG-0001"
-      ],
-      "organizations": [
-        "Den norske kirke"
-      ],
-      "organizer": "Gand sokn",
-      "location": "Gand kirke, Juvelveien 4, 4318 Sandnes",
-      "settlement": "Sandved",
-      "municipality": "Sandnes",
-      "description": "",
-      "sourceUrl": "https://skjerikirken.no/arrangement/gand-kirkekor-ovelse-2801435411b7",
       "source": "Den norske kirke – Sandnes",
       "active": true
     },
@@ -12373,6 +12705,25 @@
       "active": true
     },
     {
+      "id": "EVT-974DC0BF135D",
+      "title": "Kveldsmøte - Sarepta - Torstein Landås taler",
+      "startTime": "2026-11-04T18:00:00Z",
+      "endTime": "2026-11-04T19:00:00Z",
+      "meetingTypes": [
+        "Møte"
+      ],
+      "organizationIds": [],
+      "organizations": [],
+      "organizer": "Frøyland Forsamlingshus",
+      "location": "Frøyland Forsamlingshus",
+      "settlement": "Kverneland",
+      "municipality": "Time",
+      "description": "",
+      "sourceUrl": "https://www.froylandforsamlingshus.no/",
+      "source": "Frøyland Forsamlingshus",
+      "active": true
+    },
+    {
       "id": "EVT-A4C23BD8A04C",
       "title": "Mødre i bønn (foaje)",
       "startTime": "2026-11-04T18:00:00Z",
@@ -12488,25 +12839,6 @@
       "description": "",
       "sourceUrl": "https://brynefrikyrkje.no/kalender/kalender-detali/calendar_event/8681051",
       "source": "Bryne Frikyrkje",
-      "active": true
-    },
-    {
-      "id": "EVT-B174A24073EB",
-      "title": "Nattverdmøte",
-      "startTime": "2026-11-04T18:30:00Z",
-      "endTime": "2026-11-04T19:30:00Z",
-      "meetingTypes": [
-        "Møte"
-      ],
-      "organizationIds": [],
-      "organizations": [],
-      "organizer": "Frøyland Forsamlingshus",
-      "location": "Frøyland Forsamlingshus",
-      "settlement": "Kverneland",
-      "municipality": "Time",
-      "description": "Onsdagsmøte. Dele Guds Ord, vitnesbyrd, sang eller annet. Nattverd første onsdag i måneden. Utgår ved møteuke. Velkommen!",
-      "sourceUrl": "https://www.froylandforsamlingshus.no/",
-      "source": "Frøyland Forsamlingshus",
       "active": true
     },
     {
@@ -15458,6 +15790,26 @@
       "active": true
     },
     {
+      "id": "EVT-03B38753576B",
+      "title": "Ungdomsgjeng",
+      "startTime": "2026-11-08T16:00:00Z",
+      "endTime": "2026-11-08T18:00:00Z",
+      "meetingTypes": [
+        "Ungdom",
+        "Misjon"
+      ],
+      "organizationIds": [],
+      "organizations": [],
+      "organizer": "Vigrestad Misjonshus",
+      "location": "Vigrestad Misjonshus",
+      "settlement": "Vigrestad",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/62873ba3c515ae09f3324e3890a0151696948ac077fb45edf7a6dc29850bca6f%40group.calendar.google.com/public/basic.ics",
+      "source": "Vigrestad Misjonshus Ope hus",
+      "active": true
+    },
+    {
       "id": "EVT-AA863FCF78E5",
       "title": "Gudstjeneste",
       "startTime": "2026-11-08T16:00:29Z",
@@ -15919,7 +16271,6 @@
       "startTime": "2026-11-09T16:00:00Z",
       "endTime": "2026-11-09T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -16862,8 +17213,7 @@
       "startTime": "2026-11-10T16:00:00Z",
       "endTime": "2026-11-10T17:00:00Z",
       "meetingTypes": [
-        "Barn",
-        "Basar"
+        "Barn"
       ],
       "organizationIds": [
         "ORG-0004"
@@ -17788,7 +18138,6 @@
       "startTime": "2026-11-11T17:00:00Z",
       "endTime": "2026-11-11T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -18987,30 +19336,6 @@
       "active": true
     },
     {
-      "id": "EVT-5C902E11A98D",
-      "title": "Lovsangskveld",
-      "startTime": "2026-11-12T18:30:00Z",
-      "endTime": "2026-11-12T21:00:00Z",
-      "meetingTypes": [
-        "Sang / musikk",
-        "Sosialt"
-      ],
-      "organizationIds": [
-        "ORG-0001"
-      ],
-      "organizations": [
-        "Den norske kirke"
-      ],
-      "organizer": "Hana sokn",
-      "location": "Hana kirke, Åsveien 124, 4328 Sandnes",
-      "settlement": "Hana",
-      "municipality": "Sandnes",
-      "description": "Hjertelig velkommen til lovsangskveld! Dørene åpner 19.30 til kaffe og drøs. Klokken 20 går vi inn i kirkerommet for lovsang. Vi avslutter kvelden med kveldsmat (kr. 50 eller det du vil gi). Under sangene er det mulig å sitte eller stå, høre på eller synge. Noen vil kanskje løfte en hånd. Men man kan også sitte helt i ro og bare høre på og ta i mot fine sanger som handler om håp, tro, livet, trøst og tillit til Gud. Det blir delt et ord for kvelden og det blir også bønnevandring og mulighet for forbønn. Ta gjerne med en venn! Åpent også for deg som vanligvis går et annet sted. Velkommen, enten dette er nytt eller gammelt nytt for deg.",
-      "sourceUrl": "https://skjerikirken.no/arrangement/lovsangskveld-12b5443aa468",
-      "source": "Den norske kirke – Sandnes",
-      "active": true
-    },
-    {
       "id": "EVT-85C09250C32E",
       "title": "Møteveke imf",
       "startTime": "2026-11-12T18:30:00Z",
@@ -19618,10 +19943,10 @@
         "Indremisjonsforbundet"
       ],
       "organizer": "Fredheim Arena",
-      "location": "Fredheim Arena",
+      "location": "Bersagelveien 348, 4311 Hommersåk, Norge",
       "settlement": "Soma",
       "municipality": "Sandnes",
-      "description": "Nå på fredag er det Hjemme Hos! 🙌🏻 Denna gangen skal være hos ..., så ta med en venn, så sees vi der! 🔥",
+      "description": "Nå på fredag er det Hjemme Hos! 🙌🏻 Denna gangen skal vivære hos Torgeir Lauvås, så ta med en venn, så sees vi der! 🔥<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
       "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
       "source": "Fredheim Arena",
       "active": true
@@ -21319,7 +21644,6 @@
       "startTime": "2026-11-16T16:00:00Z",
       "endTime": "2026-11-16T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -24865,7 +25189,7 @@
       "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
       "settlement": "Soma",
       "municipality": "Sandnes",
-      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
       "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
       "source": "Fredheim Arena",
       "active": true
@@ -26721,7 +27045,6 @@
       "startTime": "2026-11-23T16:00:00Z",
       "endTime": "2026-11-23T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -28705,7 +29028,6 @@
       "startTime": "2026-11-25T17:00:00Z",
       "endTime": "2026-11-25T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -30359,7 +30681,7 @@
       "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
       "settlement": "Soma",
       "municipality": "Sandnes",
-      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
       "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
       "source": "Fredheim Arena",
       "active": true
@@ -32238,7 +32560,6 @@
       "startTime": "2026-11-30T16:00:00Z",
       "endTime": "2026-11-30T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -35336,7 +35657,7 @@
       "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
       "settlement": "Soma",
       "municipality": "Sandnes",
-      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
       "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
       "source": "Fredheim Arena",
       "active": true
@@ -37196,7 +37517,6 @@
       "startTime": "2026-12-07T16:00:00Z",
       "endTime": "2026-12-07T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -38764,7 +39084,6 @@
       "startTime": "2026-12-09T17:00:00Z",
       "endTime": "2026-12-09T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -40175,7 +40494,7 @@
       "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
       "settlement": "Soma",
       "municipality": "Sandnes",
-      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
       "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
       "source": "Fredheim Arena",
       "active": true
@@ -41751,7 +42070,6 @@
       "startTime": "2026-12-14T16:00:00Z",
       "endTime": "2026-12-14T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -43752,7 +44070,7 @@
       "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
       "settlement": "Soma",
       "municipality": "Sandnes",
-      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><u><u><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\">https://spond.com/invite/CEAEI</a></u></u><br><u><br></u>",
       "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
       "source": "Fredheim Arena",
       "active": true
@@ -44644,7 +44962,6 @@
       "startTime": "2026-12-21T16:00:00Z",
       "endTime": "2026-12-21T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -47306,6 +47623,30 @@
       "active": true
     },
     {
+      "id": "EVT-335EFC79C0F2",
+      "title": "Juletrefest",
+      "startTime": "2026-12-27T16:00:00Z",
+      "endTime": null,
+      "meetingTypes": [
+        "Misjon",
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0004"
+      ],
+      "organizations": [
+        "Misjonssambandet"
+      ],
+      "organizer": "Ebeneser Misjonsforsamling",
+      "location": "Ebeneser Misjonsforsamling, Sandnes",
+      "settlement": "Ganddal",
+      "municipality": "Sandnes",
+      "description": "",
+      "sourceUrl": "https://www.ebeneser.no/program",
+      "source": "Ebeneser Misjonsforsamling",
+      "active": true
+    },
+    {
       "id": "EVT-9554A6AF6987",
       "title": "Romjulsamling NMS",
       "startTime": "2026-12-27T18:30:00Z",
@@ -47357,7 +47698,6 @@
       "startTime": "2026-12-28T16:00:00Z",
       "endTime": "2026-12-28T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -48495,7 +48835,6 @@
       "startTime": "2027-01-04T16:00:00Z",
       "endTime": "2027-01-04T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -50508,7 +50847,6 @@
       "startTime": "2027-01-11T16:00:00Z",
       "endTime": "2027-01-11T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -51126,7 +51464,6 @@
       "startTime": "2027-01-13T17:00:00Z",
       "endTime": "2027-01-13T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -51813,6 +52150,29 @@
       "active": true
     },
     {
+      "id": "EVT-0F5F88135441",
+      "title": "Någe Aent 5-7 trinn",
+      "startTime": "2027-01-15T17:00:00Z",
+      "endTime": "2027-01-15T19:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Austrått",
+      "municipality": "Sandnes",
+      "description": "Velkommen til klubben Någe Aent. Det er for 5-7. klasse. Vi holder til på Delta som er et bygg vedsiden av Austrått svømmehall. All info om klubbkveldene våre finner du i spond. Gruppekoden til spond er: ZMGRP",
+      "sourceUrl": "https://skjerikirken.no/arrangement/nage-aent-trinn-881625fc6a01",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-F97EBABD3FFF",
       "title": "Zoom",
       "startTime": "2027-01-15T17:30:00Z",
@@ -51920,6 +52280,53 @@
       "municipality": "Sandnes",
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-bc88957439ac",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-8A2B1DF67CC9",
+      "title": "TRE18",
+      "startTime": "2027-01-15T19:00:00Z",
+      "endTime": "2027-01-15T22:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
+      "id": "EVT-9AF59DF9E0D1",
+      "title": "VI- ungdomsklubb fra 8.klasse",
+      "startTime": "2027-01-15T19:00:00Z",
+      "endTime": "2027-01-15T21:00:00Z",
+      "meetingTypes": [
+        "Ungdom",
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Sandnes sentrum",
+      "municipality": "Sandnes",
+      "description": "VI- er en ungdomsklubb som er åpen for alle fra 8.klasse og oppover. På en vanlig klubbkveld har vi biljard, airhockey, kiosk, andakt, brettspill og nintendo switch spilling. Noen ganger har vi tema kvelder som bad taste party, julebord, turneringer f eks. så gjerne legg deg til i spond gruppen vår for å få all info, gruppekoden er: PYUYY",
+      "sourceUrl": "https://skjerikirken.no/arrangement/vi-ungdomsklubb-fra-klasse-bf15bf088e09",
       "source": "Den norske kirke – Sandnes",
       "active": true
     },
@@ -52055,6 +52462,29 @@
       "description": "",
       "sourceUrl": "https://narbobedehus.no/39-2/",
       "source": "Nærbø Bedehus",
+      "active": true
+    },
+    {
+      "id": "EVT-9048F1D1ED3A",
+      "title": "Lys våken Sviland",
+      "startTime": "2027-01-16T16:00:00Z",
+      "endTime": "2027-01-17T12:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Sviland kyrkje, Lyngnesveien 37, 4308 Sandnes",
+      "settlement": "Sviland",
+      "municipality": "Sandnes",
+      "description": "alle 5 og 6 klassinger på Sviland blir invitert til Lys våken 16-17 januar. Det blir overnatting i kirken. Brev med informasjon om påmelding kommer i posten når det nærmer seg :)",
+      "sourceUrl": "https://skjerikirken.no/arrangement/lys-vaken-sviland-f5da60fd06c8",
+      "source": "Den norske kirke – Sandnes",
       "active": true
     },
     {
@@ -52938,7 +53368,6 @@
       "startTime": "2027-01-18T16:00:00Z",
       "endTime": "2027-01-18T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -54311,6 +54740,29 @@
       "active": true
     },
     {
+      "id": "EVT-8B751834BD04",
+      "title": "TRE18 på Impuls",
+      "startTime": "2027-01-22T17:00:00Z",
+      "endTime": "2027-01-24T11:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Denne helgen er TRE18 på Impuls i Stavanger 🎉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
       "id": "EVT-1D5FFBF5E8CC",
       "title": "NLM frivillighetsfest",
       "startTime": "2027-01-22T18:00:00Z",
@@ -55147,7 +55599,6 @@
       "startTime": "2027-01-25T16:00:00Z",
       "endTime": "2027-01-25T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -55781,12 +56232,36 @@
       "active": true
     },
     {
+      "id": "EVT-E4C3413A70D0",
+      "title": "Followme. fra 15-25 år",
+      "startTime": "2027-01-27T15:00:00Z",
+      "endTime": "2027-01-27T17:30:00Z",
+      "meetingTypes": [
+        "Ungdom"
+      ],
+      "organizationIds": [
+        "ORG-0001",
+        "ORG-0005"
+      ],
+      "organizations": [
+        "Den norske kirke",
+        "Det Norske Misjonsselskap"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Høyland",
+      "municipality": "Sandnes",
+      "description": "Followme er NMSUs nettverksbyggende oppfølgingskonsept for unge ledere i alderen 15–25 år. Vi har followme kvelder siste onsdag i mnd på Delta. Vi er også med på SPARK, Followmeet og konferanse med andre menigheter. All info om Followme er i spond gruppen vår som heter Ungdomsledere Delta, Høyland og Sviland. gruppekoden er: ZMUXZ Visjon: Se – samle – styrke Motto: Gøy-Kvalitet-Felleskap",
+      "sourceUrl": "https://skjerikirken.no/arrangement/followme-fra-ar-e1d8b488df19",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-16875CA0B49C",
       "title": "Øvelse Emmaus",
       "startTime": "2027-01-27T17:00:00Z",
       "endTime": "2027-01-27T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -56440,6 +56915,29 @@
       "active": true
     },
     {
+      "id": "EVT-0A9D2901C20A",
+      "title": "Någe Aent 5-7 trinn",
+      "startTime": "2027-01-29T17:00:00Z",
+      "endTime": "2027-01-29T19:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Austrått",
+      "municipality": "Sandnes",
+      "description": "Velkommen til klubben Någe Aent. Det er for 5-7. klasse. Vi holder til på Delta som er et bygg vedsiden av Austrått svømmehall. All info om klubbkveldene våre finner du i spond. Gruppekoden til spond er: ZMGRP",
+      "sourceUrl": "https://skjerikirken.no/arrangement/nage-aent-trinn-5c4d56e2f637",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-DF9A00200EF1",
       "title": "Zoom",
       "startTime": "2027-01-29T17:30:00Z",
@@ -56553,6 +57051,29 @@
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-d377184724c7",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-58430B058DF5",
+      "title": "TRE18",
+      "startTime": "2027-01-29T19:00:00Z",
+      "endTime": "2027-01-29T22:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
       "active": true
     },
     {
@@ -57368,7 +57889,6 @@
       "startTime": "2027-02-01T16:00:00Z",
       "endTime": "2027-02-01T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -58775,6 +59295,29 @@
       "active": true
     },
     {
+      "id": "EVT-443F03164E25",
+      "title": "TRE18",
+      "startTime": "2027-02-05T19:00:00Z",
+      "endTime": "2027-02-05T22:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
       "id": "EVT-FF8B2FA7CEF7",
       "title": "NiKKO | Ungdomsklubben i Gand 🌊✝️",
       "startTime": "2027-02-05T20:00:00Z",
@@ -58884,6 +59427,29 @@
       "municipality": "Sandnes",
       "description": "Felles ungdomsmøte",
       "sourceUrl": "https://skjerikirken.no/arrangement/basic-followmeet-c607b1e348b2",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-C0E5A965247C",
+      "title": "VI-Kveld, reiser på followmeet i Riska kirke",
+      "startTime": "2027-02-06T18:00:00Z",
+      "endTime": "2027-02-06T21:30:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Arrangement i andre lokaler, Svebastadveien 125( tidl. KYRKJEVEGEN 345), 4325 Sandnes",
+      "settlement": "Riska",
+      "municipality": "Sandnes",
+      "description": "Denne gangen reiser \"VI\" på followmeet i Riska kirke. sjekk spond for mer informasjon",
+      "sourceUrl": "https://skjerikirken.no/arrangement/vi-kveld-reiser-pa-followmeet-i-riska-kirke-d31eef6d3d3a",
       "source": "Den norske kirke – Sandnes",
       "active": true
     },
@@ -59510,7 +60076,6 @@
       "startTime": "2027-02-08T16:00:00Z",
       "endTime": "2027-02-08T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -60262,7 +60827,6 @@
       "startTime": "2027-02-10T17:00:00Z",
       "endTime": "2027-02-10T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -61030,6 +61594,29 @@
       "active": true
     },
     {
+      "id": "EVT-153CDD148DB8",
+      "title": "TRE18 LAN 🎮",
+      "startTime": "2027-02-12T19:00:00Z",
+      "endTime": "2027-02-12T22:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til LAN med TRE18! 🥳 Ta med din egen konsoll eller pc, så blir det konkurranser, gaming, film og mer! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><u><u><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\">https://spond.com/invite/CEAEI</a></u></u><br><u><br></u>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
       "id": "EVT-EEC6C5C5B1AF",
       "title": "NiKKO | Ungdomsklubben i Gand 🌊✝️",
       "startTime": "2027-02-12T20:00:00Z",
@@ -61646,7 +62233,6 @@
       "startTime": "2027-02-15T16:00:00Z",
       "endTime": "2027-02-15T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -63137,6 +63723,30 @@
       "active": true
     },
     {
+      "id": "EVT-F27EC2911B68",
+      "title": "VI- ungdomsklubb fra 8.klasse",
+      "startTime": "2027-02-21T19:00:00Z",
+      "endTime": "2027-02-21T21:00:00Z",
+      "meetingTypes": [
+        "Ungdom",
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Sandnes sentrum",
+      "municipality": "Sandnes",
+      "description": "VI- er en ungdomsklubb som er åpen for alle fra 8.klasse og oppover. På en vanlig klubbkveld har vi biljard, airhockey, kiosk, andakt, brettspill og nintendo switch spilling. Noen ganger har vi tema kvelder som bad taste party, julebord, turneringer f eks. så gjerne legg deg til i spond gruppen vår for å få all info, gruppekoden er: PYUYY",
+      "sourceUrl": "https://skjerikirken.no/arrangement/vi-ungdomsklubb-fra-klasse-80f4a785c3eb",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-DEF20ED4CEC9",
       "title": "Kongebarna (Foaje)",
       "startTime": "2027-02-22T08:30:00Z",
@@ -63303,7 +63913,6 @@
       "startTime": "2027-02-22T16:00:00Z",
       "endTime": "2027-02-22T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -63984,6 +64593,31 @@
       "active": true
     },
     {
+      "id": "EVT-7C0B85527078",
+      "title": "Followme. fra 15-25 år",
+      "startTime": "2027-02-24T15:00:00Z",
+      "endTime": "2027-02-24T17:30:00Z",
+      "meetingTypes": [
+        "Ungdom"
+      ],
+      "organizationIds": [
+        "ORG-0001",
+        "ORG-0005"
+      ],
+      "organizations": [
+        "Den norske kirke",
+        "Det Norske Misjonsselskap"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Høyland",
+      "municipality": "Sandnes",
+      "description": "Followme er NMSUs nettverksbyggende oppfølgingskonsept for unge ledere i alderen 15–25 år. Vi har followme kvelder siste onsdag i mnd på Delta. Vi er også med på SPARK, Followmeet og konferanse med andre menigheter. All info om Followme er i spond gruppen vår som heter Ungdomsledere Delta, Høyland og Sviland. gruppekoden er: ZMUXZ Visjon: Se – samle – styrke Motto: Gøy-Kvalitet-Felleskap",
+      "sourceUrl": "https://skjerikirken.no/arrangement/followme-fra-ar-ea0c4101d67a",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-F0778FDB3A33",
       "title": "Planteverksted",
       "startTime": "2027-02-24T16:00:00Z",
@@ -64012,7 +64646,6 @@
       "startTime": "2027-02-24T17:00:00Z",
       "endTime": "2027-02-24T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -64709,6 +65342,29 @@
       "active": true
     },
     {
+      "id": "EVT-7DB23ED8154A",
+      "title": "Någe Aent 5-7 trinn",
+      "startTime": "2027-02-26T17:00:00Z",
+      "endTime": "2027-02-26T19:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Austrått",
+      "municipality": "Sandnes",
+      "description": "Velkommen til klubben Någe Aent. Det er for 5-7. klasse. Vi holder til på Delta som er et bygg vedsiden av Austrått svømmehall. All info om klubbkveldene våre finner du i spond. Gruppekoden til spond er: ZMGRP",
+      "sourceUrl": "https://skjerikirken.no/arrangement/nage-aent-trinn-c090722816f2",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-96D340700133",
       "title": "Zoom",
       "startTime": "2027-02-26T17:30:00Z",
@@ -64846,6 +65502,29 @@
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-90c490cda13b",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-D85962D3EE3E",
+      "title": "TRE18",
+      "startTime": "2027-02-26T19:00:00Z",
+      "endTime": "2027-02-26T22:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
       "active": true
     },
     {
@@ -65572,7 +66251,6 @@
       "startTime": "2027-03-01T16:00:00Z",
       "endTime": "2027-03-01T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -66919,6 +67597,29 @@
       "active": true
     },
     {
+      "id": "EVT-A2691013DAE8",
+      "title": "TRE18 Hjemme Hos",
+      "startTime": "2027-03-05T19:00:00Z",
+      "endTime": "2027-03-05T22:00:00Z",
+      "meetingTypes": [
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til Hjemme Hos! 😊 Denne gangen skal vi på besøk til ...! Bli med på brettspill, mye sosialt, og en knallkjekk kveld! Ta med en venn og kom 🥳<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
       "id": "EVT-DC60DC9E92C8",
       "title": "NiKKO | Ungdomsklubben i Gand 🌊✝️",
       "startTime": "2027-03-05T20:00:00Z",
@@ -67725,7 +68426,6 @@
       "startTime": "2027-03-08T16:00:00Z",
       "endTime": "2027-03-08T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -68273,7 +68973,6 @@
       "startTime": "2027-03-10T17:00:00Z",
       "endTime": "2027-03-10T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -68965,6 +69664,29 @@
       "active": true
     },
     {
+      "id": "EVT-D70C8FDABA72",
+      "title": "Någe Aent 5-7 trinn",
+      "startTime": "2027-03-12T17:00:00Z",
+      "endTime": "2027-03-12T19:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Austrått",
+      "municipality": "Sandnes",
+      "description": "Velkommen til klubben Någe Aent. Det er for 5-7. klasse. Vi holder til på Delta som er et bygg vedsiden av Austrått svømmehall. All info om klubbkveldene våre finner du i spond. Gruppekoden til spond er: ZMGRP",
+      "sourceUrl": "https://skjerikirken.no/arrangement/nage-aent-trinn-0379632d7e18",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-D29C19B434FD",
       "title": "Zoom",
       "startTime": "2027-03-12T17:30:00Z",
@@ -69119,6 +69841,53 @@
       "municipality": "Sandnes",
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-9100a0a2b8d2",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-0283CCD71494",
+      "title": "TRE18",
+      "startTime": "2027-03-12T19:00:00Z",
+      "endTime": "2027-03-12T22:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
+      "id": "EVT-ADC99DE91341",
+      "title": "VI- ungdomsklubb fra 8.klasse- LAN kveld",
+      "startTime": "2027-03-12T19:00:00Z",
+      "endTime": "2027-03-12T22:30:00Z",
+      "meetingTypes": [
+        "Ungdom",
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Sandnes sentrum",
+      "municipality": "Sandnes",
+      "description": "VI- er en ungdomsklubb som er åpen for alle fra 8.klasse og oppover. På en vanlig klubbkveld har vi biljard, airhockey, kiosk, andakt, brettspill og nintendo switch spilling. Noen ganger har vi tema kvelder som bad taste party, julebord, turneringer f eks. så gjerne legg deg til i spond gruppen vår for å få all info, gruppekoden er: PYUYY",
+      "sourceUrl": "https://skjerikirken.no/arrangement/vi-ungdomsklubb-fra-klasse-f419d314a053",
       "source": "Den norske kirke – Sandnes",
       "active": true
     },
@@ -69855,7 +70624,6 @@
       "startTime": "2027-03-15T16:00:00Z",
       "endTime": "2027-03-15T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -71105,6 +71873,29 @@
       "active": true
     },
     {
+      "id": "EVT-B2BF636FC354",
+      "title": "TRE18",
+      "startTime": "2027-03-19T19:00:00Z",
+      "endTime": "2027-03-19T22:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
       "id": "EVT-4CF1D9931C72",
       "title": "NiKKO | Ungdomsklubben i Gand 🌊✝️",
       "startTime": "2027-03-19T20:00:00Z",
@@ -71616,7 +72407,6 @@
       "startTime": "2027-03-22T16:00:00Z",
       "endTime": "2027-03-22T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -73107,7 +73897,6 @@
       "startTime": "2027-03-29T15:00:00Z",
       "endTime": "2027-03-29T15:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -73575,6 +74364,31 @@
       "municipality": "Sandnes",
       "description": "Kl 16.00-17.00 serveres middag. Middagen må man melde seg på. Påmeldingen er på kirken.no/riska og åpner fredagen før. Kl. 17.00 er det småbarnssang for barn opp til tre år, Stjernen barneklubb for barn fra 4 år til 3. klasse og K-klubben for 4.-8. klasse. Opplegget slutter kl. 18.00",
       "sourceUrl": "https://skjerikirken.no/arrangement/kirkeonsdag-b3e55e644489",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-A95AAFFBE8CA",
+      "title": "Followme. fra 15-25 år",
+      "startTime": "2027-03-31T14:00:00Z",
+      "endTime": "2027-03-31T16:30:00Z",
+      "meetingTypes": [
+        "Ungdom"
+      ],
+      "organizationIds": [
+        "ORG-0001",
+        "ORG-0005"
+      ],
+      "organizations": [
+        "Den norske kirke",
+        "Det Norske Misjonsselskap"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Høyland",
+      "municipality": "Sandnes",
+      "description": "Followme er NMSUs nettverksbyggende oppfølgingskonsept for unge ledere i alderen 15–25 år. Vi har followme kvelder siste onsdag i mnd på Delta. Vi er også med på SPARK, Followmeet og konferanse med andre menigheter. All info om Followme er i spond gruppen vår som heter Ungdomsledere Delta, Høyland og Sviland. gruppekoden er: ZMUXZ Visjon: Se – samle – styrke Motto: Gøy-Kvalitet-Felleskap",
+      "sourceUrl": "https://skjerikirken.no/arrangement/followme-fra-ar-3dfcd8c68107",
       "source": "Den norske kirke – Sandnes",
       "active": true
     },
@@ -74333,6 +75147,29 @@
       "active": true
     },
     {
+      "id": "EVT-0AB1F45DB1EC",
+      "title": "TRE18",
+      "startTime": "2027-04-02T18:00:00Z",
+      "endTime": "2027-04-02T21:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
       "id": "EVT-60DBAA06B28D",
       "title": "NiKKO | Ungdomsklubben i Gand 🌊✝️",
       "startTime": "2027-04-02T20:00:00Z",
@@ -74777,7 +75614,6 @@
       "startTime": "2027-04-05T15:00:00Z",
       "endTime": "2027-04-05T15:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -75279,7 +76115,6 @@
       "startTime": "2027-04-07T16:00:00Z",
       "endTime": "2027-04-07T17:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -75903,6 +76738,29 @@
       "active": true
     },
     {
+      "id": "EVT-7280FB580B35",
+      "title": "Någe Aent 5-7 trinn",
+      "startTime": "2027-04-09T16:00:00Z",
+      "endTime": "2027-04-09T18:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Austrått",
+      "municipality": "Sandnes",
+      "description": "Velkommen til klubben Någe Aent. Det er for 5-7. klasse. Vi holder til på Delta som er et bygg vedsiden av Austrått svømmehall. All info om klubbkveldene våre finner du i spond. Gruppekoden til spond er: ZMGRP",
+      "sourceUrl": "https://skjerikirken.no/arrangement/nage-aent-trinn-03f864544539",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-7287CC5620E7",
       "title": "Zoom Hjemme hos",
       "startTime": "2027-04-09T16:30:00Z",
@@ -75991,6 +76849,53 @@
       "municipality": "Sandnes",
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-09cba6cfb117",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-7A5903CF017E",
+      "title": "TRE18 Hjemme Hos",
+      "startTime": "2027-04-09T18:00:00Z",
+      "endTime": "2027-04-09T21:00:00Z",
+      "meetingTypes": [
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "<br>Velkommen til Hjemme Hos! 😊 Denne gangen skal vi på besøk til ...! Bli med på brettspill, mye sosialt, og en knallkjekk kveld! Ta med en venn og kom 🥳<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
+      "id": "EVT-E2DC32BDEC54",
+      "title": "VI- ungdomsklubb fra 8.klasse",
+      "startTime": "2027-04-09T18:00:00Z",
+      "endTime": "2027-04-09T20:00:00Z",
+      "meetingTypes": [
+        "Ungdom",
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Sandnes sentrum",
+      "municipality": "Sandnes",
+      "description": "VI- er en ungdomsklubb som er åpen for alle fra 8.klasse og oppover. På en vanlig klubbkveld har vi biljard, airhockey, kiosk, andakt, brettspill og nintendo switch spilling. Noen ganger har vi tema kvelder som bad taste party, julebord, turneringer f eks. så gjerne legg deg til i spond gruppen vår for å få all info, gruppekoden er: PYUYY",
+      "sourceUrl": "https://skjerikirken.no/arrangement/vi-ungdomsklubb-fra-klasse-496020b7d98d",
       "source": "Den norske kirke – Sandnes",
       "active": true
     },
@@ -76570,7 +77475,6 @@
       "startTime": "2027-04-12T15:00:00Z",
       "endTime": "2027-04-12T15:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -77887,6 +78791,29 @@
       "active": true
     },
     {
+      "id": "EVT-6BADFC418D2C",
+      "title": "TRE18",
+      "startTime": "2027-04-16T18:00:00Z",
+      "endTime": "2027-04-16T21:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
       "id": "EVT-F7A30DA27542",
       "title": "NiKKO | Ungdomsklubben i Gand 🌊✝️",
       "startTime": "2027-04-16T20:00:00Z",
@@ -78436,7 +79363,6 @@
       "startTime": "2027-04-19T15:00:00Z",
       "endTime": "2027-04-19T15:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -78913,7 +79839,6 @@
       "startTime": "2027-04-21T16:00:00Z",
       "endTime": "2027-04-21T17:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -79453,6 +80378,29 @@
       "active": true
     },
     {
+      "id": "EVT-6DC63E6E631B",
+      "title": "Någe Aent 5-7 trinn",
+      "startTime": "2027-04-23T16:00:00Z",
+      "endTime": "2027-04-23T18:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Austrått",
+      "municipality": "Sandnes",
+      "description": "Velkommen til klubben Någe Aent. Det er for 5-7. klasse. Vi holder til på Delta som er et bygg vedsiden av Austrått svømmehall. All info om klubbkveldene våre finner du i spond. Gruppekoden til spond er: ZMGRP",
+      "sourceUrl": "https://skjerikirken.no/arrangement/nage-aent-trinn-1469eb3f53cb",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-0DF729573B5B",
       "title": "Zoom",
       "startTime": "2027-04-23T16:30:00Z",
@@ -79542,6 +80490,29 @@
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-5f53457da73a",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-1D3E632A7DE5",
+      "title": "TRE18",
+      "startTime": "2027-04-23T18:00:00Z",
+      "endTime": "2027-04-23T21:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
       "active": true
     },
     {
@@ -80304,7 +81275,6 @@
       "startTime": "2027-04-26T15:00:00Z",
       "endTime": "2027-04-26T15:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -80811,6 +81781,31 @@
       "municipality": "Sandnes",
       "description": "16.00 Kirkemiddag. Påmelding til middag på www.kirken.no/riska fra fredagen før. 17.00 Småbarnssang for barn fra 1-3 år, Stjernen barneklubb og K-klubben felles samling først og misjonstivoli ute etterpå. 18.30 Slutt",
       "sourceUrl": "https://skjerikirken.no/arrangement/kirkeonsdag-med-misjonstivoli-2d4a43206566",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-9109CE2C86E1",
+      "title": "Followme. fra 15-25 år",
+      "startTime": "2027-04-28T14:00:00Z",
+      "endTime": "2027-04-28T16:30:00Z",
+      "meetingTypes": [
+        "Ungdom"
+      ],
+      "organizationIds": [
+        "ORG-0001",
+        "ORG-0005"
+      ],
+      "organizations": [
+        "Den norske kirke",
+        "Det Norske Misjonsselskap"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Høyland",
+      "municipality": "Sandnes",
+      "description": "Followme er NMSUs nettverksbyggende oppfølgingskonsept for unge ledere i alderen 15–25 år. Vi har followme kvelder siste onsdag i mnd på Delta. Vi er også med på SPARK, Followmeet og konferanse med andre menigheter. All info om Followme er i spond gruppen vår som heter Ungdomsledere Delta, Høyland og Sviland. gruppekoden er: ZMUXZ Visjon: Se – samle – styrke Motto: Gøy-Kvalitet-Felleskap",
+      "sourceUrl": "https://skjerikirken.no/arrangement/followme-fra-ar-5ab641da8907",
       "source": "Den norske kirke – Sandnes",
       "active": true
     },
@@ -81583,6 +82578,29 @@
       "active": true
     },
     {
+      "id": "EVT-0592E02896E3",
+      "title": "TRE18",
+      "startTime": "2027-04-30T18:00:00Z",
+      "endTime": "2027-04-30T21:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
       "id": "EVT-5727E504DAB2",
       "title": "NiKKO | Ungdomsklubben i Gand 🌊✝️",
       "startTime": "2027-04-30T20:00:00Z",
@@ -82342,7 +83360,6 @@
       "startTime": "2027-05-03T15:00:00Z",
       "endTime": "2027-05-03T15:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -82772,7 +83789,6 @@
       "startTime": "2027-05-05T16:00:00Z",
       "endTime": "2027-05-05T17:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -83444,6 +84460,29 @@
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-a57d8918b3f6",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-25AFA6754AA2",
+      "title": "TRE18",
+      "startTime": "2027-05-07T18:00:00Z",
+      "endTime": "2027-05-07T21:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
       "active": true
     },
     {
@@ -85427,6 +86466,29 @@
       "active": true
     },
     {
+      "id": "EVT-63291B796450",
+      "title": "TRE18 Fangene på Fortet",
+      "startTime": "2027-05-14T18:00:00Z",
+      "endTime": "2027-05-14T21:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fangene på Fortet Stavanger, Lagårdsveien 61, 4010 Stavanger, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Denne gangen skal vi på Fangene på Fortet! 🔥Ta med en venn, så sees vi der 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
       "id": "EVT-E183437801E3",
       "title": "NiKKO | Ungdomsklubben i Gand 🌊✝️",
       "startTime": "2027-05-14T20:00:00Z",
@@ -86444,7 +87506,6 @@
       "startTime": "2027-05-19T16:00:00Z",
       "endTime": "2027-05-19T17:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -87005,6 +88066,29 @@
       "active": true
     },
     {
+      "id": "EVT-74345E59CDA5",
+      "title": "Någe Aent 5-7 trinn",
+      "startTime": "2027-05-21T16:00:00Z",
+      "endTime": "2027-05-21T18:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Austrått",
+      "municipality": "Sandnes",
+      "description": "Velkommen til klubben Någe Aent. Det er for 5-7. klasse. Vi holder til på Delta som er et bygg vedsiden av Austrått svømmehall. All info om klubbkveldene våre finner du i spond. Gruppekoden til spond er: ZMGRP",
+      "sourceUrl": "https://skjerikirken.no/arrangement/nage-aent-trinn-b1062a8d2ab1",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-668423643E06",
       "title": "Zoom",
       "startTime": "2027-05-21T16:30:00Z",
@@ -87094,6 +88178,29 @@
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-f5e213dc404a",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-67F46AC55239",
+      "title": "TRE18",
+      "startTime": "2027-05-21T18:00:00Z",
+      "endTime": "2027-05-21T21:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u>https://spond.com/invite/CEAEI</u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
       "active": true
     },
     {
@@ -88597,6 +89704,29 @@
       "settlement": "Soma",
       "municipality": "Sandnes",
       "description": "Tidebønn i kapell.Lunsj i kontor Å19.Ta med lunsj, eller kjøp deg inn i stabslunsj for 25,- (knekkebrød)Vi ber Laudes, selv om den egentlig er litt tidl. på dagen (ettersom den er litt lengre enn &quot;bønn i løpet a dagen&quot;). Tidebønn bøker ligger i kapellet.",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
+      "id": "EVT-4D3570619AFF",
+      "title": "TRE18 Sommerleir ☀️🍉",
+      "startTime": "2027-05-28T15:30:00Z",
+      "endTime": "2027-05-30T14:00:00Z",
+      "meetingTypes": [
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "<p>🌻🍉 VELKOMMEN TIL TRE18 SOMMERLEIR 🥳🍍</p><p>28. - 30. mai braker det løs med et av årets høydepunkt! Det er sommerweekend med TRE18 på Ersdaltun, og vi håper du vil være med! ☀️ Det blir bading og grilling, møter og konkurranser, vannmelon og is, og enda mer 🫶🏻 </p><p>Vi håper virkelig du vil være med! 😉</p><br>Påmelding: <i>kommer ...</i><br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u>https://spond.com/invite/CEAEI</u></a>",
       "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
       "source": "Fredheim Arena",
       "active": true
@@ -90248,6 +91378,29 @@
       "active": true
     },
     {
+      "id": "EVT-9E11C498621A",
+      "title": "Någe Aent 5-7 trinn",
+      "startTime": "2027-06-04T16:00:00Z",
+      "endTime": "2027-06-04T18:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Høyland sokn",
+      "location": "Delta 2. etasje, Kjervastadveien 4, 4326 Sandnes",
+      "settlement": "Austrått",
+      "municipality": "Sandnes",
+      "description": "Velkommen til klubben Någe Aent. Det er for 5-7. klasse. Vi holder til på Delta som er et bygg vedsiden av Austrått svømmehall. All info om klubbkveldene våre finner du i spond. Gruppekoden til spond er: ZMGRP",
+      "sourceUrl": "https://skjerikirken.no/arrangement/nage-aent-trinn-3792fc7e7847",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
       "id": "EVT-3471D6361986",
       "title": "Alive ungdomsklubb",
       "startTime": "2027-06-04T18:00:00Z",
@@ -90314,6 +91467,29 @@
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-9b68aebadf06",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-822E00C8EF02",
+      "title": "TRE18",
+      "startTime": "2027-06-04T18:00:00Z",
+      "endTime": "2027-06-04T21:00:00Z",
+      "meetingTypes": [
+        "Annet"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18! 🥳 Her blir det solid forkynnelse, kiosk, godt fellesskap, og kanskje en gøyal aktivitet/konkurranse! 🔥 Ta med en venn, så sees vi der! 😉<br><br><br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u><u>https://spond.com/invite/CEAEI</u></u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
       "active": true
     },
     {
@@ -91937,6 +93113,29 @@
       "description": "Bli med på Nikko! 📍 Ungdomssalen (inngang på baksiden av Gand kirken) 🕗 Fredager, kl. 20:00 – 23:30 ✨ Hva skjer? Kiosk, andakt, aktiviteter, fritid og mye moro. Har du spørsmål? Ta kontakt med Lucas Flores (ungdomsveileder). tlf: +47 403 31 195 eposten: lf248@kirken.no Kom, ta med en venn (eller flere), og gjør fredagskvelden til ukas høydepunkt! Sees på Nikko 🎉😊 --- Leter du etter et sted å henge, ha det gøy og møte nye folk? Nikko er Gand kirkes ungdomsklubb – åpen for alle fra 8. klasse og oppover! Det er et kristent og rusfritt miljø hvor du kan slappe av, spille spill, bli med på morsomme aktiviteter og kjøpe noe godt i kiosken.",
       "sourceUrl": "https://skjerikirken.no/arrangement/nikko-ungdomsklubben-i-gand-0a8cfb16f384",
       "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-5E834D9E7AF6",
+      "title": "TRE18 Sommeravslutning☀️",
+      "startTime": "2027-06-11T18:00:00Z",
+      "endTime": "2027-06-11T21:00:00Z",
+      "meetingTypes": [
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena, Årsvollveien 21, 4312 Sandnes, Norge",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "Velkommen til TRE18 sin siste samling før sommeren! 🥳 Vi kommer til å ha gratis grillmat, konkurranse, god stemning og flotte folk! 🔥 Ta med en venn, så sees vi der! 😉<br><br>Meld deg inn i Spond-gruppen vår! Der finner du alle fremtidige arrangement på TRE18:<br><a href=\"https://spond.com/invite/CEAEI\" target=\"_blank\"><u><u><u>https://spond.com/invite/CEAEI</u></u></u></a>",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
       "active": true
     },
     {
@@ -107394,6 +108593,25 @@
       "active": true
     },
     {
+      "id": "EVT-61A8D7A6A729",
+      "title": "Onsdagsmøte",
+      "startTime": "2027-11-03T18:30:00Z",
+      "endTime": "2027-11-03T19:30:00Z",
+      "meetingTypes": [
+        "Møte"
+      ],
+      "organizationIds": [],
+      "organizations": [],
+      "organizer": "Frøyland Forsamlingshus",
+      "location": "Frøyland Forsamlingshus",
+      "settlement": "Kverneland",
+      "municipality": "Time",
+      "description": "Onsdagsmøte. Dele Guds Ord, vitnesbyrd, sang eller annet. Nattverd første onsdag i måneden. Utgår ved møteuke. Velkommen!",
+      "sourceUrl": "https://www.froylandforsamlingshus.no/",
+      "source": "Frøyland Forsamlingshus",
+      "active": true
+    },
+    {
       "id": "EVT-C727A52C6DA2",
       "title": "Språkverkstedet",
       "startTime": "2027-11-04T16:00:00Z",
@@ -107535,6 +108753,118 @@
       "description": "Laurdag 2. november er det open kyrkje i Time kyrkje. Kl. 12.00 til 13.00 blir det \"ord og tonar til håp og trøyst\". Heidi Strand Harboe les dikt og Per Olav Egeland spelar orgel. Det er ope frå 11.00 til 14.00. Me har tid til samtale om du har behov for det. Du kan tenna lys, sitja i ro i kyrkja og få ein kopp kaffi og noko å bita i.",
       "sourceUrl": "https://skjerikirken.no/arrangement/open-kyrkje-b06d7a7066b7",
       "source": "Den norske kirke – Time",
+      "active": true
+    },
+    {
+      "id": "EVT-CCF83C315418",
+      "title": "Søndagssamling med søndagsskule",
+      "startTime": "2027-11-07T10:00:00Z",
+      "endTime": "2027-11-07T12:00:00Z",
+      "meetingTypes": [
+        "Gudstjeneste"
+      ],
+      "organizationIds": [
+        "ORG-0004"
+      ],
+      "organizations": [
+        "Misjonssambandet"
+      ],
+      "organizer": "Nærbø Bedehus",
+      "location": "Nærbø bedehus",
+      "settlement": "Nærbø",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://narbobedehus.no/nlm/",
+      "source": "Nærbø Bedehus",
+      "active": true
+    },
+    {
+      "id": "EVT-339B8BFF8782",
+      "title": "Gudstjeneste kl.11.00-12.30",
+      "startTime": "2027-11-07T10:00:00Z",
+      "endTime": "2027-11-07T11:30:00Z",
+      "meetingTypes": [
+        "Gudstjeneste"
+      ],
+      "organizationIds": [
+        "ORG-0008"
+      ],
+      "organizations": [
+        "Indremisjonsforbundet"
+      ],
+      "organizer": "Fredheim Arena",
+      "location": "Fredheim Arena",
+      "settlement": "Soma",
+      "municipality": "Sandnes",
+      "description": "",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/fredheimarena.no_05imi8f3cfd98u7i9059oc7lq0%40group.calendar.google.com/public/basic.ics",
+      "source": "Fredheim Arena",
+      "active": true
+    },
+    {
+      "id": "EVT-648CB381E194",
+      "title": "Gudstjeneste",
+      "startTime": "2027-11-07T10:00:00Z",
+      "endTime": "2027-11-07T11:00:00Z",
+      "meetingTypes": [
+        "Gudstjeneste"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Gand sokn",
+      "location": "Gand kirke, Juvelveien 4, 4318 Sandnes",
+      "settlement": "Sandved",
+      "municipality": "Sandnes",
+      "description": "",
+      "sourceUrl": "https://skjerikirken.no/arrangement/gudstjeneste-fefab975529f",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
+    },
+    {
+      "id": "EVT-443C48409D29",
+      "title": "G1",
+      "startTime": "2027-11-07T10:00:00Z",
+      "endTime": "2027-11-07T12:00:00Z",
+      "meetingTypes": [
+        "Misjon"
+      ],
+      "organizationIds": [],
+      "organizations": [],
+      "organizer": "Vigrestad Misjonshus",
+      "location": "Vigrestad Misjonshus",
+      "settlement": "Vigrestad",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://calendar.google.com/calendar/ical/c31ebf75ce40366d5917a6c5660f5f04caa81fe89f14f4f387198d8b973a3969%40group.calendar.google.com/public/basic.ics",
+      "source": "Vigrestad Misjonshus Hovedsal",
+      "active": true
+    },
+    {
+      "id": "EVT-ACF4D9D5D227",
+      "title": "Allehelgensfest NMS",
+      "startTime": "2027-11-07T18:00:00Z",
+      "endTime": "2027-11-07T20:30:00Z",
+      "meetingTypes": [
+        "Misjon",
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0005"
+      ],
+      "organizations": [
+        "Det Norske Misjonsselskap"
+      ],
+      "organizer": "Vigrestad Misjonshus",
+      "location": "Vigrestad Misjonshus",
+      "settlement": "Vigrestad",
+      "municipality": "Hå",
+      "description": "",
+      "sourceUrl": "https://vigrestadmisjonshus.org/kalendere.html?v=2",
+      "source": "Vigrestad Misjonshus",
       "active": true
     }
   ]
