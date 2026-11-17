@@ -237,6 +237,9 @@
     .tag{display:inline-flex;align-items:center;min-height:25px;padding:2px 8px;border-radius:999px;background:#263338;border:1px solid #34464d;color:#dff6ff;font-size:12px}
     .event-desc{margin-top:8px;color:#d3d3d3;font-size:14px;line-height:1.45;white-space:pre-line}
     .source-link{white-space:nowrap;font-size:13px;text-decoration:none;border:0;padding:0;color:#dff6ff;opacity:.92}
+    .podcast-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+    .podcast-link{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:3px 9px;border-radius:999px;border:1px solid #40545d;background:#223038;color:#dff6ff;font-size:12px;font-weight:700;text-decoration:none}
+    .podcast-link:hover{filter:brightness(1.12)}
     .calendar-add-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:0;background:transparent;color:#dff6ff;cursor:pointer;text-decoration:none;opacity:.9}.calendar-add-btn:hover{opacity:1;filter:brightness(1.15)}.calendar-add-btn svg{width:27px;height:27px;display:block}
 
 
@@ -441,6 +444,7 @@
     html[data-theme="light"] .organizer-custom-option.selected{background:var(--dropdown-hover)}
     html[data-theme="light"] .event-desc{color:#3f474b}
     html[data-theme="light"] .source-link{color:#174b5e}
+    html[data-theme="light"] .podcast-link{background:#e8f2f5;border-color:#bed2d9;color:#174b5e}
     html[data-theme="light"] .calendar-add-btn{color:#174b5e;background:transparent;border:0}
     html[data-theme="light"] .tag{background:#e8f2f5;border-color:#bed2d9;color:#174b5e}
 
@@ -625,7 +629,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v483-mobile-wide-topmenu-all-modes-2026-10-27";
+  const FRONTEND_VERSION = "v484-podcast-links-2026-11-17";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -975,7 +979,8 @@
       localStorage.setItem(SNAPSHOT_STORAGE_KEY, JSON.stringify({
         savedAt:Date.now(),
         events,
-        organizers:organizerSettings
+        organizers:organizerSettings,
+        podcasts:podcastRules
       }));
     } catch (_) {}
   }
@@ -1038,6 +1043,7 @@
     if (!snapshot) return false;
 
     organizerSettings = Array.isArray(snapshot.organizers) ? snapshot.organizers : [];
+    podcastRules = Array.isArray(snapshot.podcasts) ? snapshot.podcasts : [];
     rebuildOrganizerTextColorMap();
 
     events = snapshot.events
@@ -1088,6 +1094,7 @@
   let events = [];
   let filtered = [];
   let organizerSettings = [];
+  let podcastRules = [];
   let organizerTextColorByName = new Map();
   let combinedFavoritesActive = false;
   let monthCursor = new Date();
@@ -1910,6 +1917,61 @@
     updateOverlayFlowSlots();
   });
 
+  function normalizeMatchText(value) {
+    return String(value || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLocaleLowerCase("no");
+  }
+
+  function eventMatchesPodcastRule(event, rule) {
+    if (!event || !rule || rule.active === false) return false;
+
+    const municipality = normalizeMatchText(event.municipality);
+    const location = normalizeMatchText(event.location);
+    const title = normalizeMatchText(event.title);
+    const meetingTypes = (Array.isArray(event.meetingTypes) ? event.meetingTypes : [])
+      .map(normalizeMatchText);
+
+    const ruleMunicipality = normalizeMatchText(rule.municipality);
+    const ruleLocation = normalizeMatchText(rule.location);
+    const ruleType = normalizeMatchText(rule.meetingType);
+    const ruleTitle = normalizeMatchText(rule.eventName);
+    const connectionType = normalizeMatchText(rule.connectionType);
+
+    if (ruleMunicipality && municipality !== ruleMunicipality) return false;
+    if (connectionType.includes("sted") && ruleLocation && location !== ruleLocation) return false;
+    if (connectionType.includes("type") && ruleType && !meetingTypes.includes(ruleType)) return false;
+    if (connectionType.includes("arrangementnavn") && ruleTitle && title !== ruleTitle) return false;
+
+    if (!connectionType) {
+      if (ruleLocation && location !== ruleLocation) return false;
+      if (ruleType && !meetingTypes.includes(ruleType)) return false;
+      if (ruleTitle && title !== ruleTitle) return false;
+    }
+
+    return Boolean(rule.url);
+  }
+
+  function matchingPodcasts(event) {
+    return podcastRules
+      .filter(rule => eventMatchesPodcastRule(event, rule))
+      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+  }
+
+  function renderPodcastLinks(event) {
+    const matches = matchingPodcasts(event);
+    if (!matches.length) return "";
+
+    const links = matches.map(rule => {
+      const label = rule.podcastName || rule.name || "Podcast";
+      const platform = rule.platform ? ` · ${rule.platform}` : "";
+      return `<a class="podcast-link" href="${escapeHtml(rule.url)}" target="_blank" rel="noopener" title="Åpne podcast">🎧 ${escapeHtml(label + platform)}</a>`;
+    }).join("");
+
+    return `<div class="podcast-links">${links}</div>`;
+  }
+
   function renderList() {
     clearCalendarBlobUrls();
 
@@ -2007,6 +2069,7 @@
               <div class="event-title">${escapeHtml(e.title || "Uten tittel")}</div>
               <div class="event-meta">${meta.map(x => `<span>${escapeHtml(x)}</span>`).join("")}</div>
               ${e.description ? `<div class="event-desc">${linkifyText(e.description)}</div>` : ""}
+              ${renderPodcastLinks(e)}
             </div>
           </div>
         </article>`;
@@ -2597,6 +2660,8 @@
       const snapshotOrganizerSettings =
         Array.isArray(data.organizers) ? data.organizers : [];
 
+      podcastRules = Array.isArray(data.podcasts) ? data.podcasts : [];
+
       // V461: administrative arrangørfarger leses live fra Baserow via
       // Arrangementer-Workeren på hver sideinnlasting/oppfriskning.
       // Snapshotet er fallback dersom Worker/Baserow er utilgjengelig.
@@ -2637,6 +2702,7 @@
 
       if (snapshot && Array.isArray(snapshot.events) && snapshot.events.length) {
         organizerSettings = Array.isArray(snapshot.organizers) ? snapshot.organizers : [];
+        podcastRules = Array.isArray(snapshot.podcasts) ? snapshot.podcasts : [];
         rebuildOrganizerTextColorMap();
         events = snapshot.events
           .filter(e => e.active !== false)
