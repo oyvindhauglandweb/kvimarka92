@@ -1,4 +1,4 @@
-// V475 – publishes podcast rules from Baserow to arrangementer-data.json.
+// V476 – podcast rules: adds organization and explicit name/organization matching.
 import fs from "node:fs/promises";
 import {
   ARRANGEMENT_ENGINE_VERSION,
@@ -63,8 +63,8 @@ const ORGANIZER_F = {
   active:"field_10401284"
 };
 
-// V475: Sentral podcastregel-tabell. Regler publiseres til snapshotet og
-// matches i frontend mot kommune/sted/arrangementstype.
+// V476: Sentral podcastregel-tabell. Regler publiseres til snapshotet og
+// matches i frontend mot kommune/sted/type, arrangementnavn eller organisasjon.
 const PODCASTS_TABLE = 1326471;
 const PODCAST_F = {
   name:"field_12377398",
@@ -75,6 +75,7 @@ const PODCAST_F = {
   location:"field_12377453",
   meetingType:"field_12377457",
   eventName:"field_12377459",
+  organization:"field_12381746",
   description:"field_12377464",
   image:"field_12377486",
   active:"field_12377488",
@@ -969,6 +970,7 @@ async function loadPodcastRules() {
       location: arrClean(row[PODCAST_F.location] || ""),
       meetingType: arrClean(row[PODCAST_F.meetingType] || ""),
       eventName: arrClean(row[PODCAST_F.eventName] || ""),
+      organization: selectText(row[PODCAST_F.organization]),
       description: arrClean(row[PODCAST_F.description] || ""),
       image: firstFileUrl(row[PODCAST_F.image]),
       active: row[PODCAST_F.active] !== false,
