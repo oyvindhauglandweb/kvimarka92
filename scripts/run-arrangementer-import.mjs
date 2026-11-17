@@ -1,3 +1,4 @@
+// V475 – publishes podcast rules from Baserow to arrangementer-data.json.
 import fs from "node:fs/promises";
 import {
   ARRANGEMENT_ENGINE_VERSION,
@@ -60,6 +61,26 @@ const ORGANIZER_F = {
   name:"field_10401283",
   textColor:"field_10401691",
   active:"field_10401284"
+};
+
+// V475: Sentral podcastregel-tabell. Regler publiseres til snapshotet og
+// matches i frontend mot kommune/sted/arrangementstype.
+const PODCASTS_TABLE = 1326471;
+const PODCAST_F = {
+  name:"field_12377398",
+  podcastName:"field_12377399",
+  platform:"field_12377400",
+  url:"field_12377422",
+  municipality:"field_12377500",
+  location:"field_12377453",
+  meetingType:"field_12377457",
+  eventName:"field_12377459",
+  description:"field_12377464",
+  image:"field_12377486",
+  active:"field_12377488",
+  order:"field_12377491",
+  comment:"field_12377493",
+  connectionType:"field_12377499"
 };
 
 const historyPath = process.env.ARRANGEMENT_HISTORY_PATH || "arrangementer-import-history.json";
@@ -915,6 +936,49 @@ async function readAreaSnapshotEvents(areaKey, organizationNameById) {
 }
 
 
+function selectText(value) {
+  if (value == null || value === "") return "";
+  if (typeof value === "string" || typeof value === "number") return arrClean(value);
+  if (Array.isArray(value)) return value.map(selectText).filter(Boolean).join(", ");
+  if (typeof value === "object") return arrClean(value.value || value.name || value.text || "");
+  return "";
+}
+
+function firstFileUrl(value) {
+  const files = Array.isArray(value) ? value : (value ? [value] : []);
+  for (const file of files) {
+    if (!file || typeof file !== "object") continue;
+    const url = file.url || file.download_url || file.thumbnails?.small?.url || file.thumbnails?.tiny?.url;
+    if (url) return String(url);
+  }
+  return "";
+}
+
+async function loadPodcastRules() {
+  const rows = await arrListAllRows(envForArea("default"), PODCASTS_TABLE);
+
+  return rows
+    .filter(row => row && row[PODCAST_F.active] !== false)
+    .map(row => ({
+      id: Number(row.id) || null,
+      name: arrClean(row[PODCAST_F.name] || ""),
+      podcastName: arrClean(row[PODCAST_F.podcastName] || ""),
+      platform: selectText(row[PODCAST_F.platform]),
+      url: arrClean(row[PODCAST_F.url] || ""),
+      municipality: selectText(row[PODCAST_F.municipality]),
+      location: arrClean(row[PODCAST_F.location] || ""),
+      meetingType: arrClean(row[PODCAST_F.meetingType] || ""),
+      eventName: arrClean(row[PODCAST_F.eventName] || ""),
+      description: arrClean(row[PODCAST_F.description] || ""),
+      image: firstFileUrl(row[PODCAST_F.image]),
+      active: row[PODCAST_F.active] !== false,
+      order: Number(row[PODCAST_F.order] || 0),
+      connectionType: selectText(row[PODCAST_F.connectionType])
+    }))
+    .filter(rule => rule.active && rule.url)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+}
+
 function organizerSelectText(value) {
   if (value == null) return "";
   if (typeof value === "string") return arrClean(value);
@@ -1049,9 +1113,10 @@ async function buildSnapshot(importSummary) {
   );
 
   const organizerSync = await syncCentralOrganizers();
+  const podcasts = await loadPodcastRules();
 
   return {
-    schemaVersion: 6,
+    schemaVersion: 7,
     engineVersion: ARRANGEMENT_ENGINE_VERSION,
     generatedAt: new Date().toISOString(),
     areas: areaKeys.map(key => ({
@@ -1073,6 +1138,7 @@ async function buildSnapshot(importSummary) {
     },
     organizers: organizerSync.rows,
     organizerSync: { created: organizerSync.created, total: organizerSync.total },
+    podcasts,
     events: exactSnapshotDedupe.events
   };
 }
