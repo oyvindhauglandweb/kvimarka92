@@ -629,7 +629,7 @@
 (() => {
   "use strict";
 
-  const FRONTEND_VERSION = "v484-podcast-links-2026-11-17";
+  const FRONTEND_VERSION = "v485-podcast-rule-matching-2026-11-18";
 
   // V403 – produksjonsoppsett:
   // - kalenderdata leses fra statisk arrangementer-data.json
@@ -1932,22 +1932,41 @@
     const title = normalizeMatchText(event.title);
     const meetingTypes = (Array.isArray(event.meetingTypes) ? event.meetingTypes : [])
       .map(normalizeMatchText);
+    const organizations = (Array.isArray(event.organizations) ? event.organizations : [])
+      .map(normalizeMatchText);
 
     const ruleMunicipality = normalizeMatchText(rule.municipality);
     const ruleLocation = normalizeMatchText(rule.location);
     const ruleType = normalizeMatchText(rule.meetingType);
     const ruleTitle = normalizeMatchText(rule.eventName);
+    const ruleOrganization = normalizeMatchText(rule.organization);
     const connectionType = normalizeMatchText(rule.connectionType);
 
     if (ruleMunicipality && municipality !== ruleMunicipality) return false;
-    if (connectionType.includes("sted") && ruleLocation && location !== ruleLocation) return false;
-    if (connectionType.includes("type") && ruleType && !meetingTypes.includes(ruleType)) return false;
-    if (connectionType.includes("arrangementnavn") && ruleTitle && title !== ruleTitle) return false;
+
+    if (connectionType.includes("sted")) {
+      if (!ruleLocation || location !== ruleLocation) return false;
+    }
+
+    if (connectionType.includes("type")) {
+      if (!ruleType || !meetingTypes.includes(ruleType)) return false;
+    }
+
+    if (connectionType.includes("arrangementnavn")) {
+      // Delvis tekstmatch: "Søndagssamling" skal også treffe
+      // "Søndagssamling med søndagsskole".
+      if (!ruleTitle || !title.includes(ruleTitle)) return false;
+    }
+
+    if (connectionType.includes("organisasjon")) {
+      if (!ruleOrganization || !organizations.includes(ruleOrganization)) return false;
+    }
 
     if (!connectionType) {
       if (ruleLocation && location !== ruleLocation) return false;
       if (ruleType && !meetingTypes.includes(ruleType)) return false;
-      if (ruleTitle && title !== ruleTitle) return false;
+      if (ruleTitle && !title.includes(ruleTitle)) return false;
+      if (ruleOrganization && !organizations.includes(ruleOrganization)) return false;
     }
 
     return Boolean(rule.url);
