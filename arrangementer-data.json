@@ -1,7 +1,7 @@
 {
   "schemaVersion": 7,
   "engineVersion": "v491-31-day-event-history-2026-10-26",
-  "generatedAt": "2026-11-18T14:46:19.542Z",
+  "generatedAt": "2026-11-18T16:39:04.509Z",
   "areas": [
     {
       "key": "default",
@@ -29,18 +29,26 @@
       "eventsTable": 1146207
     }
   ],
-  "eventCount": 4786,
+  "eventCount": 4788,
   "importSummary": {
     "ok": false,
-    "startedAt": "2026-11-18T14:41:17.159Z",
-    "finishedAt": "2026-11-18T14:45:22.797Z",
-    "created": 0,
-    "updated": 3973,
-    "errors": 2,
-    "rawErrors": 2,
+    "startedAt": "2026-11-18T16:33:42.013Z",
+    "finishedAt": "2026-11-18T16:38:00.233Z",
+    "created": 1,
+    "updated": 3695,
+    "errors": 3,
+    "rawErrors": 3,
     "sourceCount": 36,
-    "successfulSources": 34,
+    "successfulSources": 33,
     "failedSources": [
+      {
+        "area": "default",
+        "sourceId": "SRC-0001",
+        "name": "Nærbø Bedehus",
+        "error": "fetch failed",
+        "consecutiveFailures": 1,
+        "threshold": 1
+      },
       {
         "area": "default",
         "sourceId": "SRC-0021",
@@ -62,6 +70,12 @@
     "rawFailedSources": [
       {
         "area": "default",
+        "sourceId": "SRC-0001",
+        "name": "Nærbø Bedehus",
+        "error": "fetch failed"
+      },
+      {
+        "area": "default",
         "sourceId": "SRC-0021",
         "name": "Vigrestad Misjonshus Småsal",
         "error": "Vigrestad-underkilde SRC-0021 ga ingen arrangementer i importvinduet"
@@ -79,11 +93,11 @@
         "sourceId": "SRC-0001",
         "name": "Nærbø Bedehus",
         "created": 0,
-        "updated": 303,
+        "updated": 26,
         "skipped": 0,
-        "error": null,
-        "consecutiveFailures": 0,
-        "alarm": false,
+        "error": "fetch failed",
+        "consecutiveFailures": 1,
+        "alarm": true,
         "deferredAlarm": false,
         "createdEvents": []
       },
@@ -351,14 +365,27 @@
         "area": "time",
         "sourceId": "SRC-0008",
         "name": "Bryne Frikyrkje",
-        "created": 0,
+        "created": 1,
         "updated": 51,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
         "alarm": false,
         "deferredAlarm": false,
-        "createdEvents": []
+        "createdEvents": [
+          {
+            "rowId": 8961,
+            "eventId": "EVT-3DCCE3084E8D",
+            "title": "Menighetsmøte",
+            "startTime": "2026-12-02T18:00:00Z",
+            "endTime": "2026-12-02T20:00:00Z",
+            "organizer": "Bryne Frikyrkje",
+            "location": "Bryne Frikyrkje",
+            "source": "Bryne Frikyrkje",
+            "sourceEventId": "bryne-8764833",
+            "active": true
+          }
+        ]
       },
       {
         "area": "time",
@@ -378,7 +405,7 @@
         "sourceId": "SRC-0012",
         "name": "Den norske kirke – Time",
         "created": 0,
-        "updated": 179,
+        "updated": 178,
         "skipped": 0,
         "error": null,
         "consecutiveFailures": 0,
@@ -550,9 +577,9 @@
         "eventsTable": 1137493,
         "sourcesTable": 1137506,
         "created": 0,
-        "updated": 1610,
-        "errors": 1,
-        "rawErrors": 1,
+        "updated": 1333,
+        "errors": 2,
+        "rawErrors": 2,
         "sourceCount": 21,
         "supplementalSources": [
           {
@@ -596,8 +623,8 @@
         "name": "Time",
         "eventsTable": 1193653,
         "sourcesTable": 1193657,
-        "created": 0,
-        "updated": 384,
+        "created": 1,
+        "updated": 383,
         "errors": 0,
         "rawErrors": 0,
         "sourceCount": 7,
@@ -1264,29 +1291,6 @@
               "extractedDefaultSettlementIds": [],
               "sampleEvents": [
                 {
-                  "title": "Fireårsklubb",
-                  "location": "Undheim kyrkje, Bruavegen 2, 4342 Undheim",
-                  "settlementHint": "Undheim",
-                  "municipalityHint": "Time",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    9
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 9,
-                      "name": "Undheim",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    15
-                  ],
-                  "organizationIds": [
-                    "ORG-0001"
-                  ]
-                },
-                {
                   "title": "Open Kyrkje",
                   "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
                   "settlementHint": "Undheim",
@@ -1536,6 +1540,29 @@
                   ],
                   "classifiedMeetingTypeIds": [
                     8
+                  ],
+                  "organizationIds": [
+                    "ORG-0001"
+                  ]
+                },
+                {
+                  "title": "Open Kyrkje",
+                  "location": "Undheim kyrkje - kyrkjesal, Bruavegen 2, 4342 Undheim",
+                  "settlementHint": "Undheim",
+                  "municipalityHint": "Time",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    9
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 9,
+                      "name": "Undheim",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    15
                   ],
                   "organizationIds": [
                     "ORG-0001"
@@ -1842,7 +1869,7 @@
                   "organizationIds": []
                 },
                 {
-                  "title": "Møte NLM – Kari Anne Vatland",
+                  "title": "Jenteforening",
                   "location": "Fossevegen 131, 4346 Bryne",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -1858,52 +1885,7 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    12
-                  ],
-                  "organizationIds": [
-                    "ORG-0004"
-                  ]
-                },
-                {
-                  "title": "Julemesse. Familiemøte",
-                  "location": "Fotland Bedehus",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    20,
-                    7
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Julemesse",
-                  "location": "Fotland Bedehus",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    20
+                    5
                   ],
                   "organizationIds": []
                 },
@@ -1930,7 +1912,7 @@
                 },
                 {
                   "title": "Brønn",
-                  "location": "Fotland Bedehus",
+                  "location": "Fossevegen 131, 4346 Bryne",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -1948,6 +1930,29 @@
                     19
                   ],
                   "organizationIds": []
+                },
+                {
+                  "title": "Møte NLM – Kari Anne Vatland",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    12
+                  ],
+                  "organizationIds": [
+                    "ORG-0004"
+                  ]
                 },
                 {
                   "title": "Jenteforening",
@@ -1971,8 +1976,71 @@
                   "organizationIds": []
                 },
                 {
+                  "title": "Brønn",
+                  "location": "Fotland Bedehus",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    19
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Ope hus",
+                  "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    6
+                  ],
+                  "organizationIds": []
+                },
+                {
                   "title": "Bønnemøte",
                   "location": "Fossevegen 131, 4346 Bryne",
+                  "settlementHint": "",
+                  "municipalityHint": "",
+                  "meetingTypeHint": "",
+                  "resolvedSettlementIds": [
+                    21
+                  ],
+                  "resolvedSettlements": [
+                    {
+                      "rowId": 21,
+                      "name": "Fotland",
+                      "municipality": "time"
+                    }
+                  ],
+                  "classifiedMeetingTypeIds": [
+                    3
+                  ],
+                  "organizationIds": []
+                },
+                {
+                  "title": "Bønnemøte",
+                  "location": "Fotland Bedehus",
                   "settlementHint": "",
                   "municipalityHint": "",
                   "meetingTypeHint": "",
@@ -2015,28 +2083,7 @@
                   ]
                 },
                 {
-                  "title": "Brønn",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    19
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Bønnemøte",
+                  "title": "Julemesse. Familiemøte",
                   "location": "Fotland Bedehus",
                   "settlementHint": "",
                   "municipalityHint": "",
@@ -2052,28 +2099,8 @@
                     }
                   ],
                   "classifiedMeetingTypeIds": [
-                    3
-                  ],
-                  "organizationIds": []
-                },
-                {
-                  "title": "Ope hus",
-                  "location": "Fossevegen 131, 4346 Bryne",
-                  "settlementHint": "",
-                  "municipalityHint": "",
-                  "meetingTypeHint": "",
-                  "resolvedSettlementIds": [
-                    21
-                  ],
-                  "resolvedSettlements": [
-                    {
-                      "rowId": 21,
-                      "name": "Fotland",
-                      "municipality": "time"
-                    }
-                  ],
-                  "classifiedMeetingTypeIds": [
-                    6
+                    20,
+                    7
                   ],
                   "organizationIds": []
                 }
@@ -5819,7 +5846,7 @@
           {
             "area": "time",
             "areaName": "Time",
-            "scanned": 484,
+            "scanned": 485,
             "todayOslo": "2026-11-18",
             "historyRetentionDays": 31,
             "historyCutoffOslo": "2026-10-18",
@@ -25759,7 +25786,7 @@
       "location": "Nærbø bedehus",
       "settlement": "Nærbø",
       "municipality": "Hå",
-      "description": "",
+      "description": "Tale av: Martin Cave",
       "sourceUrl": "https://narbobedehus.no/imf-nor-naerbo/",
       "source": "Nærbø Bedehus",
       "active": true
@@ -26996,7 +27023,6 @@
       "startTime": "2026-11-23T16:00:00Z",
       "endTime": "2026-11-23T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -29160,7 +29186,6 @@
       "startTime": "2026-11-25T17:00:00Z",
       "endTime": "2026-11-25T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -32930,7 +32955,6 @@
       "startTime": "2026-11-30T16:00:00Z",
       "endTime": "2026-11-30T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -34619,6 +34643,29 @@
       "description": "Julekonsert med TT-koret og band. For heile familien.",
       "sourceUrl": "https://skjerikirken.no/arrangement/julekonsert-tt-koret-1b33ba586f00",
       "source": "Den norske kirke – Time",
+      "active": true
+    },
+    {
+      "id": "EVT-3DCCE3084E8D",
+      "title": "Menighetsmøte",
+      "startTime": "2026-12-02T18:00:00Z",
+      "endTime": "2026-12-02T20:00:00Z",
+      "meetingTypes": [
+        "Møte"
+      ],
+      "organizationIds": [
+        "ORG-0002"
+      ],
+      "organizations": [
+        "Frikirken"
+      ],
+      "organizer": "Bryne Frikyrkje",
+      "location": "Bryne Frikyrkje",
+      "settlement": "Bryne",
+      "municipality": "Time",
+      "description": "",
+      "sourceUrl": "https://brynefrikyrkje.no/kalender/kalender-detali/calendar_event/8764833",
+      "source": "Bryne Frikyrkje",
       "active": true
     },
     {
@@ -36723,7 +36770,7 @@
       "location": "Nærbø bedehus",
       "settlement": "Nærbø",
       "municipality": "Hå",
-      "description": "",
+      "description": "Tale av: Ola Ege",
       "sourceUrl": "https://narbobedehus.no/imf-nor-naerbo/",
       "source": "Nærbø Bedehus",
       "active": true
@@ -38003,7 +38050,6 @@
       "startTime": "2026-12-07T16:00:00Z",
       "endTime": "2026-12-07T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -39567,7 +39613,6 @@
       "startTime": "2026-12-09T17:00:00Z",
       "endTime": "2026-12-09T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -51893,7 +51938,6 @@
       "startTime": "2027-01-11T16:00:00Z",
       "endTime": "2027-01-11T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -52580,7 +52624,6 @@
       "startTime": "2027-01-13T17:00:00Z",
       "endTime": "2027-01-13T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -54577,7 +54620,6 @@
       "startTime": "2027-01-18T16:00:00Z",
       "endTime": "2027-01-18T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -56924,7 +56966,6 @@
       "startTime": "2027-01-25T16:00:00Z",
       "endTime": "2027-01-25T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -57726,7 +57767,6 @@
       "startTime": "2027-01-27T17:00:00Z",
       "endTime": "2027-01-27T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -59378,7 +59418,6 @@
       "startTime": "2027-02-01T16:00:00Z",
       "endTime": "2027-02-01T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -61727,7 +61766,6 @@
       "startTime": "2027-02-08T16:00:00Z",
       "endTime": "2027-02-08T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -62571,7 +62609,6 @@
       "startTime": "2027-02-10T17:00:00Z",
       "endTime": "2027-02-10T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -65884,7 +65921,6 @@
       "startTime": "2027-02-22T16:00:00Z",
       "endTime": "2027-02-22T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -66798,7 +66834,6 @@
       "startTime": "2027-02-24T17:00:00Z",
       "endTime": "2027-02-24T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -68521,7 +68556,6 @@
       "startTime": "2027-03-01T16:00:00Z",
       "endTime": "2027-03-01T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -70835,7 +70869,6 @@
       "startTime": "2027-03-08T16:00:00Z",
       "endTime": "2027-03-08T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -71475,7 +71508,6 @@
       "startTime": "2027-03-10T17:00:00Z",
       "endTime": "2027-03-10T18:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -73242,7 +73274,6 @@
       "startTime": "2027-03-15T16:00:00Z",
       "endTime": "2027-03-15T16:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -78573,7 +78604,6 @@
       "startTime": "2027-04-05T15:00:00Z",
       "endTime": "2027-04-05T15:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -79190,7 +79220,6 @@
       "startTime": "2027-04-07T16:00:00Z",
       "endTime": "2027-04-07T17:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -80528,7 +80557,6 @@
       "startTime": "2027-04-12T15:00:00Z",
       "endTime": "2027-04-12T15:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -82580,7 +82608,6 @@
       "startTime": "2027-04-19T15:00:00Z",
       "endTime": "2027-04-19T15:45:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -83172,7 +83199,6 @@
       "startTime": "2027-04-21T16:00:00Z",
       "endTime": "2027-04-21T17:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -87357,7 +87383,6 @@
       "startTime": "2027-05-05T16:00:00Z",
       "endTime": "2027-05-05T17:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -91421,7 +91446,6 @@
       "startTime": "2027-05-19T16:00:00Z",
       "endTime": "2027-05-19T17:30:00Z",
       "meetingTypes": [
-        "Barn",
         "Sang / musikk"
       ],
       "organizationIds": [],
@@ -115148,18 +115172,42 @@
       "sourceUrl": "https://narbobedehus.no/39-2/",
       "source": "Nærbø Bedehus",
       "active": true
+    },
+    {
+      "id": "EVT-661738221194",
+      "title": "Tirsdagssprell",
+      "startTime": "2027-11-23T16:00:00Z",
+      "endTime": "2027-11-23T18:00:00Z",
+      "meetingTypes": [
+        "Familie",
+        "Sosialt"
+      ],
+      "organizationIds": [
+        "ORG-0001"
+      ],
+      "organizations": [
+        "Den norske kirke"
+      ],
+      "organizer": "Sandnes sokn",
+      "location": "Sandnes menighetssenter, Eidsvollgata 44, 4307 Sandnes",
+      "settlement": "Sandnes sentrum",
+      "municipality": "Sandnes",
+      "description": "Arrangement for familier med klubb (4år ++), småbarnssang (1-3 år), middag og lek. Dørene åpnes kl. 16.46. Kl. 17 er det klubb i kirkestuen og småbarnssang i samlingsrommet i kjelleren. Kl. 17.45 er det middag. Påmelding til middag på sms til Kristin (mob. 46782851). Velkommen!",
+      "sourceUrl": "https://www.kirken.no/nb-NO/fellesrad/dnksandnes/menigheter/Sandnes/barn/tirsdagssprell/",
+      "source": "Den norske kirke – Sandnes",
+      "active": true
     }
   ],
   "enrichment": {
     "storsamlingNaerboSpeaker": {
-      "version": "V002",
+      "version": "V003",
       "source": "https://storsamling.no/",
-      "generatedAt": "2026-11-18T14:46:20.573Z",
+      "generatedAt": "2026-11-18T16:39:05.366Z",
       "fullDateEntries": 0,
       "monthDayEntries": 2,
-      "targetEvents": 0,
-      "matched": 0,
-      "changed": 0
+      "targetEvents": 19,
+      "matched": 2,
+      "changed": 2
     }
   }
 }
