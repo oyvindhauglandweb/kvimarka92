@@ -49,6 +49,12 @@ jobs:
           ARRANGEMENT_HISTORY_PATH: arrangementer-import-history.json
         run: node scripts/run-arrangementer-import.mjs
 
+      - name: Legg til taler for Storsamling Nærbø
+        env:
+          ARRANGEMENT_DATA_PATH: arrangementer-data.json
+          STORSAMLING_PROGRAM_URL: https://storsamling.no/
+        run: node scripts/enrich-storsamling-naerbo.mjs
+
       - name: Commit oppdatert snapshot og historikk
         run: |
           if [ -z "$(git status --porcelain -- arrangementer-data.json arrangementer-import-history.json)" ]; then
