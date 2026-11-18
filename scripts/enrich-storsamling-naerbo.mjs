@@ -1,39 +1,24 @@
 import fs from "node:fs/promises";
 
-const DATA_PATH =
-  process.env.ARRANGEMENT_DATA_PATH || "arrangementer-data.json";
-
-const STORSAMLING_URL =
-  process.env.STORSAMLING_PROGRAM_URL || "https://storsamling.no/";
-
-const USER_AGENT =
-  "Kvimarka92-Arrangementer/1.0 (+https://storsamling.no/)";
+const DATA_PATH = process.env.ARRANGEMENT_DATA_PATH || "arrangementer-data.json";
+const STORSAMLING_URL = process.env.STORSAMLING_PROGRAM_URL || "https://storsamling.no/";
+const USER_AGENT = "Kvimarka92-Arrangementer/1.0 (+https://storsamling.no/)";
 
 const MONTHS = new Map([
-  ["januar", 1],
-  ["februar", 2],
-  ["mars", 3],
-  ["april", 4],
-  ["mai", 5],
-  ["juni", 6],
-  ["juli", 7],
-  ["august", 8],
-  ["september", 9],
-  ["oktober", 10],
-  ["november", 11],
-  ["desember", 12]
+  ["januar", 1], ["februar", 2], ["mars", 3], ["april", 4],
+  ["mai", 5], ["juni", 6], ["juli", 7], ["august", 8],
+  ["september", 9], ["oktober", 10], ["november", 11], ["desember", 12]
 ]);
 
 function clean(value) {
-  return String(value ?? "")
-    .replace(/\u00a0/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return String(value ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function normalize(value) {
   return clean(value)
     .toLocaleLowerCase("nb-NO")
+    .replace(/æ/g, "ae")
+    .replace(/ø/g, "o")
     .normalize("NFKD")
     .replace(/\p{M}/gu, "");
 }
@@ -61,19 +46,10 @@ function htmlToLines(html) {
     String(html ?? "")
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "\n")
       .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "\n")
-      .replace(
-        /<(?:br|p|div|h[1-6]|li|section|article|span)\b[^>]*>/gi,
-        "\n"
-      )
-      .replace(
-        /<\/(?:p|div|h[1-6]|li|section|article|span)>/gi,
-        "\n"
-      )
+      .replace(/<(?:br|p|div|h[1-6]|li|section|article|span)\b[^>]*>/gi, "\n")
+      .replace(/<\/(?:p|div|h[1-6]|li|section|article|span)>/gi, "\n")
       .replace(/<[^>]+>/g, " ")
-  )
-    .split(/\r?\n/)
-    .map(clean)
-    .filter(Boolean);
+  ).split(/\r?\n/).map(clean).filter(Boolean);
 }
 
 function dateKey(year, month, day) {
@@ -87,16 +63,10 @@ function monthDayKey(month, day) {
 function eventDateParts(startTime) {
   const d = new Date(startTime);
   if (Number.isNaN(d.getTime())) return null;
-
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Oslo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
+    timeZone: "Europe/Oslo", year: "numeric", month: "2-digit", day: "2-digit"
   }).formatToParts(d);
-
   const byType = Object.fromEntries(parts.map(p => [p.type, p.value]));
-
   return {
     full: `${byType.year}-${byType.month}-${byType.day}`,
     monthDay: `${byType.month}-${byType.day}`
@@ -107,116 +77,60 @@ function parseDateLine(line, fallbackYear = null) {
   const m = clean(line).match(
     /^(\d{1,2})\.\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\b(?:\s+(20\d{2}))?(?:\s*[-–—:]?\s*(.*))?$/i
   );
-
   if (!m) return null;
-
   const day = Number(m[1]);
   const month = MONTHS.get(normalize(m[2]));
   const year = m[3] ? Number(m[3]) : fallbackYear;
   const tail = clean(m[4] || "");
-
   if (!month || day < 1 || day > 31) return null;
-
   return { year, month, day, tail };
 }
 
 function speakerFromText(value) {
   const text = clean(value);
-  const m = text.match(
-    /(?:^|\b)(?:tale\s+av|taler)\s*:?\s+(.+)$/i
-  );
-
+  const m = text.match(/(?:^|\b)(?:tale\s+av|taler)\s*:?\s+(.+)$/i);
   if (!m) return "";
-
-  const speaker = clean(m[1])
-    .replace(/[|•]+$/g, "")
-    .trim();
-
+  const speaker = clean(m[1]).replace(/[|•]+$/g, "").trim();
   if (!speaker) return "";
-
-  if (/^(ingen|avlyst|utgår|utgar)\b/i.test(speaker)) {
-    return "";
-  }
-
+  if (/^(ingen|avlyst|utgår|utgar)\b/i.test(speaker)) return "";
   return speaker;
 }
 
 function parseProgram(html) {
   const lines = htmlToLines(html);
-
   let currentYear = null;
   let currentDate = null;
-
   const fullDateEntries = new Map();
   const monthDayEntries = new Map();
 
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
-
-    const programYearMatch =
-      line.match(/\bprogram(?:met)?\s+for\b.*?\b(20\d{2})\b/i);
-
-    if (programYearMatch) {
-      currentYear = Number(programYearMatch[1]);
-    }
+  for (const line of lines) {
+    const programYearMatch = line.match(/\bprogram(?:met)?\s+for\b.*?\b(20\d{2})\b/i);
+    if (programYearMatch) currentYear = Number(programYearMatch[1]);
 
     const parsedDate = parseDateLine(line, currentYear);
-
     if (parsedDate) {
       currentDate = parsedDate;
-
-      // Støtt også eldre layout der dato og taler står på samme linje.
       const inlineSpeaker = speakerFromText(parsedDate.tail);
-
       if (inlineSpeaker) {
-        if (parsedDate.year) {
-          fullDateEntries.set(
-            dateKey(parsedDate.year, parsedDate.month, parsedDate.day),
-            inlineSpeaker
-          );
-        }
-        monthDayEntries.set(
-          monthDayKey(parsedDate.month, parsedDate.day),
-          inlineSpeaker
-        );
+        if (parsedDate.year) fullDateEntries.set(dateKey(parsedDate.year, parsedDate.month, parsedDate.day), inlineSpeaker);
+        monthDayEntries.set(monthDayKey(parsedDate.month, parsedDate.day), inlineSpeaker);
       }
-
       continue;
     }
 
     if (!currentDate) continue;
 
-    // Ny layout på storsamling.no:
-    // 22. November
-    // Storsamling
-    // Tale av Martin Cave
     const speaker = speakerFromText(line);
-
     if (speaker) {
-      if (currentDate.year) {
-        fullDateEntries.set(
-          dateKey(currentDate.year, currentDate.month, currentDate.day),
-          speaker
-        );
-      }
-
-      monthDayEntries.set(
-        monthDayKey(currentDate.month, currentDate.day),
-        speaker
-      );
-
+      if (currentDate.year) fullDateEntries.set(dateKey(currentDate.year, currentDate.month, currentDate.day), speaker);
+      monthDayEntries.set(monthDayKey(currentDate.month, currentDate.day), speaker);
       currentDate = null;
       continue;
     }
 
-    // "Ingen storsamling" skal avslutte blokken uten å registrere taler.
     if (/ingen\s+storsamling/i.test(line)) {
       currentDate = null;
-      continue;
     }
-
-    // Dersom neste dato kommer, håndteres den øverst i løkken.
-    // Andre mellomlinjer som "Storsamling" ignoreres bevisst.
   }
 
   return { fullDateEntries, monthDayEntries, lines };
@@ -233,10 +147,7 @@ function isTargetEvent(event) {
   if (!title.startsWith("storsamling")) return false;
   if (municipality !== "ha") return false;
 
-  const nearbo =
-    settlement === "naerbo" ||
-    location.includes("naerbo bedehus");
-
+  const nearbo = settlement === "naerbo" || location.includes("naerbo bedehus");
   if (!nearbo) return false;
 
   return (
@@ -249,14 +160,10 @@ function isTargetEvent(event) {
 function appendSpeaker(description, speaker) {
   const original = String(description ?? "").trim();
   const wanted = `Tale av: ${speaker}`;
-
-  if (normalize(original).includes(normalize(wanted))) {
-    return original;
-  }
+  if (normalize(original).includes(normalize(wanted))) return original;
 
   const lines = original ? original.split(/\r?\n/) : [];
   let replaced = false;
-
   const updatedLines = lines.map(line => {
     if (/^\s*Tale av\s*:/i.test(line)) {
       replaced = true;
@@ -265,23 +172,16 @@ function appendSpeaker(description, speaker) {
     return line;
   });
 
-  if (replaced) {
-    return updatedLines.join("\n").trim();
-  }
-
-  if (!original) return wanted;
-  return `${original}\n${wanted}`;
+  if (replaced) return updatedLines.join("\n").trim();
+  return original ? `${original}\n${wanted}` : wanted;
 }
 
 async function fetchProgram() {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20_000);
-
   try {
-    // Cache-busting i URL i tillegg til no-cache-headere.
     const url = new URL(STORSAMLING_URL);
     url.searchParams.set("_arr_cb", String(Date.now()));
-
     const res = await fetch(url, {
       headers: {
         "user-agent": USER_AGENT,
@@ -292,11 +192,7 @@ async function fetchProgram() {
       redirect: "follow",
       signal: controller.signal
     });
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} ved henting av ${url}`);
-    }
-
+    if (!res.ok) throw new Error(`HTTP ${res.status} ved henting av ${url}`);
     return await res.text();
   } finally {
     clearTimeout(timeout);
@@ -306,49 +202,30 @@ async function fetchProgram() {
 async function main() {
   const raw = await fs.readFile(DATA_PATH, "utf8");
   const snapshot = JSON.parse(raw);
-
   if (!snapshot || !Array.isArray(snapshot.events)) {
     throw new Error(`${DATA_PATH} mangler events-array.`);
   }
 
   let html;
-
   try {
     html = await fetchProgram();
   } catch (err) {
-    console.warn(
-      `Storsamling-berikelse hoppes over: ${err?.message || err}`
-    );
+    console.warn(`Storsamling-berikelse hoppes over: ${err?.message || err}`);
     return;
   }
 
   const program = parseProgram(html);
 
-  const foundPairs = [
-    ...program.fullDateEntries.entries()
-  ];
-
-  if (!foundPairs.length && !program.monthDayEntries.size) {
-    console.warn(
-      "Storsamling-berikelse: Fant ingen sikre dato/taler-par. Snapshot beholdes uendret."
-    );
-    console.warn(
-      "Første tekstlinjer fra siden:",
-      program.lines.slice(0, 80)
-    );
+  if (!program.fullDateEntries.size && !program.monthDayEntries.size) {
+    console.warn("Storsamling-berikelse: Fant ingen sikre dato/taler-par. Snapshot beholdes uendret.");
+    console.warn("Første tekstlinjer fra siden:", program.lines.slice(0, 80));
     return;
   }
 
   console.log("Storsamling Nærbø – funnet program:");
-  for (const [key, speaker] of program.fullDateEntries) {
-    console.log(`  ${key} -> ${speaker}`);
-  }
-
-  // Hvis siden ikke inneholder år, logger vi måned/dag-paret.
+  for (const [key, speaker] of program.fullDateEntries) console.log(`  ${key} -> ${speaker}`);
   if (!program.fullDateEntries.size) {
-    for (const [key, speaker] of program.monthDayEntries) {
-      console.log(`  ${key} -> ${speaker}`);
-    }
+    for (const [key, speaker] of program.monthDayEntries) console.log(`  ${key} -> ${speaker}`);
   }
 
   let targetEvents = 0;
@@ -357,7 +234,6 @@ async function main() {
 
   for (const event of snapshot.events) {
     if (!isTargetEvent(event)) continue;
-
     targetEvents += 1;
 
     const date = eventDateParts(event.startTime);
@@ -369,31 +245,20 @@ async function main() {
       "";
 
     if (!speaker) continue;
-
     matched += 1;
 
-    const nextDescription = appendSpeaker(
-      event.description,
-      speaker
-    );
-
-    if (
-      nextDescription !==
-      String(event.description ?? "").trim()
-    ) {
+    const nextDescription = appendSpeaker(event.description, speaker);
+    if (nextDescription !== String(event.description ?? "").trim()) {
       event.description = nextDescription;
       changed += 1;
-
-      console.log(
-        `Oppdatert ${date.full}: ${event.title} -> Tale av: ${speaker}`
-      );
+      console.log(`Oppdatert ${date.full}: ${event.title} -> Tale av: ${speaker}`);
     }
   }
 
   snapshot.enrichment = {
     ...(snapshot.enrichment || {}),
     storsamlingNaerboSpeaker: {
-      version: "V002",
+      version: "V003",
       source: STORSAMLING_URL,
       generatedAt: new Date().toISOString(),
       fullDateEntries: program.fullDateEntries.size,
@@ -404,11 +269,7 @@ async function main() {
     }
   };
 
-  await fs.writeFile(
-    DATA_PATH,
-    JSON.stringify(snapshot, null, 2) + "\n",
-    "utf8"
-  );
+  await fs.writeFile(DATA_PATH, JSON.stringify(snapshot, null, 2) + "\n", "utf8");
 
   console.log(
     `Storsamling Nærbø: ${targetEvents} aktuelle arrangementer, ` +
