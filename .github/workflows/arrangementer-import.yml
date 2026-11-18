@@ -67,8 +67,5 @@ jobs:
           git add arrangementer-data.json arrangementer-import-history.json
           git commit -m "Update arrangementer data"
 
-          # Importen kan bruke flere minutter. Hvis main har fått nye commits
-          # mens jobben kjørte, rebases snapshot/historikk-commiten oppå siste main
-          # før push. Dette hindrer "fetch first" uten force-push.
           git pull --rebase origin main
           git push
