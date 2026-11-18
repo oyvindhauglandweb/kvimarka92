@@ -61,7 +61,14 @@ function htmlToLines(html) {
     String(html ?? "")
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "\n")
       .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "\n")
-      .replace(/<(?:br|\/p|\/div|\/h[1-6]|\/li|\/section|\/article)\b[^>]*>/gi, "\n")
+      .replace(
+        /<(?:br|p|div|h[1-6]|li|section|article|span)\b[^>]*>/gi,
+        "\n"
+      )
+      .replace(
+        /<\/(?:p|div|h[1-6]|li|section|article|span)>/gi,
+        "\n"
+      )
       .replace(/<[^>]+>/g, " ")
   )
     .split(/\r?\n/)
@@ -73,9 +80,13 @@ function dateKey(year, month, day) {
   return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-function eventDateKey(startTime) {
+function monthDayKey(month, day) {
+  return `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function eventDateParts(startTime) {
   const d = new Date(startTime);
-  if (Number.isNaN(d.getTime())) return "";
+  if (Number.isNaN(d.getTime())) return null;
 
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Oslo",
@@ -85,67 +96,130 @@ function eventDateKey(startTime) {
   }).formatToParts(d);
 
   const byType = Object.fromEntries(parts.map(p => [p.type, p.value]));
-  return `${byType.year}-${byType.month}-${byType.day}`;
+
+  return {
+    full: `${byType.year}-${byType.month}-${byType.day}`,
+    monthDay: `${byType.month}-${byType.day}`
+  };
 }
 
-function isProgramNoise(text) {
-  const n = normalize(text);
-  if (!n) return true;
+function parseDateLine(line, fallbackYear = null) {
+  const m = clean(line).match(
+    /^(\d{1,2})\.\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\b(?:\s+(20\d{2}))?(?:\s*[-–—:]?\s*(.*))?$/i
+  );
 
-  return [
-    "onsker du",
-    "for mer info",
-    "les mer",
-    "lytt til taler",
-    "vipps",
-    "copyright",
-    "imfnor",
-    "ansvarlig redaktor",
-    "velkommen til storsamling",
-    "naerbo bedehus",
-    "program for"
-  ].some(prefix => n.startsWith(prefix));
+  if (!m) return null;
+
+  const day = Number(m[1]);
+  const month = MONTHS.get(normalize(m[2]));
+  const year = m[3] ? Number(m[3]) : fallbackYear;
+  const tail = clean(m[4] || "");
+
+  if (!month || day < 1 || day > 31) return null;
+
+  return { year, month, day, tail };
+}
+
+function speakerFromText(value) {
+  const text = clean(value);
+  const m = text.match(
+    /(?:^|\b)(?:tale\s+av|taler)\s*:?\s+(.+)$/i
+  );
+
+  if (!m) return "";
+
+  const speaker = clean(m[1])
+    .replace(/[|•]+$/g, "")
+    .trim();
+
+  if (!speaker) return "";
+
+  if (/^(ingen|avlyst|utgår|utgar)\b/i.test(speaker)) {
+    return "";
+  }
+
+  return speaker;
 }
 
 function parseProgram(html) {
   const lines = htmlToLines(html);
 
   let currentYear = null;
-  const entries = new Map();
+  let currentDate = null;
 
-  for (const line of lines) {
-    const yearMatch =
-      line.match(/\bprogram(?:met)?\s+for\b.*?\b(20\d{2})\b/i) ||
-      line.match(/\b(20\d{2})\b/);
+  const fullDateEntries = new Map();
+  const monthDayEntries = new Map();
 
-    if (yearMatch && /program/i.test(line)) {
-      currentYear = Number(yearMatch[1]);
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+
+    const programYearMatch =
+      line.match(/\bprogram(?:met)?\s+for\b.*?\b(20\d{2})\b/i);
+
+    if (programYearMatch) {
+      currentYear = Number(programYearMatch[1]);
+    }
+
+    const parsedDate = parseDateLine(line, currentYear);
+
+    if (parsedDate) {
+      currentDate = parsedDate;
+
+      // Støtt også eldre layout der dato og taler står på samme linje.
+      const inlineSpeaker = speakerFromText(parsedDate.tail);
+
+      if (inlineSpeaker) {
+        if (parsedDate.year) {
+          fullDateEntries.set(
+            dateKey(parsedDate.year, parsedDate.month, parsedDate.day),
+            inlineSpeaker
+          );
+        }
+        monthDayEntries.set(
+          monthDayKey(parsedDate.month, parsedDate.day),
+          inlineSpeaker
+        );
+      }
+
       continue;
     }
 
-    const m = line.match(
-      /^(\d{1,2})\.\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\b(?:\s*[-–—:]?\s*)(.*)$/i
-    );
+    if (!currentDate) continue;
 
-    if (!m || !currentYear) continue;
+    // Ny layout på storsamling.no:
+    // 22. November
+    // Storsamling
+    // Tale av Martin Cave
+    const speaker = speakerFromText(line);
 
-    const day = Number(m[1]);
-    const month = MONTHS.get(normalize(m[2]));
-    let speaker = clean(m[3]);
+    if (speaker) {
+      if (currentDate.year) {
+        fullDateEntries.set(
+          dateKey(currentDate.year, currentDate.month, currentDate.day),
+          speaker
+        );
+      }
 
-    if (!month || !day || day < 1 || day > 31) continue;
-    if (!speaker || isProgramNoise(speaker)) continue;
+      monthDayEntries.set(
+        monthDayKey(currentDate.month, currentDate.day),
+        speaker
+      );
 
-    speaker = speaker
-      .replace(/^(?:taler|tale\s+av)\s*[:\-–—]?\s*/i, "")
-      .trim();
+      currentDate = null;
+      continue;
+    }
 
-    if (!speaker || isProgramNoise(speaker)) continue;
+    // "Ingen storsamling" skal avslutte blokken uten å registrere taler.
+    if (/ingen\s+storsamling/i.test(line)) {
+      currentDate = null;
+      continue;
+    }
 
-    entries.set(dateKey(currentYear, month, day), speaker);
+    // Dersom neste dato kommer, håndteres den øverst i løkken.
+    // Andre mellomlinjer som "Storsamling" ignoreres bevisst.
   }
 
-  return entries;
+  return { fullDateEntries, monthDayEntries, lines };
 }
 
 function isTargetEvent(event) {
@@ -174,16 +248,12 @@ function isTargetEvent(event) {
 
 function appendSpeaker(description, speaker) {
   const original = String(description ?? "").trim();
-
-  // Behold all eksisterende informasjon. Hvis samme taler allerede finnes,
-  // gjør vi ingenting.
   const wanted = `Tale av: ${speaker}`;
+
   if (normalize(original).includes(normalize(wanted))) {
     return original;
   }
 
-  // Hvis en eldre "Tale av:"-linje finnes, byttes kun denne linjen.
-  // Resten av beskrivelsen beholdes urørt.
   const lines = original ? original.split(/\r?\n/) : [];
   let replaced = false;
 
@@ -208,17 +278,23 @@ async function fetchProgram() {
   const timeout = setTimeout(() => controller.abort(), 20_000);
 
   try {
-    const res = await fetch(STORSAMLING_URL, {
+    // Cache-busting i URL i tillegg til no-cache-headere.
+    const url = new URL(STORSAMLING_URL);
+    url.searchParams.set("_arr_cb", String(Date.now()));
+
+    const res = await fetch(url, {
       headers: {
         "user-agent": USER_AGENT,
-        "accept": "text/html,application/xhtml+xml"
+        "accept": "text/html,application/xhtml+xml",
+        "cache-control": "no-cache, no-store, max-age=0",
+        "pragma": "no-cache"
       },
       redirect: "follow",
       signal: controller.signal
     });
 
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status} ved henting av ${STORSAMLING_URL}`);
+      throw new Error(`HTTP ${res.status} ved henting av ${url}`);
     }
 
     return await res.text();
@@ -236,11 +312,10 @@ async function main() {
   }
 
   let html;
+
   try {
     html = await fetchProgram();
   } catch (err) {
-    // Fail-safe: En feil hos storsamling.no skal aldri ødelegge eller tømme
-    // et ellers gyldig arrangementssnapshot.
     console.warn(
       `Storsamling-berikelse hoppes over: ${err?.message || err}`
     );
@@ -249,11 +324,31 @@ async function main() {
 
   const program = parseProgram(html);
 
-  if (!program.size) {
+  const foundPairs = [
+    ...program.fullDateEntries.entries()
+  ];
+
+  if (!foundPairs.length && !program.monthDayEntries.size) {
     console.warn(
       "Storsamling-berikelse: Fant ingen sikre dato/taler-par. Snapshot beholdes uendret."
     );
+    console.warn(
+      "Første tekstlinjer fra siden:",
+      program.lines.slice(0, 80)
+    );
     return;
+  }
+
+  console.log("Storsamling Nærbø – funnet program:");
+  for (const [key, speaker] of program.fullDateEntries) {
+    console.log(`  ${key} -> ${speaker}`);
+  }
+
+  // Hvis siden ikke inneholder år, logger vi måned/dag-paret.
+  if (!program.fullDateEntries.size) {
+    for (const [key, speaker] of program.monthDayEntries) {
+      console.log(`  ${key} -> ${speaker}`);
+    }
   }
 
   let targetEvents = 0;
@@ -265,28 +360,44 @@ async function main() {
 
     targetEvents += 1;
 
-    const key = eventDateKey(event.startTime);
-    if (!key) continue;
+    const date = eventDateParts(event.startTime);
+    if (!date) continue;
 
-    const speaker = program.get(key);
+    const speaker =
+      program.fullDateEntries.get(date.full) ||
+      program.monthDayEntries.get(date.monthDay) ||
+      "";
+
     if (!speaker) continue;
 
     matched += 1;
 
-    const nextDescription = appendSpeaker(event.description, speaker);
-    if (nextDescription !== String(event.description ?? "").trim()) {
+    const nextDescription = appendSpeaker(
+      event.description,
+      speaker
+    );
+
+    if (
+      nextDescription !==
+      String(event.description ?? "").trim()
+    ) {
       event.description = nextDescription;
       changed += 1;
+
+      console.log(
+        `Oppdatert ${date.full}: ${event.title} -> Tale av: ${speaker}`
+      );
     }
   }
 
   snapshot.enrichment = {
     ...(snapshot.enrichment || {}),
     storsamlingNaerboSpeaker: {
-      version: "V001",
+      version: "V002",
       source: STORSAMLING_URL,
       generatedAt: new Date().toISOString(),
-      programEntries: program.size,
+      fullDateEntries: program.fullDateEntries.size,
+      monthDayEntries: program.monthDayEntries.size,
       targetEvents,
       matched,
       changed
@@ -300,9 +411,8 @@ async function main() {
   );
 
   console.log(
-    `Storsamling Nærbø: ${program.size} programoppføringer, ` +
-    `${targetEvents} aktuelle arrangementer, ${matched} datotreff, ` +
-    `${changed} beskrivelser oppdatert.`
+    `Storsamling Nærbø: ${targetEvents} aktuelle arrangementer, ` +
+    `${matched} datotreff, ${changed} beskrivelser oppdatert.`
   );
 }
 
